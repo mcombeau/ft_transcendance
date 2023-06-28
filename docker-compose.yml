@@ -1,0 +1,58 @@
+version: "3.7"
+
+services:
+    nginx:
+        container_name: nginx
+        build:          ./requirements/nginx/
+        image:          nginx:ft_transcendance
+        env_file:       .env
+        networks:
+            - ft_transcendance
+        ports:
+            - "443:443"
+        restart:        on-failure
+        volumes:
+            - data:/var/www/html/
+        depends_on:
+            - nest_js
+    postgresql:
+        container_name: postgresql
+        build:          ./requirements/postgresql/
+        image:          postgresql:ft_transcendance
+        env_file:       .env
+        networks:
+            - ft_transcendance
+        restart:        on-failure
+        volumes:
+            - postgresql-data:/var/lib/mysql/
+    nest_js:
+        container_name: nest_js
+        build:          ./requirements/nest_js/
+        image:          nest_js:ft_transcendance
+        env_file:       .env
+        networks:
+            - ft_transcendance
+        restart:        on-failure
+        volumes:
+            - data:/var/www/html/
+        depends_on:
+            - postgresql
+
+networks:
+    ft_transcendance:
+        name:   ft_transcendance
+        driver: bridge
+
+volumes:
+  postgresql-data:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: ${DATA_PATH}/postgresql-data
+  data:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: ${DATA_PATH}/data
