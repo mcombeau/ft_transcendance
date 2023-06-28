@@ -35,6 +35,8 @@ services:
             - data:/var/www/html/
         depends_on:
             - postgresql
+        ports:
+          - "3000:3000"
 
 networks:
     ft_transcendance:
