@@ -12,7 +12,6 @@ services:
         restart:        on-failure
         volumes:
             - frontend_data:/var/www/html/
-            - backend_data:/var/www/html/
         depends_on:
             - frontend
     frontend:
@@ -49,7 +48,7 @@ services:
             - ft_transcendance
         restart:        on-failure
         volumes:
-            - postgresql-data:/var/lib/mysql/
+            - postgresql_data:/var/lib/mysql/
 
 networks:
     ft_transcendance:
@@ -57,12 +56,12 @@ networks:
         driver: bridge
 
 volumes:
-  postgresql-data:
+  postgresql_data:
     driver: local
     driver_opts:
       type: 'none'
       o: 'bind'
-      device: ${DATA_PATH}/postgresql-data
+      device: ${DATA_PATH}/postgresql_data
   frontend_data:
     driver: local
     driver_opts:
