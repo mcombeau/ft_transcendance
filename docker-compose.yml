@@ -11,9 +11,36 @@ services:
             - "443:443"
         restart:        on-failure
         volumes:
-            - data:/var/www/html/
+            - frontend_data:/var/www/html/
+            - backend_data:/var/www/html/
         depends_on:
-            - nest_js
+            - frontend
+    frontend:
+        container_name: frontend
+        build:          requirements/frontend
+        image:          frontend:ft_transcendance
+        env_file:       .env
+        networks:
+            - ft_transcendance
+        restart:        on-failure
+        ports:
+            - "3000:3000"
+        volumes:
+            - frontend_data:/var/www/html/
+        depends_on:
+            - backend
+    backend:
+        container_name: backend
+        build:          requirements/backend/
+        image:          backend:ft_transcendance
+        env_file:       .env
+        networks:
+            - ft_transcendance
+        restart:        on-failure
+        volumes:
+            - backend_data:/var/www/html/
+        depends_on:
+            - postgresql
     postgresql:
         container_name: postgresql
         image:          postgres:latest
@@ -23,20 +50,6 @@ services:
         restart:        on-failure
         volumes:
             - postgresql-data:/var/lib/mysql/
-    nest_js:
-        container_name: nest_js
-        build:          requirements/nest_js
-        image:          nest_js:ft_transcendance
-        env_file:       .env
-        networks:
-            - ft_transcendance
-        restart:        on-failure
-        volumes:
-            - data:/var/www/html/
-        depends_on:
-            - postgresql
-        ports:
-          - "3000:3000"
 
 networks:
     ft_transcendance:
@@ -50,9 +63,15 @@ volumes:
       type: 'none'
       o: 'bind'
       device: ${DATA_PATH}/postgresql-data
-  data:
+  frontend_data:
     driver: local
     driver_opts:
       type: 'none'
       o: 'bind'
-      device: ${DATA_PATH}/data
+      device: ${DATA_PATH}/frontend_data
+  backend_data:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: ${DATA_PATH}/backend_data

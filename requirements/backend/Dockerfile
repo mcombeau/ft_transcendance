@@ -13,12 +13,8 @@ RUN npm install
 # RUN npm install -g @nestjs/cli
 COPY . .
 
-
-# Bundle app source
-# COPY . .
-
 # Creates a "dist" folder with the production build
-RUN npm run build
-
-# Start the server using the production build
-CMD [ "node", "dist/main.js" ]
+# RUN npm run build
+# # Start the server using the production build
+# CMD [ "node", "dist/main.js" ]
+CMD [ "npm", "run", "start:dev" ]
