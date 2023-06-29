@@ -32,12 +32,14 @@ background-color: #000;
     display: flex;
     justify-content: center;
     align-items: center;
-	    transform: scale(0.5) translate(0, 5%);
+	transform: scale(0.5) translate(0, 5%);
 }
  
 .logo img {
-    width: 180px;
-    border-radius: 50px;
+    width: 160px;
+    height: 70px;
+	object-fit: cover;
+    border-radius: 20px;
 }
  
 .nav-list li {
