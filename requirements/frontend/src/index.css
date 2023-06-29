@@ -57,7 +57,7 @@ background-color: #000;
 .nav-list li a:hover {
     color: grey;
 }
- 
+
 .rightnav {
     width: 30%;
     text-align: right;
@@ -147,4 +147,18 @@ background-color: #000;
     display: flex;
     justify-content: center;
     color: #fff;
+}
+
+li {
+    text-decoration: none;
+	color: white;	
+    list-style: none;
+	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 26px 30px;
+	text-align: center;
+}
+
+.pong-img {
+	padding: 10px 10px;
+	margin: 10px 10px;
 }
