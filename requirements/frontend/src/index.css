@@ -23,9 +23,10 @@ background-color: #000;
 }
  
 .nav-list {
-    width: 70%;
+    width: 100%;
     display: flex;
     align-items: center;
+	background: black;
 }
  
 .logo {
@@ -50,7 +51,7 @@ background-color: #000;
  
 .nav-list li a {
     text-decoration: none;
-    color: #000;
+	color: white;	
 }
  
 .nav-list li a:hover {
