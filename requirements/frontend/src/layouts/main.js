@@ -12,9 +12,9 @@ function Main() {
                 <div className="content">
                 
                     <Routes>
-                        <Route exact path="/" component={Home}/>
-                        <Route path="/contact" component={Contact}/>
-                        <Route path="/about" component={About}/>
+                        <Route exact path="/" element={<Home />}/>
+                        <Route exact path="/contact" element={<Contact />}/>
+                        <Route exact path="/about" element={<About />}/>
                     </Routes>
                 </div>
             </HashRouter>
