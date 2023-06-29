@@ -1,8 +1,10 @@
 import Navbar from '../components/navbar/navbar'
 import  { HashRouter, Routes, Route } from "react-router-dom";
 import Home from '../components/home/home'
-import Contact from '../components/contact/contact'
-import About from '../components/about/about'
+import Login from '../components/login/login'
+import Chat from '../components/chat/chat'
+import Play from '../components/play/play'
+import Leaderboard from '../components/leaderboard/leaderboard'
 
 function Main() {
     return (
@@ -13,8 +15,10 @@ function Main() {
                 
                     <Routes>
                         <Route exact path="/" element={<Home />}/>
-                        <Route exact path="/contact" element={<Contact />}/>
-                        <Route exact path="/about" element={<About />}/>
+                        <Route exact path="/login" element={<Login />}/>
+                        <Route exact path="/chat" element={<Chat />}/>
+                        <Route exact path="/play" element={<Play />}/>
+                        <Route exact path="/leaderboard" element={<Leaderboard />}/>
                     </Routes>
                 </div>
             </HashRouter>
