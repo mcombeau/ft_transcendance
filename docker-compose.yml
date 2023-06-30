@@ -1,55 +1,63 @@
 version: "3.7"
 
 services:
+
     nginx:
         container_name: nginx
-        image:          nginx:latest
+        image:          nginx:ft_transcendance
+        build:          ./build/nginx
         env_file:       .env
         networks:
             - ft_transcendance
         ports:
             - "443:443"
-        restart:        on-failure
-        volumes:
-            - frontend_data:/var/www/html/
-            - backend_data:/var/www/html/
+        # volumes:
         depends_on:
             - frontend
+            - backend
+        restart:        always
+
     frontend:
         container_name: frontend
-        build:          requirements/frontend
         image:          frontend:ft_transcendance
+        build:          ./build/frontend
         env_file:       .env
         networks:
             - ft_transcendance
-        restart:        on-failure
         ports:
             - "3000:3000"
         volumes:
-            - frontend_data:/var/www/html/
-        depends_on:
-            - backend
+            - ./frontend-app:/app
+        working_dir:    /app
+        restart:        on-failure
+
     backend:
         container_name: backend
-        build:          requirements/backend/
         image:          backend:ft_transcendance
+        build:          ./build/backend/
         env_file:       .env
         networks:
             - ft_transcendance
-        restart:        on-failure
+        ports:
+            - "3001:3001"
         volumes:
-            - backend_data:/var/www/html/
+            - ./backend-app:/app
+        working_dir:    /app
+        restart:        on-failure
         depends_on:
             - postgresql
+
     postgresql:
         container_name: postgresql
         image:          postgres:latest
         env_file:       .env
         networks:
             - ft_transcendance
-        restart:        on-failure
+        ports:
+            - "5432:5432"
         volumes:
-            - postgresql-data:/var/lib/mysql/
+            - database:/var/lib/postgresql/data
+        restart:        on-failure
 
 networks:
     ft_transcendance:
@@ -57,21 +65,9 @@ networks:
         driver: bridge
 
 volumes:
-  postgresql-data:
+  database:
     driver: local
     driver_opts:
       type: 'none'
       o: 'bind'
-      device: ${DATA_PATH}/postgresql-data
-  frontend_data:
-    driver: local
-    driver_opts:
-      type: 'none'
-      o: 'bind'
-      device: ${DATA_PATH}/frontend_data
-  backend_data:
-    driver: local
-    driver_opts:
-      type: 'none'
-      o: 'bind'
-      device: ${DATA_PATH}/backend_data
+      device: ${DATA_PATH}/database
