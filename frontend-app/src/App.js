@@ -1,10 +1,10 @@
-import React from 'react';
 import './App.css';
- 
+import Main from './layouts/main';
+
 function App() {
-    return (
-        <h1> Hello You! </h1>
-    );
+  return (
+    <Main></Main>
+  );
 }
- 
+
 export default App;
