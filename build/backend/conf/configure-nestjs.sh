@@ -1,9 +1,12 @@
 echo "[Configure backend] Installing NestJS CLI..."
 npm install -g @nestjs/cli
+
 echo "[Configure backend] Installing app requirements..."
-npm install
+yarn add @nestjs/typeorm typeorm pg
+yarn install
+
 # Uncomment for production
 # echo "[Configure backend] Building app..."
-# npm build
+# yarn build
 echo "[Configure backend] Starting app..."
-npm run start:dev
+yarn start:dev
