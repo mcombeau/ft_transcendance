@@ -6,4 +6,4 @@ npm install
 # echo "[Configure backend] Building app..."
 # npm build
 echo "[Configure backend] Starting app..."
-npm start
+npm run start:dev
