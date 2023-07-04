@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
 import { ChatsService } from './chats.service';
 import { createChatDto } from './dtos/createChats.dto';
 import { updateChatDto } from './dtos/updateChats.dto';
@@ -28,5 +28,10 @@ export class ChatsController {
     @Patch(':id')
     async updateChatByID(@Param('id', ParseIntPipe) id: number, @Body() updateChatDto: updateChatDto) {
         await this.chatService.updateChat(id, updateChatDto);
+    }
+
+    @Delete(':id')
+    async deleteChatByID(@Param('id', ParseIntPipe) id: number) {
+        await this.chatService.deleteChat(id);
     }
 }

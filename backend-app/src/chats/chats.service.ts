@@ -29,5 +29,4 @@ export class ChatsService {
     deleteChat(id: number) {
         return this.chatRepository.delete({ id });
     }
-
 }
