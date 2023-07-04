@@ -4,6 +4,9 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from './typeorm/entities/user.entity';
 import { UsersModule } from './users/users.module';
+import { ChatsModule } from './chats/chats.module';
+import { FriendsModule } from './friends/friends.module';
+import { GamesModule } from './games/games.module';
 
 @Module({
   imports: [TypeOrmModule.forRoot({
@@ -15,7 +18,7 @@ import { UsersModule } from './users/users.module';
     database: process.env.POSTGRES_DB,
     entities: [UserEntity],
     synchronize: true,
-  }), UsersModule,],
+  }), UsersModule, ChatsModule, FriendsModule, GamesModule,],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -19,6 +19,10 @@ export class UsersService {
         return this.userRepository.save(newUser);
     }
 
+    fetchUser(id: number) {
+        return this.userRepository.findOne({ where: {id} });
+    }
+
     updateUser(id: number, userDetails: updateUserParams) {
         return this.userRepository.update({ id }, { ...userDetails });
     }
