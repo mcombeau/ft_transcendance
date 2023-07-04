@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, ParseI
 import { ChatsService } from './chats.service';
 import { createChatDto } from './dtos/createChats.dto';
 import { updateChatDto } from './dtos/updateChats.dto';
+import { createMessageDto } from 'src/chat-messages/dtos/createMessage.dto';
 
 @Controller('chats')
 export class ChatsController {
@@ -15,6 +16,11 @@ export class ChatsController {
     @Post('create')
     createChat(@Body() chatDto: createChatDto) {
         return this.chatService.createChat(chatDto);
+    }
+
+    @Post(':id/messages')
+    createChatMessage(@Param('id', ParseIntPipe) id: number, @Body() createMessageDto: createMessageDto) {
+        return this.chatService.createChatMessage(id, createMessageDto);
     }
 
     @Get(':id')

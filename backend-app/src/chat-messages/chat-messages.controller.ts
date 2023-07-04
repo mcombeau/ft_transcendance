@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, ParseI
 import { ChatMessagesService } from './chat-messages.service';
 import { createMessageDto } from './dtos/createMessage.dto';
 
+// TODO: remove unecessary controller
 @Controller('chat-messages')
 export class ChatMessagesController {
     
@@ -22,7 +23,7 @@ export class ChatMessagesController {
 
     @Post('create')
     createChatMessage(@Body() messageDto: createMessageDto) {
-        return this.chatMessageService.createMessage(messageDto);
+        // return this.chatMessageService.createMessage(messageDto);
     }
 
     @Delete(':id')
