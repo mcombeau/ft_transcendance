@@ -7,6 +7,9 @@ import { UsersModule } from './users/users.module';
 import { ChatsModule } from './chats/chats.module';
 import { FriendsModule } from './friends/friends.module';
 import { GamesModule } from './games/games.module';
+import { ChatEntity } from './typeorm/entities/chat.entity';
+import { FriendEntity } from './typeorm/entities/friend.entity';
+import { GameEntity } from './typeorm/entities/game.entity';
 
 @Module({
   imports: [TypeOrmModule.forRoot({
@@ -16,7 +19,7 @@ import { GamesModule } from './games/games.module';
     username: process.env.POSTGRES_USER,
     password: process.env.POSTGRES_PASSWORD,
     database: process.env.POSTGRES_DB,
-    entities: [UserEntity],
+    entities: [UserEntity, ChatEntity, FriendEntity, GameEntity],
     synchronize: true,
   }), UsersModule, ChatsModule, FriendsModule, GamesModule,],
   controllers: [AppController],

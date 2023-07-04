@@ -5,7 +5,9 @@ export class ChatEntity {
     @PrimaryGeneratedColumn()
     id: number;
     @Column()
-    message: string;
+    name: string;
     @Column()
-    sentAt: Date;
+    password: string;
+    @Column()
+    createdAt: Date;
 }
