@@ -12,6 +12,8 @@ import { FriendEntity } from './typeorm/entities/friend.entity';
 import { GameEntity } from './typeorm/entities/game.entity';
 import { ChatMessagesModule } from './chat-messages/chat-messages.module';
 import { ChatMessageEntity } from './typeorm/entities/chat-message.entity';
+import { GatewayModule } from './gateway/gateway.module';
+import { ChatGateway } from './gateway/chat.gateway';
 
 @Module({
   imports: [TypeOrmModule.forRoot({
@@ -23,7 +25,7 @@ import { ChatMessageEntity } from './typeorm/entities/chat-message.entity';
     database: process.env.POSTGRES_DB,
     entities: [UserEntity, ChatEntity, ChatMessageEntity, FriendEntity, GameEntity],
     synchronize: true,
-  }), UsersModule, ChatsModule, ChatMessagesModule, FriendsModule, GamesModule, ChatMessagesModule,],
+  }), UsersModule, ChatsModule, ChatMessagesModule, FriendsModule, GamesModule, ChatMessagesModule, GatewayModule,],
   controllers: [AppController],
   providers: [AppService],
 })
