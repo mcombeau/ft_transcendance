@@ -1,7 +1,14 @@
-const { io } = require("socket.io-client");
-var socket = io();
+import socketIO from 'socket.io-client';
 
-			var messages = document.getElementById('messages');
+
+// const { io } = require("socket.io-client");
+// var socket = io();
+
+			
+
+function Chat() {
+		const socket = socketIO.connect('http://localhost:3001');
+		var messages = document.getElementById('messages');
 			var form = document.getElementById('form');
 			var input = document.getElementById('input');
 
@@ -47,8 +54,6 @@ var socket = io();
 				messages.appendChild(item);
 				window.scrollTo(0, document.body.scrollHeight);
 			});
-
-function Chat() {
     return (
 	<body>
 		<ul id="messages"></ul>
