@@ -4,7 +4,7 @@ import { Server, Socket as ioSocket } from 'socket.io'
 
 @WebSocketGateway({
     cors: {
-        origin: ['http://localhost:3000'],
+        origin: ['http://localhost:3000', 'http://localhost'],
     }
 })
 export class ChatGateway implements OnModuleInit {
