@@ -1,18 +1,11 @@
-import socketIO from 'socket.io-client';
-
-
-// const { io } = require("socket.io-client");
-// var socket = io();
-
-			
+import { socket } from '../../socket';
 
 function Chat() {
-		const socket = socketIO.connect('http://localhost:3001');
-		var messages = document.getElementById('messages');
-			var form = document.getElementById('form');
-			var input = document.getElementById('input');
+		// var input = document.getElementById('input');
 
-			form.addEventListener('submit', function(e) {
+		const handleSendMessage = (e) => {
+				var input = document.getElementById('input');
+				var messages = document.getElementById('messages');
 				e.preventDefault();
 				if (input.value) {
 
@@ -26,21 +19,19 @@ function Chat() {
 					input.value = '';
 					window.scrollTo(0, document.body.scrollHeight);
 				}
-			});
-
-			input.addEventListener('input', function () {
-				socket.broadcast.emit('writing');
-			})
+			}
 
 			socket.on('chat message', function(msg) {
 				var item = document.createElement('li');
+				var messages = document.getElementById('messages');
 				item.textContent = msg;
 				messages.appendChild(item);
 				window.scrollTo(0, document.body.scrollHeight);
-			});
+			})
 
 			socket.on('connection event', function() {
 				var item = document.createElement('li');
+				var messages = document.getElementById('messages');
 				item.textContent = "A user just connected";
 				item.id = "event";
 				messages.appendChild(item);
@@ -49,6 +40,7 @@ function Chat() {
 			
 			socket.on('disconnection event', function() {
 				var item = document.createElement('li');
+				var messages = document.getElementById('messages');
 				item.textContent = "A user just disconnected";
 				item.id = "event";
 				messages.appendChild(item);
@@ -57,7 +49,7 @@ function Chat() {
     return (
 	<body>
 		<ul id="messages"></ul>
-		<form id="form" action="">
+		<form id="form" onSubmit={handleSendMessage}>
 			<input id="input" autocomplete="off" /><button>Send</button>
 		</form>
 	</body>
