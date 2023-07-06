@@ -11,6 +11,6 @@ export class ChatEntity {
     password: string;
     @Column()
     createdAt: Date;
-    @OneToMany( () => ChatMessageEntity, (chatMessage) => chatMessage.chatRoom )
+    @OneToMany( () => ChatMessageEntity, (chatMessage) => chatMessage.chatRoom, { nullable: true } )
     messages: ChatMessageEntity[];
 }

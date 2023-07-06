@@ -8,8 +8,13 @@ const CLIENT_SECRET = 's-s4t2ud-e21826a4033dc7dfcdfc8ff67e76f6d57d87bbcabbf4bcf4
 export class AuthController {
     
     @Get()
-    @Redirect('https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-5bc97c50c4272f69f40976b44b45a630d5d9bc01a55644fbd6ab4e391c549ff5&redirect_uri=http://localhost:3001/callback&response_type=code')
+    @Redirect(
+      'https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-5bc97c50c4272f69f40976b44b45a630d5d9bc01a55644fbd6ab4e391c549ff5&redirect_uri=http://localhost:3001/callback&response_type=code/'
+      )
 	connect42Api(){
+    // axios.defaults.baseURL = 'http://localhost:3000';
+    // axios.defaults.withCredentials = true;
+    // axios.get('https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-5bc97c50c4272f69f40976b44b45a630d5d9bc01a55644fbd6ab4e391c549ff5&redirect_uri=http://localhost:3001/callback&response_type=code');
 		console.log("GOT HERE");
 	}
 

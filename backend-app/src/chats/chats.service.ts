@@ -23,19 +23,19 @@ export class ChatsService {
         return this.chatRepository.save(newChat);
     }
 
-    createChatMessage(id: number, messageDetails: createChatMessageParams) {
-        return this.chatMessageService.createMessage(id, messageDetails);
-    }
+    // createChatMessage(id: number, messageDetails: createChatMessageParams) {
+    //     return this.chatMessageService.createMessage(messageDetails, messageDetails.sender, messageDetails.chatRoom);
+    // }
 
-    fetchChat(id: number) {
+    fetchChatByID(id: number) {
         return this.chatRepository.findOne({ where: {id}, relations: ['messages'] });
     }
 
-    updateChat(id: number, chatDetails: updateChatParams) {
+    updateChatByID(id: number, chatDetails: updateChatParams) {
         return this.chatRepository.update({ id }, { ...chatDetails });
     }
 
-    deleteChat(id: number) {
+    deleteChatByID(id: number) {
         return this.chatRepository.delete({ id });
     }
 }

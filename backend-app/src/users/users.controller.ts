@@ -12,7 +12,7 @@ export class UsersController {
         return this.userService.fetchUsers();
     }
 
-    @Post('create')
+    @Post()
     @UsePipes(new ValidationPipe())
     createUser(@Body() userDto: createUsersDto) {
         return this.userService.createUser(userDto);
@@ -20,7 +20,7 @@ export class UsersController {
 
     @Get(':id')
     async getUserByID(@Param('id', ParseIntPipe) id: number) {
-        const user = await this.userService.fetchUser(id);
+        const user = await this.userService.fetchUserByID(id);
         if (!user)
             throw new HttpException("User not found", HttpStatus.BAD_REQUEST);
         return user;
@@ -28,11 +28,11 @@ export class UsersController {
 
     @Patch(':id')
     async updateUserByID(@Param('id', ParseIntPipe) id: number, @Body() updateUserDto: updateUsersDto) {
-        await this.userService.updateUser(id, updateUserDto);
+        await this.userService.updateUserByID(id, updateUserDto);
     }
 
     @Delete(':id')
     async deleteUserByID(@Param('id', ParseIntPipe) id: number) {
-        await this.userService.deleteUser(id);
+        await this.userService.deleteUserByID(id);
     }
 }

@@ -13,19 +13,19 @@ export class ChatsController {
         return this.chatService.fetchChats();
     }
 
-    @Post('create')
+    @Post()
     createChat(@Body() chatDto: createChatDto) {
         return this.chatService.createChat(chatDto);
     }
 
-    @Post(':id/messages')
-    createChatMessage(@Param('id', ParseIntPipe) id: number, @Body() createMessageDto: createMessageDto) {
-        return this.chatService.createChatMessage(id, createMessageDto);
-    }
+    // @Post(':id/messages')
+    // createChatMessage(@Param('id', ParseIntPipe) id: number, @Body() createMessageDto: createMessageDto) {
+    //     return this.chatService.createChatMessage(id, createMessageDto);
+    // }
 
     @Get(':id')
     async getChatByID(@Param('id', ParseIntPipe) id: number) {
-        const chat = await this.chatService.fetchChat(id);
+        const chat = await this.chatService.fetchChatByID(id);
         if (!chat)
             throw new HttpException("Chat not found", HttpStatus.BAD_REQUEST);
         return chat;
@@ -33,11 +33,11 @@ export class ChatsController {
 
     @Patch(':id')
     async updateChatByID(@Param('id', ParseIntPipe) id: number, @Body() updateChatDto: updateChatDto) {
-        await this.chatService.updateChat(id, updateChatDto);
+        await this.chatService.updateChatByID(id, updateChatDto);
     }
 
     @Delete(':id')
     async deleteChatByID(@Param('id', ParseIntPipe) id: number) {
-        await this.chatService.deleteChat(id);
+        await this.chatService.deleteChatByID(id);
     }
 }

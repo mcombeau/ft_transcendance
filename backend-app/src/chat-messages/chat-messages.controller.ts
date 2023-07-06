@@ -21,9 +21,9 @@ export class ChatMessagesController {
         return (message);
     }
 
-    @Post('create')
+    @Post()
     createChatMessage(@Body() messageDto: createMessageDto) {
-        // return this.chatMessageService.createMessage(messageDto);
+        return this.chatMessageService.createMessage(messageDto.message, messageDto.sender, messageDto.chatRoom);
     }
 
     @Delete(':id')
