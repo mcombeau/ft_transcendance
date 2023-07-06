@@ -1,6 +1,18 @@
 function Login() {
+
+	const auth42 = () => {
+		console.log("here");
+		fetch("/auth")
+         .then((data) => {
+            console.log(data);
+         })
+         .catch((err) => {
+            console.log(err.message);
+         });
+	}
+
     return (
-        <h1>Login</h1>
+		<button onClick={auth42}>Login</button>
     )
 }
 
