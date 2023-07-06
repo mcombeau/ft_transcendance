@@ -39,7 +39,7 @@ export class ChatMessagesService {
     }
 
     fetchMessage(id: number) {
-        return this.chatMessagesRepository.findOne({ where: {id} });
+        return this.chatMessagesRepository.findOne({ where: {id}, relations: { sender: true } });
     }
 
     deleteMessage(id: number) {

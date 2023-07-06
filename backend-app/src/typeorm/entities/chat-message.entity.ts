@@ -12,7 +12,6 @@ export class ChatMessageEntity {
     sentAt: Date;
     @ManyToOne( () => ChatEntity, (chat) => chat.messages )
     chatRoom: ChatEntity;
-    @OneToOne( ()=> UserEntity )
-    @JoinColumn()
+    @ManyToOne( () => UserEntity, (user) => user.messages )
     sender: UserEntity;
 }

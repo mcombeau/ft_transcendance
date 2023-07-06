@@ -11,4 +11,6 @@ export class UserEntity {
     email: string;
     @Column()
     createdAt: Date;
+    @OneToMany( () => ChatMessageEntity, (chatMessage) => chatMessage.sender, { nullable: true } )
+    messages: ChatMessageEntity[];
 }
