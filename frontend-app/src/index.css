@@ -210,11 +210,21 @@ body {
     margin: 0;
 }
 
-#messages > li {
-    color: white;
+#leftmessage {
     padding: 0.5rem 1rem;
     margin: 0.75rem 20rem 0.75rem 0.75rem;
+}
+
+#rightmessage {
+    padding: 0.5rem 1rem;
+    margin: 0.75rem 0.75rem 0.75rem 20rem;
+}
+
+#othermsg {
+    padding: 1rem 1.5rem;
+    margin: 0.75rem 0rem 0.75rem 0.75rem;
     border-radius: 10px;
+    color: white;
     outline: none;
     background: lightblue;
     overflow-wrap: break-word;
@@ -222,9 +232,14 @@ body {
 }
 
 li#mine {
+    padding: 1rem 1.5rem;
+    margin: 0.75rem 0rem 0.75rem 0.75rem;
+    border-radius: 10px;
+    color: white;
+    outline: none;
+    overflow-wrap: break-word;
     text-align: right;
     background: lightgreen;
-    margin: 0.75rem 0.75rem 0.75rem 20rem;
 }
 
 #event {
@@ -233,10 +248,22 @@ li#mine {
     font-size: xx-small;
 }
 
+#sender {
+    margin: 0rem 0rem 0rem 1rem;
+    display: inline;
+    text-align: left;
+    float: left;
+    font-size: xx-small;
+}
 
-
-
-
+#date {
+    padding: 0;
+    display: inline;
+    float: right;
+    font-style: italic;
+    font-size: xx-small;
+    color: gray;
+}
 
 
 

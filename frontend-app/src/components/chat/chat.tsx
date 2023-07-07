@@ -83,17 +83,29 @@ export const Chat = () => {
 
   const messageStatus = (msg: Message) => {
     if (msg.sender == "me") {
-      return <li id="mine">{msg.msg}</li>;
+      return (
+        <div id="rightmessage">
+          <span id="sender">{msg.sender}</span>
+          <span id="date">{msg.datestamp.split("G")[0]}</span>
+          <li id="mine">{msg.msg}</li>
+        </div>
+      );
     }
-    return <li>{msg.msg}</li>;
+    return (
+      <div id="leftmessage">
+        <span id="sender">{msg.sender}</span>
+        <span id="date">{msg.datestamp.split("G")[0]}</span>
+        <li id="othermsg">{msg.msg}</li>
+      </div>
+    );
   };
 
   return (
     <WebSocketProvider value={socket}>
       <body>
-        <ul id="messages">
+        <div id="messages">
           {messages.map((msg: Message) => messageStatus(msg))}
-        </ul>
+        </div>
         <form id="form" onSubmit={handleSendMessage}>
           <input
             type="text"
