@@ -182,7 +182,7 @@ body {
     backdrop-filter: blur(10px);
 }
 
-#input {
+#form > input {
     border: none;
     padding: 0 1rem;
     flex-grow: 1;
@@ -231,6 +231,15 @@ li#mine {
     font-style: italic;
     font-size: xx-small;
 }
+
+
+
+
+
+
+
+
+
 
 
 

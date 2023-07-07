@@ -67,7 +67,7 @@ export const Chat = () => {
 
   const handleSendMessage = () => {
     console.log("sent: " + value);
-    socket.emit("chat message", value);
+    socket.emit("chat message", { msg: value });
     setValue("");
   };
 
@@ -87,7 +87,7 @@ export const Chat = () => {
               setValue(e.target.value);
             }}
           />
-          {/* <button onClick={handleSendMessage}>Send</button> */}
+          <button>Send</button>
         </form>
       </body>
     </WebSocketProvider>
