@@ -1,0 +1,108 @@
+/* html, */
+
+.App {
+  font-family: monospace;
+  text-align: center;
+  background-color: #c0e683;
+}
+
+.gameField {
+  position: relative;
+  border-style: solid;
+  background-color: #327445;
+  border-color: white;
+  margin: 0 auto;
+  /* margin-top: 100px; */
+  width: 700px;
+  height: 400px;
+}
+
+.ball {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  background-color: #fff;
+  border-radius: 50%;
+  z-index: 5;
+}
+
+.midLine {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 100%;
+  background-color: black;
+  z-index: 1;
+}
+
+.midLineHor {
+  position: absolute;
+  top: 50%;
+  left: 0%;
+  /* transform: translateX(-50%); */
+  width: 100%;
+  height: 2px;
+  background-color: white;
+  z-index: 0;
+}
+
+.player {
+  position: absolute;
+  width: 10px;
+  height: 80px;
+  border-radius: 30%;
+  transform: translateX(-50%);
+}
+
+.player1 {
+  background-image: linear-gradient(90deg, rgb(209, 60, 60) 50%, rgb(54, 54, 54) 50%);
+  left: 30px;
+}
+
+.player2 {
+  background-image: linear-gradient(90deg, rgb(54, 54, 54) 50%, rgb(209, 60, 60) 50%);
+  right: 20px;
+}
+
+.gate {
+  position: absolute;
+  top: 30%;
+  width: 10px;
+  height: 160px;
+  background-color: #fff;
+}
+
+.gate1{
+  left: 0px;
+}
+
+.gate2{
+  right: 0px;
+}
+
+.center-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.result {
+  /* display: inline; */
+  font-size: 30px;
+  top: 50px;
+}
+
+
+.res1 {
+  color: rgb(39, 136, 39);
+}
+
+.res2 {
+  color: rgb(197, 75, 75);
+}
