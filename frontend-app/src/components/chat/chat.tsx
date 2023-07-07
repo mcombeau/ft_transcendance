@@ -83,18 +83,16 @@ export const Chat = () => {
 
   const messageStatus = (msg: Message) => {
     if (msg.sender == "me") {
-      return false;
+      return <li id="mine">{msg.msg}</li>;
     }
-    return true;
+    return <li>{msg.msg}</li>;
   };
 
   return (
     <WebSocketProvider value={socket}>
       <body>
         <ul id="messages">
-          {messages.map((msg: Message) => (
-            <li>{msg.msg}</li>
-          ))}
+          {messages.map((msg: Message) => messageStatus(msg))}
         </ul>
         <form id="form" onSubmit={handleSendMessage}>
           <input

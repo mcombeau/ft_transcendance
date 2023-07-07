@@ -218,6 +218,7 @@ body {
     outline: none;
     background: lightblue;
     overflow-wrap: break-word;
+    text-align: left;
 }
 
 li#mine {
@@ -231,6 +232,7 @@ li#mine {
     font-style: italic;
     font-size: xx-small;
 }
+
 
 
 
