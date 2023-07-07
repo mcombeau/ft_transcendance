@@ -5,7 +5,7 @@ import {
 } from "../../contexts/WebsocketContext";
 
 type Message = {
-  datestamp: Date;
+  datestamp: string;
   msg: string;
   sender: string;
   channel: string;
@@ -18,7 +18,7 @@ export const Chat = () => {
 
   useEffect(() => {
     socket.on("chat message", (msg: Message) => {
-      console.log("message: " + msg);
+      console.log(msg);
       // var item = document.createElement('li');
       // var messages = document.getElementById('messages');
       // item.textContent = msg;
@@ -66,16 +66,33 @@ export const Chat = () => {
   }, []);
 
   const handleSendMessage = () => {
-    console.log("sent: " + value);
-    socket.emit("chat message", { msg: value });
+    if (value == "") {
+      return;
+    }
+    var msg: Message = {
+      msg: value,
+      datestamp: Date(),
+      sender: "someone",
+      channel: "chan",
+    };
+    socket.emit("chat message", msg);
+    msg.sender = "me";
+    setMessages((prev) => [...prev, msg]);
     setValue("");
+  };
+
+  const messageStatus = (msg: Message) => {
+    if (msg.sender == "me") {
+      return false;
+    }
+    return true;
   };
 
   return (
     <WebSocketProvider value={socket}>
       <body>
         <ul id="messages">
-          {messages.map((msg) => (
+          {messages.map((msg: Message) => (
             <li>{msg.msg}</li>
           ))}
         </ul>
