@@ -103,19 +103,26 @@ export const Chat = () => {
   return (
     <WebSocketProvider value={socket}>
       <body>
-        <div id="messages">
-          {messages.map((msg: Message) => messageStatus(msg))}
+        <div className="chat-container">
+          <div className="sidebar">
+            <h1>I am the sidebar</h1>
+          </div>
+          <div className="chat">
+            <div id="messages">
+              {messages.map((msg: Message) => messageStatus(msg))}
+            </div>
+            <form id="form" onSubmit={handleSendMessage}>
+              <input
+                type="text"
+                value={value}
+                onChange={(e) => {
+                  setValue(e.target.value);
+                }}
+              />
+              <button>Send</button>
+            </form>
+          </div>
         </div>
-        <form id="form" onSubmit={handleSendMessage}>
-          <input
-            type="text"
-            value={value}
-            onChange={(e) => {
-              setValue(e.target.value);
-            }}
-          />
-          <button>Send</button>
-        </form>
       </body>
     </WebSocketProvider>
   );

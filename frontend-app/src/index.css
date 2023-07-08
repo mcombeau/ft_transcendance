@@ -268,14 +268,12 @@ li#mine {
   color: gray;
 }
 
-.chat-container {
-  display: flex;
-}
-
 .sidebar {
-  flex: 0 1 300px;
+  width: 20%;
+  float: left;
 }
 
 .chat {
-  flex: 1;
+  width: 80%;
+  float: right;
 }
