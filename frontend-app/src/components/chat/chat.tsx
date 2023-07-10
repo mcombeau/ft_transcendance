@@ -25,9 +25,15 @@ export const Chat = () => {
     var chan: Channel = {
       name: "First Channel",
     };
+    var chan2: Channel = {
+      name: "Second Channel",
+    };
+    var chan3: Channel = {
+      name: "Other Channel",
+    };
     setChannels((prev) => [...prev, chan]);
-    chan.name = "Second Channel";
-    setChannels((prev) => [...prev, chan]);
+    setChannels((prev) => [...prev, chan2]);
+    setChannels((prev) => [...prev, chan3]);
   }, []);
 
   useEffect(() => {
@@ -37,20 +43,20 @@ export const Chat = () => {
       window.scrollTo(0, document.body.scrollHeight);
     });
 
-    socket.on("connect", function () {
-      console.log("I connected !");
-      window.scrollTo(0, document.body.scrollHeight);
-    });
+    // socket.on("connect", function () {
+    //   console.log("I connected !");
+    //   window.scrollTo(0, document.body.scrollHeight);
+    // });
 
-    socket.on("connection event", function () {
-      console.log("connection");
-      window.scrollTo(0, document.body.scrollHeight);
-    });
+    // socket.on("connection event", function () {
+    //   console.log("connection");
+    //   window.scrollTo(0, document.body.scrollHeight);
+    // });
 
-    socket.on("disconnection event", function () {
-      console.log("disconnection");
-      window.scrollTo(0, document.body.scrollHeight);
-    });
+    // socket.on("disconnection event", function () {
+    //   console.log("disconnection");
+    //   window.scrollTo(0, document.body.scrollHeight);
+    // });
     return () => {
       console.log("unregistering events");
       socket.off("chat message");
