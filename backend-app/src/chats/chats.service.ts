@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { throwError } from 'rxjs';
 import { ChatEntity } from 'src/typeorm/entities/chat.entity';
 import { Repository } from 'typeorm';
 import { createChatParams, updateChatParams } from './utils/types';
+import { HttpException, HttpStatus } from '@nestjs/common';
 
 @Injectable()
 export class ChatsService {
@@ -15,12 +17,15 @@ export class ChatsService {
     return this.chatRepository.find();
   }
 
-  createChat(chatDetails: createChatParams) {
+  async createChat(chatDetails: createChatParams) {
     const newChat = this.chatRepository.create({
       ...chatDetails,
       createdAt: new Date(),
     });
-    return this.chatRepository.save(newChat);
+    return this.chatRepository.save(newChat).catch((err: any) => {
+      console.log(err);
+      throw new HttpException('Duplicate channel', HttpStatus.BAD_REQUEST);
+    });
   }
 
   // createChatMessage(id: number, messageDetails: createChatMessageParams) {
