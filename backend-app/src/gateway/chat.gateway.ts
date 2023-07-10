@@ -40,11 +40,6 @@ export class ChatGateway implements OnModuleInit {
     console.log(msg);
     console.log('Gateway');
     socket.broadcast.emit('chat message', msg);
-    this.chatMessagesService.createMessage(
-      msg.msg,
-      msg.sender,
-      msg.channel,
-      msg.datestamp,
-    );
+    this.chatMessagesService.createMessage(msg.msg, 1, 1, msg.datestamp);
   }
 }

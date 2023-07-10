@@ -5,6 +5,7 @@ import Login from "../components/login/login";
 import Chat from "../components/chat/chat.tsx";
 import Play from "../components/play/play";
 import Leaderboard from "../components/leaderboard/leaderboard";
+import { useEffect } from "react";
 
 function Main() {
   return (

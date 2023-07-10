@@ -7,8 +7,8 @@ import {
 type Message = {
   datestamp: Date;
   msg: string;
-  sender: number;
-  channel: number;
+  sender: string;
+  channel: string;
 };
 
 type Channel = {
@@ -20,6 +20,8 @@ export const Chat = () => {
   const [value, setValue] = useState("");
   const [messages, setMessages] = useState<Message[]>([]); // TODO: init with database
   const [channels, setChannels] = useState<Channel[]>([]); // TODO: init with database
+  const [username, setUsername] = useState("");
+  const [channelname, setChannelName] = useState("");
 
   useEffect(() => {
     var chan: Channel = {
@@ -34,13 +36,24 @@ export const Chat = () => {
     setChannels((prev) => [...prev, chan]);
     setChannels((prev) => [...prev, chan2]);
     setChannels((prev) => [...prev, chan3]);
+    setUsername(prompt("Username ?"));
+    setChannelName(prompt("Chane ?"));
+    const request = {
+      method: "POST",
+      body: JSON.stringify({
+        username: username,
+        email: "email@mail.com",
+      }),
+    };
+    fetch("/backend/users", request);
   }, []);
 
   useEffect(() => {
     socket.on("chat message", (msg: Message) => {
       console.log(msg);
       setMessages((prev) => [...prev, msg]);
-      window.scrollTo(0, document.body.scrollHeight);
+      var chat = document.getElementById("messages");
+      chat.scrollTop = chat.scrollHeight * 2;
     });
 
     // socket.on("connect", function () {
@@ -73,19 +86,21 @@ export const Chat = () => {
     var msg: Message = {
       msg: value,
       datestamp: new Date(),
-      sender: 1,
-      channel: 1,
+      sender: username,
+      channel: channelname,
     };
     console.log("Msg :");
     console.log(msg);
     socket.emit("chat message", msg);
-    // msg.sender = 0;
+    msg.sender = "me";
     setMessages((prev) => [...prev, msg]);
     setValue("");
   };
 
   const messageStatus = (msg: Message) => {
-    if (msg.sender == 0) {
+    var chat = document.getElementById("messages");
+    if (msg.sender == "me") {
+      chat.scrollTop = chat.scrollHeight * 2;
       return (
         <div id="rightmessage">
           <span id="sender">{msg.sender}</span>
@@ -94,6 +109,7 @@ export const Chat = () => {
         </div>
       );
     }
+    chat.scrollTop = chat.scrollHeight * 2;
     return (
       <div id="leftmessage">
         <span id="sender">{msg.sender}</span>

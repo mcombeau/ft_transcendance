@@ -1,10 +1,9 @@
-import './App.css';
-import Main from './layouts/main';
+import { useContext, useEffect, useState } from "react";
+import "./App.css";
+import Main from "./layouts/main";
 
 function App() {
-  return (
-		<Main></Main>
-  );
+  return <Main></Main>;
 }
 
 export default App;
