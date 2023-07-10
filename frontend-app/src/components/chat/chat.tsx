@@ -13,6 +13,7 @@ type Message = {
 
 type Channel = {
   name: string;
+  id: number;
 };
 
 export const Chat = () => {
@@ -113,9 +114,6 @@ export const Chat = () => {
   const createChannel = () => {
     // Create new channel
     if (newchannel == "") return;
-    var channel = {
-      name: newchannel,
-    };
     const requestchan = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -125,11 +123,19 @@ export const Chat = () => {
       }),
     };
     console.log(requestchan);
-    fetch("http://localhost:3001/chats", requestchan);
-
-    // TODO: check if it actually worked
-    setChannels((prev) => [...prev, channel]);
-    setNewchannel("");
+    fetch("http://localhost:3001/chats", requestchan).then(async (response) => {
+      const data = await response.json();
+      if (!response.ok) {
+        console.log("Error response create channel");
+        return;
+      }
+      var channel = {
+        name: newchannel,
+        id: data.id,
+      };
+      setChannels((prev) => [...prev, channel]);
+      setNewchannel("");
+    });
   };
 
   const channelInfo = (channel: Channel) => {
