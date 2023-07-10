@@ -28,17 +28,16 @@ export const Chat = () => {
     // setUsername(prompt("Username ?"));
     // console.log("User: " + username);
     // console.log("Channel: " + channel);
-
     // Create new user
-    const request = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username: username,
-        email: "yolo@mail.com",
-      }),
-    };
-    fetch("http://localhost:3001/users", request);
+    // const request = {
+    //   method: "POST",
+    //   headers: { "Content-Type": "application/json" },
+    //   body: JSON.stringify({
+    //     username: username,
+    //     email: "yolo@mail.com",
+    //   }),
+    // };
+    // fetch("http://localhost:3001/users", request);
   }, []);
 
   useEffect(() => {
@@ -125,6 +124,7 @@ export const Chat = () => {
         password: "pass",
       }),
     };
+    console.log(requestchan);
     fetch("http://localhost:3001/chats", requestchan);
 
     // TODO: check if it actually worked
@@ -145,9 +145,6 @@ export const Chat = () => {
       <body>
         <div className="chat-container">
           <div className="sidebar">
-            <div id="channels">
-              {channels.map((channel: Channel) => channelInfo(channel))}
-            </div>
             <form onSubmit={createChannel}>
               <input
                 type="text"
@@ -158,6 +155,9 @@ export const Chat = () => {
               />
               <button>Add chan</button>
             </form>
+            <div id="channels">
+              {channels.map((channel: Channel) => channelInfo(channel))}
+            </div>
           </div>
           <div className="chat">
             <div id="messages">
