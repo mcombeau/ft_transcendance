@@ -24,7 +24,10 @@ export class ChatsService {
     });
     return this.chatRepository.save(newChat).catch((err: any) => {
       console.log(err);
-      throw new HttpException('Duplicate channel', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Error during channel creation',
+        HttpStatus.BAD_REQUEST,
+      );
     });
   }
 
