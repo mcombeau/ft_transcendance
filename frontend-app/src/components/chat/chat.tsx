@@ -25,43 +25,12 @@ export const Chat = () => {
   const [username, setUsername] = useState("");
 
   useEffect(() => {
-    // setChannel(prompt("Chane ?"));
-    // setUsername(prompt("Username ?"));
-    // console.log("User: " + username);
-    // console.log("Channel: " + channel);
-    // Create new user
-    // const request = {
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify({
-    //     username: username,
-    //     email: "yolo@mail.com",
-    //   }),
-    // };
-    // fetch("http://localhost:3001/users", request);
-  }, []);
-
-  useEffect(() => {
     socket.on("chat message", (msg: Message) => {
       setMessages((prev) => [...prev, msg]);
       var chat = document.getElementById("messages");
       chat.scrollTop = chat.scrollHeight * 2;
     });
 
-    // socket.on("connect", function () {
-    //   console.log("I connected !");
-    //   window.scrollTo(0, document.body.scrollHeight);
-    // });
-
-    // socket.on("connection event", function () {
-    //   console.log("connection");
-    //   window.scrollTo(0, document.body.scrollHeight);
-    // });
-
-    // socket.on("disconnection event", function () {
-    //   console.log("disconnection");
-    //   window.scrollTo(0, document.body.scrollHeight);
-    // });
     return () => {
       console.log("unregistering events");
       socket.off("chat message");
