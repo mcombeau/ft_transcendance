@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { HtmlHTMLAttributes, useContext, useEffect, useState } from "react";
 import {
   WebSocketContext,
   WebSocketProvider,
@@ -22,6 +22,7 @@ export const Chat = () => {
   const [messages, setMessages] = useState<Message[]>([]); // TODO: init with database
   const [channels, setChannels] = useState<Channel[]>([]); // TODO: init with database
   const [newchannel, setNewchannel] = useState("");
+  const [current_channel, setCurrentChannel] = useState(""); // TODO: have screen if no channels
   const [username, setUsername] = useState("");
 
   useEffect(() => {
@@ -30,6 +31,40 @@ export const Chat = () => {
       var chat = document.getElementById("messages");
       chat.scrollTop = chat.scrollHeight * 2;
     });
+
+    fetch("http://localhost:3001/chats").then(async (response) => {
+      const data = await response.json();
+      if (!response.ok) {
+        console.log("error response create channel");
+        return;
+      }
+      data.map((e) => {
+        var chan: Channel = {
+          name: e.name,
+          id: e.id,
+        };
+        setChannels((prev) => [...prev, chan]);
+      });
+    });
+
+    // fetch("http://localhost:3001/users").then(async (response) => {
+    //   const data = await response.json();
+    //   if (!response.ok) {
+    //     console.log("error response create channel");
+    //     return;
+    //   }
+    //   console.log(data);
+    //   data.map((e) => {
+    //     var msg: Message = {
+    //       datestamp: e.datestamp,
+    //       msg: e.msg,
+    //       sender: e.sender,
+    //       channel: e.channel,
+    //     };
+    //     setMessages((prev) => [...prev, msg]);
+    //   });
+    // });
+    // init with database
 
     return () => {
       console.log("unregistering events");
@@ -41,14 +76,15 @@ export const Chat = () => {
   }, []);
 
   const handleSendMessage = () => {
-    if (value == "") {
+    if (value == "" || current_channel == "") {
+      console.log("Message is empty or channel is not defined");
       return;
     }
     var msg: Message = {
       msg: value,
       datestamp: new Date(),
       sender: username,
-      channel: "mychan",
+      channel: current_channel,
     };
     console.log("Msg :");
     console.log(msg);
@@ -60,6 +96,7 @@ export const Chat = () => {
 
   const messageStatus = (msg: Message) => {
     var chat = document.getElementById("messages");
+    if (msg.channel != current_channel) return;
     if (msg.sender == "me") {
       chat.scrollTop = chat.scrollHeight * 2;
       return (
@@ -107,15 +144,18 @@ export const Chat = () => {
     });
   };
 
-  const changeChannel = () => {
-    console.log("Change channel");
-  };
-
   const channelInfo = (channel: Channel) => {
     return (
       <div id="channel-info">
-        <li>
-          <button onClick={changeChannel}>{channel.name}</button>
+        <li
+          value={channel.name}
+          onClick={(e) => {
+            setCurrentChannel(
+              (e.target as HTMLInputElement).getAttribute("value")
+            );
+          }}
+        >
+          {channel.name}
         </li>
       </div>
     );

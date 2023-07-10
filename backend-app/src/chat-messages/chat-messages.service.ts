@@ -8,7 +8,6 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatMessageEntity } from 'src/typeorm/entities/chat-message.entity';
 import { Repository } from 'typeorm';
-import { createChatMessageParams } from 'src/chat-messages/utils/types';
 import { ChatsService } from 'src/chats/chats.service';
 import { UsersService } from 'src/users/users.service';
 
@@ -31,13 +30,14 @@ export class ChatMessagesService {
     chatRoomID: number,
     sentTime: Date,
   ) {
-    console.log('Create Message!!!');
     const chat = await this.chatService.fetchChatByID(chatRoomID);
     if (!chat)
       throw new HttpException('Cannot find chat room', HttpStatus.BAD_REQUEST);
     const user = await this.userService.fetchUserByID(senderID);
-    if (!user)
+    if (!user) {
+      return; // TODO: change
       throw new HttpException('Cannot find sender', HttpStatus.BAD_REQUEST);
+    }
     const messageDetails = {
       message: message,
       sender: user,

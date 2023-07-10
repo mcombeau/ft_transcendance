@@ -241,22 +241,11 @@ li#mine {
   width: 20%;
   position: fixed;
   height: 100%;
-  background-color: white;
+  background-color: lightgray;
   overflow-y: scroll;
 }
 
 #channel-info > li {
-  margin: 0.5rem;
-  border: thin;
-  border-radius: 0.3rem;
-  background-color: lightseagreen;
-  color: white;
-  border-color: black;
-}
-
-/* TODO: change so that whole div is button */
-#channel-info > li > button {
-  list-style-type: none;
   margin: 0.5rem;
   border: thin;
   border-radius: 0.3rem;
