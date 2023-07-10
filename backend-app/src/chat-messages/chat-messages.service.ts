@@ -31,12 +31,11 @@ export class ChatMessagesService {
     chatRoomID: number,
     sentTime: Date,
   ) {
+    console.log('Create Message!!!');
     const chat = await this.chatService.fetchChatByID(chatRoomID);
-    console.log('Create Message: Chatroom', chat);
     if (!chat)
       throw new HttpException('Cannot find chat room', HttpStatus.BAD_REQUEST);
     const user = await this.userService.fetchUserByID(senderID);
-    console.log('Create Message: Sender', user);
     if (!user)
       throw new HttpException('Cannot find sender', HttpStatus.BAD_REQUEST);
     const messageDetails = {

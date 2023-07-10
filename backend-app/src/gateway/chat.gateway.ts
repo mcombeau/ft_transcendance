@@ -38,6 +38,7 @@ export class ChatGateway implements OnModuleInit {
   onChatMessage(@MessageBody() msg: any, @ConnectedSocket() socket: ioSocket) {
     console.log('message: ');
     console.log(msg);
+    console.log('Gateway');
     socket.broadcast.emit('chat message', msg);
     this.chatMessagesService.createMessage(
       msg.msg,
