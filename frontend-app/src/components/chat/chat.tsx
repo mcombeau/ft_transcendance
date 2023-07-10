@@ -20,26 +20,16 @@ export const Chat = () => {
   const [value, setValue] = useState("");
   const [messages, setMessages] = useState<Message[]>([]); // TODO: init with database
   const [channels, setChannels] = useState<Channel[]>([]); // TODO: init with database
+  const [newchannel, setNewchannel] = useState("");
   const [username, setUsername] = useState("");
-  const [channelname, setChannelName] = useState("");
 
   useEffect(() => {
-    var chan: Channel = {
-      name: "First Channel",
-    };
-    var chan2: Channel = {
-      name: "Second Channel",
-    };
-    var chan3: Channel = {
-      name: "Other Channel",
-    };
-    setChannels((prev) => [...prev, chan]);
-    setChannels((prev) => [...prev, chan2]);
-    setChannels((prev) => [...prev, chan3]);
+    // setChannel(prompt("Chane ?"));
+    // setUsername(prompt("Username ?"));
+    // console.log("User: " + username);
+    // console.log("Channel: " + channel);
 
-    setUsername(prompt("Username ?"));
-    setChannelName(prompt("Chane ?"));
-
+    // Create new user
     const request = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -89,7 +79,7 @@ export const Chat = () => {
       msg: value,
       datestamp: new Date(),
       sender: username,
-      channel: channelname,
+      channel: "mychan",
     };
     console.log("Msg :");
     console.log(msg);
@@ -121,6 +111,27 @@ export const Chat = () => {
     );
   };
 
+  const createChannel = () => {
+    // Create new channel
+    if (newchannel == "") return;
+    var channel = {
+      name: newchannel,
+    };
+    const requestchan = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: newchannel,
+        password: "pass",
+      }),
+    };
+    fetch("http://localhost:3001/chats", requestchan);
+
+    // TODO: check if it actually worked
+    setChannels((prev) => [...prev, channel]);
+    setNewchannel("");
+  };
+
   const channelInfo = (channel: Channel) => {
     return (
       <div id="channel-info">
@@ -137,6 +148,16 @@ export const Chat = () => {
             <div id="channels">
               {channels.map((channel: Channel) => channelInfo(channel))}
             </div>
+            <form onSubmit={createChannel}>
+              <input
+                type="text"
+                value={newchannel}
+                onChange={(e) => {
+                  setNewchannel(e.target.value);
+                }}
+              />
+              <button>Add chan</button>
+            </form>
           </div>
           <div className="chat">
             <div id="messages">

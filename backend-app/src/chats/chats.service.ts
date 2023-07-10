@@ -1,10 +1,8 @@
-import { Inject, Injectable, forwardRef } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatEntity } from 'src/typeorm/entities/chat.entity';
 import { Repository } from 'typeorm';
 import { createChatParams, updateChatParams } from './utils/types';
-import { createChatMessageParams } from 'src/chat-messages/utils/types';
-import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
 
 @Injectable()
 export class ChatsService {
@@ -14,7 +12,7 @@ export class ChatsService {
   ) {}
 
   fetchChats() {
-    return this.chatRepository.find({ relations: ['messages'] });
+    return this.chatRepository.find();
   }
 
   createChat(chatDetails: createChatParams) {
