@@ -270,7 +270,9 @@ li#mine {
 
 .sidebar {
   width: 20%;
+  height: 100%;
   float: left;
+  background-color: black;
 }
 
 .chat {

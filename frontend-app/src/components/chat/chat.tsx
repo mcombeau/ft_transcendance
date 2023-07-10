@@ -11,49 +11,44 @@ type Message = {
   channel: string;
 };
 
+type Channel = {
+  name: string;
+};
+
 export const Chat = () => {
   const socket = useContext(WebSocketContext);
   const [value, setValue] = useState("");
   const [messages, setMessages] = useState<Message[]>([]); // TODO: init with database
+  const [channels, setChannels] = useState<Channel[]>([]); // TODO: init with database
+
+  useEffect(() => {
+    var chan: Channel = {
+      name: "First Channel",
+    };
+    setChannels((prev) => [...prev, chan]);
+    chan.name = "Second Channel";
+    setChannels((prev) => [...prev, chan]);
+  }, []);
 
   useEffect(() => {
     socket.on("chat message", (msg: Message) => {
       console.log(msg);
-      // var item = document.createElement('li');
-      // var messages = document.getElementById('messages');
-      // item.textContent = msg;
-      // messages.appendChild(item);
       setMessages((prev) => [...prev, msg]);
       window.scrollTo(0, document.body.scrollHeight);
     });
 
     socket.on("connect", function () {
       console.log("I connected !");
-      // var item = document.createElement('li');
-      // var messages = document.getElementById('messages');
-      // item.textContent = "A user just connected";
-      // item.id = "event";
-      // messages.appendChild(item);
       window.scrollTo(0, document.body.scrollHeight);
     });
 
     socket.on("connection event", function () {
       console.log("connection");
-      // var item = document.createElement('li');
-      // var messages = document.getElementById('messages');
-      // item.textContent = "A user just connected";
-      // item.id = "event";
-      // messages.appendChild(item);
       window.scrollTo(0, document.body.scrollHeight);
     });
 
     socket.on("disconnection event", function () {
       console.log("disconnection");
-      // var item = document.createElement('li');
-      // var messages = document.getElementById('messages');
-      // item.textContent = "A user just disconnected";
-      // item.id = "event";
-      // messages.appendChild(item);
       window.scrollTo(0, document.body.scrollHeight);
     });
     return () => {
@@ -100,12 +95,22 @@ export const Chat = () => {
     );
   };
 
+  const channelInfo = (channel: Channel) => {
+    return (
+      <div id="channel-info">
+        <li>{channel.name}</li>
+      </div>
+    );
+  };
+
   return (
     <WebSocketProvider value={socket}>
       <body>
         <div className="chat-container">
           <div className="sidebar">
-            <h1>I am the sidebar</h1>
+            <div id="channels">
+              {channels.map((channel: Channel) => channelInfo(channel))}
+            </div>
           </div>
           <div className="chat">
             <div id="messages">
