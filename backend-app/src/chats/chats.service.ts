@@ -36,6 +36,13 @@ export class ChatsService {
     });
   }
 
+  fetchChatByName(name: string) {
+    return this.chatRepository.findOne({
+      where: { name },
+      relations: ['messages'],
+    });
+  }
+
   updateChatByID(id: number, chatDetails: updateChatParams) {
     return this.chatRepository.update({ id }, { ...chatDetails });
   }

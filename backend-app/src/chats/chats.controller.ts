@@ -31,6 +31,14 @@ export class ChatsController {
         return chat;
     }
 
+    @Get(':name')
+    async getChatByName(@Param('name') name: string) {
+        const chat = await this.chatService.fetchChatByName(name);
+        if (!chat)
+            throw new HttpException("Chat not found", HttpStatus.BAD_REQUEST);
+        return chat;
+    }
+
     @Patch(':id')
     async updateChatByID(@Param('id', ParseIntPipe) id: number, @Body() updateChatDto: updateChatDto) {
         await this.chatService.updateChatByID(id, updateChatDto);

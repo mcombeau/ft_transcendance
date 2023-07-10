@@ -26,6 +26,14 @@ export class UsersController {
         return user;
     }
 
+    @Get(':username')
+    async getUserByUsername(@Param('username') username: string) {
+        const user = await this.userService.fetchUserByUsername(username);
+        if (!user)
+            throw new HttpException("User not found", HttpStatus.BAD_REQUEST);
+        return user;
+    }
+
     @Patch(':id')
     async updateUserByID(@Param('id', ParseIntPipe) id: number, @Body() updateUserDto: updateUsersDto) {
         await this.userService.updateUserByID(id, updateUserDto);

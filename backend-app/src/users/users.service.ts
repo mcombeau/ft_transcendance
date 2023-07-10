@@ -23,6 +23,10 @@ export class UsersService {
         return this.userRepository.findOne({ where: {id} });
     }
 
+    fetchUserByUsername(username: string) {
+        return this.userRepository.findOne({ where: {username} });
+    }
+
     updateUserByID(id: number, userDetails: updateUserParams) {
         return this.userRepository.update({ id }, { ...userDetails });
     }
