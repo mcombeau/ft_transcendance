@@ -254,6 +254,17 @@ li#mine {
   border-color: black;
 }
 
+/* TODO: change so that whole div is button */
+#channel-info > li > button {
+  list-style-type: none;
+  margin: 0.5rem;
+  border: thin;
+  border-radius: 0.3rem;
+  background-color: lightseagreen;
+  color: white;
+  border-color: black;
+}
+
 .chat {
   left: 20%;
   width: 80%;

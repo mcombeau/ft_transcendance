@@ -107,10 +107,16 @@ export const Chat = () => {
     });
   };
 
+  const changeChannel = () => {
+    console.log("Change channel");
+  };
+
   const channelInfo = (channel: Channel) => {
     return (
       <div id="channel-info">
-        <li>{channel.name}</li>
+        <li>
+          <button onClick={changeChannel}>{channel.name}</button>
+        </li>
       </div>
     );
   };
