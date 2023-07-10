@@ -36,21 +36,23 @@ export const Chat = () => {
     setChannels((prev) => [...prev, chan]);
     setChannels((prev) => [...prev, chan2]);
     setChannels((prev) => [...prev, chan3]);
+
     setUsername(prompt("Username ?"));
     setChannelName(prompt("Chane ?"));
+
     const request = {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         username: username,
-        email: "email@mail.com",
+        email: "yolo@mail.com",
       }),
     };
-    fetch("/backend/users", request);
+    fetch("http://localhost:3001/users", request);
   }, []);
 
   useEffect(() => {
     socket.on("chat message", (msg: Message) => {
-      console.log(msg);
       setMessages((prev) => [...prev, msg]);
       var chat = document.getElementById("messages");
       chat.scrollTop = chat.scrollHeight * 2;
