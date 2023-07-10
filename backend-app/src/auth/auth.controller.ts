@@ -9,13 +9,13 @@ export class AuthController {
     
     @Get()
     @Redirect(
-      'https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-5bc97c50c4272f69f40976b44b45a630d5d9bc01a55644fbd6ab4e391c549ff5&redirect_uri=http://localhost:3001/callback&response_type=code/'
+      'https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-5bc97c50c4272f69f40976b44b45a630d5d9bc01a55644fbd6ab4e391c549ff5&redirect_uri=http://localhost:3001/auth/callback&response_type=code'
       )
 	connect42Api(){
     // axios.defaults.baseURL = 'http://localhost:3000';
     // axios.defaults.withCredentials = true;
     // axios.get('https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-5bc97c50c4272f69f40976b44b45a630d5d9bc01a55644fbd6ab4e391c549ff5&redirect_uri=http://localhost:3001/callback&response_type=code');
-		console.log("GOT HERE");
+		console.log("[AuthController] Redirecting to 42 API...");
 	}
 
     @Get('callback')
@@ -30,7 +30,7 @@ export class AuthController {
                 params.append('client_id', CLIENT_ID);
                 params.append('client_secret', CLIENT_SECRET);
                 params.append('code', code as string);
-                params.append('redirect_uri', 'http://localhost:3001/callback');
+                params.append('redirect_uri', 'http://localhost:3001/auth/callback');
             
             
                 // Exchange the authorization code for an access token
