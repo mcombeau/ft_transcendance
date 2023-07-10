@@ -35,3 +35,15 @@ clean:
 fclean: clean
 	docker system prune -f -a --volumes
 	docker volume rm ft_transcendance_database
+
+blog:
+	docker-compose logs --follow backend
+
+flog:
+	docker-compose logs --follow frontend
+
+nlog:
+	docker-compose logs --follow nginx
+
+plog:
+	docker-compose logs --follow postgresql
