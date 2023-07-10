@@ -234,6 +234,7 @@ li#mine {
   position: absolute;
   top: 4.5rem;
   width: 100%;
+  bottom: 0;
 }
 
 .sidebar {
@@ -258,13 +259,11 @@ li#mine {
   width: 80%;
   position: fixed;
   height: 100%;
-  background-color: blue;
 }
 
 #messages {
-  background-color: yellow;
-  height: 100%;
-  bottom: 3rem;
+  height: calc(100% - 7.5rem);
+  bottom: 7.5rem;
   overflow-y: auto;
   /* list-style-type: none; */
   /* padding: 0; */
