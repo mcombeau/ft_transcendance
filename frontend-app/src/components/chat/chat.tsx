@@ -5,10 +5,10 @@ import {
 } from "../../contexts/WebsocketContext";
 
 type Message = {
-  datestamp: string;
+  datestamp: Date;
   msg: string;
-  sender: string;
-  channel: string;
+  sender: number;
+  channel: number;
 };
 
 type Channel = {
@@ -72,22 +72,22 @@ export const Chat = () => {
     }
     var msg: Message = {
       msg: value,
-      datestamp: Date(),
-      sender: "someone",
-      channel: "chan",
+      datestamp: new Date(),
+      sender: 1,
+      channel: 0,
     };
     socket.emit("chat message", msg);
-    msg.sender = "me";
+    msg.sender = 0;
     setMessages((prev) => [...prev, msg]);
     setValue("");
   };
 
   const messageStatus = (msg: Message) => {
-    if (msg.sender == "me") {
+    if (msg.sender == 0) {
       return (
         <div id="rightmessage">
           <span id="sender">{msg.sender}</span>
-          <span id="date">{msg.datestamp.split("G")[0]}</span>
+          <span id="date">{msg.datestamp.toString().split("G")[0]}</span>
           <li id="mine">{msg.msg}</li>
         </div>
       );
@@ -95,7 +95,7 @@ export const Chat = () => {
     return (
       <div id="leftmessage">
         <span id="sender">{msg.sender}</span>
-        <span id="date">{msg.datestamp.split("G")[0]}</span>
+        <span id="date">{msg.datestamp.toString().split("G")[0]}</span>
         <li id="othermsg">{msg.msg}</li>
       </div>
     );

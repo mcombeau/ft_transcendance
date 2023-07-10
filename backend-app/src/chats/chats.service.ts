@@ -8,34 +8,39 @@ import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
 
 @Injectable()
 export class ChatsService {
-    
-    constructor(
-        @InjectRepository(ChatEntity) private chatRepository: Repository<ChatEntity>,
-        @Inject(forwardRef(() => ChatMessagesService))private readonly chatMessageService: ChatMessagesService
-    ) {}
-    
-    fetchChats() {
-        return this.chatRepository.find({ relations: ['messages'] });
-    }
+  constructor(
+    @InjectRepository(ChatEntity)
+    private chatRepository: Repository<ChatEntity>,
+  ) {}
 
-    createChat(chatDetails: createChatParams) {
-        const newChat = this.chatRepository.create({...chatDetails, createdAt: new Date() });
-        return this.chatRepository.save(newChat);
-    }
+  fetchChats() {
+    return this.chatRepository.find({ relations: ['messages'] });
+  }
 
-    // createChatMessage(id: number, messageDetails: createChatMessageParams) {
-    //     return this.chatMessageService.createMessage(messageDetails, messageDetails.sender, messageDetails.chatRoom);
-    // }
+  createChat(chatDetails: createChatParams) {
+    const newChat = this.chatRepository.create({
+      ...chatDetails,
+      createdAt: new Date(),
+    });
+    return this.chatRepository.save(newChat);
+  }
 
-    fetchChatByID(id: number) {
-        return this.chatRepository.findOne({ where: {id}, relations: ['messages'] });
-    }
+  // createChatMessage(id: number, messageDetails: createChatMessageParams) {
+  //     return this.chatMessageService.createMessage(messageDetails, messageDetails.sender, messageDetails.chatRoom);
+  // }
 
-    updateChatByID(id: number, chatDetails: updateChatParams) {
-        return this.chatRepository.update({ id }, { ...chatDetails });
-    }
+  fetchChatByID(id: number) {
+    return this.chatRepository.findOne({
+      where: { id },
+      relations: ['messages'],
+    });
+  }
 
-    deleteChatByID(id: number) {
-        return this.chatRepository.delete({ id });
-    }
+  updateChatByID(id: number, chatDetails: updateChatParams) {
+    return this.chatRepository.update({ id }, { ...chatDetails });
+  }
+
+  deleteChatByID(id: number) {
+    return this.chatRepository.delete({ id });
+  }
 }
