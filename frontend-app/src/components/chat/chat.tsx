@@ -71,7 +71,7 @@ export const Chat = () => {
       return;
     }
     var msg: Message = {
-      msg: "yolo",
+      msg: value,
       datestamp: new Date(),
       sender: 1,
       channel: 1,
