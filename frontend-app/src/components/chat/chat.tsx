@@ -71,13 +71,15 @@ export const Chat = () => {
       return;
     }
     var msg: Message = {
-      msg: value,
+      msg: "yolo",
       datestamp: new Date(),
       sender: 1,
-      channel: 0,
+      channel: 1,
     };
+    console.log("Msg :");
+    console.log(msg);
     socket.emit("chat message", msg);
-    msg.sender = 0;
+    // msg.sender = 0;
     setMessages((prev) => [...prev, msg]);
     setValue("");
   };
