@@ -181,8 +181,17 @@ export const Chat = () => {
     if (settings)
       return (
         <div className="settings">
-          <h2>Settings for {current_channel}</h2>
+          <h3>Settings for {current_channel}</h3>
           <button
+            onClick={() => {
+              socket.emit("delete chat", current_channel);
+              console.log("Deleting " + current_channel);
+            }}
+          >
+            Delete channel
+          </button>
+          <button
+            className="closesettings"
             onClick={() => {
               setSettings(false);
             }}
