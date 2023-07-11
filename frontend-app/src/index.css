@@ -290,7 +290,7 @@ li#mine {
   margin: 0.25rem;
 }
 
-#input:focus {
+#form > input:focus {
   outline: none;
 }
 
@@ -317,6 +317,10 @@ li#mine {
   flex-grow: 1;
   border-radius: 3px;
   margin: 0.25rem;
+}
+
+.newchan > input:focus {
+  outline: none;
 }
 
 .newchan > button {
