@@ -349,13 +349,17 @@ li#mine {
 }
 
 .settings {
-  position: relative;
+  position: fixed;
+  top: 5rem;
+  left: 13rem;
+  width: 60%;
   background: lightseagreen;
+  opacity: 0.8;
   margin: 5rem;
   padding: 1rem;
   color: white;
   border-radius: 3px;
-  min-height: 10rem;
+  min-height: 20%;
 }
 
 .settings > button {
