@@ -254,6 +254,10 @@ li#mine {
   border-color: black;
 }
 
+#channel-info > li.chanCurrent {
+  background-color: seagreen;
+}
+
 .chat {
   left: 20%;
   width: 80%;

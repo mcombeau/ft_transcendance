@@ -1,4 +1,4 @@
-import { HtmlHTMLAttributes, useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   WebSocketContext,
   WebSocketProvider,
@@ -20,7 +20,7 @@ export const Chat = () => {
   const socket = useContext(WebSocketContext);
   const [value, setValue] = useState("");
   const [messages, setMessages] = useState<Message[]>([]); // TODO: init with database
-  const [channels, setChannels] = useState<Channel[]>([]); // TODO: init with database
+  const [channels, setChannels] = useState<Channel[]>([]);
   const [newchannel, setNewchannel] = useState("");
   const [current_channel, setCurrentChannel] = useState(""); // TODO: have screen if no channels
   const [username, setUsername] = useState("");
@@ -47,24 +47,23 @@ export const Chat = () => {
       });
     });
 
-    // fetch("http://localhost:3001/users").then(async (response) => {
-    //   const data = await response.json();
-    //   if (!response.ok) {
-    //     console.log("error response create channel");
-    //     return;
-    //   }
-    //   console.log(data);
-    //   data.map((e) => {
-    //     var msg: Message = {
-    //       datestamp: e.datestamp,
-    //       msg: e.msg,
-    //       sender: e.sender,
-    //       channel: e.channel,
-    //     };
-    //     setMessages((prev) => [...prev, msg]);
-    //   });
-    // });
-    // init with database
+    fetch("http://localhost:3001/chat-messages").then(async (response) => {
+      const data = await response.json();
+      if (!response.ok) {
+        console.log("error response create channel");
+        return;
+      }
+      console.log(data);
+      data.map((e) => {
+        var msg: Message = {
+          datestamp: e.datestamp,
+          msg: e.msg,
+          sender: e.sender,
+          channel: e.channel,
+        };
+        setMessages((prev) => [...prev, msg]);
+      });
+    });
 
     return () => {
       console.log("unregistering events");
@@ -145,6 +144,7 @@ export const Chat = () => {
   };
 
   const channelInfo = (channel: Channel) => {
+    var isCurrent = channel.name == current_channel;
     return (
       <div id="channel-info">
         <li
@@ -154,6 +154,7 @@ export const Chat = () => {
               (e.target as HTMLInputElement).getAttribute("value")
             );
           }}
+          className={isCurrent ? "chanCurrent" : "channotCurrent"}
         >
           {channel.name}
         </li>
@@ -166,7 +167,7 @@ export const Chat = () => {
       <body>
         <div className="chat-container">
           <div className="sidebar">
-            <form onSubmit={createChannel}>
+            <form className="newchan" onSubmit={createChannel}>
               <input
                 type="text"
                 value={newchannel}
@@ -174,7 +175,7 @@ export const Chat = () => {
                   setNewchannel(e.target.value);
                 }}
               />
-              <button>Add chan</button>
+              <button>+</button>
             </form>
             <div id="channels">
               {channels.map((channel: Channel) => channelInfo(channel))}
