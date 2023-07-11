@@ -1,15 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatEntity } from 'src/typeorm/entities/chat.entity';
 import { Repository } from 'typeorm';
 import { createChatParams, updateChatParams } from './utils/types';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
 
 @Injectable()
 export class ChatsService {
   constructor(
     @InjectRepository(ChatEntity)
     private chatRepository: Repository<ChatEntity>,
+    @Inject(forwardRef(() => ChatMessagesService)) private chatMessageService: ChatMessagesService,
   ) {}
 
   fetchChats() {
@@ -52,7 +54,8 @@ export class ChatsService {
     return this.chatRepository.update({ id }, { ...chatDetails });
   }
 
-  deleteChatByID(id: number) {
+  async deleteChatByID(id: number) {
+    await this.chatMessageService.deleteMessagesByChatID(id);
     return this.chatRepository.delete({ id });
   }
 }

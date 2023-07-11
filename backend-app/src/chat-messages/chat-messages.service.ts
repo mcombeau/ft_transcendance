@@ -58,6 +58,17 @@ export class ChatMessagesService {
     });
   }
 
+  async fetchMessagesByChatID(id: number) {
+    const chatRoom = await this.chatService.fetchChatByID(id);
+    return this.chatMessagesRepository.find({ where: { chatRoom } });
+  }
+
+  async deleteMessagesByChatID(id: number) {
+    const chatRoom = await this.chatService.fetchChatByID(id);
+    const messages = await this.chatMessagesRepository.find({ where: {chatRoom}});
+    messages.map((e) => {this.deleteMessage(e.id)});
+  }
+
   deleteMessage(id: number) {
     return this.chatMessagesRepository.delete({ id });
   }
