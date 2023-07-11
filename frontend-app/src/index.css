@@ -241,7 +241,7 @@ li#mine {
   width: 20%;
   position: fixed;
   height: 100%;
-  background-color: white;
+  background-color: lightgray;
   overflow-y: scroll;
 }
 
@@ -252,6 +252,21 @@ li#mine {
   background-color: lightseagreen;
   color: white;
   border-color: black;
+  position: relative;
+}
+
+#channel-info > li.chanCurrent {
+  background-color: seagreen;
+}
+
+#channel-info > li > button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: none;
+  border: none;
+  color: white;
+  padding: 0rem 0.3rem;
 }
 
 .chat {
@@ -290,7 +305,7 @@ li#mine {
   margin: 0.25rem;
 }
 
-#input:focus {
+#form > input:focus {
   outline: none;
 }
 
@@ -302,4 +317,54 @@ li#mine {
   border-radius: 3px;
   outline: none;
   color: #fff;
+}
+
+.newchan {
+  padding: 0rem;
+  margin: 0.25rem;
+  height: 2rem;
+  display: flex;
+}
+
+.newchan > input {
+  border: none;
+  padding: 0 1rem;
+  flex-grow: 1;
+  border-radius: 3px;
+  margin: 0.25rem;
+}
+
+.newchan > input:focus {
+  outline: none;
+}
+
+.newchan > button {
+  background: #333;
+  border: none;
+  padding: 0 1rem;
+  margin: 0.25rem;
+  border-radius: 3px;
+  outline: none;
+  color: #fff;
+}
+
+.settings {
+  position: relative;
+  background: lightseagreen;
+  margin: 5rem;
+  padding: 1rem;
+  color: white;
+  border-radius: 3px;
+  min-height: 10rem;
+}
+
+.settings > button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: none;
+  color: white;
+  border: none;
+  padding: 1rem;
+  font-size: 1rem;
 }
