@@ -11,7 +11,8 @@ export class ChatsService {
   constructor(
     @InjectRepository(ChatEntity)
     private chatRepository: Repository<ChatEntity>,
-    @Inject(forwardRef(() => ChatMessagesService)) private chatMessageService: ChatMessagesService,
+    @Inject(forwardRef(() => ChatMessagesService))
+    private chatMessageService: ChatMessagesService,
   ) {}
 
   fetchChats() {
@@ -56,6 +57,7 @@ export class ChatsService {
 
   async deleteChatByID(id: number) {
     await this.chatMessageService.deleteMessagesByChatID(id);
+    console.log('Delete channel ' + id);
     return this.chatRepository.delete({ id });
   }
 }

@@ -8,6 +8,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket as ioSocket } from 'socket.io';
 import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
+import { ChatsService } from 'src/chats/chats.service';
 
 @WebSocketGateway({
   cors: {
@@ -18,6 +19,8 @@ export class ChatGateway implements OnModuleInit {
   constructor(
     @Inject(forwardRef(() => ChatMessagesService))
     private chatMessagesService: ChatMessagesService,
+    @Inject(forwardRef(() => ChatsService))
+    private chatsService: ChatsService,
   ) {}
   @WebSocketServer()
   server: Server;
@@ -43,5 +46,15 @@ export class ChatGateway implements OnModuleInit {
       msg.channel,
       msg.datestamp,
     );
+  }
+
+  @SubscribeMessage('delete chat')
+  async onDeleteChat(
+    @MessageBody() info: any,
+    @ConnectedSocket() socket: ioSocket,
+  ) {
+    var entity = await this.chatsService.fetchChatByName(info);
+    var id = entity.id;
+    this.chatsService.deleteChatByID(id);
   }
 }
