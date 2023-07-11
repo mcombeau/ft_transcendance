@@ -34,6 +34,14 @@ export const Chat = () => {
       chat.scrollTop = chat.scrollHeight * 2;
     });
 
+    socket.on("delete chat", (channelname: string) => {
+      console.log("got it");
+      setChannels((prev) => prev.filter((e) => e.name != channelname));
+      setMessages((prev) => prev.filter((e) => e.channel != channelname));
+      setSettings(false);
+      setCurrentChannel("");
+    });
+
     fetch("http://localhost:3001/chats").then(async (response) => {
       const data = await response.json();
       if (!response.ok) {

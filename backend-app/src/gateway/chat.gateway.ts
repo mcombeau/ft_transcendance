@@ -9,6 +9,7 @@ import {
 import { Server, Socket as ioSocket } from 'socket.io';
 import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
 import { ChatsService } from 'src/chats/chats.service';
+import { HttpException } from '@nestjs/common';
 
 @WebSocketGateway({
   cors: {
@@ -40,12 +41,11 @@ export class ChatGateway implements OnModuleInit {
   @SubscribeMessage('chat message')
   onChatMessage(@MessageBody() msg: any, @ConnectedSocket() socket: ioSocket) {
     socket.broadcast.emit('chat message', msg);
-    this.chatMessagesService.createMessage(
-      msg.msg,
-      1,
-      msg.channel,
-      msg.datestamp,
-    );
+    this.chatMessagesService
+      .createMessage(msg.msg, 1, msg.channel, msg.datestamp)
+      .catch((err: any) => {
+        console.log(err);
+      });
   }
 
   @SubscribeMessage('delete chat')
@@ -55,6 +55,10 @@ export class ChatGateway implements OnModuleInit {
   ) {
     var entity = await this.chatsService.fetchChatByName(info);
     var id = entity.id;
-    this.chatsService.deleteChatByID(id);
+
+    this.chatsService.deleteChatByID(id).catch((err: any) => {
+      console.log(err);
+    });
+    this.server.emit('delete chat', info);
   }
 }
