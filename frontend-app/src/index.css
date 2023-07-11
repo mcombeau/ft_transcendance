@@ -252,10 +252,21 @@ li#mine {
   background-color: lightseagreen;
   color: white;
   border-color: black;
+  position: relative;
 }
 
 #channel-info > li.chanCurrent {
   background-color: seagreen;
+}
+
+#channel-info > li > button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: none;
+  border: none;
+  color: white;
+  padding: 0rem 0.3rem;
 }
 
 .chat {

@@ -161,6 +161,7 @@ export const Chat = () => {
           className={isCurrent ? "chanCurrent" : "channotCurrent"}
         >
           {channel.name}
+          <button>⚙</button>
         </li>
       </div>
     );
