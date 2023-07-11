@@ -178,11 +178,11 @@ export const Chat = () => {
     );
   };
 
-  const settingMenu = (channel_name: string) => {
+  const settingMenu = () => {
     if (settings)
       return (
         <div className="settings">
-          <h2>My new Menu</h2>
+          <h2>Settings for {current_channel}</h2>
           <button
             onClick={() => {
               setSettings(false);
@@ -214,7 +214,7 @@ export const Chat = () => {
             </div>
           </div>
           <div className="chat">
-            {settingMenu("")}
+            {settingMenu()}
             <div id="messages">
               {messages.map((msg: Message) => messageStatus(msg))}
             </div>
