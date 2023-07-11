@@ -107,8 +107,6 @@ export const Chat = () => {
       channel: current_channel,
       read: true,
     };
-    console.log("Msg :");
-    console.log(msg);
     socket.emit("chat message", msg);
     msg.sender = "me";
     setMessages((prev) => [...prev, msg]);
@@ -153,15 +151,21 @@ export const Chat = () => {
       .filter((msg) => {
         return msg.read == false;
       }).length;
-    console.log(channel.name);
-    console.log(unreadMessages);
     return (
       <div id="channel-info">
         <li
           value={channel.name}
           onClick={(e) => {
-            setCurrentChannel(
-              (e.target as HTMLInputElement).getAttribute("value")
+            var target = (e.target as HTMLInputElement).getAttribute("value");
+            setCurrentChannel(target);
+            setMessages(
+              messages.map((msg) => {
+                if (msg.channel == target) {
+                  return { ...msg, read: true };
+                } else {
+                  return { ...msg };
+                }
+              })
             );
           }}
           className={isCurrent ? "chanCurrent" : "channotCurrent"}
