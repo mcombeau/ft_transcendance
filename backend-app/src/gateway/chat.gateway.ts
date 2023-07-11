@@ -36,10 +36,12 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('chat message')
   onChatMessage(@MessageBody() msg: any, @ConnectedSocket() socket: ioSocket) {
-    console.log('message: ');
-    console.log(msg);
-    console.log('Gateway');
     socket.broadcast.emit('chat message', msg);
-    this.chatMessagesService.createMessage(msg.msg, 1, 1, msg.datestamp);
+    this.chatMessagesService.createMessage(
+      msg.msg,
+      1,
+      msg.channel,
+      msg.datestamp,
+    );
   }
 }

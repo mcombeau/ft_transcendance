@@ -24,7 +24,7 @@ export const Chat = () => {
   const [channels, setChannels] = useState<Channel[]>([]);
   const [newchannel, setNewchannel] = useState("");
   const [current_channel, setCurrentChannel] = useState(""); // TODO: have screen if no channels
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState("user");
   const [settings, setSettings] = useState(false);
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export const Chat = () => {
     fetch("http://localhost:3001/chats").then(async (response) => {
       const data = await response.json();
       if (!response.ok) {
-        console.log("error response create channel");
+        console.log("error response load channels");
         return;
       }
       data.map((e) => {
@@ -53,16 +53,15 @@ export const Chat = () => {
     fetch("http://localhost:3001/chat-messages").then(async (response) => {
       const data = await response.json();
       if (!response.ok) {
-        console.log("error response create channel");
+        console.log("error response load messages");
         return;
       }
-      console.log(data);
       data.map((e) => {
         var msg: Message = {
-          datestamp: e.datestamp,
-          msg: e.msg,
-          sender: e.sender,
-          channel: e.channel,
+          datestamp: e.sentAt,
+          msg: e.message,
+          sender: e.sender.username,
+          channel: e.chatRoom.name,
         };
         setMessages((prev) => [...prev, msg]);
       });
@@ -196,41 +195,39 @@ export const Chat = () => {
 
   return (
     <WebSocketProvider value={socket}>
-      <body>
-        <div className="chat-container">
-          <div className="sidebar">
-            <form className="newchan" onSubmit={createChannel}>
-              <input
-                type="text"
-                value={newchannel}
-                onChange={(e) => {
-                  setNewchannel(e.target.value);
-                }}
-              />
-              <button>+</button>
-            </form>
-            <div id="channels">
-              {channels.map((channel: Channel) => channelInfo(channel))}
-            </div>
-          </div>
-          <div className="chat">
-            {settingMenu()}
-            <div id="messages">
-              {messages.map((msg: Message) => messageStatus(msg))}
-            </div>
-            <form id="form" onSubmit={handleSendMessage}>
-              <input
-                type="text"
-                value={value}
-                onChange={(e) => {
-                  setValue(e.target.value);
-                }}
-              />
-              <button>Send</button>
-            </form>
+      <div className="chat-container">
+        <div className="sidebar">
+          <form className="newchan" onSubmit={createChannel}>
+            <input
+              type="text"
+              value={newchannel}
+              onChange={(e) => {
+                setNewchannel(e.target.value);
+              }}
+            />
+            <button>+</button>
+          </form>
+          <div id="channels">
+            {channels.map((channel: Channel) => channelInfo(channel))}
           </div>
         </div>
-      </body>
+        <div className="chat">
+          {settingMenu()}
+          <div id="messages">
+            {messages.map((msg: Message) => messageStatus(msg))}
+          </div>
+          <form id="form" onSubmit={handleSendMessage}>
+            <input
+              type="text"
+              value={value}
+              onChange={(e) => {
+                setValue(e.target.value);
+              }}
+            />
+            <button>Send</button>
+          </form>
+        </div>
+      </div>
     </WebSocketProvider>
   );
 };

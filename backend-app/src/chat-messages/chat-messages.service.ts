@@ -21,21 +21,22 @@ export class ChatMessagesService {
   ) {}
 
   fetchMessages() {
-    return this.chatMessagesRepository.find();
+    return this.chatMessagesRepository.find({
+      relations: ['chatRoom', 'sender'],
+    });
   }
 
   async createMessage(
     message: string,
     senderID: number,
-    chatRoomID: number,
+    chatRoomName: string,
     sentTime: Date,
   ) {
-    const chat = await this.chatService.fetchChatByID(chatRoomID);
+    const chat = await this.chatService.fetchChatByName(chatRoomName);
     if (!chat)
       throw new HttpException('Cannot find chat room', HttpStatus.BAD_REQUEST);
     const user = await this.userService.fetchUserByID(senderID);
     if (!user) {
-      return; // TODO: change
       throw new HttpException('Cannot find sender', HttpStatus.BAD_REQUEST);
     }
     const messageDetails = {
