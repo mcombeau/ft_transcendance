@@ -49,10 +49,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('delete chat')
-  async onDeleteChat(
-    @MessageBody() info: any,
-    @ConnectedSocket() socket: ioSocket,
-  ) {
+  async onDeleteChat(@MessageBody() info: any) {
     var entity = await this.chatsService.fetchChatByName(info);
     var id = entity.id;
 
@@ -60,5 +57,11 @@ export class ChatGateway implements OnModuleInit {
       console.log(err);
     });
     this.server.emit('delete chat', info);
+  }
+
+  @SubscribeMessage('add chat')
+  async onAddChat(@MessageBody() info: any) {
+    this.chatsService.createChat(info);
+    this.server.emit('add chat', info);
   }
 }

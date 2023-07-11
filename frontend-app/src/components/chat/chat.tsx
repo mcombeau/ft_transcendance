@@ -13,7 +13,6 @@ type Message = {
 
 type Channel = {
   name: string;
-  id: number;
   creator: string;
 };
 
@@ -41,6 +40,17 @@ export const Chat = () => {
       setCurrentChannel("");
     });
 
+    socket.on("add chat", (info: any) => {
+      console.log("Added new chat");
+      console.log(info);
+      var channel = {
+        name: info.name,
+        creator: "",
+      };
+      setChannels((prev) => [...prev, channel]);
+      setNewchannel("");
+    });
+
     fetch("http://localhost:3001/chats").then(async (response) => {
       const data = await response.json();
       if (!response.ok) {
@@ -50,7 +60,6 @@ export const Chat = () => {
       data.map((e) => {
         var chan: Channel = {
           name: e.name,
-          id: e.id,
           creator: "",
         };
         setChannels((prev) => [...prev, chan]);
@@ -128,30 +137,7 @@ export const Chat = () => {
   const createChannel = () => {
     // Create new channel
     if (newchannel == "") return;
-    const requestchan = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: newchannel,
-        password: "pass",
-        creator: "",
-      }),
-    };
-    console.log(requestchan);
-    fetch("http://localhost:3001/chats", requestchan).then(async (response) => {
-      const data = await response.json();
-      if (!response.ok) {
-        console.log("Error response create channel");
-        return;
-      }
-      var channel = {
-        name: newchannel,
-        id: data.id,
-        creator: "",
-      };
-      setChannels((prev) => [...prev, channel]);
-      setNewchannel("");
-    });
+    socket.emit("add chat", { name: newchannel, password: "pass" });
   };
 
   const channelInfo = (channel: Channel) => {
