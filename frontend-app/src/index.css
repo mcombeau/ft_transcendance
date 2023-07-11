@@ -359,6 +359,19 @@ li#mine {
 }
 
 .settings > button {
+  background: white;
+  color: black;
+  border: none;
+  margin: 1rem;
+  padding: 0rem 1rem;
+  border-radius: 3rem;
+}
+
+.settings > button:active {
+  background: lightblue;
+}
+
+.settings > button.closesettings {
   position: absolute;
   top: 0;
   right: 0;
