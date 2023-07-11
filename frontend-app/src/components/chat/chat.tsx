@@ -9,6 +9,7 @@ type Message = {
   msg: string;
   sender: string;
   channel: string;
+  read: boolean;
 };
 
 type Channel = {
@@ -28,6 +29,7 @@ export const Chat = () => {
 
   useEffect(() => {
     socket.on("chat message", (msg: Message) => {
+      msg.read = false;
       setMessages((prev) => [...prev, msg]);
       var chat = document.getElementById("messages");
       chat.scrollTop = chat.scrollHeight * 2;
@@ -78,6 +80,7 @@ export const Chat = () => {
           msg: e.message,
           sender: e.sender.username,
           channel: e.chatRoom.name,
+          read: true,
         };
         setMessages((prev) => [...prev, msg]);
       });
@@ -102,6 +105,7 @@ export const Chat = () => {
       datestamp: new Date(),
       sender: username,
       channel: current_channel,
+      read: true,
     };
     console.log("Msg :");
     console.log(msg);
@@ -142,6 +146,15 @@ export const Chat = () => {
 
   const channelInfo = (channel: Channel) => {
     var isCurrent = channel.name == current_channel;
+    var unreadMessages: number = messages
+      .filter((msg) => {
+        return msg.channel == channel.name;
+      })
+      .filter((msg) => {
+        return msg.read == false;
+      }).length;
+    console.log(channel.name);
+    console.log(unreadMessages);
     return (
       <div id="channel-info">
         <li
@@ -153,6 +166,7 @@ export const Chat = () => {
           }}
           className={isCurrent ? "chanCurrent" : "channotCurrent"}
         >
+          <p>{unreadMessages}</p>
           {channel.name}
           <button
             value={channel.name}
