@@ -347,3 +347,24 @@ li#mine {
   outline: none;
   color: #fff;
 }
+
+.settings {
+  position: relative;
+  background: lightseagreen;
+  margin: 5rem;
+  padding: 1rem;
+  color: white;
+  border-radius: 3px;
+  min-height: 10rem;
+}
+
+.settings > button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: none;
+  color: white;
+  border: none;
+  padding: 1rem;
+  font-size: 1rem;
+}
