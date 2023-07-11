@@ -35,7 +35,6 @@ export const Chat = () => {
     });
 
     socket.on("delete chat", (channelname: string) => {
-      console.log("got it");
       setChannels((prev) => prev.filter((e) => e.name != channelname));
       setMessages((prev) => prev.filter((e) => e.channel != channelname));
       setSettings(false);
@@ -210,6 +209,22 @@ export const Chat = () => {
       );
   };
 
+  const sendForm = () => {
+    if (current_channel == "") return;
+    return (
+      <form id="form" onSubmit={handleSendMessage}>
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => {
+            setValue(e.target.value);
+          }}
+        />
+        <button>Send</button>
+      </form>
+    );
+  };
+
   return (
     <WebSocketProvider value={socket}>
       <div className="chat-container">
@@ -233,16 +248,7 @@ export const Chat = () => {
           <div id="messages">
             {messages.map((msg: Message) => messageStatus(msg))}
           </div>
-          <form id="form" onSubmit={handleSendMessage}>
-            <input
-              type="text"
-              value={value}
-              onChange={(e) => {
-                setValue(e.target.value);
-              }}
-            />
-            <button>Send</button>
-          </form>
+          {sendForm()}
         </div>
       </div>
     </WebSocketProvider>
