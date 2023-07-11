@@ -25,6 +25,7 @@ export const Chat = () => {
   const [newchannel, setNewchannel] = useState("");
   const [current_channel, setCurrentChannel] = useState(""); // TODO: have screen if no channels
   const [username, setUsername] = useState("");
+  const [settings, setSettings] = useState(false);
 
   useEffect(() => {
     socket.on("chat message", (msg: Message) => {
@@ -161,10 +162,36 @@ export const Chat = () => {
           className={isCurrent ? "chanCurrent" : "channotCurrent"}
         >
           {channel.name}
-          <button>⚙</button>
+          <button
+            value={channel.name}
+            onClick={(e) => {
+              setCurrentChannel(
+                (e.target as HTMLInputElement).getAttribute("value")
+              );
+              setSettings(true);
+            }}
+          >
+            ⚙
+          </button>
         </li>
       </div>
     );
+  };
+
+  const settingMenu = (channel_name: string) => {
+    if (settings)
+      return (
+        <div className="settings">
+          <h2>My new Menu</h2>
+          <button
+            onClick={() => {
+              setSettings(false);
+            }}
+          >
+            ✕
+          </button>
+        </div>
+      );
   };
 
   return (
@@ -187,6 +214,7 @@ export const Chat = () => {
             </div>
           </div>
           <div className="chat">
+            {settingMenu("")}
             <div id="messages">
               {messages.map((msg: Message) => messageStatus(msg))}
             </div>
