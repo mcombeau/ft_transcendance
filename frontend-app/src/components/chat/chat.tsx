@@ -14,6 +14,7 @@ type Message = {
 type Channel = {
   name: string;
   id: number;
+  creator: string;
 };
 
 export const Chat = () => {
@@ -42,6 +43,7 @@ export const Chat = () => {
         var chan: Channel = {
           name: e.name,
           id: e.id,
+          creator: "",
         };
         setChannels((prev) => [...prev, chan]);
       });
@@ -125,6 +127,7 @@ export const Chat = () => {
       body: JSON.stringify({
         name: newchannel,
         password: "pass",
+        creator: "",
       }),
     };
     console.log(requestchan);
@@ -137,6 +140,7 @@ export const Chat = () => {
       var channel = {
         name: newchannel,
         id: data.id,
+        creator: "",
       };
       setChannels((prev) => [...prev, channel]);
       setNewchannel("");
