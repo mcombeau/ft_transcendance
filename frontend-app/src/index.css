@@ -154,11 +154,16 @@
 
 li {
   text-decoration: none;
-  color: gray;
+  color: white;
   list-style: none;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   padding: 26px 30px;
   text-align: center;
+}
+
+.pong-img {
+  padding: 10px 10px;
+  margin: 10px 10px;
 }
 
 .pong-img {
