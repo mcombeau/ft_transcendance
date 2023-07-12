@@ -1,6 +1,8 @@
 function Login() {
     return (
-        <h1>Login</h1>
+      <form action="/backend/auth">
+		   <button type="submit">Login</button>
+      </form>
     )
 }
 

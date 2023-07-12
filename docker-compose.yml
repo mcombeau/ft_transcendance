@@ -10,7 +10,7 @@ services:
         networks:
             - ft_transcendance
         ports:
-            - "443:443"
+            - "80:80"
         # volumes:
         depends_on:
             - frontend
