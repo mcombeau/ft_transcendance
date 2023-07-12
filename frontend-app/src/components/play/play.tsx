@@ -1,5 +1,7 @@
 import * as React from "react";
 import "./styles.css";
+import { io, Socket } from "socket.io-client";
+const URL = "http://localhost:3001";
 
 type Position = {
   x: number;
@@ -20,6 +22,9 @@ type State = {
   ballPosition: Position;
   move: Step;
 };
+
+// const socket = React.useContext(WebSocketContext);
+// state
 
 class Pong extends React.Component<
   {},
@@ -51,6 +56,8 @@ class Pong extends React.Component<
   rightBoundary: number;
   defaultBallPosition: Position;
   timer: NodeJS.Timeout;
+  otherState: State;
+  socket: Socket;
 
   constructor(props: any) {
     super(props);
@@ -86,7 +93,15 @@ class Pong extends React.Component<
         stepY: 1,
       },
     };
-    // this.timer = 0;
+    this.socket = io(URL);
+    this.initSocket();
+  }
+
+  initSocket() {
+    this.socket.on("tick", (state: State) => {
+      this.otherState = state;
+      console.log(state);
+    });
   }
 
   randomInitialMove() {
@@ -180,6 +195,7 @@ class Pong extends React.Component<
   }
 
   check() {
+    this.socket.emit("tick", this.state);
     this.checkPlayers();
     this.checkGoals();
     this.checkBallBoundaries();
