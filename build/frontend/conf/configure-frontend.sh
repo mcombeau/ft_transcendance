@@ -1,11 +1,11 @@
-echo "[Configure frontend] Setting PORT 3000..."
-echo "PORT=3000" > .env
-echo "[Configure frontend] Creating react app..."
-npx create-react-app ./ --template typescript
+echo "[Configure backend] Installing NestJS CLI..."
+npm install -g @nestjs/cli
+# echo "[Configure frontend] Creating react app..."
+# yarn create react-app ./ --template typescript
 echo "[Configure frontend] Installing requirements..."
-npm install
+yarn install
 # Uncomment build rule for production
 # echo "[Configure frontend] Building app..."
-# npm build
+# yarn build
 echo "[Configure frontend] Starting frontend app..."
-npm start
+yarn start
