@@ -1,12 +1,16 @@
-import { IsNotEmpty } from "class-validator";
+import { IsNotEmpty, IsNumber } from "class-validator";
 
 export class createGameDto {
     @IsNotEmpty()
-    winner: string;
+    @IsNumber()
+    winnerID: number;
     @IsNotEmpty()
-    loser: string;
+    @IsNumber()
+    loserID: number;
     @IsNotEmpty()
+    @IsNumber()
     winnerScore: number;
     @IsNotEmpty()
+    @IsNumber()
     loserScore: number;
 }

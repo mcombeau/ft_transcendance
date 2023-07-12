@@ -5,13 +5,14 @@ export class GameEntity {
     @PrimaryGeneratedColumn()
     id: number;
     @Column()
-    winner: string;
+    winnerID: number;
     @Column()
-    loser: string;
+    loserID: number;
     @Column()
     winnerScore: number;
     @Column()
     loserScore: number;
     @Column()
     createdAt: Date;
+
 }
