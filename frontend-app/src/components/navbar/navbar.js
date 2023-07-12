@@ -1,21 +1,56 @@
-import  { NavLink } from "react-router-dom";
+import React, { useState } from "react";
+
+import {
+  NavbarContainer,
+  LeftContainer,
+  RightContainer,
+  NavbarExtendedContainer,
+  NavbarInnerContainer,
+  NavbarLinkContainer,
+  NavbarLink,
+  Logo,
+  OpenLinksButton,
+  NavbarLinkExtended,
+} from "./NavBar.style";
+import LogoImg from "./../../ping.svg";
 
 function Navbar() {
-    return (
-		<nav class="navbar background">
-                <ul class="nav-list">
-                    <div class="logo">
-                        <img src=
-"https://forums.gamesalad.com/uploads/259/6I2MYLUX1J2S.jpg" alt="logo" />
-		</div>
-                <li><NavLink exact to="/">Home</NavLink></li>
-                <li><NavLink to="/play">Play</NavLink></li>
-                <li><NavLink to="/leaderboard">Leaderboard</NavLink></li>
-                <li><NavLink to="/chat">Chat</NavLink></li>
-                <li><NavLink to="/login">Login</NavLink></li>
-            </ul>
-		</nav>
-    )
+  const [extendNavbar, setExtendNavbar] = useState(false);
+
+  return (
+    <NavbarContainer extendNavbar={extendNavbar}>
+      <NavbarInnerContainer>
+        <LeftContainer>
+          <NavbarLinkContainer>
+            <NavbarLink to="/"> Home</NavbarLink>
+            <NavbarLink to="/login"> Login</NavbarLink>
+            <NavbarLink to="/chat"> Chat</NavbarLink>
+            <NavbarLink to="/play"> Play Game</NavbarLink>
+            <NavbarLink to="/leaderboard"> Leaderboard</NavbarLink>
+            <OpenLinksButton
+              onClick={() => {
+                setExtendNavbar((curr) => !curr);
+              }}
+            >
+              {extendNavbar ? <>&#10005;</> : <> &#8801;</>}
+            </OpenLinksButton>
+          </NavbarLinkContainer>
+        </LeftContainer>
+        <RightContainer>
+          <Logo src={LogoImg}></Logo>
+        </RightContainer>
+      </NavbarInnerContainer>
+      {extendNavbar && (
+        <NavbarExtendedContainer>
+          <NavbarLinkExtended to="/"> Home</NavbarLinkExtended>
+          <NavbarLinkExtended to="/login"> Login</NavbarLinkExtended>
+          <NavbarLinkExtended to="/chat"> Chat</NavbarLinkExtended>
+          <NavbarLinkExtended to="/play"> Play</NavbarLinkExtended>
+          <NavbarLinkExtended to="/leaderboard"> Leaderboard</NavbarLinkExtended>
+        </NavbarExtendedContainer>
+      )}
+    </NavbarContainer>
+  );
 }
 
 export default Navbar;

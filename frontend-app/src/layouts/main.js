@@ -1,6 +1,6 @@
 import Navbar from '../components/navbar/navbar'
 import  { HashRouter, Routes, Route } from "react-router-dom";
-import Home from '../components/home/home'
+import Home from '../components/home/Home'
 import Login from '../components/login/login'
 import Chat from '../components/chat/chat'
 import Play from '../components/play/play'

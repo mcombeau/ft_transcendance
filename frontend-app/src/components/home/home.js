@@ -11,8 +11,7 @@ function Home() {
                         <p class="text-small">
 						We made a great implementation of Pong you can play here !
                         </p>
-                        <img class="pong-img" width="200px" height="100px" style={{float: 'left' }} src=
-"https://www.hiig.de/wp-content/uploads/2014/11/Pong1-1200x900.jpg" alt="Pong" />
+                       
                     </div>
                 </div>
             </section>
