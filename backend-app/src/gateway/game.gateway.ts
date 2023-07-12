@@ -39,7 +39,5 @@ export class GameGateway implements OnModuleInit {
   @SubscribeMessage('tick')
   onTick(@MessageBody() state: any, @ConnectedSocket() socket: ioSocket) {
     socket.broadcast.emit('tick', state);
-    console.log('TICK');
-    console.log(state);
   }
 }
