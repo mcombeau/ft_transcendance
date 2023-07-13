@@ -5,10 +5,9 @@ export class createMessageDto {
   @IsAlphanumeric()
   message: string;
   @IsNotEmpty()
-  @IsNumber()
-  sender: number;
+  @IsAlphanumeric()
+  sender: string;
   @IsNotEmpty()
   @IsAlphanumeric()
   chatRoom: string;
 }
-
