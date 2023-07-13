@@ -3,6 +3,7 @@ import {
   WebSocketContext,
   WebSocketProvider,
 } from "../../contexts/WebsocketContext";
+import { useCookies } from "react-cookie";
 
 type Message = {
   datestamp: Date;
@@ -24,8 +25,9 @@ export const Chat = () => {
   const [channels, setChannels] = useState<Channel[]>([]);
   const [newchannel, setNewchannel] = useState("");
   const [current_channel, setCurrentChannel] = useState(""); // TODO: have screen if no channels
-  const [username, setUsername] = useState("user");
+  const [username, setUsername] = useState("");
   const [settings, setSettings] = useState(false);
+  const [cookies, setCookie, removeCookie] = useCookies(["cookie-name"]);
 
   useEffect(() => {
     socket.on("chat message", (msg: Message) => {
@@ -95,11 +97,15 @@ export const Chat = () => {
     };
   }, []);
 
-  const handleSendMessage = () => {
-    if (value == "" || current_channel == "") {
-      console.log("Message is empty or channel is not defined");
+  const handleSendMessage = (e) => {
+    e.preventDefault();
+    if (value == "" || current_channel == "" || !cookies["Username"]) {
+      console.log(
+        "Message is empty or channel is not defined or not logged in"
+      );
       return;
     }
+    setUsername(cookies["Username"]);
     var msg: Message = {
       msg: value,
       datestamp: new Date(),
@@ -108,7 +114,6 @@ export const Chat = () => {
       read: true,
     };
     socket.emit("chat message", msg);
-    msg.sender = "me";
     setMessages((prev) => [...prev, msg]);
     setValue("");
   };
@@ -116,7 +121,7 @@ export const Chat = () => {
   const messageStatus = (msg: Message) => {
     var chat = document.getElementById("messages");
     if (msg.channel != current_channel) return;
-    if (msg.sender == "me") {
+    if (msg.sender == username) {
       chat.scrollTop = chat.scrollHeight * 2;
       return (
         <div id="rightmessage">
@@ -136,7 +141,8 @@ export const Chat = () => {
     );
   };
 
-  const createChannel = () => {
+  const createChannel = (e) => {
+    e.preventDefault();
     // Create new channel
     if (newchannel == "") return;
     socket.emit("add chat", { name: newchannel, password: "pass" });

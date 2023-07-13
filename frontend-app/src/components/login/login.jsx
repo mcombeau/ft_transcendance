@@ -4,30 +4,68 @@ import Icon from "./Icon";
 import Input from "./Input";
 import "./login.css";
 import { FaInstagram } from "react-icons/fa";
+import { useState } from "react";
+import { useCookies } from "react-cookie";
 
 function Login() {
+  const [username, setUsername] = useState("");
+  const [cookies, setCookie, removeCookie] = useCookies(["cookie-name"]);
+
   const InstagramBackground =
     "linear-gradient(to right, #A12AC4 0%, #ED586C 40%, #F0A853 100%)";
+
+  const createUser = (e) => {
+    e.preventDefault();
+    // Create new channel
+    if (username == "") return;
+    var request = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username: username, email: "mail@mail.com" }),
+    };
+    fetch("http://localhost:3001/users", request).then(async (response) => {
+      const data = await response.json();
+      if (!response.ok) {
+        console.log("error user creation");
+        return;
+      }
+      setCookie("Username", username, { path: "/" });
+      console.log("My username is " + username);
+    });
+    setUsername("");
+  };
+
   return (
-    <MainContainer id="login"> 
-    <div className="log">
-      <WelcomeText>Welcome to the Game</WelcomeText>
-      <InputContainer>
-        <Input type="text" placeholder="Email" />
-        <Input type="password" placeholder="Password" />
-      </InputContainer>
-      <ButtonContainer>
-        <Button content="Sign Up" />
-      </ButtonContainer>
-      <LoginWith>OR LOGIN WITH</LoginWith>
-      <HorizontalRule />
-      <IconsContainer>
-        <Icon color={InstagramBackground}>
-          <FaInstagram />
-        </Icon>
-      </IconsContainer>
-      <ForgotPassword>Forgot Password ?</ForgotPassword>
-    </div>
+    <MainContainer id="login">
+      <div className="log">
+        <WelcomeText>Welcome to the Game</WelcomeText>
+        <form onSubmit={createUser}>
+          {/* <InputContainer> */}
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => {
+              setUsername(e.target.value);
+            }}
+          />
+          <input type="password" placeholder="Password" />
+          {/* </InputContainer> */}
+          <ButtonContainer>
+            <Button content="Sign Up" />
+          </ButtonContainer>
+        </form>
+        <LoginWith>OR LOGIN WITH</LoginWith>
+        <HorizontalRule />
+        <IconsContainer>
+          <Icon color={InstagramBackground}>
+            <FaInstagram />
+          </Icon>
+        </IconsContainer>
+        <ForgotPassword>Forgot Password ?</ForgotPassword>
+      </div>
     </MainContainer>
   );
 }
