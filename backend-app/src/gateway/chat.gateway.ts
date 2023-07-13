@@ -42,7 +42,7 @@ export class ChatGateway implements OnModuleInit {
   onChatMessage(@MessageBody() msg: any, @ConnectedSocket() socket: ioSocket) {
     socket.broadcast.emit('chat message', msg);
     this.chatMessagesService
-      .createMessage(msg.msg, 1, msg.channel, msg.datestamp)
+      .createMessage(msg.msg, msg.sender, msg.channel, msg.datestamp)
       .catch((err: any) => {
         console.log(err);
       });

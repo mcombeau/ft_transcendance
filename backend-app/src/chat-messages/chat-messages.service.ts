@@ -28,14 +28,14 @@ export class ChatMessagesService {
 
   async createMessage(
     message: string,
-    senderID: number,
+    sender: string,
     chatRoomName: string,
     sentTime: Date,
   ) {
     const chat = await this.chatService.fetchChatByName(chatRoomName);
     if (!chat)
       throw new HttpException('Cannot find chat room', HttpStatus.BAD_REQUEST);
-    const user = await this.userService.fetchUserByID(senderID);
+    const user = await this.userService.fetchUserByUsername(sender);
     if (!user) {
       throw new HttpException('Cannot find sender', HttpStatus.BAD_REQUEST);
     }
@@ -48,6 +48,7 @@ export class ChatMessagesService {
     const newMessage = this.chatMessagesRepository.create({
       ...messageDetails,
     });
+    console.log(messageDetails);
     return this.chatMessagesRepository.save(newMessage);
   }
 
@@ -65,8 +66,12 @@ export class ChatMessagesService {
 
   async deleteMessagesByChatID(id: number) {
     const chatRoom = await this.chatService.fetchChatByID(id);
-    const messages = await this.chatMessagesRepository.find({ where: {chatRoom}});
-    messages.map((e) => {this.deleteMessage(e.id)});
+    const messages = await this.chatMessagesRepository.find({
+      where: { chatRoom },
+    });
+    messages.map((e) => {
+      this.deleteMessage(e.id);
+    });
   }
 
   deleteMessage(id: number) {

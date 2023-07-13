@@ -109,7 +109,7 @@ export const Chat = () => {
     var msg: Message = {
       msg: value,
       datestamp: new Date(),
-      sender: username,
+      sender: cookies["Username"],
       channel: current_channel,
       read: true,
     };
