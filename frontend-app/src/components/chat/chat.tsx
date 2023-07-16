@@ -21,7 +21,7 @@ type Channel = {
 export const Chat = () => {
   const socket = useContext(WebSocketContext);
   const [value, setValue] = useState("");
-  const [messages, setMessages] = useState<Message[]>([]); // TODO: init with database
+  const [messages, setMessages] = useState<Message[]>([]);
   const [channels, setChannels] = useState<Channel[]>([]);
   const [newchannel, setNewchannel] = useState("");
   const [current_channel, setCurrentChannel] = useState(""); // TODO: have screen if no channels

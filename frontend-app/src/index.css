@@ -237,7 +237,7 @@ li#mine {
 
 .chat-container {
   position: absolute;
-  top: 4.5rem;
+  top: 80px;
   width: 100%;
   bottom: 0;
 }
@@ -245,9 +245,11 @@ li#mine {
 .sidebar {
   width: 20%;
   position: fixed;
-  height: 100%;
+  left: 0;
+  height: calc(100% - 80px);
   background-color: lightgray;
-  overflow-y: scroll;
+  overflow: auto;
+  /* overflow-y: scroll; */
 }
 
 #channel-info > li {
