@@ -54,6 +54,7 @@ export const Chat = () => {
     });
 
     if (channels.length == 0) {
+      // TODO: maybe move fetch out of the useeffect ?
       fetch("http://localhost:3001/chats").then(async (response) => {
         const data = await response.json();
         if (!response.ok) {
