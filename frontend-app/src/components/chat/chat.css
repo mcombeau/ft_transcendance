@@ -50,6 +50,10 @@ li#mine {
   font-size: xx-small;
 }
 
+#sender:hover {
+  cursor: default;
+  color: lightblue;
+}
 #date {
   padding: 0;
   display: inline;
