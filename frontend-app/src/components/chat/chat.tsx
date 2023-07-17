@@ -33,9 +33,6 @@ export const Chat = () => {
     socket.on("chat message", (msg: Message) => {
       msg.read = false;
       setMessages((prev) => [...prev, msg]);
-      // var chat = document.getElementById("messages");
-      // chat.scrollTop = chat.scrollHeight * 2;
-      // chat.scrollIntoView({ behavior: "smooth" });
     });
 
     socket.on("delete chat", (channelname: string) => {
@@ -56,38 +53,42 @@ export const Chat = () => {
       setNewchannel("");
     });
 
-    fetch("http://localhost:3001/chats").then(async (response) => {
-      const data = await response.json();
-      if (!response.ok) {
-        console.log("error response load channels");
-        return;
-      }
-      data.map((e) => {
-        var chan: Channel = {
-          name: e.name,
-          creator: "",
-        };
-        setChannels((prev) => [...prev, chan]);
+    if (channels.length == 0) {
+      fetch("http://localhost:3001/chats").then(async (response) => {
+        const data = await response.json();
+        if (!response.ok) {
+          console.log("error response load channels");
+          return;
+        }
+        data.map((e) => {
+          var chan: Channel = {
+            name: e.name,
+            creator: "",
+          };
+          setChannels((prev) => [...prev, chan]);
+        });
       });
-    });
+    }
 
-    fetch("http://localhost:3001/chat-messages").then(async (response) => {
-      const data = await response.json();
-      if (!response.ok) {
-        console.log("error response load messages");
-        return;
-      }
-      data.map((e) => {
-        var msg: Message = {
-          datestamp: e.sentAt,
-          msg: e.message,
-          sender: e.sender.username,
-          channel: e.chatRoom.name,
-          read: true,
-        };
-        setMessages((prev) => [...prev, msg]);
+    if (messages.length == 0) {
+      fetch("http://localhost:3001/chat-messages").then(async (response) => {
+        const data = await response.json();
+        if (!response.ok) {
+          console.log("error response load messages");
+          return;
+        }
+        data.map((e) => {
+          var msg: Message = {
+            datestamp: e.sentAt,
+            msg: e.message,
+            sender: e.sender.username,
+            channel: e.chatRoom.name,
+            read: true,
+          };
+          setMessages((prev) => [...prev, msg]);
+        });
       });
-    });
+    }
 
     return () => {
       console.log("unregistering events");
