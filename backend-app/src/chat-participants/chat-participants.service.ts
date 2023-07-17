@@ -17,7 +17,9 @@ export class ChatParticipantsService {
     ) {}
 
     fetchParticipants() {
-        return this.participantRepository.find();
+        return this.participantRepository.find({
+            relations: ['chatRoom', 'participant'],
+        });
     }
 
     fetchParticipantByID(id: number) {
