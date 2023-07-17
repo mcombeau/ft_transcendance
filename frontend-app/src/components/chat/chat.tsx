@@ -181,7 +181,7 @@ export const Chat = () => {
           }}
           className={isCurrent ? "chanCurrent" : "channotCurrent"}
         >
-          <p>{unreadMessages}</p>
+          {unreadMessages > 0 && <p>{unreadMessages}</p>}
           {channel.name}
           <button
             value={channel.name}
