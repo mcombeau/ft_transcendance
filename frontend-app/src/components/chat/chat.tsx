@@ -5,6 +5,7 @@ import {
 } from "../../contexts/WebsocketContext";
 import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
+import "./chat.css";
 
 type Message = {
   datestamp: Date;
