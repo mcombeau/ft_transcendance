@@ -2,16 +2,16 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn
 import { ChatEntity } from "./chat.entity";
 import { UserEntity } from "./user.entity";
 
-@Entity({ name: 'chat_messages' })
-export class ChatMessageEntity {
+@Entity({ name: 'chat_participants' })
+export class ChatParticipantEntity {
     @PrimaryGeneratedColumn()
     id: number;
     @Column()
-    message: string;
+    operator: boolean;
     @Column()
-    sentAt: Date;
-    @ManyToOne( () => ChatEntity, (chat) => chat.messages )
+    banned: boolean;
+    @ManyToOne( () => ChatEntity, (chat) => chat.participants )
     chatRoom: ChatEntity;
-    @ManyToOne( () => UserEntity, (user) => user.messages )
-    sender: UserEntity;
+    @ManyToOne( () => UserEntity, (user) => user.chatRooms )
+    participant: UserEntity;
 }

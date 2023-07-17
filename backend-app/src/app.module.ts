@@ -15,6 +15,7 @@ import { ChatMessageEntity } from './typeorm/entities/chat-message.entity';
 import { GatewayModule } from './gateway/gateway.module';
 import { AuthModule } from './auth/auth.module';
 import { ChatMessagesModule } from './chat-messages/chat-messages.module';
+import { ChatParticipantEntity } from './typeorm/entities/chat-participant.entity';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { ChatMessagesModule } from './chat-messages/chat-messages.module';
         UserEntity,
         ChatEntity,
         ChatMessageEntity,
+        ChatParticipantEntity,
         FriendEntity,
         GameEntity,
       ],
