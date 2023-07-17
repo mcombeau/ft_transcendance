@@ -33,10 +33,6 @@ export class ChatsService {
     });
   }
 
-  // createChatMessage(id: number, messageDetails: createChatMessageParams) {
-  //     return this.chatMessageService.createMessage(messageDetails, messageDetails.sender, messageDetails.chatRoom);
-  // }
-
   fetchChatByID(id: number) {
     return this.chatRepository.findOne({
       where: { id },

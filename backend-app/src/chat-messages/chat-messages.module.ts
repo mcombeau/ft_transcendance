@@ -1,18 +1,21 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ChatMessagesController } from './chat-messages.controller';
 import { ChatMessagesService } from './chat-messages.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ChatMessageEntity } from 'src/typeorm/entities/chat-message.entity';
-import { ChatEntity } from 'src/typeorm/entities/chat.entity';
-import { ChatsService } from 'src/chats/chats.service';
-import { UserEntity } from 'src/typeorm/entities/user.entity';
-import { UsersService } from 'src/users/users.service';
+import { ChatsModule } from 'src/chats/chats.module';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ChatMessageEntity, ChatEntity, UserEntity]),
+    TypeOrmModule.forFeature([ChatMessageEntity]),
+    forwardRef(() => ChatsModule),
+    forwardRef(() => UsersModule)
   ],
   controllers: [ChatMessagesController],
-  providers: [ChatMessagesService, ChatsService, UsersService],
+  providers: [ChatMessagesService],
+  exports: [ChatMessagesService]
 })
-export class ChatMessagesModule {}
+export class ChatMessagesModule {
+
+}
