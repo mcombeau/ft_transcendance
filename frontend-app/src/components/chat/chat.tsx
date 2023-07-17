@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
 import {
   WebSocketContext,
   WebSocketProvider,
@@ -33,8 +33,9 @@ export const Chat = () => {
     socket.on("chat message", (msg: Message) => {
       msg.read = false;
       setMessages((prev) => [...prev, msg]);
-      var chat = document.getElementById("messages");
-      chat.scrollTop = chat.scrollHeight * 2;
+      // var chat = document.getElementById("messages");
+      // chat.scrollTop = chat.scrollHeight * 2;
+      // chat.scrollIntoView({ behavior: "smooth" });
     });
 
     socket.on("delete chat", (channelname: string) => {
@@ -119,10 +120,8 @@ export const Chat = () => {
   };
 
   const messageStatus = (msg: Message) => {
-    var chat = document.getElementById("messages");
     if (msg.channel != current_channel) return;
     if (msg.sender == username) {
-      chat.scrollTop = chat.scrollHeight * 2;
       return (
         <div id="rightmessage">
           <span id="sender">{msg.sender}</span>
@@ -131,7 +130,6 @@ export const Chat = () => {
         </div>
       );
     }
-    chat.scrollTop = chat.scrollHeight * 2;
     return (
       <div id="leftmessage">
         <span id="sender">{msg.sender}</span>
@@ -140,6 +138,12 @@ export const Chat = () => {
       </div>
     );
   };
+
+  useEffect(() => {
+    var message_els = document.getElementById("messages");
+
+    message_els.scrollTop = message_els.scrollHeight;
+  }, [messages]);
 
   const createChannel = (e) => {
     e.preventDefault();
