@@ -4,6 +4,7 @@ import {
   WebSocketProvider,
 } from "../../contexts/WebsocketContext";
 import { useCookies } from "react-cookie";
+import { useNavigate } from "react-router-dom";
 
 type Message = {
   datestamp: Date;
@@ -28,6 +29,7 @@ export const Chat = () => {
   const [username, setUsername] = useState("");
   const [settings, setSettings] = useState(false);
   const [cookies, setCookie, removeCookie] = useCookies(["cookie-name"]);
+  let navigate = useNavigate();
 
   useEffect(() => {
     socket.on("chat message", (msg: Message) => {
@@ -126,7 +128,14 @@ export const Chat = () => {
     if (msg.sender == username) {
       return (
         <div id="rightmessage">
-          <span id="sender">{msg.sender}</span>
+          <span
+            id="sender"
+            onClick={() => {
+              navigate("/user/" + msg.sender);
+            }}
+          >
+            {msg.sender}
+          </span>
           <span id="date">{msg.datestamp.toString().split("G")[0]}</span>
           <li id="mine">{msg.msg}</li>
         </div>
@@ -134,7 +143,14 @@ export const Chat = () => {
     }
     return (
       <div id="leftmessage">
-        <span id="sender">{msg.sender}</span>
+        <span
+          id="sender"
+          onClick={() => {
+            navigate("/user/" + msg.sender);
+          }}
+        >
+          {msg.sender}
+        </span>
         <span id="date">{msg.datestamp.toString().split("G")[0]}</span>
         <li id="othermsg">{msg.msg}</li>
       </div>
