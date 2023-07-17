@@ -248,8 +248,7 @@ li#mine {
   left: 0;
   height: calc(100% - 80px);
   background-color: lightgray;
-  overflow: auto;
-  /* overflow-y: scroll; */
+  /* overflow: auto; */
 }
 
 #channel-info > li {
@@ -300,7 +299,6 @@ li#mine {
   height: calc(100% - 8rem);
   bottom: 8rem;
   overflow-y: auto;
-  background-color: blue;
 }
 
 #form {
@@ -364,6 +362,14 @@ li#mine {
   border-radius: 3px;
   outline: none;
   color: #fff;
+}
+
+#channels {
+  height: calc(100% - 2rem);
+  overflow: auto;
+  /* top: calc(2rem); */
+  bottom: 2rem;
+  padding: 0 0 0.5rem;
 }
 
 .settings {
