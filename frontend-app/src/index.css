@@ -262,7 +262,7 @@ li#mine {
 }
 
 #channel-info > li.chanCurrent {
-  background-color: seagreen;
+  background-color: darkcyan;
 }
 
 #channel-info > li > button {
