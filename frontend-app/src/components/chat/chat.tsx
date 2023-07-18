@@ -227,7 +227,7 @@ export const Chat = () => {
         // TODO: change that
         return (
           <div className="settings">
-            <h3>Settings for {current_channel}</h3>
+            <h3>Admin panel for {current_channel}</h3>
             <button
               onClick={() => {
                 socket.emit("delete chat", current_channel);
@@ -250,6 +250,15 @@ export const Chat = () => {
       return (
         <div className="settings">
           <h3>Settings for {current_channel}</h3>
+          <button
+            onClick={() => {
+              console.log("Leaving " + current_channel);
+              setSettings(false);
+              setCurrentChannel("");
+            }}
+          >
+            Leave channel
+          </button>
           <button
             className="closesettings"
             onClick={() => {
