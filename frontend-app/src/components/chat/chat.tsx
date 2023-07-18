@@ -20,7 +20,7 @@ type Channel = {
   creator: string;
 };
 
-export const Chat = () => {
+export const Chat = ({ children, exceptionRef, onClick, className }) => {
   const socket = useContext(WebSocketContext);
   const [value, setValue] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -32,6 +32,7 @@ export const Chat = () => {
   const [cookies, setCookie, removeCookie] = useCookies(["cookie-name"]);
   const [contextMenu, setContextMenu] = useState(false);
   const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
+  const menuRef = useRef<HTMLDivElement>(null);
   let navigate = useNavigate();
 
   function getChannel(channel_name: string): Channel {
@@ -63,7 +64,6 @@ export const Chat = () => {
     });
 
     if (channels.length == 0) {
-      // TODO: maybe move fetch out of the useeffect ?
       fetch("http://localhost:3001/chats").then(async (response) => {
         const data = await response.json();
         if (!response.ok) {
@@ -109,7 +109,7 @@ export const Chat = () => {
     };
   }, []);
 
-  const handleSendMessage = (e) => {
+  const handleSendMessage = (e: any) => {
     e.preventDefault();
     if (value == "" || current_channel == "" || !cookies["Username"]) {
       console.log(
@@ -133,12 +133,14 @@ export const Chat = () => {
   const contextMenuEl = (sender: string) => {
     return (
       <div
+        ref={menuRef}
         className="contextMenu"
         style={{
           top: contextMenuPos.y - 10,
           left: contextMenuPos.x + 15,
         }}
       >
+        <p>{sender}</p>
         <ul
           onClick={() => {
             console.log("Muted " + sender);
@@ -167,6 +169,7 @@ export const Chat = () => {
         >
           Block
         </ul>
+        <button onClick={() => setContextMenu(false)}>✕</button>
       </div>
     );
   };
