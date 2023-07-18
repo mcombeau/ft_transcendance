@@ -32,6 +32,10 @@ export const Chat = () => {
   const [cookies, setCookie, removeCookie] = useCookies(["cookie-name"]);
   let navigate = useNavigate();
 
+  function getChannel(channel_name: string): Channel {
+    return channels.find((e) => e.name == channel_name);
+  }
+
   useEffect(() => {
     socket.on("chat message", (msg: Message) => {
       msg.read = false;
@@ -50,7 +54,7 @@ export const Chat = () => {
       console.log(info);
       var channel = {
         name: info.name,
-        creator: "",
+        creator: "creator",
       };
       setChannels((prev) => [...prev, channel]);
       setNewchannel("");
@@ -207,7 +211,7 @@ export const Chat = () => {
               setCurrentChannel(
                 (e.target as HTMLInputElement).getAttribute("value")
               );
-              setSettings(true);
+              setSettings(!settings);
             }}
           >
             ⚙
@@ -218,18 +222,34 @@ export const Chat = () => {
   };
 
   const settingMenu = () => {
-    if (settings)
+    if (settings) {
+      if (username == "admin") {
+        // TODO: change that
+        return (
+          <div className="settings">
+            <h3>Settings for {current_channel}</h3>
+            <button
+              onClick={() => {
+                socket.emit("delete chat", current_channel);
+                console.log("Deleting " + current_channel);
+              }}
+            >
+              Delete channel
+            </button>
+            <button
+              className="closesettings"
+              onClick={() => {
+                setSettings(false);
+              }}
+            >
+              ✕
+            </button>
+          </div>
+        );
+      }
       return (
         <div className="settings">
           <h3>Settings for {current_channel}</h3>
-          <button
-            onClick={() => {
-              socket.emit("delete chat", current_channel);
-              console.log("Deleting " + current_channel);
-            }}
-          >
-            Delete channel
-          </button>
           <button
             className="closesettings"
             onClick={() => {
@@ -240,6 +260,7 @@ export const Chat = () => {
           </button>
         </div>
       );
+    }
   };
 
   const sendForm = () => {
