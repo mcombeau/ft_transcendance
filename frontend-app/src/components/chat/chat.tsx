@@ -30,6 +30,8 @@ export const Chat = () => {
   const [username, setUsername] = useState("");
   const [settings, setSettings] = useState(false);
   const [cookies, setCookie, removeCookie] = useCookies(["cookie-name"]);
+  const [contextMenu, setContextMenu] = useState(false);
+  const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
   let navigate = useNavigate();
 
   function getChannel(channel_name: string): Channel {
@@ -128,6 +130,47 @@ export const Chat = () => {
     setValue("");
   };
 
+  const contextMenuEl = (sender: string) => {
+    return (
+      <div
+        className="contextMenu"
+        style={{
+          top: contextMenuPos.y - 10,
+          left: contextMenuPos.x + 15,
+        }}
+      >
+        <ul
+          onClick={() => {
+            console.log("Muted " + sender);
+          }}
+        >
+          Mute
+        </ul>
+        <ul
+          onClick={() => {
+            console.log("Kicked " + sender);
+          }}
+        >
+          Kick
+        </ul>
+        <ul
+          onClick={() => {
+            console.log("Banned " + sender);
+          }}
+        >
+          Ban
+        </ul>
+        <ul
+          onClick={() => {
+            console.log("Blocked " + sender);
+          }}
+        >
+          Block
+        </ul>
+      </div>
+    );
+  };
+
   const messageStatus = (msg: Message) => {
     if (msg.channel != current_channel) return;
     if (msg.sender == username) {
@@ -153,11 +196,17 @@ export const Chat = () => {
           onClick={() => {
             navigate("/user/" + msg.sender);
           }}
+          onContextMenu={(e) => {
+            e.preventDefault();
+            setContextMenu(true);
+            setContextMenuPos({ x: e.pageX, y: e.pageY });
+          }}
         >
           {msg.sender}
         </span>
         <span id="date">{msg.datestamp.toString().split("G")[0]}</span>
         <li id="othermsg">{msg.msg}</li>
+        {contextMenu && contextMenuEl(msg.sender)}
       </div>
     );
   };
@@ -168,7 +217,7 @@ export const Chat = () => {
     message_els.scrollTop = message_els.scrollHeight;
   }, [messages]);
 
-  const createChannel = (e) => {
+  const createChannel = (e: any) => {
     e.preventDefault();
     // Create new channel
     if (newchannel == "") return;
@@ -252,6 +301,7 @@ export const Chat = () => {
           <h3>Settings for {current_channel}</h3>
           <button
             onClick={() => {
+              // TODO: change
               console.log("Leaving " + current_channel);
               setSettings(false);
               setCurrentChannel("");

@@ -237,3 +237,21 @@ li#mine {
   padding: 1rem;
   font-size: 1rem;
 }
+
+.contextMenu {
+  position: fixed;
+  color: white;
+  background: darkcyan;
+  border-radius: 0.2rem;
+  padding: 0.1rem;
+}
+
+.contextMenu > ul {
+  font-size: 0.8rem;
+  border: thin solid;
+  border-color: white;
+  padding: 0.1rem;
+  margin: 0.1rem;
+  min-width: 5rem;
+  border-radius: 0.2rem;
+}
