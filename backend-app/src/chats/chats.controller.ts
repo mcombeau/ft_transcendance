@@ -29,11 +29,6 @@ export class ChatsController {
     return this.chatService.createChat(chatDto);
   }
 
-  // @Post(':id/messages')
-  // createChatMessage(@Param('id', ParseIntPipe) id: number, @Body() createMessageDto: createMessageDto) {
-  //     return this.chatService.createChatMessage(id, createMessageDto);
-  // }
-
   @Get(':id')
   async getChatByID(@Param('id', ParseIntPipe) id: number) {
     const chat = await this.chatService.fetchChatByID(id);

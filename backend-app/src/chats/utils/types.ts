@@ -1,10 +1,11 @@
 export type createChatParams = {
     name: string;
     password: string;
-    userID: number;
+    ownerID: number;
 };
 
 export type updateChatParams = {
     name: string;
     password: string;
+    participantID: number;
 };

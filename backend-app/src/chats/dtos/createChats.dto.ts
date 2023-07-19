@@ -11,5 +11,5 @@ export class createChatDto {
 
     @IsNotEmpty()
     @IsNumber()
-    userID: number;
+    ownerID: number;
 }

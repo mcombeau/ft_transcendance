@@ -35,7 +35,11 @@ export class ChatsService {
       console.log('-----------------------');
       throw new BadRequestException('Chat room creation error');
     });
-    const participant = await this.chatParticipantService.createChatParticipant(chatDetails.userID, newSavedChat.id).catch((err : any) => {
+    console.log(chatDetails);
+    const participant = await this.chatParticipantService.createChatParticipant(
+      chatDetails.ownerID, 
+      newSavedChat.id
+    ).catch((err : any) => {
       console.log('---- Create chat participant error');
       this.deleteChatByID(newSavedChat.id);
       throw new HttpException('Could not create chat participant', HttpStatus.BAD_REQUEST);
@@ -48,7 +52,7 @@ export class ChatsService {
   fetchChatByID(id: number) {
     return this.chatRepository.findOne({
       where: { id },
-      relations: ['messages', 'participants'],
+      relations: ['messages', 'participants.participant'],
     });
   }
 
@@ -60,13 +64,14 @@ export class ChatsService {
   }
 
   updateChatByID(id: number, chatDetails: updateChatParams) {
-    const participant = chatDetails['participant'];
+    const participant = chatDetails['participantID'];
+    console.log(participant);
     if (participant !== undefined) {
       console.log("Adding participant...");
       this.chatParticipantService.createChatParticipant(participant, id);
     }
-    delete chatDetails['participant'];
-    console.log("participant: " + participant);
+    delete chatDetails['participantID'];
+    console.log("participantID: " + participant);
     return this.chatRepository.update({ id }, { ...chatDetails });
   }
 

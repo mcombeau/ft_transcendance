@@ -53,23 +53,32 @@ export class ChatParticipantsService {
     }
 
     async createChatParticipant(userID: number, chatRoomID: number) {
+        console.log('---- Creating participant...');
+        console.log('userID: ' + userID);
+        console.log('chatRoomID: ' + chatRoomID);
+        
         const foundRecord = await this.participantRepository.find({
             where: {
                 participant: { id: userID },
                 chatRoom: { id: chatRoomID }
             }
-        }).catch((err:any) => {
+        });
+        console.log(foundRecord.length);
+        console.log(foundRecord);
+        if (foundRecord.length > 0)
+        {
             console.log('User is already in chat room');
             console.log(foundRecord);
-            return foundRecord;
-        });
+            return foundRecord[0];
+        }
         const newParticipant = this.participantRepository.create({
             participant: { id: userID },
             chatRoom: { id: chatRoomID },
-            owner: false,
-            operator: false,
-            banned: false,
+            // owner: false,
+            // operator: false,
+            // banned: false,
         });
+        console.log(newParticipant);
         return this.participantRepository.save(newParticipant).catch((err: any) => {
             console.log('---- Create participant error:')
             console.log(err);
