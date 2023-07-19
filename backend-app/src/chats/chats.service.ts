@@ -1,10 +1,11 @@
-import { Inject, Injectable, forwardRef } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatEntity } from 'src/typeorm/entities/chat.entity';
 import { Repository } from 'typeorm';
 import { createChatParams, updateChatParams } from './utils/types';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
+import { ChatParticipantsService } from 'src/chat-participants/chat-participants.service';
 
 @Injectable()
 export class ChatsService {
@@ -13,6 +14,8 @@ export class ChatsService {
     private chatRepository: Repository<ChatEntity>,
     @Inject(forwardRef(() => ChatMessagesService))
     private chatMessageService: ChatMessagesService,
+    @Inject(forwardRef(() => ChatParticipantsService))
+    private chatParticipantService: ChatParticipantsService,
   ) {}
 
   fetchChats() {
@@ -21,16 +24,18 @@ export class ChatsService {
 
   async createChat(chatDetails: createChatParams) {
     const newChat = this.chatRepository.create({
-      ...chatDetails,
+      name: chatDetails.name,
+      password: chatDetails.password,
       createdAt: new Date(),
     });
-    return this.chatRepository.save(newChat).catch((err: any) => {
+    const newSavedChat = await this.chatRepository.save(newChat).catch((err: any) => {
+      console.log('---- Create chat error:');
       console.log(err);
-      throw new HttpException(
-        'Error during channel creation',
-        HttpStatus.BAD_REQUEST,
-      );
+      console.log('-----------------------');
+      throw new BadRequestException('Chat room creation error');
     });
+    this.chatParticipantService.createChatParticipant(chatDetails.userID, newSavedChat.id);
+    return (newSavedChat);
   }
 
   fetchChatByID(id: number) {
