@@ -50,6 +50,7 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
       setChannels((prev) => prev.filter((e) => e.name != channelname));
       setMessages((prev) => prev.filter((e) => e.channel != channelname));
       setSettings(false);
+      setContextMenu(false);
       setCurrentChannel("");
     });
 
@@ -202,9 +203,11 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
           }}
           onContextMenu={(e) => {
             e.preventDefault();
-            setContextMenu(true);
-            setContextMenuPos({ x: e.pageX, y: e.pageY });
-            setContextMenuSender(msg.sender);
+            if (current_channel !== "" && settings === false) {
+              setContextMenu(true);
+              setContextMenuPos({ x: e.pageX, y: e.pageY });
+              setContextMenuSender(msg.sender);
+            }
           }}
         >
           {msg.sender}
@@ -265,6 +268,7 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
                 (e.target as HTMLInputElement).getAttribute("value")
               );
               setSettings(!settings);
+              setContextMenu(false);
             }}
           >
             ⚙
