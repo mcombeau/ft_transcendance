@@ -32,7 +32,7 @@ setup:
 clean: down
 	sudo rm -rf ${DATA_PATH}
 
-db: down
+db: clean
 	docker volume rm ft_transcendance_database
 	make
 
