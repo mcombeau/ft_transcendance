@@ -6,10 +6,14 @@ import { UserEntity } from "./user.entity";
 export class ChatParticipantEntity {
     @PrimaryGeneratedColumn()
     id: number;
-    @Column()
+    @Column({ default: false })
+    owner: boolean;
+    @Column({ default: false })
     operator: boolean;
-    @Column()
+    @Column({ default: false })
     banned: boolean;
+    @Column({ default: false })
+    muted: boolean;
     @ManyToOne( () => ChatEntity, (chat) => chat.participants, { cascade: true })
     chatRoom: ChatEntity;
     @ManyToOne( () => UserEntity, (user) => user.chatRooms, { cascade: true })

@@ -10,8 +10,14 @@ export class createParticipantDto {
     chatRoomID: number;
 
     @IsBoolean()
+    owner: boolean;
+
+    @IsBoolean()
     operator: boolean;
 
     @IsBoolean()
     banned: boolean;
+
+    @IsBoolean()
+    muted: boolean;
 }

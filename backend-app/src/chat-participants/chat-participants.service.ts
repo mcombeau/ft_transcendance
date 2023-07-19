@@ -53,9 +53,6 @@ export class ChatParticipantsService {
     }
 
     async createChatParticipant(userID: number, chatRoomID: number) {
-        console.log('!!!!!!! Create chat participant:');
-        console.log('userID: ' + userID);
-        console.log('chatRoomID: ' + chatRoomID);
         const foundRecord = await this.participantRepository.find({
             where: {
                 participant: { id: userID },
@@ -69,6 +66,7 @@ export class ChatParticipantsService {
         const newParticipant = this.participantRepository.create({
             participant: { id: userID },
             chatRoom: { id: chatRoomID },
+            owner: false,
             operator: false,
             banned: false,
         });
@@ -83,8 +81,8 @@ export class ChatParticipantsService {
         });
     }
 
-    async updateParticipantByID(id: number, operator: boolean, banned: boolean ) {
-        return this.participantRepository.update({ id }, { operator, banned });
+    async updateParticipantByID(id: number, participantDetails: updateParticipantParams ) {
+        return this.participantRepository.update({ id }, { ...participantDetails });
     }
 
     async deleteParticipantByID(id: number) {

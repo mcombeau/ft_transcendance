@@ -35,9 +35,13 @@ export class ChatsService {
       console.log('-----------------------');
       throw new BadRequestException('Chat room creation error');
     });
-    const participant = await this.chatParticipantService.createChatParticipant(chatDetails.userID, newSavedChat.id);
+    const participant = await this.chatParticipantService.createChatParticipant(chatDetails.userID, newSavedChat.id).catch((err : any) => {
+      console.log('---- Create chat participant error');
+      this.deleteChatByID(newSavedChat.id);
+      throw new HttpException('Could not create chat participant', HttpStatus.BAD_REQUEST);
+    });
     console.log(participant);
-    await this.chatParticipantService.updateParticipantByID(participant.id, true, false);
+    await this.chatParticipantService.updateParticipantByID(participant.id, { owner: true, operator: true, banned: false, muted: false });
     return (newSavedChat);
   }
 

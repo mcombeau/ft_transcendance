@@ -27,7 +27,7 @@ export class ChatParticipantsController {
         @Param('id', ParseIntPipe) id: number,
         @Body() updateParticipantDto,
     ) {
-        await this.participantService.updateParticipantByID(id, updateParticipantDto.operator, updateParticipantDto.banned);
+        await this.participantService.updateParticipantByID(id, updateParticipantDto);
     }
     @Delete(':id')
     deleteParticipantByID(@Param('id', ParseIntPipe) id: number) {
