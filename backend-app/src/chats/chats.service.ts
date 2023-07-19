@@ -19,7 +19,7 @@ export class ChatsService {
   ) {}
 
   fetchChats() {
-    return this.chatRepository.find();
+    return this.chatRepository.find({ relations: ['participants']});
   }
 
   async createChat(chatDetails: createChatParams) {
@@ -41,7 +41,7 @@ export class ChatsService {
   fetchChatByID(id: number) {
     return this.chatRepository.findOne({
       where: { id },
-      relations: ['messages'],
+      relations: ['messages', 'participants'],
     });
   }
 
@@ -53,7 +53,18 @@ export class ChatsService {
   }
 
   updateChatByID(id: number, chatDetails: updateChatParams) {
+    const participant = chatDetails['participant'];
+    if (participant !== undefined) {
+      console.log("Adding participant...");
+      this.chatParticipantService.createChatParticipant(participant, id);
+    }
+    delete chatDetails['participant'];
+    console.log("participant: " + participant);
     return this.chatRepository.update({ id }, { ...chatDetails });
+  }
+
+  addParticipantToChatByID(id: number, userID: number) {
+    this.chatParticipantService.createChatParticipant(userID, id);
   }
 
   async deleteChatByID(id: number) {

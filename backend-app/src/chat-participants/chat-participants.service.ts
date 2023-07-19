@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable, forwardRef } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatsService } from 'src/chats/chats.service';
 import { ChatParticipantEntity } from 'src/typeorm/entities/chat-participant.entity';
@@ -38,14 +38,36 @@ export class ChatParticipantsService {
         })
     }
 
+    async recordAlreadyExists(userID: number, chatRoomID: number) {
+        const foundRecord = await this.participantRepository.find({
+            where: {
+                participant: { id: userID },
+                chatRoom: { id: chatRoomID }
+            }
+        });
+        if (foundRecord !== undefined) {
+            return true;
+        }
+        return false;
+    }
+
     async createChatParticipant(userID: number, chatRoomID: number) {
+        const foundRecord = await this.participantRepository.find({
+            where: {
+                participant: { id: userID },
+                chatRoom: { id: chatRoomID }
+            }
+        });
+        if (foundRecord !== undefined) {
+            console.log('User is already in chat room');
+            return foundRecord;
+        }
         const newParticipant = this.participantRepository.create({
             participant: { id: userID },
             chatRoom: { id: chatRoomID },
             operator: false,
             banned: false,
         });
-        
         return this.participantRepository.save(newParticipant).catch((err: any) => {
             console.log(err);
             throw new HttpException(
@@ -58,5 +80,4 @@ export class ChatParticipantsService {
     async deleteParticipantByID(id: number) {
         return this.participantRepository.delete({ id });
     }
-
 }
