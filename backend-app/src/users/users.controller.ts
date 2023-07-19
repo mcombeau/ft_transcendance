@@ -21,6 +21,22 @@ import { UsersService } from 'src/users/users.service';
 export class UsersController {
   constructor(private userService: UsersService) {}
 
+  @Get(':username')
+  async getUserByUsername(@Param('username') username: string) {
+    const user = await this.userService.fetchUserByUsername(username);
+    if (!user)
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+    return user;
+  }
+
+  @Get(':id')
+  async getUserByID(@Param('id', ParseIntPipe) id: number) {
+    const user = await this.userService.fetchUserByID(id);
+    if (!user)
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+    return user;
+  }
+
   @Get()
   getUsers() {
     return this.userService.fetchUsers();
@@ -33,22 +49,6 @@ export class UsersController {
     console.log('A user has been posted');
     console.log(userDto);
     return this.userService.createUser(userDto);
-  }
-
-  @Get(':id')
-  async getUserByID(@Param('id', ParseIntPipe) id: number) {
-    const user = await this.userService.fetchUserByID(id);
-    if (!user)
-      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
-    return user;
-  }
-
-  @Get(':username')
-  async getUserByUsername(@Param('username') username: string) {
-    const user = await this.userService.fetchUserByUsername(username);
-    if (!user)
-      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
-    return user;
   }
 
   @Patch(':id')

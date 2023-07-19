@@ -25,6 +25,7 @@ export class ChatParticipantsService {
     fetchParticipantByID(id: number) {
         return this.participantRepository.findOne({
             where: { id },
+            relations: ['chatRoom', 'participant'],
         });
     }
 
@@ -32,7 +33,8 @@ export class ChatParticipantsService {
         return this.participantRepository.find({
             where: {
                 chatRoom: { id: id },
-            }
+            },
+            relations: ['chatRoom', 'participant'],
         })
     }
 
