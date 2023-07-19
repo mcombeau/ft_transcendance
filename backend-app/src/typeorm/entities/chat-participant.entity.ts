@@ -10,8 +10,8 @@ export class ChatParticipantEntity {
     operator: boolean;
     @Column()
     banned: boolean;
-    @ManyToOne( () => ChatEntity, (chat) => chat.participants )
+    @ManyToOne( () => ChatEntity, (chat) => chat.participants, { cascade: true })
     chatRoom: ChatEntity;
-    @ManyToOne( () => UserEntity, (user) => user.chatRooms )
+    @ManyToOne( () => UserEntity, (user) => user.chatRooms, { cascade: true })
     participant: UserEntity;
 }

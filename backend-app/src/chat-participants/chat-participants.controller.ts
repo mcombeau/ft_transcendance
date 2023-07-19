@@ -1,6 +1,7 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
 import { ChatParticipantsService } from './chat-participants.service';
-import { createParticipantDto } from './dtos/createChats.dto';
+import { createParticipantDto } from './dtos/createChatParticipant.dto';
+import { updateParticipantDto } from './dtos/updateChatParticipant.dto';
 
 @Controller('chat-participants')
 export class ChatParticipantsController {
@@ -21,9 +22,15 @@ export class ChatParticipantsController {
         return this.participantService.createChatParticipant(participantDto.userID, participantDto.chatRoomID);
     }
 
+    @Patch(':id')
+    async updateParticipantByID(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() updateParticipantDto,
+    ) {
+        await this.participantService.updateParticipantByID(id, updateParticipantDto.operator, updateParticipantDto.banned);
+    }
     @Delete(':id')
     deleteParticipantByID(@Param('id', ParseIntPipe) id: number) {
         return this.participantService.deleteParticipantByID(id);
     }
-
 }

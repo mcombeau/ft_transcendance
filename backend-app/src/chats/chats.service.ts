@@ -28,13 +28,16 @@ export class ChatsService {
       password: chatDetails.password,
       createdAt: new Date(),
     });
+    console.log(chatDetails);
     const newSavedChat = await this.chatRepository.save(newChat).catch((err: any) => {
       console.log('---- Create chat error:');
       console.log(err);
       console.log('-----------------------');
       throw new BadRequestException('Chat room creation error');
     });
-    this.chatParticipantService.createChatParticipant(chatDetails.userID, newSavedChat.id);
+    const participant = await this.chatParticipantService.createChatParticipant(chatDetails.userID, newSavedChat.id);
+    console.log(participant);
+    await this.chatParticipantService.updateParticipantByID(participant.id, true, false);
     return (newSavedChat);
   }
 

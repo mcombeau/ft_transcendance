@@ -4,6 +4,7 @@ import { ChatsService } from 'src/chats/chats.service';
 import { ChatParticipantEntity } from 'src/typeorm/entities/chat-participant.entity';
 import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
+import { updateParticipantParams } from './utils/types';
 
 @Injectable()
 export class ChatParticipantsService {
@@ -52,16 +53,19 @@ export class ChatParticipantsService {
     }
 
     async createChatParticipant(userID: number, chatRoomID: number) {
+        console.log('!!!!!!! Create chat participant:');
+        console.log('userID: ' + userID);
+        console.log('chatRoomID: ' + chatRoomID);
         const foundRecord = await this.participantRepository.find({
             where: {
                 participant: { id: userID },
                 chatRoom: { id: chatRoomID }
             }
-        });
-        if (foundRecord !== undefined) {
+        }).catch((err:any) => {
             console.log('User is already in chat room');
+            console.log(foundRecord);
             return foundRecord;
-        }
+        });
         const newParticipant = this.participantRepository.create({
             participant: { id: userID },
             chatRoom: { id: chatRoomID },
@@ -69,12 +73,18 @@ export class ChatParticipantsService {
             banned: false,
         });
         return this.participantRepository.save(newParticipant).catch((err: any) => {
+            console.log('---- Create participant error:')
             console.log(err);
+            console.log('------------------------------');
             throw new HttpException(
                 'Error during participant creation',
                 HttpStatus.BAD_REQUEST,
             );
         });
+    }
+
+    async updateParticipantByID(id: number, operator: boolean, banned: boolean ) {
+        return this.participantRepository.update({ id }, { operator, banned });
     }
 
     async deleteParticipantByID(id: number) {
