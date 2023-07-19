@@ -32,6 +32,7 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
   const [cookies, setCookie, removeCookie] = useCookies(["cookie-name"]);
   const [contextMenu, setContextMenu] = useState(false);
   const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
+  const [contextMenuSender, setContextMenuSender] = useState("");
   const menuRef = useRef<HTMLDivElement>(null);
   let navigate = useNavigate();
 
@@ -130,7 +131,7 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
     setValue("");
   };
 
-  const contextMenuEl = (sender: string) => {
+  const contextMenuEl = () => {
     return (
       <div
         ref={menuRef}
@@ -140,31 +141,31 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
           left: contextMenuPos.x + 15,
         }}
       >
-        <p>{sender}</p>
+        <p>{contextMenuSender}</p>
         <ul
           onClick={() => {
-            console.log("Muted " + sender);
+            console.log("Muted " + contextMenuSender);
           }}
         >
           Mute
         </ul>
         <ul
           onClick={() => {
-            console.log("Kicked " + sender);
+            console.log("Kicked " + contextMenuSender);
           }}
         >
           Kick
         </ul>
         <ul
           onClick={() => {
-            console.log("Banned " + sender);
+            console.log("Banned " + contextMenuSender);
           }}
         >
           Ban
         </ul>
         <ul
           onClick={() => {
-            console.log("Blocked " + sender);
+            console.log("Blocked " + contextMenuSender);
           }}
         >
           Block
@@ -203,13 +204,13 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
             e.preventDefault();
             setContextMenu(true);
             setContextMenuPos({ x: e.pageX, y: e.pageY });
+            setContextMenuSender(msg.sender);
           }}
         >
           {msg.sender}
         </span>
         <span id="date">{msg.datestamp.toString().split("G")[0]}</span>
         <li id="othermsg">{msg.msg}</li>
-        {contextMenu && contextMenuEl(msg.sender)}
       </div>
     );
   };
@@ -363,6 +364,7 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
           {settingMenu()}
           <div id="messages">
             {messages.map((msg: Message) => messageStatus(msg))}
+			{contextMenu && contextMenuEl()}
           </div>
           {sendForm()}
         </div>
