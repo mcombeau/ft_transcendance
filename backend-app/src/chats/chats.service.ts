@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { createChatParams, updateChatParams } from './utils/types';
 import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
 import { ChatParticipantsService } from 'src/chat-participants/chat-participants.service';
+import { ChatCreationError } from 'src/exceptions/bad-request.interceptor';
 
 @Injectable()
 export class ChatsService {
@@ -27,14 +28,16 @@ export class ChatsService {
       password: chatDetails.password,
       createdAt: new Date(),
     });
-    console.log(chatDetails);
-    const newSavedChat = await this.chatRepository.save(newChat);
-    console.log(chatDetails);
+    const newSavedChat = await this.chatRepository.save(newChat).catch((err: any) => {
+      throw new ChatCreationError(`'${chatDetails.name}': ${err.message}`);
+    });
     const participant = await this.chatParticipantService.createChatParticipant(
-      chatDetails.ownerID, 
+      chatDetails.ownerID,
       newSavedChat.id
-    );
-    console.log(participant);
+    ).catch((err : any) => {
+      this.deleteChatByID(newSavedChat.id);
+      throw new ChatCreationError(`'ownerID: ${chatDetails.ownerID}': ${err.message}`);
+    });
     await this.chatParticipantService.updateParticipantByID(participant.id, { owner: true, operator: true, banned: false, muted: false });
     return (newSavedChat);
   }
@@ -49,7 +52,7 @@ export class ChatsService {
   fetchChatByName(name: string) {
     return this.chatRepository.findOne({
       where: { name },
-      relations: ['messages'],
+      relations: ['messages', 'participants.participant'],
     });
   }
 

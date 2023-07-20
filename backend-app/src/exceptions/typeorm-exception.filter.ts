@@ -2,7 +2,7 @@ import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logge
 import { CannotCreateEntityIdMapError, EntityNotFoundError, QueryFailedError } from "typeorm";
 import { Response, Request } from "express";
 
-@Catch()
+@Catch(QueryFailedError, EntityNotFoundError, CannotCreateEntityIdMapError)
 export class TypeormExceptionFilter implements ExceptionFilter {
     catch(exception: unknown, host: ArgumentsHost) {
         const ctx = host.switchToHttp();
