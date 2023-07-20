@@ -263,7 +263,16 @@ li#mine {
 .contextMenu > p {
   padding: 0.3rem;
 }
-.contextMenu > ul {
+.contextMenu > ul > li {
+  border: none;
+  background-color: lightseagreen;
+  padding: 0.3rem;
+  margin: 0.2rem;
+  min-width: 5rem;
+  border-radius: 0.2rem;
+  position: relative;
+}
+.contextMenu > ul > div > li {
   border: none;
   background-color: lightseagreen;
   padding: 0.3rem;

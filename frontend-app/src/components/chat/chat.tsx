@@ -20,6 +20,12 @@ type Channel = {
   creator: string;
 };
 
+enum Status {
+  Normal,
+  Operator,
+  Owner,
+}
+
 export const Chat = ({ children, exceptionRef, onClick, className }) => {
   const socket = useContext(WebSocketContext);
   const [value, setValue] = useState("");
@@ -33,7 +39,7 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
   const [contextMenu, setContextMenu] = useState(false);
   const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
   const [contextMenuSender, setContextMenuSender] = useState("");
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [status, setStatus] = useState<Status>(Status.Normal);
   const menuRef = useRef<HTMLDivElement>(null);
   let navigate = useNavigate();
 
@@ -134,6 +140,51 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
   };
 
   const contextMenuEl = () => {
+    var options = (
+      <ul>
+        <li
+          onClick={() => {
+            console.log("Blocked " + contextMenuSender);
+          }}
+        >
+          Block
+        </li>
+        {status != Status.Normal ? (
+          <div>
+            <li
+              onClick={() => {
+                console.log("Muted " + contextMenuSender);
+              }}
+            >
+              Mute
+            </li>
+            <li
+              onClick={() => {
+                console.log("Kicked " + contextMenuSender);
+              }}
+            >
+              Kick
+            </li>
+            <li
+              onClick={() => {
+                console.log("Banned " + contextMenuSender);
+              }}
+            >
+              Ban
+            </li>
+            <li
+              onClick={() => {
+                console.log("Banned " + contextMenuSender);
+              }}
+            >
+              Make admin
+            </li>
+          </div>
+        ) : (
+          <div></div>
+        )}
+      </ul>
+    );
     return (
       <div
         ref={menuRef}
@@ -144,34 +195,7 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
         }}
       >
         <p>{contextMenuSender}</p>
-        <ul
-          onClick={() => {
-            console.log("Muted " + contextMenuSender);
-          }}
-        >
-          Mute
-        </ul>
-        <ul
-          onClick={() => {
-            console.log("Kicked " + contextMenuSender);
-          }}
-        >
-          Kick
-        </ul>
-        <ul
-          onClick={() => {
-            console.log("Banned " + contextMenuSender);
-          }}
-        >
-          Ban
-        </ul>
-        <ul
-          onClick={() => {
-            console.log("Blocked " + contextMenuSender);
-          }}
-        >
-          Block
-        </ul>
+        {options}
         <button onClick={() => setContextMenu(false)}>✕</button>
       </div>
     );
@@ -301,7 +325,7 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
               >
                 {participant}
               </li>
-              {isAdmin ? (
+              {status != Status.Normal ? (
                 <div>
                   <button
                     onClick={() => {
@@ -337,7 +361,7 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
 
   const settingMenu = () => {
     if (settings) {
-      if (isAdmin) {
+      if (status != Status.Normal) {
         // TODO: change that
         return (
           <div className="settings">
@@ -403,12 +427,18 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
           }}
         />
         <button>Send</button>
-        <input
-          type="checkbox"
-          onClick={() => {
-            setIsAdmin(!isAdmin);
+        <select
+          multiple
+          onChange={(choice) => {
+            if (choice.target.value == "normal") setStatus(Status.Normal);
+            if (choice.target.value == "operator") setStatus(Status.Operator);
+            if (choice.target.value == "owner") setStatus(Status.Owner);
           }}
-        ></input>
+        >
+          <option value="normal">Normal</option>
+          <option value="operator">Operator</option>
+          <option value="owner">Owner</option>
+        </select>
       </form>
     );
   };
