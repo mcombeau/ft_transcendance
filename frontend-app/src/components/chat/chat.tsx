@@ -172,6 +172,12 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
             >
               Ban
             </li>
+          </div>
+        ) : (
+          <div></div>
+        )}
+        {status == Status.Owner ? (
+          <div>
             <li
               onClick={() => {
                 console.log("Banned " + contextMenuSender);
