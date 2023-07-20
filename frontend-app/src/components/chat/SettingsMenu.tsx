@@ -1,4 +1,4 @@
-import { Message, Status } from "./chat";
+import { Message, Status } from "./Chat";
 import { Socket } from "socket.io-client";
 import { Dispatch, SetStateAction } from "react";
 import { ListParticipants } from "./ListParticipants";

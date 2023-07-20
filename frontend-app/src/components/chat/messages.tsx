@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import { NavigateFunction } from "react-router-dom";
-import { Message, Status } from "./chat";
-import { ContextMenuEl } from "./context_menu";
+import { Message, Status } from "./Chat";
+import { ContextMenuEl } from "./ContextMenu";
 
 export const Messages = (
   messages: Message[],

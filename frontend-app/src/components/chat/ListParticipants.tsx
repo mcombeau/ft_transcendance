@@ -1,5 +1,5 @@
 import { NavigateFunction } from "react-router-dom";
-import { Message, Status } from "./chat";
+import { Message, Status } from "./Chat";
 
 export const ListParticipants = (
   channel_name: string,

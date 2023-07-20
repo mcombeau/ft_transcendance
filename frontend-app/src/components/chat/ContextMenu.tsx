@@ -1,4 +1,4 @@
-import { Status } from "./chat";
+import { Status } from "./Chat";
 import { useRef } from "react";
 
 export const ContextMenuEl = (

@@ -3,7 +3,7 @@ import NavBar from "./components/navbar/navbar";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Home from "./components/home/home";
 import Login from "./components/login/login";
-import Chat from "./components/chat/chat";
+import Chat from "./components/chat/Chat";
 import Play from "./components/play/play";
 import Leaderboard from "./components/leaderboard/leaderboard";
 import UserPage from "./components/userpage/userpage";
