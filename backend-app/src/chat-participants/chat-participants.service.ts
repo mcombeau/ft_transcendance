@@ -1,4 +1,4 @@
-import { BadRequestException, HttpException, HttpStatus, Inject, Injectable, forwardRef } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatsService } from 'src/chats/chats.service';
 import { ChatParticipantEntity } from 'src/typeorm/entities/chat-participant.entity';
@@ -53,10 +53,6 @@ export class ChatParticipantsService {
     }
 
     async createChatParticipant(userID: number, chatRoomID: number) {
-        console.log('---- Creating participant...');
-        console.log('userID: ' + userID);
-        console.log('chatRoomID: ' + chatRoomID);
-        
         const foundRecord = await this.participantRepository.find({
             where: {
                 participant: { id: userID },
@@ -74,20 +70,9 @@ export class ChatParticipantsService {
         const newParticipant = this.participantRepository.create({
             participant: { id: userID },
             chatRoom: { id: chatRoomID },
-            // owner: false,
-            // operator: false,
-            // banned: false,
         });
         console.log(newParticipant);
-        return this.participantRepository.save(newParticipant).catch((err: any) => {
-            console.log('---- Create participant error:')
-            console.log(err);
-            console.log('------------------------------');
-            throw new HttpException(
-                'Error during participant creation',
-                HttpStatus.BAD_REQUEST,
-            );
-        });
+        return this.participantRepository.save(newParticipant);
     }
 
     async updateParticipantByID(id: number, participantDetails: updateParticipantParams ) {

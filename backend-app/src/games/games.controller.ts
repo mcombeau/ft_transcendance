@@ -1,8 +1,8 @@
-import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, ParseIntPipe, Patch, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UsePipes, ValidationPipe } from '@nestjs/common';
 import { GamesService } from './games.service';
 import { createGameDto } from './dtos/createGame.dto';
-import { updateUsersDto } from 'src/users/dtos/updateUsers.dto';
 import { updateGameDto } from './dtos/updateGame.dto';
+import { GameNotFoundError } from 'src/exceptions/not-found.interceptor';
 
 @Controller('games')
 export class GamesController {
@@ -25,7 +25,7 @@ export class GamesController {
     async getGameByID(@Param('id', ParseIntPipe) id: number) {
         const game = await this.gameService.fetchGameByID(id);
         if (!game)
-            throw new HttpException('Game not found', HttpStatus.BAD_REQUEST);
+            throw new GameNotFoundError(id.toString());
         return game;
     }
 

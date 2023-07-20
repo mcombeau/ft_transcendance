@@ -4,7 +4,6 @@ import { UserEntity } from 'src/typeorm/entities/user.entity';
 import { createUserParams } from 'src/users/utils/types';
 import { updateUserParams } from 'src/users/utils/types';
 import { Repository } from 'typeorm';
-import { HttpException, HttpStatus } from '@nestjs/common';
 
 @Injectable()
 export class UsersService {
@@ -22,13 +21,7 @@ export class UsersService {
       ...userDetails,
       createdAt: new Date(),
     });
-    return this.userRepository.save(newUser).catch((err: any) => {
-      console.log(err);
-      throw new HttpException(
-        'Error during user creation',
-        HttpStatus.BAD_REQUEST,
-      );
-    });
+    return this.userRepository.save(newUser);
   }
 
   fetchUserByID(id: number) {

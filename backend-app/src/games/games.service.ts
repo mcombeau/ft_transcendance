@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GameEntity } from 'src/typeorm/entities/game.entity';
 import { Repository } from 'typeorm';
@@ -20,12 +20,7 @@ export class GamesService {
             ...gameDetails,
             createdAt: new Date(),
         });
-        return this.gameRepository.save(newGame).catch((err: any) => {
-            throw new HttpException(
-                'Error during game creation', 
-                HttpStatus.BAD_REQUEST
-            );
-        });
+        return this.gameRepository.save(newGame);
     }
 
     fetchGameByID(id: number) {

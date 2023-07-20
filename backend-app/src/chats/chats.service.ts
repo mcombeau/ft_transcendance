@@ -1,9 +1,8 @@
-import { BadRequestException, Inject, Injectable, forwardRef } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatEntity } from 'src/typeorm/entities/chat.entity';
 import { Repository } from 'typeorm';
 import { createChatParams, updateChatParams } from './utils/types';
-import { HttpException, HttpStatus } from '@nestjs/common';
 import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
 import { ChatParticipantsService } from 'src/chat-participants/chat-participants.service';
 
@@ -29,21 +28,12 @@ export class ChatsService {
       createdAt: new Date(),
     });
     console.log(chatDetails);
-    const newSavedChat = await this.chatRepository.save(newChat).catch((err: any) => {
-      console.log('---- Create chat error:');
-      console.log(err);
-      console.log('-----------------------');
-      throw new BadRequestException('Chat room creation error');
-    });
+    const newSavedChat = await this.chatRepository.save(newChat);
     console.log(chatDetails);
     const participant = await this.chatParticipantService.createChatParticipant(
       chatDetails.ownerID, 
       newSavedChat.id
-    ).catch((err : any) => {
-      console.log('---- Create chat participant error');
-      this.deleteChatByID(newSavedChat.id);
-      throw new HttpException('Could not create chat participant', HttpStatus.BAD_REQUEST);
-    });
+    );
     console.log(participant);
     await this.chatParticipantService.updateParticipantByID(participant.id, { owner: true, operator: true, banned: false, muted: false });
     return (newSavedChat);

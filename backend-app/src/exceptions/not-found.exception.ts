@@ -17,3 +17,9 @@ export class ChatMessageNotFoundException extends NotFoundException {
         super(`Chat message '${identifier}' not found`);
     }
 }
+
+export class GameNotFoundException extends NotFoundException {
+    constructor(identifier: string) {
+        super(`Game '${identifier}' not found`);
+    }
+}
