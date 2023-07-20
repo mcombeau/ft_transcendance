@@ -282,7 +282,12 @@ li#mine {
   position: relative;
 }
 
-.contextMenu > ul:hover {
+.contextMenu > ul > li:hover {
+  border: thin solid;
+  border-color: white;
+}
+
+.contextMenu > ul > div > li:hover {
   border: thin solid;
   border-color: white;
 }
