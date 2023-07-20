@@ -1,6 +1,7 @@
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { NotFoundInterceptor } from './exceptions/not-found.interceptor';
+import { TypeormExceptionFilter } from './exceptions/typeorm-exception.filter';
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule);
@@ -29,6 +30,8 @@ async function bootstrap() {
 	// 	credentials: true,
 	//   });
 	app.useGlobalInterceptors(new NotFoundInterceptor);
+	// const { httpAdapter } = app.get(HttpAdapterHost);
+	app.useGlobalFilters(new TypeormExceptionFilter());
 	await app.listen(3001);
 }
 
