@@ -167,15 +167,16 @@ li#mine {
   padding: 0rem;
   margin: 0.25rem;
   height: 2rem;
-  display: flex;
+  overflow: hidden;
 }
 
 .newchan > input {
   border: none;
   padding: 0 1rem;
-  flex-grow: 1;
   border-radius: 3px;
   margin: 0.25rem;
+  max-width: 80%;
+  height: 1.5rem;
 }
 
 .newchan > input:focus {
@@ -185,11 +186,16 @@ li#mine {
 .newchan > button {
   background: #333;
   border: none;
-  padding: 0 1rem;
-  margin: 0.25rem;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 5%;
+  padding-right: 5%;
+  margin: 2%;
   border-radius: 3px;
   outline: none;
   color: #fff;
+  max-width: 20%;
+  height: 1.5rem;
 }
 
 #channels {
@@ -200,7 +206,6 @@ li#mine {
   padding: 0 0 0.5rem;
 }
 
-/* TODO: move to center of chat */
 .settings {
   position: fixed;
   top: 7rem;
