@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState, useRef } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   WebSocketContext,
   WebSocketProvider,
@@ -7,6 +7,7 @@ import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
 import "./chat.css";
 import Messages from "./messages";
+import SettingsMenu from "./settings_menu";
 
 export type Message = {
   datestamp: Date;
@@ -197,118 +198,6 @@ export const Chat = () => {
     );
   };
 
-  const listParticipants = (channel_name: string) => {
-    var participants = messages
-      .filter((message: Message) => {
-        return message.channel == channel_name;
-      })
-      .map((message: Message) => {
-        return message.sender;
-      })
-      .filter((value, index, self) => self.indexOf(value) === index); // TODO: change
-    console.log(participants);
-    return (
-      <ul className="participant_list">
-        {participants.map((participant) => {
-          return (
-            <div>
-              <li
-                onClick={() => {
-                  navigate("/user/" + participant);
-                }}
-              >
-                {participant}
-              </li>
-              {status != Status.Normal ? (
-                <div>
-                  <button
-                    onClick={() => {
-                      console.log("Muted " + participant);
-                    }}
-                  >
-                    Mute
-                  </button>
-                  <button
-                    onClick={() => {
-                      console.log("Kicked " + participant);
-                    }}
-                  >
-                    Kick
-                  </button>
-                  <button
-                    onClick={() => {
-                      console.log("Banned " + participant);
-                    }}
-                  >
-                    Ban
-                  </button>
-                </div>
-              ) : (
-                <div></div>
-              )}
-            </div>
-          );
-        })}
-      </ul>
-    );
-  };
-
-  const settingMenu = () => {
-    if (settings) {
-      if (status != Status.Normal) {
-        // TODO: change that
-        return (
-          <div className="settings">
-            <h3>Admin panel for {current_channel}</h3>
-            <button
-              onClick={() => {
-                socket.emit("delete chat", current_channel);
-                console.log("Deleting " + current_channel);
-              }}
-            >
-              Delete channel
-            </button>
-            <h3>Channel members</h3>
-            {listParticipants(current_channel)}
-            <button
-              className="closesettings"
-              onClick={() => {
-                setSettings(false);
-              }}
-            >
-              ✕
-            </button>
-          </div>
-        );
-      }
-      return (
-        <div className="settings">
-          <h3>Settings for {current_channel}</h3>
-          <button
-            onClick={() => {
-              // TODO: change
-              console.log("Leaving " + current_channel);
-              setSettings(false);
-              setCurrentChannel("");
-            }}
-          >
-            Leave channel
-          </button>
-          <h3>Channel members</h3>
-          {listParticipants(current_channel)}
-          <button
-            className="closesettings"
-            onClick={() => {
-              setSettings(false);
-            }}
-          >
-            ✕
-          </button>
-        </div>
-      );
-    }
-  };
-
   const sendForm = () => {
     if (current_channel == "") return;
     return (
@@ -356,7 +245,16 @@ export const Chat = () => {
           </div>
         </div>
         <div className="chat">
-          {settingMenu()}
+          {SettingsMenu(
+            settings,
+            setSettings,
+            status,
+            current_channel,
+            setCurrentChannel,
+            socket,
+            messages, // TODO: replace by real channel list
+            navigate
+          )}
           {Messages(
             messages,
             current_channel,

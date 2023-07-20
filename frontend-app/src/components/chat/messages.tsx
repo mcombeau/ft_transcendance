@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
+import { NavigateFunction } from "react-router-dom";
 import { Message, Status } from "./chat";
 import { ContextMenuEl } from "./context_menu";
 
@@ -6,10 +7,10 @@ export const Messages = (
   messages: Message[],
   current_channel: string,
   username: string,
-  navigate: any,
+  navigate: NavigateFunction,
   settings: boolean,
   contextMenu: boolean,
-  setContextMenu: any,
+  setContextMenu: Dispatch<SetStateAction<boolean>>,
   status: Status
 ) => {
   const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
