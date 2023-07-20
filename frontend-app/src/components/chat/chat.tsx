@@ -278,6 +278,25 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
     );
   };
 
+  const listParticipants = (channel_name: string) => {
+    var participants = messages
+      .filter((message: Message) => {
+        return message.channel == channel_name;
+      })
+      .map((message: Message) => {
+        return message.sender;
+      })
+      .filter((value, index, self) => self.indexOf(value) === index);
+    console.log(participants);
+    return (
+      <ul className="participant_list">
+        {participants.map((participant) => {
+          return <li>{participant}</li>;
+        })}
+      </ul>
+    );
+  };
+
   const settingMenu = () => {
     if (settings) {
       if (username == "admin") {
@@ -293,6 +312,8 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
             >
               Delete channel
             </button>
+            <h3>Channel members</h3>
+            {listParticipants(current_channel)}
             <button
               className="closesettings"
               onClick={() => {
@@ -317,6 +338,8 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
           >
             Leave channel
           </button>
+          <h3>Channel members</h3>
+          {listParticipants(current_channel)}
           <button
             className="closesettings"
             onClick={() => {
@@ -368,7 +391,7 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
           {settingMenu()}
           <div id="messages">
             {messages.map((msg: Message) => messageStatus(msg))}
-			{contextMenu && contextMenuEl()}
+            {contextMenu && contextMenuEl()}
           </div>
           {sendForm()}
         </div>

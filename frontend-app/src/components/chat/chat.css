@@ -200,18 +200,25 @@ li#mine {
   padding: 0 0 0.5rem;
 }
 
+/* TODO: move to center of chat */
 .settings {
   position: fixed;
-  top: 5rem;
-  left: 13rem;
+  top: 7rem;
+  left: 30%;
+  right: 10%;
   width: 60%;
   background: lightseagreen;
-  opacity: 0.8;
-  margin: 5rem;
+  margin: 1rem;
   padding: 1rem;
   color: white;
   border-radius: 3px;
   min-height: 20%;
+}
+
+.settings > h3 {
+  background-color: darkcyan;
+  border-radius: 3px;
+  padding: 1rem;
 }
 
 .settings > button {
@@ -274,4 +281,18 @@ li#mine {
   background: none;
   border: none;
   color: white;
+}
+
+.participant_list {
+  margin: 0rem;
+  max-height: 10rem;
+  overflow: auto;
+}
+
+.participant_list > li {
+  margin: 0.2rem 0.2rem 0.2rem 1rem;
+  padding: 0.1rem;
+  text-align: left;
+  font-size: small;
+  list-style-type: none;
 }
