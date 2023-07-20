@@ -6,8 +6,9 @@ import {
 import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
 import "./chat.css";
+import Messages from "./messages";
 
-type Message = {
+export type Message = {
   datestamp: Date;
   msg: string;
   sender: string;
@@ -20,13 +21,13 @@ type Channel = {
   creator: string;
 };
 
-enum Status {
+export enum Status {
   Normal,
   Operator,
   Owner,
 }
 
-export const Chat = ({ children, exceptionRef, onClick, className }) => {
+export const Chat = () => {
   const socket = useContext(WebSocketContext);
   const [value, setValue] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -37,10 +38,7 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
   const [settings, setSettings] = useState(false);
   const [cookies, setCookie, removeCookie] = useCookies(["cookie-name"]);
   const [contextMenu, setContextMenu] = useState(false);
-  const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
-  const [contextMenuSender, setContextMenuSender] = useState("");
   const [status, setStatus] = useState<Status>(Status.Normal);
-  const menuRef = useRef<HTMLDivElement>(null);
   let navigate = useNavigate();
 
   function getChannel(channel_name: string): Channel {
@@ -137,116 +135,6 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
     socket.emit("chat message", msg);
     setMessages((prev) => [...prev, msg]);
     setValue("");
-  };
-
-  const contextMenuEl = () => {
-    var options = (
-      <ul>
-        <li
-          onClick={() => {
-            console.log("Blocked " + contextMenuSender);
-          }}
-        >
-          Block
-        </li>
-        {status != Status.Normal ? (
-          <div>
-            <li
-              onClick={() => {
-                console.log("Muted " + contextMenuSender);
-              }}
-            >
-              Mute
-            </li>
-            <li
-              onClick={() => {
-                console.log("Kicked " + contextMenuSender);
-              }}
-            >
-              Kick
-            </li>
-            <li
-              onClick={() => {
-                console.log("Banned " + contextMenuSender);
-              }}
-            >
-              Ban
-            </li>
-          </div>
-        ) : (
-          <div></div>
-        )}
-        {status == Status.Owner ? (
-          <div>
-            <li
-              onClick={() => {
-                console.log("Banned " + contextMenuSender);
-              }}
-            >
-              Make admin
-            </li>
-          </div>
-        ) : (
-          <div></div>
-        )}
-      </ul>
-    );
-    return (
-      <div
-        ref={menuRef}
-        className="contextMenu"
-        style={{
-          top: contextMenuPos.y - 10,
-          left: contextMenuPos.x + 15,
-        }}
-      >
-        <p>{contextMenuSender}</p>
-        {options}
-        <button onClick={() => setContextMenu(false)}>✕</button>
-      </div>
-    );
-  };
-
-  const messageStatus = (msg: Message) => {
-    if (msg.channel != current_channel) return;
-    if (msg.sender == username) {
-      return (
-        <div id="rightmessage">
-          <span
-            id="sender"
-            onClick={() => {
-              navigate("/user/" + msg.sender);
-            }}
-          >
-            {msg.sender}
-          </span>
-          <span id="date">{msg.datestamp.toString().split("G")[0]}</span>
-          <li id="mine">{msg.msg}</li>
-        </div>
-      );
-    }
-    return (
-      <div id="leftmessage">
-        <span
-          id="sender"
-          onClick={() => {
-            navigate("/user/" + msg.sender);
-          }}
-          onContextMenu={(e) => {
-            e.preventDefault();
-            if (current_channel !== "" && settings === false) {
-              setContextMenu(true);
-              setContextMenuPos({ x: e.pageX, y: e.pageY });
-              setContextMenuSender(msg.sender);
-            }
-          }}
-        >
-          {msg.sender}
-        </span>
-        <span id="date">{msg.datestamp.toString().split("G")[0]}</span>
-        <li id="othermsg">{msg.msg}</li>
-      </div>
-    );
   };
 
   useEffect(() => {
@@ -469,10 +357,16 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
         </div>
         <div className="chat">
           {settingMenu()}
-          <div id="messages">
-            {messages.map((msg: Message) => messageStatus(msg))}
-            {contextMenu && contextMenuEl()}
-          </div>
+          {Messages(
+            messages,
+            current_channel,
+            username,
+            navigate,
+            settings,
+            contextMenu,
+            setContextMenu,
+            status
+          )}
           {sendForm()}
         </div>
       </div>
