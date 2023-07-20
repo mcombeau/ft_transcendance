@@ -296,3 +296,7 @@ li#mine {
   font-size: small;
   list-style-type: none;
 }
+
+.participant_list > li:hover {
+  color: darkcyan;
+}

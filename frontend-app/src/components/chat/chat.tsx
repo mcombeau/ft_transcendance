@@ -33,6 +33,7 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
   const [contextMenu, setContextMenu] = useState(false);
   const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
   const [contextMenuSender, setContextMenuSender] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   let navigate = useNavigate();
 
@@ -278,7 +279,7 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
     );
   };
 
-  const listParticipants = (channel_name: string) => {
+  const listParticipants = (channel_name: string, admin: boolean) => {
     var participants = messages
       .filter((message: Message) => {
         return message.channel == channel_name;
@@ -286,12 +287,29 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
       .map((message: Message) => {
         return message.sender;
       })
-      .filter((value, index, self) => self.indexOf(value) === index);
+      .filter((value, index, self) => self.indexOf(value) === index); // TODO: change
     console.log(participants);
     return (
       <ul className="participant_list">
         {participants.map((participant) => {
-          return <li>{participant}</li>;
+          return (
+            <li
+              onClick={() => {
+                navigate("/user/" + participant);
+              }}
+            >
+              {participant}
+              {isAdmin ? (
+                <div>
+                  <button>K</button>
+                  <button>B</button>
+                  <button>M</button>
+                </div>
+              ) : (
+                <div></div>
+              )}
+            </li>
+          );
         })}
       </ul>
     );
@@ -299,7 +317,7 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
 
   const settingMenu = () => {
     if (settings) {
-      if (username == "admin") {
+      if (isAdmin) {
         // TODO: change that
         return (
           <div className="settings">
@@ -313,7 +331,7 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
               Delete channel
             </button>
             <h3>Channel members</h3>
-            {listParticipants(current_channel)}
+            {listParticipants(current_channel, true)}
             <button
               className="closesettings"
               onClick={() => {
@@ -339,7 +357,7 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
             Leave channel
           </button>
           <h3>Channel members</h3>
-          {listParticipants(current_channel)}
+          {listParticipants(current_channel, false)}
           <button
             className="closesettings"
             onClick={() => {
@@ -365,6 +383,12 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
           }}
         />
         <button>Send</button>
+        <input
+          type="checkbox"
+          onClick={() => {
+            setIsAdmin(!isAdmin);
+          }}
+        ></input>
       </form>
     );
   };
