@@ -289,14 +289,29 @@ li#mine {
   overflow: auto;
 }
 
-.participant_list > li {
+.participant_list > div > li {
   margin: 0.2rem 0.2rem 0.2rem 1rem;
   padding: 0.1rem;
   text-align: left;
   font-size: small;
   list-style-type: none;
+  display: inline-block;
 }
 
-.participant_list > li:hover {
+.participant_list > div > li:hover {
   color: darkcyan;
+}
+
+.participant_list > div > div {
+  display: inline-block;
+  margin: 0.2rem 0.2rem 0.2rem 1rem;
+}
+
+.participant_list > div > div > button {
+  border: none;
+  border-radius: 0.2rem;
+  background-color: darkcyan;
+  padding: 0.2rem;
+  margin: 0.1rem;
+  color: white;
 }

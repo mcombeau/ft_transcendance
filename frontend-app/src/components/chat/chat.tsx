@@ -279,7 +279,7 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
     );
   };
 
-  const listParticipants = (channel_name: string, admin: boolean) => {
+  const listParticipants = (channel_name: string) => {
     var participants = messages
       .filter((message: Message) => {
         return message.channel == channel_name;
@@ -293,22 +293,42 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
       <ul className="participant_list">
         {participants.map((participant) => {
           return (
-            <li
-              onClick={() => {
-                navigate("/user/" + participant);
-              }}
-            >
-              {participant}
+            <div>
+              <li
+                onClick={() => {
+                  navigate("/user/" + participant);
+                }}
+              >
+                {participant}
+              </li>
               {isAdmin ? (
                 <div>
-                  <button>K</button>
-                  <button>B</button>
-                  <button>M</button>
+                  <button
+                    onClick={() => {
+                      console.log("Muted " + participant);
+                    }}
+                  >
+                    Mute
+                  </button>
+                  <button
+                    onClick={() => {
+                      console.log("Kicked " + participant);
+                    }}
+                  >
+                    Kick
+                  </button>
+                  <button
+                    onClick={() => {
+                      console.log("Banned " + participant);
+                    }}
+                  >
+                    Ban
+                  </button>
                 </div>
               ) : (
                 <div></div>
               )}
-            </li>
+            </div>
           );
         })}
       </ul>
@@ -331,7 +351,7 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
               Delete channel
             </button>
             <h3>Channel members</h3>
-            {listParticipants(current_channel, true)}
+            {listParticipants(current_channel)}
             <button
               className="closesettings"
               onClick={() => {
@@ -357,7 +377,7 @@ export const Chat = ({ children, exceptionRef, onClick, className }) => {
             Leave channel
           </button>
           <h3>Channel members</h3>
-          {listParticipants(current_channel, false)}
+          {listParticipants(current_channel)}
           <button
             className="closesettings"
             onClick={() => {
