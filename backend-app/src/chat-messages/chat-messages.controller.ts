@@ -3,14 +3,15 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
-  HttpStatus,
   Param,
   ParseIntPipe,
   Post,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ChatMessagesService } from './chat-messages.service';
 import { createMessageDto } from './dtos/createMessage.dto';
+import { ChatMessageNotFoundException } from 'src/exceptions/not-found.exception';
+import { NotFoundInterceptor } from 'src/exceptions/not-found.interceptor';
 
 // TODO: remove unecessary controller
 @Controller('chat-messages')
@@ -26,7 +27,7 @@ export class ChatMessagesController {
   async getMessageByID(@Param('id', ParseIntPipe) id: number) {
     const message = await this.chatMessageService.fetchMessage(id);
     if (!message)
-      throw new HttpException('Message not found', HttpStatus.BAD_REQUEST);
+      throw new ChatMessageNotFoundException(id.toString());
     return message;
   }
 

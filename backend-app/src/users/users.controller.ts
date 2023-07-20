@@ -3,16 +3,14 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
-  HttpStatus,
   Param,
   ParseIntPipe,
   Patch,
   Post,
-  Put,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import { UserNotFoundException } from 'src/exceptions/not-found.exception';
 import { createUsersDto } from 'src/users/dtos/createUsers.dto';
 import { updateUsersDto } from 'src/users/dtos/updateUsers.dto';
 import { UsersService } from 'src/users/users.service';
@@ -25,7 +23,7 @@ export class UsersController {
   async getUserByUsername(@Param('username') username: string) {
     const user = await this.userService.fetchUserByUsername(username);
     if (!user)
-      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+      throw new UserNotFoundException(username);
     return user;
   }
 
@@ -33,7 +31,7 @@ export class UsersController {
   async getUserByID(@Param('id', ParseIntPipe) id: number) {
     const user = await this.userService.fetchUserByID(id);
     if (!user)
-      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+      throw new UserNotFoundException(id.toString());
     return user;
   }
 

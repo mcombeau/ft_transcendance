@@ -3,8 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
-  HttpStatus,
   Param,
   ParseIntPipe,
   Patch,
@@ -13,11 +11,27 @@ import {
 import { ChatsService } from './chats.service';
 import { createChatDto } from './dtos/createChats.dto';
 import { updateChatDto } from './dtos/updateChats.dto';
-import { createMessageDto } from 'src/chat-messages/dtos/createMessage.dto';
+import { ChatNotFoundException } from 'src/exceptions/not-found.exception';
 
 @Controller('chats')
 export class ChatsController {
   constructor(private chatService: ChatsService) {}
+
+  @Get(':name')
+  async getChatByName(@Param('name') name: string) {
+    const chat = await this.chatService.fetchChatByName(name);
+    if (!chat)
+      throw new ChatNotFoundException(name);
+    return chat;
+  }
+
+  @Get(':id')
+  async getChatByID(@Param('id', ParseIntPipe) id: number) {
+    const chat = await this.chatService.fetchChatByID(id);
+    if (!chat)
+      throw new ChatNotFoundException(id.toString());
+    return chat;
+  }
 
   @Get()
   getChats() {
@@ -27,22 +41,6 @@ export class ChatsController {
   @Post()
   createChat(@Body() chatDto: createChatDto) {
     return this.chatService.createChat(chatDto);
-  }
-
-  @Get(':id')
-  async getChatByID(@Param('id', ParseIntPipe) id: number) {
-    const chat = await this.chatService.fetchChatByID(id);
-    if (!chat)
-      throw new HttpException('Chat not found', HttpStatus.BAD_REQUEST);
-    return chat;
-  }
-
-  @Get(':name')
-  async getChatByName(@Param('name') name: string) {
-    const chat = await this.chatService.fetchChatByName(name);
-    if (!chat)
-      throw new HttpException('Chat not found', HttpStatus.BAD_REQUEST);
-    return chat;
   }
 
   @Patch(':id')

@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { NotFoundInterceptor } from './exceptions/not-found.interceptor';
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule);
@@ -27,6 +28,7 @@ async function bootstrap() {
 	// 	methods: ["GET", "POST"],
 	// 	credentials: true,
 	//   });
+	app.useGlobalInterceptors(new NotFoundInterceptor);
 	await app.listen(3001);
 }
 

@@ -1,7 +1,6 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
 import { ChatParticipantsService } from './chat-participants.service';
 import { createParticipantDto } from './dtos/createChatParticipant.dto';
-import { updateParticipantDto } from './dtos/updateChatParticipant.dto';
 
 @Controller('chat-participants')
 export class ChatParticipantsController {
