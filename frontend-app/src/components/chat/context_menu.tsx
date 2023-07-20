@@ -2,6 +2,7 @@ import { Status } from "./chat";
 import { useRef } from "react";
 
 export const ContextMenuEl = (
+  contextMenu: boolean,
   contextMenuSender: string,
   status: Status,
   setContextMenu: any,
@@ -59,6 +60,10 @@ export const ContextMenuEl = (
       )}
     </ul>
   );
+  if (!contextMenu) {
+    return <div></div>;
+  }
+
   return (
     <div
       ref={menuRef}

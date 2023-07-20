@@ -40,14 +40,14 @@ export const Messages = (
           onClick={() => {
             navigate("/user/" + msg.sender);
           }}
-          // onContextMenu={(e) => {
-          //   e.preventDefault();
-          //   if (current_channel !== "" && settings === false) {
-          //     setContextMenu(true);
-          //     setContextMenuPos({ x: e.pageX, y: e.pageY });
-          //     setContextMenuSender(msg.sender);
-          //   }
-          // }}
+          onContextMenu={(e) => {
+            e.preventDefault();
+            if (current_channel !== "" && settings === false) {
+              setContextMenu(true);
+              setContextMenuPos({ x: e.pageX, y: e.pageY });
+              setContextMenuSender(msg.sender);
+            }
+          }}
         >
           {msg.sender}
         </span>
@@ -60,13 +60,13 @@ export const Messages = (
   return (
     <div id="messages">
       {messages.map((msg: Message) => messageStatus(msg))}
-      {/*contextMenu &&
-        ContextMenuEl(
-          contextMenuSender,
-          status,
-          setContextMenu,
-          contextMenuPos
-        )*/}
+      {ContextMenuEl(
+        contextMenu,
+        contextMenuSender,
+        status,
+        setContextMenu,
+        contextMenuPos
+      )}
     </div>
   );
 };
