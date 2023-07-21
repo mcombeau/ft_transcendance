@@ -19,7 +19,8 @@ import { UsersService } from 'src/users/users.service';
 export class UsersController {
   constructor(private userService: UsersService) {}
 
-  @Get(':username')
+  
+  @Get('/username/:username')
   async getUserByUsername(@Param('username') username: string) {
     const user = await this.userService.fetchUserByUsername(username);
     if (!user)
@@ -48,7 +49,7 @@ export class UsersController {
     console.log(userDto);
     return this.userService.createUser(userDto);
   }
-
+ 
   @Patch(':id')
   async updateUserByID(
     @Param('id', ParseIntPipe) id: number,
