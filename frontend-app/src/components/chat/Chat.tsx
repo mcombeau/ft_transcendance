@@ -9,6 +9,7 @@ import "./Chat.css";
 import Messages from "./Messages";
 import SettingsMenu from "./SettingsMenu";
 import SidePannel from "./SidePannel";
+import SendForm from "./SendForm";
 
 export type Message = {
   datestamp: Date;
@@ -31,7 +32,6 @@ export enum Status {
 
 export const Chat = () => {
   const socket = useContext(WebSocketContext);
-  const [value, setValue] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [channels, setChannels] = useState<Channel[]>([]);
   const [newchannel, setNewchannel] = useState("");
@@ -118,60 +118,11 @@ export const Chat = () => {
     };
   }, []);
 
-  const handleSendMessage = (e: any) => {
-    e.preventDefault();
-    if (value == "" || current_channel == "" || !cookies["Username"]) {
-      console.log(
-        "Message is empty or channel is not defined or not logged in"
-      );
-      return;
-    }
-    setUsername(cookies["Username"]);
-    var msg: Message = {
-      msg: value,
-      datestamp: new Date(),
-      sender: cookies["Username"],
-      channel: current_channel,
-      read: true,
-    };
-    socket.emit("chat message", msg);
-    setMessages((prev) => [...prev, msg]);
-    setValue("");
-  };
-
   useEffect(() => {
     var message_els = document.getElementById("messages");
 
     message_els.scrollTop = message_els.scrollHeight;
   }, [messages]);
-
-  const sendForm = () => {
-    if (current_channel == "") return;
-    return (
-      <form id="form" onSubmit={handleSendMessage}>
-        <input
-          type="text"
-          value={value}
-          onChange={(e) => {
-            setValue(e.target.value);
-          }}
-        />
-        <button>Send</button>
-        <select
-          multiple
-          onChange={(choice) => {
-            if (choice.target.value == "normal") setStatus(Status.Normal);
-            if (choice.target.value == "operator") setStatus(Status.Operator);
-            if (choice.target.value == "owner") setStatus(Status.Owner);
-          }}
-        >
-          <option value="normal">Normal</option>
-          <option value="operator">Operator</option>
-          <option value="owner">Owner</option>
-        </select>
-      </form>
-    );
-  };
 
   return (
     <WebSocketProvider value={socket}>
@@ -210,7 +161,14 @@ export const Chat = () => {
             setContextMenu,
             status
           )}
-          {sendForm()}
+          {SendForm(
+            current_channel,
+            setStatus,
+            cookies,
+            setMessages,
+            setUsername,
+            socket
+          )}
         </div>
       </div>
     </WebSocketProvider>

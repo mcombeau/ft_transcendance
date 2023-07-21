@@ -36,7 +36,6 @@ export const SidePannel = (
         <li
           value={channel.name}
           onClick={(e) => {
-            console.log("here");
             var target = (e.target as HTMLInputElement).getAttribute("value");
             setCurrentChannel(target);
             setMessages(
