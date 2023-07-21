@@ -57,6 +57,9 @@ export const Chat = () => {
   }
 
   useEffect(() => {
+    setUsername(cookies["Username"]);
+    console.log(username);
+
     socket.on("chat message", (msg: Message) => {
       msg.read = false;
       setMessages((prev) => [...prev, msg]);

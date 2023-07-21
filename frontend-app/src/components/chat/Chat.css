@@ -103,6 +103,15 @@ li#mine {
   padding: 0rem 0.3rem;
 }
 
+#channel-info > li > .joinchan {
+  position: absolute;
+  top: 1.5rem;
+  right: 1rem;
+  background: white;
+  color: darkcyan;
+  padding: 0.2rem;
+}
+
 #channel-info > li > p {
   position: absolute;
   top: 0;

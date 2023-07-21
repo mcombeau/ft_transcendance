@@ -64,4 +64,13 @@ export class ChatGateway implements OnModuleInit {
     this.chatsService.createChat(info);
     this.server.emit('add chat', info);
   }
+
+  @SubscribeMessage('join chat')
+  async onJoinChat(@MessageBody() info: any) {
+    console.log(info);
+    this.chatsService.addParticipantToChatByUsername(
+      info.channel_name,
+      info.username,
+    );
+  }
 }

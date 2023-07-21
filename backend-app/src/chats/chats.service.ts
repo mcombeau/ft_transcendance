@@ -84,8 +84,26 @@ export class ChatsService {
     this.chatParticipantService.createChatParticipant(userID, id);
   }
 
+  async addParticipantToChatByUsername(name: string, username: string) {
+    const participant = await this.userService.fetchUserByUsername(username);
+    const channelID = await this.fetchChatByName(name);
+    this.chatParticipantService.createChatParticipant(
+      participant.id,
+      channelID.id,
+    );
+  }
+
   removeParticipantFromChatByID(id: number, userID: number) {
     this.chatParticipantService.deleteParticipantInChatByUserID(userID, id);
+  }
+
+  async removeParticipantFromChatByUsername(name: string, username: string) {
+    const participant = await this.userService.fetchUserByUsername(username);
+    const channelID = await this.fetchChatByName(name);
+    this.chatParticipantService.deleteParticipantInChatByUserID(
+      participant.id,
+      channelID.id,
+    );
   }
 
   async deleteChatByID(id: number) {

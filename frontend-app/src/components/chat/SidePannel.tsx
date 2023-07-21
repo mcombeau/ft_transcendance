@@ -20,7 +20,6 @@ export const SidePannel = (
     e.preventDefault();
     // Create new channel
     if (newchannel == "") return;
-    console.log("Here!!!!");
     socket.emit("add chat", {
       name: newchannel,
       password: "pass",
@@ -69,6 +68,25 @@ export const SidePannel = (
             }}
           >
             ⚙
+          </button>
+          <button
+            className="joinchan"
+            value={channel.name}
+            onClick={(e) => {
+              setCurrentChannel(
+                (e.target as HTMLInputElement).getAttribute("value")
+              );
+              setSettings(!settings);
+              setContextMenu(false);
+              socket.emit("join chat", {
+                username: username,
+                channel_name: (e.target as HTMLInputElement).getAttribute(
+                  "value"
+                ),
+              });
+            }}
+          >
+            Join
           </button>
         </li>
       </div>
