@@ -1,9 +1,10 @@
 import { Message, Status } from "./Chat";
 import { Socket } from "socket.io-client";
-import { Dispatch, SetStateAction } from "react";
+import { ChangeEvent, Dispatch, SetStateAction, useState } from "react";
 import { ListParticipants } from "./ListParticipants";
 import { NavigateFunction } from "react-router-dom";
 
+// TODO: refacto
 export const SettingsMenu = (
   settings: boolean,
   setSettings: Dispatch<SetStateAction<boolean>>,
@@ -14,6 +15,14 @@ export const SettingsMenu = (
   messages: Message[],
   navigate: NavigateFunction
 ) => {
+  const [newParticipant, setNewParticipant] = useState("");
+
+  const addNewParticipant = (e) => {
+    e.preventDefault();
+    console.log(newParticipant);
+    setNewParticipant("");
+  };
+
   if (settings) {
     if (status != Status.Normal) {
       // TODO: change that
@@ -38,6 +47,17 @@ export const SettingsMenu = (
           >
             ✕
           </button>
+          <form id="add_participant" onSubmit={addNewParticipant}>
+            <input
+              type="text"
+              value={newParticipant}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                e.preventDefault();
+                setNewParticipant(e.target.value);
+              }}
+            ></input>
+            <button>Add</button>
+          </form>
         </div>
       );
     }
