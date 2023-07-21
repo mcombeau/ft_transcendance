@@ -15,6 +15,7 @@ export const ListParticipants = (
       return message.sender;
     })
     .filter((value, index, self) => self.indexOf(value) === index); // TODO: change
+  console.log(participants);
   return (
     <ul className="participant_list">
       {participants.map((participant) => {

@@ -13,13 +13,19 @@ export const SidePannel = (
   settings: boolean,
   setSettings: Dispatch<SetStateAction<boolean>>,
   setContextMenu: Dispatch<SetStateAction<boolean>>,
-  channels: Channel[]
+  channels: Channel[],
+  username: string
 ) => {
   const createChannel = (e: any) => {
     e.preventDefault();
     // Create new channel
     if (newchannel == "") return;
-    socket.emit("add chat", { name: newchannel, password: "pass" });
+    console.log("Here!!!!");
+    socket.emit("add chat", {
+      name: newchannel,
+      password: "pass",
+      owner: username,
+    });
   };
 
   const channelInfo = (channel: Channel) => {

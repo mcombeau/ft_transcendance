@@ -19,9 +19,18 @@ export type Message = {
   read: boolean;
 };
 
+export type User = {
+  username: string;
+  owner: boolean;
+  operator: boolean;
+  banned: boolean;
+  muted: boolean;
+};
+
 export type Channel = {
   name: string;
   creator: string;
+  participants: User[];
 };
 
 export enum Status {
@@ -67,6 +76,7 @@ export const Chat = () => {
       var channel = {
         name: info.name,
         creator: "creator",
+        participants: [],
       };
       setChannels((prev) => [...prev, channel]);
       setNewchannel("");
@@ -83,7 +93,18 @@ export const Chat = () => {
           var chan: Channel = {
             name: e.name,
             creator: "",
+            participants: e.participants.map((user: any) => {
+              var newUser: User = {
+                username: user.participant.username,
+                owner: user.owner,
+                operator: user.operator,
+                banned: user.banned,
+                muted: user.muted,
+              };
+              return newUser;
+            }),
           };
+          console.log(chan);
           setChannels((prev) => [...prev, chan]);
         });
       });
@@ -138,7 +159,8 @@ export const Chat = () => {
           settings,
           setSettings,
           setContextMenu,
-          channels
+          channels,
+          username
         )}
         <div className="chat">
           {SettingsMenu(

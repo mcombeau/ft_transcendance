@@ -6,6 +6,7 @@ import { createChatParams, updateChatParams } from './utils/types';
 import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
 import { ChatParticipantsService } from 'src/chat-participants/chat-participants.service';
 import { ChatCreationError } from 'src/exceptions/bad-request.interceptor';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class ChatsService {
@@ -16,30 +17,41 @@ export class ChatsService {
     private chatMessageService: ChatMessagesService,
     @Inject(forwardRef(() => ChatParticipantsService))
     private chatParticipantService: ChatParticipantsService,
+    @Inject(forwardRef(() => UsersService))
+    private userService: UsersService,
   ) {}
 
   fetchChats() {
-    return this.chatRepository.find({ relations: ['participants']});
+    return this.chatRepository.find({
+      relations: ['participants.participant'],
+    });
   }
 
   async createChat(chatDetails: createChatParams) {
+    const user = await this.userService.fetchUserByUsername(chatDetails.owner);
     const newChat = this.chatRepository.create({
       name: chatDetails.name,
       password: chatDetails.password,
       createdAt: new Date(),
     });
-    const newSavedChat = await this.chatRepository.save(newChat).catch((err: any) => {
-      throw new ChatCreationError(`'${chatDetails.name}': ${err.message}`);
+    const newSavedChat = await this.chatRepository
+      .save(newChat)
+      .catch((err: any) => {
+        throw new ChatCreationError(`'${chatDetails.name}': ${err.message}`);
+      });
+    const participant = await this.chatParticipantService
+      .createChatParticipant(user.id, newSavedChat.id)
+      .catch((err: any) => {
+        this.deleteChatByID(newSavedChat.id);
+        throw new ChatCreationError(`'ownerID: ${user.id}': ${err.message}`);
+      });
+    await this.chatParticipantService.updateParticipantByID(participant.id, {
+      owner: true,
+      operator: true,
+      banned: false,
+      muted: false,
     });
-    const participant = await this.chatParticipantService.createChatParticipant(
-      chatDetails.ownerID,
-      newSavedChat.id
-    ).catch((err : any) => {
-      this.deleteChatByID(newSavedChat.id);
-      throw new ChatCreationError(`'ownerID: ${chatDetails.ownerID}': ${err.message}`);
-    });
-    await this.chatParticipantService.updateParticipantByID(participant.id, { owner: true, operator: true, banned: false, muted: false });
-    return (newSavedChat);
+    return newSavedChat;
   }
 
   fetchChatByID(id: number) {
@@ -60,11 +72,11 @@ export class ChatsService {
     const participant = chatDetails['participantID'];
     console.log(participant);
     if (participant !== undefined) {
-      console.log("Adding participant...");
+      console.log('Adding participant...');
       this.chatParticipantService.createChatParticipant(participant, id);
     }
     delete chatDetails['participantID'];
-    console.log("participantID: " + participant);
+    console.log('participantID: ' + participant);
     return this.chatRepository.update({ id }, { ...chatDetails });
   }
 
