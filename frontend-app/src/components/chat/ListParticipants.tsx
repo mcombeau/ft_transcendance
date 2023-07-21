@@ -55,6 +55,26 @@ export const ListParticipants = (
             ) : (
               <div></div>
             )}
+            {status == Status.Owner ? ( // TODO: check if admin
+              <div>
+                <button
+                  onClick={() => {
+                    console.log("Made admin " + participant);
+                  }}
+                >
+                  Make admin
+                </button>
+                <button
+                  onClick={() => {
+                    console.log("Removed from admins " + participant);
+                  }}
+                >
+                  Remove admin
+                </button>
+              </div>
+            ) : (
+              <div></div>
+            )}
           </div>
         );
       })}
