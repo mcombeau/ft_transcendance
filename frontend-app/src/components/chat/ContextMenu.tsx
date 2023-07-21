@@ -45,14 +45,21 @@ export const ContextMenuEl = (
       ) : (
         <div></div>
       )}
-      {status == Status.Owner ? (
+      {status == Status.Owner ? ( // TODO: check if admin and switch button
         <div>
           <li
             onClick={() => {
-              console.log("Banned " + contextMenuSender);
+              console.log("Made admin " + contextMenuSender);
             }}
           >
             Make admin
+          </li>
+          <li
+            onClick={() => {
+              console.log("Removed admin " + contextMenuSender);
+            }}
+          >
+            Remove admin
           </li>
         </div>
       ) : (
