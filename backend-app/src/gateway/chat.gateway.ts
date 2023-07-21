@@ -9,7 +9,6 @@ import {
 import { Server, Socket as ioSocket } from 'socket.io';
 import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
 import { ChatsService } from 'src/chats/chats.service';
-import { HttpException } from '@nestjs/common';
 
 @WebSocketGateway({
   cors: {
@@ -30,6 +29,7 @@ export class ChatGateway implements OnModuleInit {
     this.server.on('connection', (socket) => {
       console.log(socket.id);
       console.log('A user connected');
+
       socket.broadcast.emit('connection event');
       socket.on('disconnect', () => {
         console.log('a user disconnected');

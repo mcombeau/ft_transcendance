@@ -38,12 +38,14 @@ export class UsersController {
   @Get(':id')
   async getUserByID(@Param('id', ParseIntPipe) id: number) {
     const user = await this.userService.fetchUserByID(id);
+    console.log('Got here');
+    console.log(user);
     if (!user)
       throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
     return user;
   }
 
-  @Get(':username')
+  @Get('/username/:username')
   async getUserByUsername(@Param('username') username: string) {
     const user = await this.userService.fetchUserByUsername(username);
     if (!user)
