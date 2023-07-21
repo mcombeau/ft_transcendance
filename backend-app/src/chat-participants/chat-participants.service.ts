@@ -39,6 +39,15 @@ export class ChatParticipantsService {
         })
     }
 
+    fetchParticipantsByUserID(id: number) {
+        return this.participantRepository.find({
+            where: {
+                participant: { id: id },
+            },
+            relations: ['chatRoom', 'participant'],
+        })
+    }
+
     fetchParticipantByUserChatID(userID: number, chatRoomID: number) {
         return this.participantRepository.findOne({
             where: {
