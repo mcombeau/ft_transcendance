@@ -3,16 +3,14 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
-  HttpStatus,
   Param,
   ParseIntPipe,
   Patch,
   Post,
-  Put,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import { UserNotFoundException } from 'src/exceptions/not-found.exception';
 import { createUsersDto } from 'src/users/dtos/createUsers.dto';
 import { updateUsersDto } from 'src/users/dtos/updateUsers.dto';
 import { UsersService } from 'src/users/users.service';
@@ -20,6 +18,23 @@ import { UsersService } from 'src/users/users.service';
 @Controller('users')
 export class UsersController {
   constructor(private userService: UsersService) {}
+
+  
+  @Get('/username/:username')
+  async getUserByUsername(@Param('username') username: string) {
+    const user = await this.userService.fetchUserByUsername(username);
+    if (!user)
+      throw new UserNotFoundException(username);
+    return user;
+  }
+
+  @Get(':id')
+  async getUserByID(@Param('id', ParseIntPipe) id: number) {
+    const user = await this.userService.fetchUserByID(id);
+    if (!user)
+      throw new UserNotFoundException(id.toString());
+    return user;
+  }
 
   @Get()
   getUsers() {
@@ -34,25 +49,7 @@ export class UsersController {
     console.log(userDto);
     return this.userService.createUser(userDto);
   }
-
-  @Get(':id')
-  async getUserByID(@Param('id', ParseIntPipe) id: number) {
-    const user = await this.userService.fetchUserByID(id);
-    console.log('Got here');
-    console.log(user);
-    if (!user)
-      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
-    return user;
-  }
-
-  @Get('/username/:username')
-  async getUserByUsername(@Param('username') username: string) {
-    const user = await this.userService.fetchUserByUsername(username);
-    if (!user)
-      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
-    return user;
-  }
-
+ 
   @Patch(':id')
   async updateUserByID(
     @Param('id', ParseIntPipe) id: number,

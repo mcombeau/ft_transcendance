@@ -1,5 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { ChatMessageEntity } from "./chat-message.entity";
+import { ChatParticipantEntity } from "./chat-participant.entity";
 
 @Entity({ name: 'users' })
 export class UserEntity {
@@ -13,4 +14,6 @@ export class UserEntity {
     createdAt: Date;
     @OneToMany( () => ChatMessageEntity, (chatMessage) => chatMessage.sender, { nullable: true } )
     messages: ChatMessageEntity[];
+    @OneToMany( () => ChatParticipantEntity, (participant) => participant.participant, { nullable: true } )
+    chatRooms: ChatMessageEntity[];
 }

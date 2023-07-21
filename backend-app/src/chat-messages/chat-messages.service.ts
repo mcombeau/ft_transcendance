@@ -1,6 +1,4 @@
 import {
-  HttpException,
-  HttpStatus,
   Inject,
   Injectable,
   forwardRef,
@@ -10,6 +8,7 @@ import { ChatMessageEntity } from 'src/typeorm/entities/chat-message.entity';
 import { Repository } from 'typeorm';
 import { ChatsService } from 'src/chats/chats.service';
 import { UsersService } from 'src/users/users.service';
+import { ChatNotFoundError, UserNotFoundError } from 'src/exceptions/not-found.interceptor';
 
 @Injectable()
 export class ChatMessagesService {
@@ -34,10 +33,10 @@ export class ChatMessagesService {
   ) {
     const chat = await this.chatService.fetchChatByName(chatRoomName);
     if (!chat)
-      throw new HttpException('Cannot find chat room', HttpStatus.BAD_REQUEST);
+      throw new ChatNotFoundError(chatRoomName);
     const user = await this.userService.fetchUserByUsername(sender);
     if (!user) {
-      throw new HttpException('Cannot find sender', HttpStatus.BAD_REQUEST);
+      throw new UserNotFoundError(sender.toString());
     }
     const messageDetails = {
       message: message,

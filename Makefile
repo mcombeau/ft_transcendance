@@ -1,4 +1,4 @@
-.PHONY: all re up down start stop status logs prune clean fclean
+.PHONY: all re up down start stop status logs prune clean fclean db blog flog nlog plog
 
 DATA_PATH = ${HOME}/ft_transcendance
 ENV =		DATA_PATH=${DATA_PATH}
@@ -29,13 +29,17 @@ setup:
 	mkdir -p ${DATA_PATH}
 	mkdir -p ${DATA_PATH}/database
 
-clean:
+clean: down
 	sudo rm -rf ${DATA_PATH}
+
+db: clean
+	docker volume rm ft_transcendance_database
+	make
 
 fclean: clean
 	docker system prune -f -a --volumes
 	docker volume rm ft_transcendance_database
-
+	
 blog:
 	docker-compose logs --follow backend
 

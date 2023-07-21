@@ -1,24 +1,20 @@
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ChatMessageEntity } from 'src/typeorm/entities/chat-message.entity';
+import { Module, forwardRef } from '@nestjs/common';
 import { ChatGateway } from './chat.gateway';
-import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
-import { ChatsService } from 'src/chats/chats.service';
-import { UsersService } from 'src/users/users.service';
-import { ChatEntity } from 'src/typeorm/entities/chat.entity';
-import { UserEntity } from 'src/typeorm/entities/user.entity';
 import { GameGateway } from './game.gateway';
+import { ChatMessagesModule } from 'src/chat-messages/chat-messages.module';
+import { ChatsModule } from 'src/chats/chats.module';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ChatMessageEntity, ChatEntity, UserEntity]),
+    forwardRef(() => ChatsModule),
+    forwardRef(() => ChatMessagesModule),
+    forwardRef(() => UsersModule),
   ],
   providers: [
     ChatGateway,
-    ChatMessagesService,
-    ChatsService,
-    UsersService,
     GameGateway,
   ],
+  exports: [ChatGateway, GameGateway]
 })
 export class GatewayModule {}

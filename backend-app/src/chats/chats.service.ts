@@ -3,8 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ChatEntity } from 'src/typeorm/entities/chat.entity';
 import { Repository } from 'typeorm';
 import { createChatParams, updateChatParams } from './utils/types';
-import { HttpException, HttpStatus } from '@nestjs/common';
 import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
+import { ChatParticipantsService } from 'src/chat-participants/chat-participants.service';
+import { ChatCreationError } from 'src/exceptions/bad-request.interceptor';
 
 @Injectable()
 export class ChatsService {
@@ -13,46 +14,62 @@ export class ChatsService {
     private chatRepository: Repository<ChatEntity>,
     @Inject(forwardRef(() => ChatMessagesService))
     private chatMessageService: ChatMessagesService,
+    @Inject(forwardRef(() => ChatParticipantsService))
+    private chatParticipantService: ChatParticipantsService,
   ) {}
 
   fetchChats() {
-    return this.chatRepository.find();
+    return this.chatRepository.find({ relations: ['participants']});
   }
 
   async createChat(chatDetails: createChatParams) {
     const newChat = this.chatRepository.create({
-      ...chatDetails,
+      name: chatDetails.name,
+      password: chatDetails.password,
       createdAt: new Date(),
     });
-    return this.chatRepository.save(newChat).catch((err: any) => {
-      console.log(err);
-      throw new HttpException(
-        'Error during channel creation',
-        HttpStatus.BAD_REQUEST,
-      );
+    const newSavedChat = await this.chatRepository.save(newChat).catch((err: any) => {
+      throw new ChatCreationError(`'${chatDetails.name}': ${err.message}`);
     });
+    const participant = await this.chatParticipantService.createChatParticipant(
+      chatDetails.ownerID,
+      newSavedChat.id
+    ).catch((err : any) => {
+      this.deleteChatByID(newSavedChat.id);
+      throw new ChatCreationError(`'ownerID: ${chatDetails.ownerID}': ${err.message}`);
+    });
+    await this.chatParticipantService.updateParticipantByID(participant.id, { owner: true, operator: true, banned: false, muted: false });
+    return (newSavedChat);
   }
-
-  // createChatMessage(id: number, messageDetails: createChatMessageParams) {
-  //     return this.chatMessageService.createMessage(messageDetails, messageDetails.sender, messageDetails.chatRoom);
-  // }
 
   fetchChatByID(id: number) {
     return this.chatRepository.findOne({
       where: { id },
-      relations: ['messages'],
+      relations: ['messages', 'participants.participant'],
     });
   }
 
   fetchChatByName(name: string) {
     return this.chatRepository.findOne({
       where: { name },
-      relations: ['messages'],
+      relations: ['messages', 'participants.participant'],
     });
   }
 
   updateChatByID(id: number, chatDetails: updateChatParams) {
+    const participant = chatDetails['participantID'];
+    console.log(participant);
+    if (participant !== undefined) {
+      console.log("Adding participant...");
+      this.chatParticipantService.createChatParticipant(participant, id);
+    }
+    delete chatDetails['participantID'];
+    console.log("participantID: " + participant);
     return this.chatRepository.update({ id }, { ...chatDetails });
+  }
+
+  addParticipantToChatByID(id: number, userID: number) {
+    this.chatParticipantService.createChatParticipant(userID, id);
   }
 
   async deleteChatByID(id: number) {
