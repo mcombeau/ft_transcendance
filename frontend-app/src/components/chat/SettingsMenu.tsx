@@ -1,4 +1,4 @@
-import { Message, Status } from "./Chat";
+import { Message, Status, Channel } from "./Chat";
 import { Socket } from "socket.io-client";
 import { ChangeEvent, Dispatch, SetStateAction, useState } from "react";
 import { ListParticipants } from "./ListParticipants";
@@ -9,10 +9,9 @@ export const SettingsMenu = (
   settings: boolean,
   setSettings: Dispatch<SetStateAction<boolean>>,
   status: Status,
-  current_channel: string,
+  current_channel: Channel,
   setCurrentChannel: Dispatch<SetStateAction<string>>,
   socket: Socket,
-  messages: Message[],
   navigate: NavigateFunction
 ) => {
   const [newParticipant, setNewParticipant] = useState("");
@@ -28,7 +27,7 @@ export const SettingsMenu = (
       // TODO: change that
       return (
         <div className="settings">
-          <h3>Admin panel for {current_channel}</h3>
+          <h3>Admin panel for {current_channel.name}</h3>
           <button
             onClick={() => {
               socket.emit("delete chat", current_channel);
@@ -38,7 +37,7 @@ export const SettingsMenu = (
             Delete channel
           </button>
           <h3>Channel members</h3>
-          {ListParticipants(current_channel, messages, navigate, status)}
+          {ListParticipants(current_channel, navigate, status)}
           <button
             className="closesettings"
             onClick={() => {
@@ -63,7 +62,7 @@ export const SettingsMenu = (
     }
     return (
       <div className="settings">
-        <h3>Settings for {current_channel}</h3>
+        <h3>Settings for {current_channel.name}</h3>
         <button
           onClick={() => {
             // TODO: change
@@ -75,7 +74,7 @@ export const SettingsMenu = (
           Leave channel
         </button>
         <h3>Channel members</h3>
-        {ListParticipants(current_channel, messages, navigate, status)}
+        {ListParticipants(current_channel, navigate, status)}
         <button
           className="closesettings"
           onClick={() => {

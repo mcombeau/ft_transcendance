@@ -167,10 +167,9 @@ export const Chat = () => {
             settings,
             setSettings,
             status,
-            current_channel,
+            getChannel(current_channel),
             setCurrentChannel,
             socket,
-            messages, // TODO: replace by real channel list
             navigate
           )}
           {Messages(
