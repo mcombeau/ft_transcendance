@@ -72,6 +72,10 @@ export class ChatsService {
     this.chatParticipantService.createChatParticipant(userID, id);
   }
 
+  removeParticipantFromChatByID(id: number, userID: number) {
+    this.chatParticipantService.deleteParticipantByUserID(userID, id);
+  }
+
   async deleteChatByID(id: number) {
     await this.chatMessageService.deleteMessagesByChatID(id);
     console.log('Delete channel ' + id);

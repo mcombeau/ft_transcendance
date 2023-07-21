@@ -39,6 +39,16 @@ export class ChatParticipantsService {
         })
     }
 
+    fetchParticipantByUserChatID(userID: number, chatRoomID: number) {
+        return this.participantRepository.findOne({
+            where: {
+                participant: { id: userID },
+                chatRoom: { id: chatRoomID },
+            },
+            relations: ['chatRoom', 'participant'],
+        })
+    }
+
     async recordAlreadyExists(userID: number, chatRoomID: number) {
         const foundRecord = await this.participantRepository.find({
             where: {
@@ -77,6 +87,11 @@ export class ChatParticipantsService {
 
     async updateParticipantByID(id: number, participantDetails: updateParticipantParams ) {
         return this.participantRepository.update({ id }, { ...participantDetails });
+    }
+
+    async deleteParticipantByUserID(userID: number, chatRoomID: number) {
+        const participant = await this.fetchParticipantByUserChatID(userID, chatRoomID);
+        return this.deleteParticipantByID(participant.id);
     }
 
     async deleteParticipantByID(id: number) {
