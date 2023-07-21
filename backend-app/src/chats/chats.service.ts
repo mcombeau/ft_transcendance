@@ -85,7 +85,7 @@ export class ChatsService {
   }
 
   removeParticipantFromChatByID(id: number, userID: number) {
-    this.chatParticipantService.deleteParticipantByUserID(userID, id);
+    this.chatParticipantService.deleteParticipantInChatByUserID(userID, id);
   }
 
   async deleteChatByID(id: number) {
