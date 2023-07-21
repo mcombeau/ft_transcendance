@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import "./Chat.css";
 import Messages from "./Messages";
 import SettingsMenu from "./SettingsMenu";
+import SidePannel from "./SidePannel";
 
 export type Message = {
   datestamp: Date;
@@ -17,7 +18,7 @@ export type Message = {
   read: boolean;
 };
 
-type Channel = {
+export type Channel = {
   name: string;
   creator: string;
 };
@@ -78,7 +79,7 @@ export const Chat = () => {
           console.log("error response load channels");
           return;
         }
-        data.map((e) => {
+        data.map((e: any) => {
           var chan: Channel = {
             name: e.name,
             creator: "",
@@ -95,7 +96,7 @@ export const Chat = () => {
           console.log("error response load messages");
           return;
         }
-        data.map((e) => {
+        data.map((e: any) => {
           var msg: Message = {
             datestamp: e.sentAt,
             msg: e.message,
@@ -144,60 +145,6 @@ export const Chat = () => {
     message_els.scrollTop = message_els.scrollHeight;
   }, [messages]);
 
-  const createChannel = (e: any) => {
-    e.preventDefault();
-    // Create new channel
-    if (newchannel == "") return;
-    socket.emit("add chat", { name: newchannel, password: "pass" });
-  };
-
-  const channelInfo = (channel: Channel) => {
-    var isCurrent = channel.name == current_channel;
-    var unreadMessages: number = messages
-      .filter((msg) => {
-        return msg.channel == channel.name;
-      })
-      .filter((msg) => {
-        return msg.read == false;
-      }).length;
-    return (
-      <div id="channel-info">
-        <li
-          value={channel.name}
-          onClick={(e) => {
-            var target = (e.target as HTMLInputElement).getAttribute("value");
-            setCurrentChannel(target);
-            setMessages(
-              messages.map((msg) => {
-                if (msg.channel == target) {
-                  return { ...msg, read: true };
-                } else {
-                  return { ...msg };
-                }
-              })
-            );
-          }}
-          className={isCurrent ? "chanCurrent" : "channotCurrent"}
-        >
-          {unreadMessages > 0 && <p>{unreadMessages}</p>}
-          {channel.name}
-          <button
-            value={channel.name}
-            onClick={(e) => {
-              setCurrentChannel(
-                (e.target as HTMLInputElement).getAttribute("value")
-              );
-              setSettings(!settings);
-              setContextMenu(false);
-            }}
-          >
-            ⚙
-          </button>
-        </li>
-      </div>
-    );
-  };
-
   const sendForm = () => {
     if (current_channel == "") return;
     return (
@@ -229,21 +176,19 @@ export const Chat = () => {
   return (
     <WebSocketProvider value={socket}>
       <div className="chat-container">
-        <div className="sidebar">
-          <form className="newchan" onSubmit={createChannel}>
-            <input
-              type="text"
-              value={newchannel}
-              onChange={(e) => {
-                setNewchannel(e.target.value);
-              }}
-            />
-            <button>+</button>
-          </form>
-          <div id="channels">
-            {channels.map((channel: Channel) => channelInfo(channel))}
-          </div>
-        </div>
+        {SidePannel(
+          newchannel,
+          setNewchannel,
+          current_channel,
+          setCurrentChannel,
+          socket,
+          messages,
+          setMessages,
+          settings,
+          setSettings,
+          setContextMenu,
+          channels
+        )}
         <div className="chat">
           {SettingsMenu(
             settings,
