@@ -73,17 +73,17 @@ export const SidePannel = (
             className="joinchan"
             value={channel.name}
             onClick={(e) => {
-              setCurrentChannel(
-                (e.target as HTMLInputElement).getAttribute("value")
-              );
-              setSettings(!settings);
-              setContextMenu(false);
               socket.emit("join chat", {
                 username: username,
                 channel_name: (e.target as HTMLInputElement).getAttribute(
                   "value"
                 ),
               });
+              // setCurrentChannel(
+              //   (e.target as HTMLInputElement).getAttribute("value")
+              // );
+              // setSettings(!settings);
+              // setContextMenu(false);
             }}
           >
             Join

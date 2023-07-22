@@ -56,26 +56,6 @@ export const Chat = () => {
     return channels.find((e) => e.name == channel_name);
   }
 
-  function handleJoinChat(info: any) {
-    var user: User = {
-      username: info.username,
-      owner: false,
-      operator: false,
-      banned: false,
-      muted: false,
-    };
-
-    setChannels((prev) => {
-      const temp = [...prev];
-      return temp.map((chan) => {
-        if (chan.name == info.channel_name) {
-          chan.participants = [...chan.participants, user];
-        }
-        return chan;
-      });
-    });
-  }
-
   useEffect(() => {
     setUsername(cookies["Username"]);
     console.log(username);
@@ -106,7 +86,47 @@ export const Chat = () => {
     });
 
     socket.on("join chat", (info: any) => {
-      handleJoinChat(info);
+      var user: User = {
+        username: info.username,
+        owner: false,
+        operator: false,
+        banned: false,
+        muted: false,
+      };
+
+      // participants: e.participants.map((user: any) => {
+      //   var newUser: User = {
+      //     username: user.participant.username,
+      //     owner: user.owner,
+      //     operator: user.operator,
+      //     banned: user.banned,
+      //     muted: user.muted,
+      //   };
+      //   return newUser;
+      // }),
+      console.log("before");
+      console.log(channels);
+      const newChannels: Channel[] = channels.map((chan: Channel) => {
+        if (chan.name == info.channel_name) {
+          var newchan: Channel = {
+            name: chan.name,
+            creator: chan.creator,
+            participants: [...chan.participants, user],
+          };
+        } else {
+          var newchan: Channel = {
+            name: chan.name,
+            creator: chan.creator,
+            participants: chan.participants,
+          };
+        }
+        return newchan;
+      });
+      console.log("new channels");
+      console.log(newChannels);
+      // setChannels(newChannels);
+      console.log("Channels");
+      console.log(channels);
     });
 
     if (channels.length == 0) {
@@ -172,6 +192,8 @@ export const Chat = () => {
     message_els.scrollTop = message_els.scrollHeight;
   }, [messages]);
 
+  console.log("Chans");
+  console.log(channels);
   return (
     <WebSocketProvider value={socket}>
       <div className="chat-container">

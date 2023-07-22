@@ -28,6 +28,7 @@ export class ChatGateway implements OnModuleInit {
   onModuleInit() {
     this.server.on('connection', (socket) => {
       console.log(socket.id);
+
       console.log('A user connected');
 
       socket.broadcast.emit('connection event');
@@ -67,10 +68,14 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('join chat')
   async onJoinChat(@MessageBody() info: any) {
-    console.log(info);
-    this.chatsService.addParticipantToChatByUsername(
-      info.channel_name,
-      info.username,
-    );
+    try {
+      this.chatsService.addParticipantToChatByUsername(
+        info.channel_name,
+        info.username,
+      );
+      this.server.emit('join chat', info);
+    } catch (e) {
+      console.log('Chat join Error');
+    }
   }
 }
