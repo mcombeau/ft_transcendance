@@ -69,7 +69,11 @@ export const Chat = () => {
       const temp = [...prev];
       return temp.map((chan) => {
         if (chan.name == info.channel_name) {
-          chan.participants = [...chan.participants, user];
+          if (
+            !chan.participants.some((p: User) => p.username == info.username)
+          ) {
+            chan.participants = [...chan.participants, user];
+          }
         }
         return chan;
       });
