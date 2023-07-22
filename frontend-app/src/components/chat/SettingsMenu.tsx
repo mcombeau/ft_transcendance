@@ -23,56 +23,48 @@ export const SettingsMenu = (
   };
 
   if (settings) {
+    var leave_button = (
+      <button
+        onClick={() => {
+          // TODO: change
+          console.log("Leaving " + current_channel.name);
+          setSettings(false);
+          setCurrentChannel("");
+        }}
+      >
+        Leave channel
+      </button>
+    );
     if (status != Status.Normal) {
       // TODO: change that
-      return (
-        <div className="settings">
-          <h3>Admin panel for {current_channel.name}</h3>
-          <button
-            onClick={() => {
-              socket.emit("delete chat", current_channel.name);
-              console.log("Deleting " + current_channel.name);
+      leave_button = (
+        <button
+          onClick={() => {
+            socket.emit("delete chat", current_channel.name);
+            console.log("Deleting " + current_channel.name);
+          }}
+        >
+          Delete channel
+        </button>
+      );
+      var add_participant = (
+        <form id="add_participant" onSubmit={addNewParticipant}>
+          <input
+            type="text"
+            value={newParticipant}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+              e.preventDefault();
+              setNewParticipant(e.target.value);
             }}
-          >
-            Delete channel
-          </button>
-          <h3>Channel members</h3>
-          {ListParticipants(current_channel, navigate, status)}
-          <button
-            className="closesettings"
-            onClick={() => {
-              setSettings(false);
-            }}
-          >
-            ✕
-          </button>
-          <form id="add_participant" onSubmit={addNewParticipant}>
-            <input
-              type="text"
-              value={newParticipant}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                e.preventDefault();
-                setNewParticipant(e.target.value);
-              }}
-            ></input>
-            <button>Add</button>
-          </form>
-        </div>
+          ></input>
+          <button>Add</button>
+        </form>
       );
     }
     return (
       <div className="settings">
         <h3>Settings for {current_channel.name}</h3>
-        <button
-          onClick={() => {
-            // TODO: change
-            console.log("Leaving " + current_channel.name);
-            setSettings(false);
-            setCurrentChannel("");
-          }}
-        >
-          Leave channel
-        </button>
+        {leave_button}
         <h3>Channel members</h3>
         {ListParticipants(current_channel, navigate, status)}
         <button
