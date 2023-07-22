@@ -11,9 +11,8 @@ export const ListParticipants = (
     var style = {};
     if (participant.owner) {
       name += " ⍟";
-      style = { color: "darkcyan" };
+      style = { textDecoration: "underline" };
     } else if (participant.operator) {
-      style = { color: "darkcyan" };
       name += " ★";
     }
     return (
