@@ -30,8 +30,8 @@ export const SettingsMenu = (
           <h3>Admin panel for {current_channel.name}</h3>
           <button
             onClick={() => {
-              socket.emit("delete chat", current_channel);
-              console.log("Deleting " + current_channel);
+              socket.emit("delete chat", current_channel.name);
+              console.log("Deleting " + current_channel.name);
             }}
           >
             Delete channel
@@ -66,7 +66,7 @@ export const SettingsMenu = (
         <button
           onClick={() => {
             // TODO: change
-            console.log("Leaving " + current_channel);
+            console.log("Leaving " + current_channel.name);
             setSettings(false);
             setCurrentChannel("");
           }}
