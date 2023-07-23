@@ -130,6 +130,23 @@ export const Chat = () => {
       });
     });
 
+    socket.on("operator", (info: any) => {
+      setChannels((prev) => {
+        const temp = [...prev];
+        return temp.map((chan) => {
+          if (chan.name == info.channel_name) {
+            chan.participants.map((p) => {
+              if (p.username == info.target_user) {
+                p.operator = !p.operator;
+              }
+              return p;
+            });
+          }
+          return chan;
+        });
+      });
+    });
+
     if (channels.length == 0) {
       fetch("http://localhost:3001/chats").then(async (response) => {
         const data = await response.json();

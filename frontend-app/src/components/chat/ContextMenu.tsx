@@ -26,7 +26,6 @@ export const ContextMenuEl = (
         <div>
           <li
             onClick={() => {
-              console.log("MUTED");
               socket.emit("mute", {
                 channel_name: channel_name,
                 current_user: current_user,
@@ -58,7 +57,12 @@ export const ContextMenuEl = (
         <div>
           <li
             onClick={() => {
-              console.log("Made admin " + contextMenuSender);
+              console.log("Made operator " + contextMenuSender);
+              socket.emit("operator", {
+                channel_name: channel_name,
+                current_user: current_user,
+                target_user: contextMenuSender,
+              });
             }}
           >
             Make admin

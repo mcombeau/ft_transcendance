@@ -72,8 +72,6 @@ export class ChatParticipantsService {
     username: string,
     channel_name: string,
   ) {
-    console.log('channel');
-    console.log(channel_name);
     var channel = await this.chatService.fetchChatByName(channel_name);
     var user = await this.userService.fetchUserByUsername(username);
     return this.participantRepository.findOne({

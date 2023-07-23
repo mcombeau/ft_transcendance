@@ -84,11 +84,9 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('mute')
   async onMute(@MessageBody() info: any) {
-    console.log('MUTE info');
-    console.log(info);
     try {
       if (
-        this.chatParticipantsService.userIsOwner(
+        this.chatParticipantsService.userIsOperator(
           info.channel_name,
           info.current_user,
         )
@@ -103,16 +101,47 @@ export class ChatGateway implements OnModuleInit {
           operator: participant.operator,
           banned: participant.banned,
           owner: participant.owner,
-          muted: true,
+          muted: !participant.muted, // TODO: change later timer mute
         });
-        console.log('updated participant');
         this.server.emit('mute', info);
-        console.log('Muted in theory');
       } else {
         console.log("This user is not operator. They can't mute.");
       }
     } catch (e) {
       console.log('Mute Error');
+      console.log(e);
+    }
+  }
+
+  @SubscribeMessage('operator')
+  async onToggleOperator(@MessageBody() info: any) {
+    try {
+      if (
+        this.chatParticipantsService.userIsOwner(
+          info.channel_name,
+          info.current_user,
+        )
+      ) {
+        var participant =
+          await this.chatParticipantsService.fetchParticipantByUserChatNames(
+            info.current_user,
+            info.channel_name,
+          );
+        console.log(participant);
+        this.chatParticipantsService.updateParticipantByID(participant.id, {
+          operator: !participant.operator,
+          banned: participant.banned,
+          owner: participant.owner,
+          muted: participant.muted,
+        });
+        this.server.emit('operator', info);
+      } else {
+        console.log(
+          "This user is not owner. They can't make someone else operator.",
+        );
+      }
+    } catch (e) {
+      console.log('Make operator Error');
       console.log(e);
     }
   }
