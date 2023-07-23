@@ -6,18 +6,23 @@ import { ChatParticipantEntity } from './chat-participant.entity';
 export class ChatEntity {
   @PrimaryGeneratedColumn()
   id: number;
+
   @Column({ unique: true })
   name: string;
+
   @Column()
   password: string;
+
   @Column()
   createdAt: Date;
+
   @OneToMany(() => ChatMessageEntity, (chatMessage) => chatMessage.chatRoom, {
     nullable: true,
   })
   messages: ChatMessageEntity[];
+
   @OneToMany(() => ChatParticipantEntity, (participant) => participant.chatRoom, {
-    nullable: true,
+    nullable: true
   })
   participants: ChatParticipantEntity[];
 }

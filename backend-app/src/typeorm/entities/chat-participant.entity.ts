@@ -14,7 +14,7 @@ export class ChatParticipantEntity {
     banned: boolean;
     @Column({ default: false })
     muted: boolean;
-    @ManyToOne( () => ChatEntity, (chat) => chat.participants, { cascade: true })
+    @ManyToOne( () => ChatEntity, (chat) => chat.participants, { cascade: true, onDelete: "CASCADE" })
     chatRoom: ChatEntity;
     @ManyToOne( () => UserEntity, (user) => user.chatRooms, { cascade: true })
     participant: UserEntity;
