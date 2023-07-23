@@ -5,6 +5,13 @@ export type createChatParams = {
   owner: string;
 };
 
+export type createDMParams = {
+  name: string;
+  password: string;
+  user1: string;
+  user2: string;
+};
+
 export type updateChatParams = {
   name: string;
   password: string;

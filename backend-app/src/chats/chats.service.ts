@@ -2,7 +2,7 @@ import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatEntity } from 'src/typeorm/entities/chat.entity';
 import { Repository } from 'typeorm';
-import { createChatParams, updateChatParams } from './utils/types';
+import { createChatParams, createDMParams, updateChatParams } from './utils/types';
 import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
 import { ChatParticipantsService } from 'src/chat-participants/chat-participants.service';
 import { ChatCreationError } from 'src/exceptions/bad-request.interceptor';
@@ -55,20 +55,31 @@ export class ChatsService {
     return newSavedChat;
   }
 
-  async createChatDM(chatDetails: createChatParams) {
-    
+  async createChatDM(chatDetails: createDMParams) {
+    const user1 = await this.userService.fetchUserByUsername(chatDetails.user1);
+    const user2 = await this.userService.fetchUserByUsername(chatDetails.user2);
     const newChat = this.chatRepository.create({
       name: chatDetails.name,
       password: chatDetails.password,
       private: true,
       createdAt: new Date(),
     });
-    
     const newSavedChat = await this.chatRepository
       .save(newChat)
       .catch((err: any) => {
         throw new ChatCreationError(`'${chatDetails.name}': ${err.message}`);
       });
+    try {
+      await this.chatParticipantService
+      .createChatParticipant(user1.id, newSavedChat.id);
+    await this.chatParticipantService
+      .createChatParticipant(user2.id, newSavedChat.id);
+    }
+    catch (err: any) {
+      this.deleteChatByID(newSavedChat.id);
+      throw new ChatCreationError(`${err.message}`);
+    }
+    
     return newSavedChat;
   }
 
