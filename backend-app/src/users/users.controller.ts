@@ -44,9 +44,6 @@ export class UsersController {
   @Post()
   @UsePipes(new ValidationPipe())
   createUser(@Body() userDto: createUsersDto) {
-    console.log('!!!!!!!!!!!!!!!!!!!!!!!');
-    console.log('A user has been posted');
-    console.log(userDto);
     return this.userService.createUser(userDto);
   }
  

@@ -23,6 +23,7 @@ export const SidePannel = (
     socket.emit("add chat", {
       name: newchannel,
       password: "pass",
+      private: false,
       owner: username,
     });
   };

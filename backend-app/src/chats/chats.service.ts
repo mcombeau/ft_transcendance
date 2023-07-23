@@ -32,6 +32,7 @@ export class ChatsService {
     const newChat = this.chatRepository.create({
       name: chatDetails.name,
       password: chatDetails.password,
+      private: chatDetails.private,
       createdAt: new Date(),
     });
     const newSavedChat = await this.chatRepository
@@ -54,6 +55,23 @@ export class ChatsService {
     return newSavedChat;
   }
 
+  async createChatDM(chatDetails: createChatParams) {
+    
+    const newChat = this.chatRepository.create({
+      name: chatDetails.name,
+      password: chatDetails.password,
+      private: true,
+      createdAt: new Date(),
+    });
+    
+    const newSavedChat = await this.chatRepository
+      .save(newChat)
+      .catch((err: any) => {
+        throw new ChatCreationError(`'${chatDetails.name}': ${err.message}`);
+      });
+    return newSavedChat;
+  }
+
   fetchChatByID(id: number) {
     return this.chatRepository.findOne({
       where: { id },
@@ -70,13 +88,10 @@ export class ChatsService {
 
   updateChatByID(id: number, chatDetails: updateChatParams) {
     const participant = chatDetails['participantID'];
-    console.log(participant);
     if (participant !== undefined) {
-      console.log('Adding participant...');
       this.chatParticipantService.createChatParticipant(participant, id);
     }
     delete chatDetails['participantID'];
-    console.log('participantID: ' + participant);
     return this.chatRepository.update({ id }, { ...chatDetails });
   }
 

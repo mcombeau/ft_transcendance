@@ -103,18 +103,14 @@ export class ChatParticipantsService {
         chatRoom: { id: chatRoomID },
       },
     });
-    console.log(foundRecord.length);
-    console.log(foundRecord);
     if (foundRecord.length > 0) {
-      console.log('User is already in chat room');
-      console.log(foundRecord);
+      console.log(`[Chat Participant service]: User ${userID} is already in chat room ${chatRoomID}`);
       return foundRecord[0];
     }
     const newParticipant = this.participantRepository.create({
       participant: { id: userID },
       chatRoom: { id: chatRoomID },
     });
-    console.log(newParticipant);
     return this.participantRepository.save(newParticipant);
   }
 
