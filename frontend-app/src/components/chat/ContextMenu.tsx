@@ -1,12 +1,16 @@
 import { Status } from "./Chat";
 import { useRef } from "react";
+import { Socket } from "socket.io-client";
 
 export const ContextMenuEl = (
   contextMenu: boolean,
   contextMenuSender: string,
   status: Status,
   setContextMenu: any,
-  contextMenuPos: any
+  contextMenuPos: any,
+  socket: Socket,
+  channel_name: string,
+  current_user: string
 ) => {
   const menuRef = useRef<HTMLDivElement>(null);
   var options = (
@@ -22,7 +26,12 @@ export const ContextMenuEl = (
         <div>
           <li
             onClick={() => {
-              console.log("Muted " + contextMenuSender);
+              console.log("MUTED");
+              socket.emit("mute", {
+                channel_name: channel_name,
+                current_user: current_user,
+                target_user: contextMenuSender,
+              });
             }}
           >
             Mute

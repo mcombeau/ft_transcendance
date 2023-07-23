@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import { NavigateFunction } from "react-router-dom";
+import { Socket } from "socket.io-client";
 import { Message, Status } from "./Chat";
 import { ContextMenuEl } from "./ContextMenu";
 
@@ -11,7 +12,8 @@ export const Messages = (
   settings: boolean,
   contextMenu: boolean,
   setContextMenu: Dispatch<SetStateAction<boolean>>,
-  status: Status
+  status: Status,
+  socket: Socket
 ) => {
   const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
   const [contextMenuSender, setContextMenuSender] = useState("");
@@ -66,7 +68,10 @@ export const Messages = (
         contextMenuSender,
         status,
         setContextMenu,
-        contextMenuPos
+        contextMenuPos,
+        socket,
+        current_channel,
+        username
       )}
     </div>
   );

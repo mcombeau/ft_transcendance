@@ -8,6 +8,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket as ioSocket } from 'socket.io';
 import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
+import { ChatParticipantsService } from 'src/chat-participants/chat-participants.service';
 import { ChatsService } from 'src/chats/chats.service';
 
 @WebSocketGateway({
@@ -21,6 +22,8 @@ export class ChatGateway implements OnModuleInit {
     private chatMessagesService: ChatMessagesService,
     @Inject(forwardRef(() => ChatsService))
     private chatsService: ChatsService,
+    @Inject(forwardRef(() => ChatParticipantsService))
+    private chatParticipantsService: ChatParticipantsService,
   ) {}
   @WebSocketServer()
   server: Server;
@@ -76,6 +79,41 @@ export class ChatGateway implements OnModuleInit {
       this.server.emit('join chat', info);
     } catch (e) {
       console.log('Chat join Error');
+    }
+  }
+
+  @SubscribeMessage('mute')
+  async onMute(@MessageBody() info: any) {
+    console.log('MUTE info');
+    console.log(info);
+    try {
+      if (
+        this.chatParticipantsService.userIsOwner(
+          info.channel_name,
+          info.current_user,
+        )
+      ) {
+        var participant =
+          await this.chatParticipantsService.fetchParticipantByUserChatNames(
+            info.current_user,
+            info.channel_name,
+          );
+        console.log(participant);
+        this.chatParticipantsService.updateParticipantByID(participant.id, {
+          operator: participant.operator,
+          banned: participant.banned,
+          owner: participant.owner,
+          muted: true,
+        });
+        console.log('updated participant');
+        this.server.emit('mute', info);
+        console.log('Muted in theory');
+      } else {
+        console.log("This user is not operator. They can't mute.");
+      }
+    } catch (e) {
+      console.log('Mute Error');
+      console.log(e);
     }
   }
 }

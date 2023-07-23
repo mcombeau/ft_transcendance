@@ -113,6 +113,23 @@ export const Chat = () => {
       handleJoinChat(info);
     });
 
+    socket.on("mute", (info: any) => {
+      setChannels((prev) => {
+        const temp = [...prev];
+        return temp.map((chan) => {
+          if (chan.name == info.channel_name) {
+            chan.participants.map((p) => {
+              if (p.username == info.target_user) {
+                p.muted = !p.muted; // TODO: change later
+              }
+              return p;
+            });
+          }
+          return chan;
+        });
+      });
+    });
+
     if (channels.length == 0) {
       fetch("http://localhost:3001/chats").then(async (response) => {
         const data = await response.json();
@@ -176,6 +193,10 @@ export const Chat = () => {
     message_els.scrollTop = message_els.scrollHeight;
   }, [messages]);
 
+  useEffect(() => {
+    console.log(channels);
+  }, [channels]);
+
   return (
     <WebSocketProvider value={socket}>
       <div className="chat-container">
@@ -211,7 +232,8 @@ export const Chat = () => {
             settings,
             contextMenu,
             setContextMenu,
-            status
+            status,
+            socket
           )}
           {SendForm(
             current_channel,

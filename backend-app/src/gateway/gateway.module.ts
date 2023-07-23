@@ -4,17 +4,16 @@ import { GameGateway } from './game.gateway';
 import { ChatMessagesModule } from 'src/chat-messages/chat-messages.module';
 import { ChatsModule } from 'src/chats/chats.module';
 import { UsersModule } from 'src/users/users.module';
+import { ChatParticipantsModule } from 'src/chat-participants/chat-participants.module';
 
 @Module({
   imports: [
     forwardRef(() => ChatsModule),
     forwardRef(() => ChatMessagesModule),
     forwardRef(() => UsersModule),
+    forwardRef(() => ChatParticipantsModule),
   ],
-  providers: [
-    ChatGateway,
-    GameGateway,
-  ],
-  exports: [ChatGateway, GameGateway]
+  providers: [ChatGateway, GameGateway],
+  exports: [ChatGateway, GameGateway],
 })
 export class GatewayModule {}
