@@ -38,6 +38,11 @@ export const ContextMenuEl = (
           <li
             onClick={() => {
               console.log("Kicked " + contextMenuSender);
+              socket.emit("kick", {
+                channel_name: channel_name,
+                current_user: current_user,
+                target_user: contextMenuSender,
+              });
             }}
           >
             Kick
@@ -45,6 +50,11 @@ export const ContextMenuEl = (
           <li
             onClick={() => {
               console.log("Banned " + contextMenuSender);
+              socket.emit("ban", {
+                channel_name: channel_name,
+                current_user: current_user,
+                target_user: contextMenuSender,
+              });
             }}
           >
             Ban

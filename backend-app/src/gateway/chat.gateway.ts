@@ -96,14 +96,17 @@ export class ChatGateway implements OnModuleInit {
             info.current_user,
             info.channel_name,
           );
-        console.log(participant);
-        this.chatParticipantsService.updateParticipantByID(participant.id, {
-          operator: participant.operator,
-          banned: participant.banned,
-          owner: participant.owner,
-          muted: !participant.muted, // TODO: change later timer mute
-        });
-        this.server.emit('mute', info);
+        if (participant.owner) {
+          this.chatParticipantsService.updateParticipantByID(participant.id, {
+            operator: participant.operator,
+            banned: participant.banned,
+            owner: participant.owner,
+            muted: !participant.muted, // TODO: change later timer mute
+          });
+          this.server.emit('mute', info);
+        } else {
+          console.log("Can't mute the chat owner");
+        }
       } else {
         console.log("This user is not operator. They can't mute.");
       }
@@ -128,17 +131,58 @@ export class ChatGateway implements OnModuleInit {
             info.channel_name,
           );
         console.log(participant);
-        this.chatParticipantsService.updateParticipantByID(participant.id, {
-          operator: !participant.operator,
-          banned: participant.banned,
-          owner: participant.owner,
-          muted: participant.muted,
-        });
-        this.server.emit('operator', info);
+        if (participant.owner) {
+          this.chatParticipantsService.updateParticipantByID(participant.id, {
+            operator: !participant.operator,
+            banned: participant.banned,
+            owner: participant.owner,
+            muted: participant.muted,
+          });
+          this.server.emit('operator', info);
+        } else {
+          console.log("Can't change operator status of chat owner");
+        }
       } else {
         console.log(
           "This user is not owner. They can't make someone else operator.",
         );
+      }
+    } catch (e) {
+      console.log('Make operator Error');
+      console.log(e);
+    }
+  }
+
+  @SubscribeMessage('ban')
+  async onBan(@MessageBody() info: any) {
+    try {
+      if (
+        this.chatParticipantsService.userIsOperator(
+          info.channel_name,
+          info.current_user,
+        )
+      ) {
+        var participant =
+          await this.chatParticipantsService.fetchParticipantByUserChatNames(
+            info.current_user,
+            info.channel_name,
+          );
+        console.log(participant);
+        if (participant.owner || participant.banned) {
+          this.chatParticipantsService.updateParticipantByID(participant.id, {
+            operator: participant.operator,
+            banned: true,
+            owner: participant.owner,
+            muted: participant.muted,
+          });
+          this.server.emit('ban', info);
+        } else {
+          console.log(
+            "Can't ban the chat owner or someone who is already banned.",
+          );
+        }
+      } else {
+        console.log("This user is not operator. They can't ban other users.");
       }
     } catch (e) {
       console.log('Make operator Error');

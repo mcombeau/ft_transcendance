@@ -130,6 +130,23 @@ export const Chat = () => {
       });
     });
 
+    socket.on("ban", (info: any) => {
+      setChannels((prev) => {
+        const temp = [...prev];
+        return temp.map((chan) => {
+          if (chan.name == info.channel_name) {
+            chan.participants.map((p) => {
+              if (p.username == info.target_user) {
+                p.banned = true;
+              }
+              return p;
+            });
+          }
+          return chan;
+        });
+      });
+    });
+
     socket.on("operator", (info: any) => {
       setChannels((prev) => {
         const temp = [...prev];
