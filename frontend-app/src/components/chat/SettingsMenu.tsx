@@ -22,7 +22,7 @@ export const SettingsMenu = (
     setNewParticipant("");
   };
 
-  if (settings) {
+  if (settings && current_channel) {
     var leave_button = (
       <button
         onClick={() => {
