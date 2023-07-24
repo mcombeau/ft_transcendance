@@ -24,8 +24,8 @@ export const ContextMenuEl = (
       >
         Block
       </li>
-      {checkStatus(channel, current_user) == Status.Operator &&
-      checkStatus(channel, contextMenuSender) != Status.Owner ? (
+      {checkStatus(channel, current_user) === Status.Operator &&
+      checkStatus(channel, contextMenuSender) !== Status.Owner ? (
         <div>
           <li
             onClick={() => {
@@ -75,7 +75,7 @@ export const ContextMenuEl = (
       ) : (
         <div></div>
       )}
-      {checkStatus(channel, current_user) == Status.Owner ? ( // TODO: check if admin and switch button
+      {checkStatus(channel, current_user) === Status.Owner ? ( // TODO: check if admin and switch button
         <div>
           <li
             onClick={() => {
@@ -90,7 +90,7 @@ export const ContextMenuEl = (
               setContextMenu(false);
             }}
           >
-            {checkStatus(channel, contextMenuSender) == Status.Operator
+            {checkStatus(channel, contextMenuSender) === Status.Operator
               ? "Remove from admins"
               : "Make admin"}
           </li>

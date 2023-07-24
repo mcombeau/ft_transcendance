@@ -82,6 +82,19 @@ export class ChatGateway implements OnModuleInit {
     }
   }
 
+  @SubscribeMessage('leave chat')
+  async onLeaveChat(@MessageBody() info: any) {
+    try {
+      this.chatsService.removeParticipantFromChatByUsername(
+        info.channel_name,
+        info.username,
+      );
+      this.server.emit('leave chat', info);
+    } catch (e) {
+      console.log('Chat leave Error');
+    }
+  }
+
   @SubscribeMessage('mute')
   async onMute(@MessageBody() info: any) {
     try {

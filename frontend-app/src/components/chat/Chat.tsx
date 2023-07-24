@@ -140,6 +140,24 @@ export const Chat = () => {
       handleJoinChat(info);
     });
 
+    socket.on("leave chat", (info: any) => {
+      setChannels((prev) => {
+        const temp = [...prev];
+        return temp.map((chan) => {
+          if (chan.name === info.channel_name) {
+            if (
+              chan.participants.some((p: User) => p.username === info.username)
+            ) {
+              chan.participants = chan.participants.filter(
+                (p) => p.username !== info.username
+              );
+            }
+          }
+          return chan;
+        });
+      });
+    });
+
     socket.on("mute", (info: any) => {
       setChannels((prev) => {
         const temp = [...prev];
