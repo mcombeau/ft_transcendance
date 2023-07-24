@@ -78,13 +78,6 @@ export const ContextMenuEl = (
           >
             Make admin
           </li>
-          <li
-            onClick={() => {
-              console.log("Removed admin " + contextMenuSender);
-            }}
-          >
-            Remove admin
-          </li>
         </div>
       ) : (
         <div></div>

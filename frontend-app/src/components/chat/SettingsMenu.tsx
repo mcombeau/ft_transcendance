@@ -4,7 +4,6 @@ import { ChangeEvent, Dispatch, SetStateAction, useState } from "react";
 import { ListParticipants } from "./ListParticipants";
 import { NavigateFunction } from "react-router-dom";
 
-// TODO: refacto
 export const SettingsMenu = (
   settings: boolean,
   setSettings: Dispatch<SetStateAction<boolean>>,
@@ -67,11 +66,7 @@ export const SettingsMenu = (
         <h3>Settings for {current_channel.name}</h3>
         {leave_button}
         <h3>Channel members</h3>
-        {ListParticipants(
-          current_channel,
-          navigate,
-          checkStatus(current_channel, current_user)
-        )}
+        {ListParticipants(current_channel, navigate, current_user, socket)}
         <button
           className="closesettings"
           onClick={() => {

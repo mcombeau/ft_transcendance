@@ -42,6 +42,7 @@ export enum Status {
 export function checkStatus(channel: Channel, username: string): Status {
   if (!channel) return Status.Normal;
   var user = channel.participants.find((p) => p.username == username); //TODO: maybe add some error management
+  if (!user) return Status.Normal;
   if (user.owner) return Status.Owner;
   if (user.operator) return Status.Operator;
   return Status.Normal;

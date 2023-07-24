@@ -1,16 +1,18 @@
 import { NavigateFunction } from "react-router-dom";
+import { Socket } from "socket.io-client";
 import { Channel, Status, User } from "./Chat";
+import { checkStatus } from "./Chat";
 
 export const ListParticipants = (
   channel: Channel,
   navigate: NavigateFunction,
-  status: Status
+  current_user: string,
+  socket: Socket
 ) => {
   function displayUser(participant: User) {
     var name = participant.username;
     var style = {};
     if (participant.owner) {
-      name += " ⍟";
       style = { textDecoration: "underline" };
     } else if (participant.operator) {
       name += " ★";
@@ -32,18 +34,28 @@ export const ListParticipants = (
         return (
           <div>
             {displayUser(participant)}
-            {status != Status.Normal ? (
+            {checkStatus(channel, current_user) != Status.Normal ? (
               <div>
                 <button
                   onClick={() => {
-                    console.log("Muted " + participant);
+                    console.log("Muted");
+                    socket.emit("mute", {
+                      channel_name: channel.name,
+                      current_user: current_user,
+                      target_user: participant.username,
+                    });
                   }}
                 >
                   Mute
                 </button>
                 <button
                   onClick={() => {
-                    console.log("Kicked " + participant);
+                    console.log("Kicked");
+                    socket.emit("kick", {
+                      channel_name: channel.name,
+                      current_user: current_user,
+                      target_user: participant.username,
+                    });
                   }}
                 >
                   Kick
@@ -51,6 +63,11 @@ export const ListParticipants = (
                 <button
                   onClick={() => {
                     console.log("Banned " + participant);
+                    socket.emit("ban", {
+                      channel_name: channel.name,
+                      current_user: current_user,
+                      target_user: participant.username,
+                    });
                   }}
                 >
                   Ban
@@ -59,21 +76,19 @@ export const ListParticipants = (
             ) : (
               <div></div>
             )}
-            {status == Status.Owner ? ( // TODO: check if admin
+            {checkStatus(channel, current_user) == Status.Owner ? ( // TODO: check if admin
               <div>
                 <button
                   onClick={() => {
                     console.log("Made admin " + participant);
+                    socket.emit("operator", {
+                      channel_name: channel.name,
+                      current_user: current_user,
+                      target_user: participant.username,
+                    });
                   }}
                 >
                   Make admin
-                </button>
-                <button
-                  onClick={() => {
-                    console.log("Removed from admins " + participant);
-                  }}
-                >
-                  Remove admin
                 </button>
               </div>
             ) : (
