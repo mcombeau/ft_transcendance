@@ -63,7 +63,10 @@ export const SettingsMenu = (
     }
     return (
       <div className="settings">
-        <h3>Settings for {current_channel.name}</h3>
+        <h3>
+          Settings for {current_channel.name} (
+          {current_channel.private ? "private" : "public"})
+        </h3>
         {leave_button}
         <h3>Channel members</h3>
         {ListParticipants(current_channel, navigate, current_user, socket)}

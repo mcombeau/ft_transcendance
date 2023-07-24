@@ -30,8 +30,9 @@ export type User = {
 
 export type Channel = {
   name: string;
-  creator: string;
+  owner: string;
   participants: User[];
+  private: boolean;
 };
 
 export enum Status {
@@ -127,8 +128,9 @@ export const Chat = () => {
       console.log(info);
       var channel = {
         name: info.name,
-        creator: "creator",
         participants: [],
+        private: info.private,
+        owner: info.username,
       };
       setChannels((prev) => [...prev, channel]);
       setNewchannel("");
@@ -199,7 +201,8 @@ export const Chat = () => {
         data.map((e: any) => {
           var chan: Channel = {
             name: e.name,
-            creator: "",
+            private: e.private,
+            owner: e.username,
             participants: e.participants.map((user: any) => {
               var newUser: User = {
                 username: user.participant.username,
