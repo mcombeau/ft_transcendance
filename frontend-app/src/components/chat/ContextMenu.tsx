@@ -1,4 +1,4 @@
-import { Status } from "./Chat";
+import { ChangeStatus, Status } from "./Chat";
 import { useRef } from "react";
 import { Socket } from "socket.io-client";
 import { Channel } from "./Chat";
@@ -24,15 +24,18 @@ export const ContextMenuEl = (
       >
         Block
       </li>
-      {checkStatus(channel, current_user) != Status.Normal ? (
+      {checkStatus(channel, current_user) == Status.Operator &&
+      checkStatus(channel, contextMenuSender) != Status.Owner ? (
         <div>
           <li
             onClick={() => {
-              socket.emit("mute", {
-                channel_name: channel.name,
-                current_user: current_user,
-                target_user: contextMenuSender,
-              });
+              ChangeStatus(
+                "mute",
+                socket,
+                channel.name,
+                current_user,
+                contextMenuSender
+              );
               setContextMenu(false);
             }}
           >
@@ -41,11 +44,13 @@ export const ContextMenuEl = (
           <li
             onClick={() => {
               console.log("Kicked " + contextMenuSender);
-              socket.emit("kick", {
-                channel_name: channel.name,
-                current_user: current_user,
-                target_user: contextMenuSender,
-              });
+              ChangeStatus(
+                "kick",
+                socket,
+                channel.name,
+                current_user,
+                contextMenuSender
+              );
               setContextMenu(false);
             }}
           >
@@ -54,11 +59,13 @@ export const ContextMenuEl = (
           <li
             onClick={() => {
               console.log("Banned " + contextMenuSender);
-              socket.emit("ban", {
-                channel_name: channel.name,
-                current_user: current_user,
-                target_user: contextMenuSender,
-              });
+              ChangeStatus(
+                "ban",
+                socket,
+                channel.name,
+                current_user,
+                contextMenuSender
+              );
               setContextMenu(false);
             }}
           >
@@ -73,11 +80,13 @@ export const ContextMenuEl = (
           <li
             onClick={() => {
               console.log("Made operator " + contextMenuSender);
-              socket.emit("operator", {
-                channel_name: channel.name,
-                current_user: current_user,
-                target_user: contextMenuSender,
-              });
+              ChangeStatus(
+                "operator",
+                socket,
+                channel.name,
+                current_user,
+                contextMenuSender
+              );
               setContextMenu(false);
             }}
           >

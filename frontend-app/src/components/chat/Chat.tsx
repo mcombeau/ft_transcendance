@@ -10,6 +10,7 @@ import Messages from "./Messages";
 import SettingsMenu from "./SettingsMenu";
 import SidePannel from "./SidePannel";
 import SendForm from "./SendForm";
+import { Socket } from "socket.io-client";
 
 export type Message = {
   datestamp: Date;
@@ -46,6 +47,22 @@ export function checkStatus(channel: Channel, username: string): Status {
   if (user.owner) return Status.Owner;
   if (user.operator) return Status.Operator;
   return Status.Normal;
+}
+
+export function ChangeStatus(
+  status: string,
+  socket: Socket,
+  channel_name: string,
+  operator_name: string,
+  target_name: string
+) {
+  const status_values = ["mute", "kick", "ban", "operator"];
+  if (!status_values.includes(status)) return;
+  socket.emit(status, {
+    channel_name: channel_name,
+    current_user: operator_name,
+    target_user: target_name,
+  });
 }
 
 export const Chat = () => {

@@ -1,6 +1,6 @@
 import { NavigateFunction } from "react-router-dom";
 import { Socket } from "socket.io-client";
-import { Channel, Status, User } from "./Chat";
+import { ChangeStatus, Channel, Status, User } from "./Chat";
 import { checkStatus } from "./Chat";
 
 export const ListParticipants = (
@@ -39,11 +39,13 @@ export const ListParticipants = (
                 <button
                   onClick={() => {
                     console.log("Muted");
-                    socket.emit("mute", {
-                      channel_name: channel.name,
-                      current_user: current_user,
-                      target_user: participant.username,
-                    });
+                    ChangeStatus(
+                      "mute",
+                      socket,
+                      channel.name,
+                      current_user,
+                      participant.username
+                    );
                   }}
                 >
                   Mute
@@ -51,11 +53,13 @@ export const ListParticipants = (
                 <button
                   onClick={() => {
                     console.log("Kicked");
-                    socket.emit("kick", {
-                      channel_name: channel.name,
-                      current_user: current_user,
-                      target_user: participant.username,
-                    });
+                    ChangeStatus(
+                      "kick",
+                      socket,
+                      channel.name,
+                      current_user,
+                      participant.username
+                    );
                   }}
                 >
                   Kick
@@ -63,11 +67,13 @@ export const ListParticipants = (
                 <button
                   onClick={() => {
                     console.log("Banned " + participant);
-                    socket.emit("ban", {
-                      channel_name: channel.name,
-                      current_user: current_user,
-                      target_user: participant.username,
-                    });
+                    ChangeStatus(
+                      "ban",
+                      socket,
+                      channel.name,
+                      current_user,
+                      participant.username
+                    );
                   }}
                 >
                   Ban
@@ -81,11 +87,13 @@ export const ListParticipants = (
                 <button
                   onClick={() => {
                     console.log("Made admin " + participant);
-                    socket.emit("operator", {
-                      channel_name: channel.name,
-                      current_user: current_user,
-                      target_user: participant.username,
-                    });
+                    ChangeStatus(
+                      "operator",
+                      socket,
+                      channel.name,
+                      current_user,
+                      participant.username
+                    );
                   }}
                 >
                   {checkStatus(channel, participant.username) == Status.Operator
