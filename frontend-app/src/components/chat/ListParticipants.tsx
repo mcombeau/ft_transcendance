@@ -34,7 +34,9 @@ export const ListParticipants = (
         return (
           <div>
             {displayUser(participant)}
-            {checkStatus(channel, current_user) != Status.Normal ? (
+            {checkStatus(channel, current_user) != Status.Normal &&
+            checkStatus(channel, participant.username) != Status.Owner &&
+            current_user != participant.username ? (
               <div>
                 <button
                   onClick={() => {
@@ -82,7 +84,9 @@ export const ListParticipants = (
             ) : (
               <div></div>
             )}
-            {checkStatus(channel, current_user) == Status.Owner ? ( // TODO: check if admin
+            {checkStatus(channel, current_user) == Status.Owner &&
+            checkStatus(channel, participant.username) != Status.Owner &&
+            current_user != participant.username ? ( // TODO: check if admin
               <div>
                 <button
                   onClick={() => {

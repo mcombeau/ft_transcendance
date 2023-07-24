@@ -34,7 +34,7 @@ export const SettingsMenu = (
         Leave channel
       </button>
     );
-    if (checkStatus(current_channel, current_user) != Status.Normal) {
+    if (checkStatus(current_channel, current_user) == Status.Owner) {
       // TODO: change that
       leave_button = (
         <button
