@@ -1,10 +1,9 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import { Socket } from "socket.io-client";
-import { Message, Status, Channel } from "./Chat";
+import { Message, Channel } from "./Chat";
 
 export const SendForm = (
   current_channel: Channel,
-  setStatus: Dispatch<SetStateAction<Status>>,
   cookies: any,
   setMessages: Dispatch<SetStateAction<Message[]>>,
   setUsername: Dispatch<SetStateAction<string>>,
@@ -46,18 +45,6 @@ export const SendForm = (
         }}
       />
       <button>Send</button>
-      <select
-        multiple
-        onChange={(choice) => {
-          if (choice.target.value == "normal") setStatus(Status.Normal);
-          if (choice.target.value == "operator") setStatus(Status.Operator);
-          if (choice.target.value == "owner") setStatus(Status.Owner);
-        }}
-      >
-        <option value="normal">Normal</option>
-        <option value="operator">Operator</option>
-        <option value="owner">Owner</option>
-      </select>
     </form>
   );
 };

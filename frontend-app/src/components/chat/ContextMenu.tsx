@@ -7,7 +7,6 @@ import { checkStatus } from "./Chat";
 export const ContextMenuEl = (
   contextMenu: boolean,
   contextMenuSender: string,
-  status: Status,
   setContextMenu: any,
   contextMenuPos: any,
   socket: Socket,
@@ -65,7 +64,7 @@ export const ContextMenuEl = (
       ) : (
         <div></div>
       )}
-      {status == Status.Owner ? ( // TODO: check if admin and switch button
+      {checkStatus(channel, current_user) == Status.Owner ? ( // TODO: check if admin and switch button
         <div>
           <li
             onClick={() => {

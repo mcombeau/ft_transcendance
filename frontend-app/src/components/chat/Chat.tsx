@@ -57,7 +57,6 @@ export const Chat = () => {
   const [settings, setSettings] = useState(false);
   const [cookies, setCookie, removeCookie] = useCookies(["cookie-name"]);
   const [contextMenu, setContextMenu] = useState(false);
-  const [status, setStatus] = useState<Status>(Status.Normal);
   let navigate = useNavigate();
 
   function getChannel(channel_name: string): Channel {
@@ -260,11 +259,11 @@ export const Chat = () => {
           {SettingsMenu(
             settings,
             setSettings,
-            status,
             getChannel(current_channel),
             setCurrentChannel,
             socket,
-            navigate
+            navigate,
+            username
           )}
           {Messages(
             messages,
@@ -274,12 +273,10 @@ export const Chat = () => {
             settings,
             contextMenu,
             setContextMenu,
-            status,
             socket
           )}
           {SendForm(
             getChannel(current_channel),
-            setStatus,
             cookies,
             setMessages,
             setUsername,

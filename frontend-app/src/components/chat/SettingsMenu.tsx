@@ -1,4 +1,4 @@
-import { Message, Status, Channel } from "./Chat";
+import { Status, Channel, checkStatus } from "./Chat";
 import { Socket } from "socket.io-client";
 import { ChangeEvent, Dispatch, SetStateAction, useState } from "react";
 import { ListParticipants } from "./ListParticipants";
@@ -8,15 +8,15 @@ import { NavigateFunction } from "react-router-dom";
 export const SettingsMenu = (
   settings: boolean,
   setSettings: Dispatch<SetStateAction<boolean>>,
-  status: Status,
   current_channel: Channel,
   setCurrentChannel: Dispatch<SetStateAction<string>>,
   socket: Socket,
-  navigate: NavigateFunction
+  navigate: NavigateFunction,
+  current_user: string
 ) => {
   const [newParticipant, setNewParticipant] = useState("");
 
-  const addNewParticipant = (e) => {
+  const addNewParticipant = (e: any) => {
     e.preventDefault();
     console.log(newParticipant);
     setNewParticipant("");
@@ -35,7 +35,7 @@ export const SettingsMenu = (
         Leave channel
       </button>
     );
-    if (status != Status.Normal) {
+    if (checkStatus(current_channel, current_user) != Status.Normal) {
       // TODO: change that
       leave_button = (
         <button
@@ -47,26 +47,31 @@ export const SettingsMenu = (
           Delete channel
         </button>
       );
-      var add_participant = (
-        <form id="add_participant" onSubmit={addNewParticipant}>
-          <input
-            type="text"
-            value={newParticipant}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => {
-              e.preventDefault();
-              setNewParticipant(e.target.value);
-            }}
-          ></input>
-          <button>Add</button>
-        </form>
-      );
+      var add_participant = // TODO : integrate later ? or scrap ?
+        (
+          <form id="add_participant" onSubmit={addNewParticipant}>
+            <input
+              type="text"
+              value={newParticipant}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                e.preventDefault();
+                setNewParticipant(e.target.value);
+              }}
+            ></input>
+            <button>Add</button>
+          </form>
+        );
     }
     return (
       <div className="settings">
         <h3>Settings for {current_channel.name}</h3>
         {leave_button}
         <h3>Channel members</h3>
-        {ListParticipants(current_channel, navigate, status)}
+        {ListParticipants(
+          current_channel,
+          navigate,
+          checkStatus(current_channel, current_user)
+        )}
         <button
           className="closesettings"
           onClick={() => {
