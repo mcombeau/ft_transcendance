@@ -227,6 +227,7 @@ li#mine {
   color: white;
   border-radius: 3px;
   min-height: 20%;
+  overflow: scroll;
 }
 
 .settings > h3 {

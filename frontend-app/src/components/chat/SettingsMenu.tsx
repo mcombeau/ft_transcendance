@@ -27,7 +27,10 @@ export const SettingsMenu = (
         onClick={() => {
           // TODO: change
           console.log("Leaving " + current_channel.name);
-		  socket.emit("leave chat", {channel_name: current_channel.name, username: current_user});
+          socket.emit("leave chat", {
+            channel_name: current_channel.name,
+            username: current_user,
+          });
           setSettings(false);
           setCurrentChannel("");
         }}

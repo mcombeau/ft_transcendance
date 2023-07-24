@@ -104,7 +104,9 @@ export class ChatParticipantsService {
       },
     });
     if (foundRecord.length > 0) {
-      console.log(`[Chat Participant service]: User ${userID} is already in chat room ${chatRoomID}`);
+      console.log(
+        `[Chat Participant service]: User ${userID} is already in chat room ${chatRoomID}`,
+      );
       return foundRecord[0];
     }
     const newParticipant = this.participantRepository.create({
@@ -125,6 +127,16 @@ export class ChatParticipantsService {
     const participant = await this.fetchParticipantByUserChatID(
       userID,
       chatRoomID,
+    );
+    return this.deleteParticipantByID(participant.id);
+  }
+
+  async deleteParticipantInChatByUsername(username: string, chat_name: string) {
+    const chat = await this.chatService.fetchChatByName(chat_name);
+    const user = await this.userService.fetchUserByUsername(username);
+    const participant = await this.fetchParticipantByUserChatID(
+      user.id,
+      chat.id,
     );
     return this.deleteParticipantByID(participant.id);
   }

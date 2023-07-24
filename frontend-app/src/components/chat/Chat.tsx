@@ -192,6 +192,20 @@ export const Chat = () => {
       });
     });
 
+    socket.on("kick", (info: any) => {
+      setChannels((prev) => {
+        const temp = [...prev];
+        return temp.map((chan) => {
+          if (chan.name == info.channel_name) {
+            chan.participants = chan.participants.filter(
+              (p) => p.username !== info.target_user
+            );
+          }
+          return chan;
+        });
+      });
+    });
+
     socket.on("operator", (info: any) => {
       setChannels((prev) => {
         const temp = [...prev];
