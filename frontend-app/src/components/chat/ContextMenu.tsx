@@ -19,6 +19,7 @@ export const ContextMenuEl = (
       <li
         onClick={() => {
           console.log("Blocked " + contextMenuSender);
+          setContextMenu(false);
         }}
       >
         Block
@@ -32,6 +33,7 @@ export const ContextMenuEl = (
                 current_user: current_user,
                 target_user: contextMenuSender,
               });
+              setContextMenu(false);
             }}
           >
             Mute
@@ -44,6 +46,7 @@ export const ContextMenuEl = (
                 current_user: current_user,
                 target_user: contextMenuSender,
               });
+              setContextMenu(false);
             }}
           >
             Kick
@@ -56,6 +59,7 @@ export const ContextMenuEl = (
                 current_user: current_user,
                 target_user: contextMenuSender,
               });
+              setContextMenu(false);
             }}
           >
             Ban
@@ -74,9 +78,12 @@ export const ContextMenuEl = (
                 current_user: current_user,
                 target_user: contextMenuSender,
               });
+              setContextMenu(false);
             }}
           >
-            Make admin
+            {checkStatus(channel, contextMenuSender) == Status.Operator
+              ? "Remove from admins"
+              : "Make admin"}
           </li>
         </div>
       ) : (

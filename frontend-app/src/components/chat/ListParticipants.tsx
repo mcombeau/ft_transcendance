@@ -88,7 +88,9 @@ export const ListParticipants = (
                     });
                   }}
                 >
-                  Make admin
+                  {checkStatus(channel, participant.username) == Status.Operator
+                    ? "Remove from admins"
+                    : "Make admin"}
                 </button>
               </div>
             ) : (
