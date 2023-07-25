@@ -7,15 +7,24 @@ export const SendForm = (
   cookies: any,
   setMessages: Dispatch<SetStateAction<Message[]>>,
   setUsername: Dispatch<SetStateAction<string>>,
-  socket: Socket
+  socket: Socket,
+  current_user: string
 ) => {
   const [value, setValue] = useState("");
 
   const handleSendMessage = (e: any) => {
     e.preventDefault();
-    if (value == "" || current_channel.name == "" || !cookies["Username"]) {
+    if (
+      !current_channel ||
+      value == "" ||
+      current_channel.name == "" ||
+      !cookies["Username"] ||
+      !current_channel.participants.some((p) => p.username === current_user) ||
+      current_channel.participants.find((p) => p.username === current_user)
+        .muted
+    ) {
       console.log(
-        "Message is empty or channel is not defined or not logged in"
+        "Message is empty or channel is not defined or not logged in. Or not in the channel"
       );
       return;
     }
@@ -32,7 +41,10 @@ export const SendForm = (
     setValue("");
   };
 
-  if (!current_channel) {
+  if (
+    !current_channel ||
+    !current_channel.participants.find((p) => p.username === current_user)
+  ) {
     return;
   }
   return (

@@ -59,6 +59,12 @@ export function ChangeStatus(
 ) {
   const status_values = ["mute", "kick", "ban", "operator"];
   if (!status_values.includes(status)) return;
+  console.log("emitted");
+  console.log({
+    channel_name: channel_name,
+    current_user: operator_name,
+    target_user: target_name,
+  });
   socket.emit(status, {
     channel_name: channel_name,
     current_user: operator_name,
@@ -333,7 +339,8 @@ export const Chat = () => {
             cookies,
             setMessages,
             setUsername,
-            socket
+            socket,
+            username
           )}
         </div>
       </div>

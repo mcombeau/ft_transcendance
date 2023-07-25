@@ -43,7 +43,16 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('chat message')
-  onChatMessage(@MessageBody() msg: any, @ConnectedSocket() socket: ioSocket) {
+  async onChatMessage(
+    @MessageBody() msg: any,
+    @ConnectedSocket() socket: ioSocket,
+  ) {
+    var sender =
+      await this.chatParticipantsService.fetchParticipantByUserChatNames(
+        msg.sender,
+        msg.channel,
+      );
+    if (!sender || sender.muted || sender.banned) return;
     socket.broadcast.emit('chat message', msg);
     this.chatMessagesService
       .createMessage(msg.msg, msg.sender, msg.channel, msg.datestamp)
@@ -95,7 +104,7 @@ export class ChatGateway implements OnModuleInit {
     }
   }
 
-  @SubscribeMessage('ban')
+  @SubscribeMessage('mute')
   async onMute(@MessageBody() info: any) {
     try {
       if (
@@ -124,6 +133,7 @@ export class ChatGateway implements OnModuleInit {
             muted: !participant.muted,
           });
           this.server.emit('mute', info);
+          console.log('muted ' + info.target_user);
         }
       }
     } catch (e) {

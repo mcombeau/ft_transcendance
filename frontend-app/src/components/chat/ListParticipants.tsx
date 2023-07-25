@@ -17,6 +17,10 @@ export const ListParticipants = (
     } else if (participant.operator) {
       name += " ★";
     }
+    if (participant.muted) {
+      name += " 🔇";
+      style = { fontStyle: "italic" };
+    }
     return (
       <li
         onClick={() => {
@@ -50,7 +54,7 @@ export const ListParticipants = (
                     );
                   }}
                 >
-                  Mute
+                  {participant.muted ? "Unmute" : "Mute"}
                 </button>
                 <button
                   onClick={() => {
