@@ -115,6 +115,16 @@ export const ListParticipants = (
           </div>
         );
       })}
+      <h2>Banned</h2>
+      {channel.banned.map((p) => {
+        return (
+          // TODO: make unban work
+          <div>
+            <li>{p.username}</li>
+            <button>Unban</button>
+          </div>
+        );
+      })}
     </ul>
   );
 };

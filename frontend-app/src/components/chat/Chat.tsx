@@ -32,6 +32,7 @@ export type Channel = {
   name: string;
   owner: string;
   participants: User[];
+  banned: User[];
   private: boolean;
 };
 
@@ -135,6 +136,7 @@ export const Chat = () => {
       var channel = {
         name: info.name,
         participants: [],
+        banned: [],
         private: info.private,
         owner: info.username,
       };
@@ -186,12 +188,13 @@ export const Chat = () => {
         const temp = [...prev];
         return temp.map((chan) => {
           if (chan.name == info.channel_name) {
-            chan.participants.map((p) => {
-              if (p.username == info.target_user) {
-                p.banned = true;
-              }
-              return p;
-            });
+            var banned_user = chan.participants.find(
+              (p) => p.username === info.target_user
+            );
+            chan.participants = chan.participants.filter(
+              (p) => p.username !== info.target_user
+            );
+            chan.banned = [...chan.banned, banned_user];
           }
           return chan;
         });
@@ -237,20 +240,22 @@ export const Chat = () => {
           return;
         }
         data.map((e: any) => {
+          var participant_list = e.participants.map((user: any) => {
+            var newUser: User = {
+              username: user.participant.username,
+              owner: user.owner,
+              operator: user.operator,
+              banned: user.banned,
+              muted: user.muted,
+            };
+            return newUser;
+          });
           var chan: Channel = {
             name: e.name,
             private: e.private,
             owner: e.username,
-            participants: e.participants.map((user: any) => {
-              var newUser: User = {
-                username: user.participant.username,
-                owner: user.owner,
-                operator: user.operator,
-                banned: user.banned,
-                muted: user.muted,
-              };
-              return newUser;
-            }),
+            participants: participant_list.filter((user: any) => !user.banned),
+            banned: participant_list.filter((user: any) => user.banned),
           };
           setChannels((prev) => [...prev, chan]);
           console.log(channels);
