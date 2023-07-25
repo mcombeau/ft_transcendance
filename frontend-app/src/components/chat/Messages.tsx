@@ -18,7 +18,10 @@ export const Messages = (
   const [contextMenuSender, setContextMenuSender] = useState("");
 
   const messageStatus = (msg: Message) => {
-    if (!current_channel) {
+    if (
+      !current_channel ||
+      !current_channel.participants.find((p) => p.username === username)
+    ) {
       return;
     }
     if (msg.channel != current_channel.name) return;

@@ -20,6 +20,13 @@ export const SettingsMenu = (
     console.log(newParticipant);
     setNewParticipant("");
   };
+  if (
+    !settings ||
+    !current_channel ||
+    !current_channel.participants.find((p) => p.username === current_user)
+  ) {
+    return;
+  }
 
   if (settings && current_channel) {
     var leave_button = (

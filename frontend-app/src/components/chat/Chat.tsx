@@ -44,7 +44,7 @@ export enum Status {
 
 export function checkStatus(channel: Channel, username: string): Status {
   if (!channel) return Status.Normal;
-  var user = channel.participants.find((p) => p.username == username); //TODO: maybe add some error management
+  var user = channel.participants.find((p) => p.username === username); //TODO: maybe add some error management
   if (!user) return Status.Normal;
   if (user.owner) return Status.Owner;
   if (user.operator) return Status.Operator;
@@ -101,9 +101,9 @@ export const Chat = () => {
     setChannels((prev) => {
       const temp = [...prev];
       return temp.map((chan) => {
-        if (chan.name == info.channel_name) {
+        if (chan.name === info.channel_name) {
           if (
-            !chan.participants.some((p: User) => p.username == info.username)
+            !chan.participants.some((p: User) => p.username === info.username)
           ) {
             chan.participants = [...chan.participants, user];
           }
@@ -170,9 +170,9 @@ export const Chat = () => {
       setChannels((prev) => {
         const temp = [...prev];
         return temp.map((chan) => {
-          if (chan.name == info.channel_name) {
+          if (chan.name === info.channel_name) {
             chan.participants.map((p) => {
-              if (p.username == info.target_user) {
+              if (p.username === info.target_user) {
                 p.muted = !p.muted;
               }
               return p;
@@ -184,32 +184,18 @@ export const Chat = () => {
     });
 
     socket.on("ban", (info: any) => {
-      // setChannels((prev) => {
-      //   const temp = [...prev];
-      //   return temp.map((chan) => {
-      //     if (chan.name == info.channel_name) {
-      //       chan.participants.map((p) => {
-      //         if (p.username == info.target_user) {
-      //           p.banned = !p.banned;
-      //         }
-      //         return p;
-      //       });
-      //     }
-      //     return chan;
-      //   });
-      // });
       setChannels((prev) => {
         const temp = [...prev];
         return temp.map((chan) => {
-          if (chan.name == info.channel_name) {
+          if (chan.name === info.channel_name) {
             chan.participants.map((p) => {
-              if (p.username == info.target_user) {
+              if (p.username === info.target_user) {
                 p.banned = !p.banned;
               }
               return p;
             });
             chan.banned.map((p) => {
-              if (p.username == info.target_user) {
+              if (p.username === info.target_user) {
                 p.banned = !p.banned;
               }
               return p;
@@ -234,7 +220,7 @@ export const Chat = () => {
       setChannels((prev) => {
         const temp = [...prev];
         return temp.map((chan) => {
-          if (chan.name == info.channel_name) {
+          if (chan.name === info.channel_name) {
             chan.participants = chan.participants.filter(
               (p) => p.username !== info.target_user
             );
@@ -248,9 +234,9 @@ export const Chat = () => {
       setChannels((prev) => {
         const temp = [...prev];
         return temp.map((chan) => {
-          if (chan.name == info.channel_name) {
+          if (chan.name === info.channel_name) {
             chan.participants.map((p) => {
-              if (p.username == info.target_user) {
+              if (p.username === info.target_user) {
                 p.operator = !p.operator;
               }
               return p;
@@ -261,7 +247,7 @@ export const Chat = () => {
       });
     });
 
-    if (channels.length == 0) {
+    if (channels.length === 0) {
       fetch("http://localhost:3001/chats").then(async (response) => {
         const data = await response.json();
         if (!response.ok) {
@@ -292,7 +278,7 @@ export const Chat = () => {
       });
     }
 
-    if (messages.length == 0) {
+    if (messages.length === 0) {
       fetch("http://localhost:3001/chat-messages").then(async (response) => {
         const data = await response.json();
         if (!response.ok) {
@@ -323,6 +309,7 @@ export const Chat = () => {
 
   useEffect(() => {
     var message_els = document.getElementById("messages");
+    if (!message_els) return;
 
     message_els.scrollTop = message_els.scrollHeight;
   }, [messages]);
