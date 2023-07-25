@@ -88,9 +88,9 @@ export const ListParticipants = (
             ) : (
               <div></div>
             )}
-            {checkStatus(channel, current_user) == Status.Owner &&
-            checkStatus(channel, participant.username) != Status.Owner &&
-            current_user != participant.username ? ( // TODO: check if admin
+            {checkStatus(channel, current_user) === Status.Owner &&
+            checkStatus(channel, participant.username) !== Status.Owner &&
+            current_user !== participant.username ? ( // TODO: check if admin
               <div>
                 <button
                   onClick={() => {
@@ -120,20 +120,24 @@ export const ListParticipants = (
         return (
           <div>
             <li>{participant.username}</li>
-            <button
-              onClick={() => {
-                console.log("unban " + participant.username);
-                ChangeStatus(
-                  "ban",
-                  socket,
-                  channel.name,
-                  current_user,
-                  participant.username
-                );
-              }}
-            >
-              Unban
-            </button>
+            {checkStatus(channel, current_user) === Status.Operator ? (
+              <button
+                onClick={() => {
+                  console.log("unban " + participant.username);
+                  ChangeStatus(
+                    "ban",
+                    socket,
+                    channel.name,
+                    current_user,
+                    participant.username
+                  );
+                }}
+              >
+                Unban
+              </button>
+            ) : (
+              ""
+            )}
           </div>
         );
       })}
