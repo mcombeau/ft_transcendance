@@ -173,7 +173,7 @@ export const Chat = () => {
           if (chan.name == info.channel_name) {
             chan.participants.map((p) => {
               if (p.username == info.target_user) {
-                p.muted = !p.muted; // TODO: change later
+                p.muted = !p.muted;
               }
               return p;
             });
@@ -184,17 +184,46 @@ export const Chat = () => {
     });
 
     socket.on("ban", (info: any) => {
+      // setChannels((prev) => {
+      //   const temp = [...prev];
+      //   return temp.map((chan) => {
+      //     if (chan.name == info.channel_name) {
+      //       chan.participants.map((p) => {
+      //         if (p.username == info.target_user) {
+      //           p.banned = !p.banned;
+      //         }
+      //         return p;
+      //       });
+      //     }
+      //     return chan;
+      //   });
+      // });
       setChannels((prev) => {
         const temp = [...prev];
         return temp.map((chan) => {
           if (chan.name == info.channel_name) {
-            var banned_user = chan.participants.find(
-              (p) => p.username === info.target_user
-            );
-            chan.participants = chan.participants.filter(
-              (p) => p.username !== info.target_user
-            );
+            chan.participants.map((p) => {
+              if (p.username == info.target_user) {
+                p.banned = !p.banned;
+              }
+              return p;
+            });
+            chan.banned.map((p) => {
+              if (p.username == info.target_user) {
+                p.banned = !p.banned;
+              }
+              return p;
+            });
+          }
+          var banned_user = chan.participants.find((p) => p.banned);
+          var unbanned_user = chan.banned.find((p) => !p.banned);
+          if (banned_user) {
+            chan.participants = chan.participants.filter((p) => !p.banned);
             chan.banned = [...chan.banned, banned_user];
+          }
+          if (unbanned_user) {
+            chan.banned = chan.banned.filter((p) => p.banned);
+            chan.participants = [...chan.participants, unbanned_user];
           }
           return chan;
         });

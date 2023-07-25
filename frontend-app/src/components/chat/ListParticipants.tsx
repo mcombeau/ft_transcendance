@@ -116,12 +116,24 @@ export const ListParticipants = (
         );
       })}
       <h2>Banned</h2>
-      {channel.banned.map((p) => {
+      {channel.banned.map((participant) => {
         return (
-          // TODO: make unban work
           <div>
-            <li>{p.username}</li>
-            <button>Unban</button>
+            <li>{participant.username}</li>
+            <button
+              onClick={() => {
+                console.log("unban " + participant.username);
+                ChangeStatus(
+                  "ban",
+                  socket,
+                  channel.name,
+                  current_user,
+                  participant.username
+                );
+              }}
+            >
+              Unban
+            </button>
           </div>
         );
       })}

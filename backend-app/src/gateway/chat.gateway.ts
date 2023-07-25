@@ -200,16 +200,15 @@ export class ChatGateway implements OnModuleInit {
 
         if (participant.owner) {
           console.log("Can't ban the chat owner.");
-        } else if (participant.banned) {
-          console.log("Can't ban someone who is already banned.");
         } else {
           this.chatParticipantsService.updateParticipantByID(participant.id, {
             operator: participant.operator,
-            banned: true,
+            banned: !participant.banned,
             owner: participant.owner,
             muted: participant.muted,
           });
           this.server.emit('ban', info);
+          console.log('emitted one ban');
         }
       }
     } catch (e) {
