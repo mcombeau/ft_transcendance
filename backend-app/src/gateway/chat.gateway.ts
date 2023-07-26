@@ -153,6 +153,7 @@ export class ChatGateway implements OnModuleInit {
             owner: participant.owner,
             muted: new Date(),
           });
+          info.mute_date = participant.muted.getTime();
           this.server.emit('mute', info);
         } else {
           this.chatParticipantsService.updateParticipantByID(participant.id, {
