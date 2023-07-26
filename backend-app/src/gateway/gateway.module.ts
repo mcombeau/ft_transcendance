@@ -5,6 +5,7 @@ import { ChatMessagesModule } from 'src/chat-messages/chat-messages.module';
 import { ChatsModule } from 'src/chats/chats.module';
 import { UsersModule } from 'src/users/users.module';
 import { ChatParticipantsModule } from 'src/chat-participants/chat-participants.module';
+import { GamesModule } from 'src/games/games.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { ChatParticipantsModule } from 'src/chat-participants/chat-participants.
     forwardRef(() => ChatMessagesModule),
     forwardRef(() => UsersModule),
     forwardRef(() => ChatParticipantsModule),
+    forwardRef(() => GamesModule)
   ],
   providers: [ChatGateway, GameGateway],
   exports: [ChatGateway, GameGateway],

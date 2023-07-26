@@ -9,6 +9,7 @@ import {
 import { Server, Socket as ioSocket } from 'socket.io';
 import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
 import { ChatsService } from 'src/chats/chats.service';
+import { GamesService } from 'src/games/games.service';
 
 @WebSocketGateway({
   cors: {
@@ -21,6 +22,8 @@ export class GameGateway implements OnModuleInit {
     private chatMessagesService: ChatMessagesService,
     @Inject(forwardRef(() => ChatsService))
     private chatsService: ChatsService,
+    @Inject(forwardRef(() => GamesService))
+    private gameService: GamesService
   ) {}
   @WebSocketServer()
   server: Server;
