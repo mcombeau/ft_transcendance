@@ -1,3 +1,4 @@
+import { Dispatch, SetStateAction, useState } from "react";
 import { NavigateFunction } from "react-router-dom";
 import { Socket } from "socket.io-client";
 import { ChangeStatus, Channel, isUserMuted, Status, User } from "./Chat";
@@ -7,7 +8,9 @@ export const ListParticipants = (
   channel: Channel,
   navigate: NavigateFunction,
   current_user: string,
-  socket: Socket
+  socket: Socket,
+  muteTime: number,
+  setMuteTime: Dispatch<SetStateAction<number>>
 ) => {
   function displayUser(participant: User) {
     var name = participant.username;
@@ -43,21 +46,50 @@ export const ListParticipants = (
             checkStatus(channel, participant.username) != Status.Owner &&
             current_user != participant.username ? (
               <div>
-                <button
-                  onClick={() => {
-                    console.log("Muted");
-                    ChangeStatus(
-                      "mute",
-                      socket,
-                      channel.name,
-                      current_user,
-                      participant.username,
-                      1 // TODO : parametrize later
-                    );
-                  }}
-                >
-                  {isUserMuted(participant) ? "Unmute" : "Mute"}
-                </button>
+                {isUserMuted(participant) ? (
+                  <button
+                    onClick={() => {
+                      console.log("Muted");
+                      ChangeStatus(
+                        "mute",
+                        socket,
+                        channel.name,
+                        current_user,
+                        participant.username,
+                        0
+                      );
+                    }}
+                  >
+                    Unmute
+                  </button>
+                ) : (
+                  <div>
+                    <select
+                      value={muteTime}
+                      onChange={(e) => setMuteTime(parseInt(e.target.value))}
+                    >
+                      <option value="1">1 minute</option>
+                      <option value="2">2 minute</option>
+                      <option value="60">1 hour</option>
+                      <option value="1440">1 day</option>
+                    </select>
+                    <button
+                      onClick={() => {
+                        console.log("Muted for ", muteTime);
+                        ChangeStatus(
+                          "mute",
+                          socket,
+                          channel.name,
+                          current_user,
+                          participant.username,
+                          muteTime
+                        );
+                      }}
+                    >
+                      Mute
+                    </button>
+                  </div>
+                )}
                 <button
                   onClick={() => {
                     console.log("Kicked");

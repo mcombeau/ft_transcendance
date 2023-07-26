@@ -14,6 +14,7 @@ export const SettingsMenu = (
   current_user: string
 ) => {
   const [newParticipant, setNewParticipant] = useState("");
+  const [muteTime, setMuteTime] = useState(1);
 
   const addNewParticipant = (e: any) => {
     e.preventDefault();
@@ -80,7 +81,14 @@ export const SettingsMenu = (
         </h3>
         {leave_button}
         <h3>Channel members</h3>
-        {ListParticipants(current_channel, navigate, current_user, socket)}
+        {ListParticipants(
+          current_channel,
+          navigate,
+          current_user,
+          socket,
+          muteTime,
+          setMuteTime
+        )}
         <button
           className="closesettings"
           onClick={() => {
