@@ -52,7 +52,7 @@ export function checkStatus(channel: Channel, username: string): Status {
 }
 
 export function isUserMuted(user: User): boolean {
-  if (user.muted > new Date().getTime()) return false;
+  if (user.muted < new Date().getTime()) return false;
   return true;
 }
 

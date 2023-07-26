@@ -19,5 +19,5 @@ export class createParticipantDto {
   banned: boolean;
 
   @IsNumber()
-  muted: Date;
+  muted: bigint;
 }

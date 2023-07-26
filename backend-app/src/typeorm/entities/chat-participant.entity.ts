@@ -19,8 +19,8 @@ export class ChatParticipantEntity {
   operator: boolean;
   @Column({ default: false })
   banned: boolean;
-  @Column({ default: new Date() })
-  muted: Date;
+  @Column({ default: new Date().getTime(), type: 'bigint' })
+  muted: number;
   @ManyToOne(() => ChatEntity, (chat) => chat.participants, {
     cascade: true,
     onDelete: 'CASCADE',

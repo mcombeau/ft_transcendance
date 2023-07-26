@@ -120,6 +120,9 @@ export class ChatParticipantsService {
     id: number,
     participantDetails: updateParticipantParams,
   ) {
+    console.log('UPDATE');
+    console.log(participantDetails);
+    console.log(new Date(participantDetails.muted));
     return this.participantRepository.update({ id }, { ...participantDetails });
   }
 
@@ -190,6 +193,10 @@ export class ChatParticipantsService {
       channel.id,
     );
 
-    return participant.muted.getTime() < new Date().getTime();
+    console.log('Date muting');
+    console.log(new Date(participant.muted));
+    console.log('Current date');
+    console.log(new Date());
+    return participant.muted > new Date().getTime();
   }
 }

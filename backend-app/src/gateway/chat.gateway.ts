@@ -10,7 +10,6 @@ import { Server, Socket as ioSocket } from 'socket.io';
 import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
 import { ChatParticipantsService } from 'src/chat-participants/chat-participants.service';
 import { ChatsService } from 'src/chats/chats.service';
-import { DateTime } from 'luxon';
 
 @WebSocketGateway({
   cors: {
@@ -122,6 +121,7 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('mute')
   async onMute(@MessageBody() info: any) {
+    console.log('Trying to mute');
     try {
       if (
         !this.chatParticipantsService.userIsOperator(
@@ -147,26 +147,37 @@ export class ChatGateway implements OnModuleInit {
             info.target_user,
           )
         ) {
-          this.chatParticipantsService.updateParticipantByID(participant.id, {
+          var participant_update = {
             operator: participant.operator,
             banned: participant.banned,
             owner: participant.owner,
-            muted: new Date(),
-          });
-          info.mute_date = participant.muted.getTime();
+            muted: new Date().getTime(),
+          };
+          await this.chatParticipantsService.updateParticipantByID(
+            participant.id,
+            participant_update,
+          );
+          info.mute_date = participant_update.muted;
           this.server.emit('mute', info);
+          console.log('Unmuted ' + info.target_user);
+          console.log(new Date(participant_update.muted));
         } else {
-          this.chatParticipantsService.updateParticipantByID(participant.id, {
+          var participant_update = {
             operator: participant.operator,
             banned: participant.banned,
             owner: participant.owner,
             muted: new Date(
               new Date().getTime() + info.lenght_in_minutes * 60000,
-            ),
-          });
-          info.mute_date = participant.muted.getTime();
+            ).getTime(),
+          };
+          await this.chatParticipantsService.updateParticipantByID(
+            participant.id,
+            participant_update,
+          );
+          info.mute_date = participant_update.muted;
           this.server.emit('mute', info);
           console.log('muted ' + info.target_user);
+          console.log(new Date(participant_update.muted));
         }
       }
     } catch (e) {

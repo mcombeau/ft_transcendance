@@ -54,7 +54,7 @@ export class ChatsService {
       owner: true,
       operator: true,
       banned: false,
-      muted: new Date(),
+      muted: new Date().getTime(),
     });
     return newSavedChat;
   }

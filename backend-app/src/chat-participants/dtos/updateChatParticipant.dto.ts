@@ -11,5 +11,5 @@ export class updateParticipantDto {
   banned: boolean;
 
   @IsNumber()
-  muted: Date;
+  muted: bigint;
 }
