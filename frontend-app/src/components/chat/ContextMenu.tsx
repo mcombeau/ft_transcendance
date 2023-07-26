@@ -1,4 +1,4 @@
-import { ChangeStatus, Status } from "./Chat";
+import { ChangeStatus, isMuted, isUserMuted, Status } from "./Chat";
 import { useRef } from "react";
 import { Socket } from "socket.io-client";
 import { Channel } from "./Chat";
@@ -40,7 +40,7 @@ export const ContextMenuEl = (
               setContextMenu(false);
             }}
           >
-            Mute
+            {isMuted(channel, contextMenuSender) ? "Unmute" : "Mute"}
           </li>
           <li
             onClick={() => {

@@ -36,7 +36,7 @@ export const SendForm = (
       read: true,
     };
     socket.emit("chat message", msg);
-    setMessages((prev) => [...prev, msg]);
+    // setMessages((prev) => [...prev, msg]);
     setValue("");
   };
 

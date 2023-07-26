@@ -54,11 +54,15 @@ export class ChatGateway implements OnModuleInit {
       );
     if (
       !sender ||
-      this.chatParticipantsService.userIsMuted(msg.channel, msg.sender) ||
+      (await this.chatParticipantsService.userIsMuted(
+        msg.channel,
+        msg.sender,
+      )) ||
       sender.banned
-    )
+    ) {
       return;
-    socket.broadcast.emit('chat message', msg);
+    }
+    this.server.emit('chat message', msg);
     this.chatMessagesService
       .createMessage(msg.msg, msg.sender, msg.channel, msg.datestamp)
       .catch((err: any) => {
@@ -121,7 +125,6 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('mute')
   async onMute(@MessageBody() info: any) {
-    console.log(`[Chat gateway]: Toggle mute for user ${info.target_user}`);
     try {
       if (
         !this.chatParticipantsService.userIsOperator(
@@ -142,15 +145,16 @@ export class ChatGateway implements OnModuleInit {
         } else if (participant.banned) {
           console.log("Can't mute someone who is already banned.");
         } else {
-          var isCurrentlyMuted = await this.chatParticipantsService.userIsMuted(info.channel_name, info.target_user);
-          console.log("[Chat gateway]: is currently muted:", isCurrentlyMuted);
+          var isCurrentlyMuted = await this.chatParticipantsService.userIsMuted(
+            info.channel_name,
+            info.target_user,
+          );
           if (isCurrentlyMuted) {
-            console.log(`[Chat gateway]: User is muted. Attempting unmute.`);
             var newMutedTimestamp = new Date().getTime();
-          }
-          else if (!isCurrentlyMuted) {
-            console.log(`[Chat gateway]: User is not muted. Attempting mute.`);
-            newMutedTimestamp = new Date(Date.now() + info.lenght_in_minutes * 60000).getTime();
+          } else if (!isCurrentlyMuted) {
+            newMutedTimestamp = new Date(
+              Date.now() + info.lenght_in_minutes * 60000,
+            ).getTime();
           }
           var participant_update = {
             operator: participant.operator,
