@@ -81,6 +81,14 @@ export class ChatGateway implements OnModuleInit {
   @SubscribeMessage('join chat')
   async onJoinChat(@MessageBody() info: any) {
     try {
+      if (
+        await this.chatParticipantsService.fetchParticipantByUserChatNames(
+          info.username,
+          info.channel_name,
+        )
+      ) {
+        return;
+      }
       this.chatsService.addParticipantToChatByUsername(
         info.channel_name,
         info.username,

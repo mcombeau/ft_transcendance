@@ -120,7 +120,7 @@ export const ListParticipants = (
         return (
           <div>
             <li>{participant.username}</li>
-            {checkStatus(channel, current_user) === Status.Operator ? (
+            {checkStatus(channel, current_user) !== Status.Normal ? (
               <button
                 onClick={() => {
                   console.log("unban " + participant.username);
