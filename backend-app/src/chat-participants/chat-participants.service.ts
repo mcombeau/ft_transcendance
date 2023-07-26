@@ -120,9 +120,10 @@ export class ChatParticipantsService {
     id: number,
     participantDetails: updateParticipantParams,
   ) {
-    console.log('UPDATE');
-    console.log(participantDetails);
-    console.log(new Date(participantDetails.muted));
+    console.log(`[Update participant]:`, participantDetails);
+    console.log(`[Update participant]: ${id} muted timestamp: ${participantDetails.muted}`);
+    const mutedTime = new Date(participantDetails.muted);
+    console.log(`[Update participant]: ${id} muted Date: ${mutedTime}`);
     return this.participantRepository.update({ id }, { ...participantDetails });
   }
 
@@ -193,10 +194,14 @@ export class ChatParticipantsService {
       channel.id,
     );
 
-    console.log('Date muting');
-    console.log(new Date(participant.muted));
-    console.log('Current date');
-    console.log(new Date());
-    return participant.muted > new Date().getTime();
+    var currentDate = new Date();
+    console.log(`[Participants Is Muted] Current timestamp: ${currentDate.getTime()}`);
+    console.log(`[Participants Is Muted] Current date: ${currentDate}`);
+    var participantMutedUntil = new Date(participant.muted);
+    console.log(`[Participants Is Muted] ${username} mute timestamp: ${participant.muted}`);
+    console.log(`[Participants Is Muted] ${username} muted until: ${participantMutedUntil}`);
+    var isMuted = participant.muted > new Date().getTime();
+    console.log(`[Participants Is Muted] ${username} is currently muted: ${isMuted}`)
+    return isMuted;
   }
 }

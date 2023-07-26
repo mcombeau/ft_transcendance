@@ -121,7 +121,7 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('mute')
   async onMute(@MessageBody() info: any) {
-    console.log('Trying to mute');
+    console.log(`[Chat gateway]: Toggle mute for user ${info.target_user}`);
     try {
       if (
         !this.chatParticipantsService.userIsOperator(
@@ -141,42 +141,31 @@ export class ChatGateway implements OnModuleInit {
           console.log("Can't mute the chat owner.");
         } else if (participant.banned) {
           console.log("Can't mute someone who is already banned.");
-        } else if (
-          this.chatParticipantsService.userIsMuted(
-            info.channel_name,
-            info.target_user,
-          )
-        ) {
-          var participant_update = {
-            operator: participant.operator,
-            banned: participant.banned,
-            owner: participant.owner,
-            muted: new Date().getTime(),
-          };
-          await this.chatParticipantsService.updateParticipantByID(
-            participant.id,
-            participant_update,
-          );
-          info.mute_date = participant_update.muted;
-          this.server.emit('mute', info);
-          console.log('Unmuted ' + info.target_user);
-          console.log(new Date(participant_update.muted));
         } else {
+          var isCurrentlyMuted = await this.chatParticipantsService.userIsMuted(info.channel_name, info.target_user);
+          console.log("[Chat gateway]: is currently muted:", isCurrentlyMuted);
+          if (isCurrentlyMuted) {
+            console.log(`[Chat gateway]: User is muted. Attempting unmute.`);
+            var newMutedTimestamp = new Date().getTime();
+          }
+          else if (!isCurrentlyMuted) {
+            console.log(`[Chat gateway]: User is not muted. Attempting mute.`);
+            newMutedTimestamp = new Date(Date.now() + info.lenght_in_minutes * 60000).getTime();
+          }
           var participant_update = {
             operator: participant.operator,
             banned: participant.banned,
             owner: participant.owner,
-            muted: new Date(
-              new Date().getTime() + info.lenght_in_minutes * 60000,
-            ).getTime(),
+            muted: newMutedTimestamp,
           };
+          console.log(`[Chat gateway]: Toggling mute `, participant_update);
           await this.chatParticipantsService.updateParticipantByID(
             participant.id,
             participant_update,
           );
           info.mute_date = participant_update.muted;
           this.server.emit('mute', info);
-          console.log('muted ' + info.target_user);
+          console.log('Toggled mute ' + info.target_user);
           console.log(new Date(participant_update.muted));
         }
       }
