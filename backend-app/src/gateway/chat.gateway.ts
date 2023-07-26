@@ -80,15 +80,17 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('join chat')
   async onJoinChat(@MessageBody() info: any) {
+    console.log('Someone trying to join');
     try {
       if (
         await this.chatParticipantsService.fetchParticipantByUserChatNames(
           info.username,
           info.channel_name,
-        )
+        ) // TODO: check if you are banned you can't get any info
       ) {
         return;
       }
+      console.log('Actually joining');
       this.chatsService.addParticipantToChatByUsername(
         info.channel_name,
         info.username,
@@ -209,14 +211,17 @@ export class ChatGateway implements OnModuleInit {
         if (participant.owner) {
           console.log("Can't ban the chat owner.");
         } else {
-          this.chatParticipantsService.updateParticipantByID(participant.id, {
-            operator: participant.operator,
-            banned: !participant.banned,
-            owner: participant.owner,
-            muted: participant.muted,
-          });
+          if (participant.banned) {
+            this.chatParticipantsService.deleteParticipantByID(participant.id);
+          } else {
+            this.chatParticipantsService.updateParticipantByID(participant.id, {
+              operator: participant.operator,
+              banned: true,
+              owner: participant.owner,
+              muted: participant.muted,
+            });
+          }
           this.server.emit('ban', info);
-          console.log('emitted one ban');
         }
       }
     } catch (e) {

@@ -90,7 +90,7 @@ export const ListParticipants = (
             )}
             {checkStatus(channel, current_user) === Status.Owner &&
             checkStatus(channel, participant.username) !== Status.Owner &&
-            current_user !== participant.username ? ( // TODO: check if admin
+            current_user !== participant.username ? (
               <div>
                 <button
                   onClick={() => {

@@ -197,6 +197,7 @@ export const Chat = () => {
               var banned_user = chan.participants.find(
                 (p) => p.username === info.target_user
               );
+              banned_user.banned = true;
               chan.participants = chan.participants.filter(
                 (p) => p.username !== info.target_user
               );
