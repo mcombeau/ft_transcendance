@@ -25,7 +25,7 @@ export type User = {
   owner: boolean;
   operator: boolean;
   banned: boolean;
-  muted: boolean;
+  muted: number;
 };
 
 export type Channel = {
@@ -51,21 +51,43 @@ export function checkStatus(channel: Channel, username: string): Status {
   return Status.Normal;
 }
 
+export function isUserMuted(user: User): boolean {
+  if (user.muted > new Date().getTime()) return false;
+  return true;
+}
+
+export function isMuted(channel: Channel, username: string): boolean {
+  console.log(username);
+  var user = channel.participants.find((p) => p.username === username);
+  console.log(user.muted);
+  if (!user) return false;
+  if (user.muted < new Date().getTime()) {
+    console.log("not muted");
+    return false;
+  }
+  console.log("muted");
+  return true;
+}
+
 export function ChangeStatus(
   status: string,
   socket: Socket,
   channel_name: string,
   operator_name: string,
-  target_name: string
+  target_name: string,
+  lenght_in_minutes: number = 0
 ) {
   const status_values = ["mute", "kick", "ban", "operator"];
   if (!status_values.includes(status)) return;
-  console.log("emitted");
-  console.log({
-    channel_name: channel_name,
-    current_user: operator_name,
-    target_user: target_name,
-  });
+  if (status === "mute") {
+    socket.emit(status, {
+      channel_name: channel_name,
+      current_user: operator_name,
+      target_user: target_name,
+      lenght_in_minutes: lenght_in_minutes,
+    });
+    return;
+  }
   socket.emit(status, {
     channel_name: channel_name,
     current_user: operator_name,
@@ -95,7 +117,7 @@ export const Chat = () => {
       owner: false,
       operator: false,
       banned: false,
-      muted: false,
+      muted: new Date().getTime(),
     };
 
     setChannels((prev) => {
@@ -138,7 +160,7 @@ export const Chat = () => {
         owner: true,
         operator: true,
         banned: false,
-        muted: false,
+        muted: new Date().getTime(),
       };
       var channel: Channel = {
         name: info.name,
@@ -180,7 +202,7 @@ export const Chat = () => {
           if (chan.name === info.channel_name) {
             chan.participants.map((p) => {
               if (p.username === info.target_user) {
-                p.muted = !p.muted;
+                p.muted = info.mute_date;
               }
               return p;
             });
@@ -189,6 +211,7 @@ export const Chat = () => {
         });
       });
     });
+
     socket.on("ban", (info: any) => {
       setChannels((prev) => {
         const temp = [...prev];

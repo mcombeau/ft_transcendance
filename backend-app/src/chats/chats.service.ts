@@ -2,7 +2,11 @@ import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatEntity } from 'src/typeorm/entities/chat.entity';
 import { Repository } from 'typeorm';
-import { createChatParams, createDMParams, updateChatParams } from './utils/types';
+import {
+  createChatParams,
+  createDMParams,
+  updateChatParams,
+} from './utils/types';
 import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
 import { ChatParticipantsService } from 'src/chat-participants/chat-participants.service';
 import { ChatCreationError } from 'src/exceptions/bad-request.interceptor';
@@ -50,7 +54,7 @@ export class ChatsService {
       owner: true,
       operator: true,
       banned: false,
-      muted: false,
+      muted: new Date(),
     });
     return newSavedChat;
   }
@@ -70,16 +74,19 @@ export class ChatsService {
         throw new ChatCreationError(`'${chatDetails.name}': ${err.message}`);
       });
     try {
-      await this.chatParticipantService
-      .createChatParticipant(user1.id, newSavedChat.id);
-    await this.chatParticipantService
-      .createChatParticipant(user2.id, newSavedChat.id);
-    }
-    catch (err: any) {
+      await this.chatParticipantService.createChatParticipant(
+        user1.id,
+        newSavedChat.id,
+      );
+      await this.chatParticipantService.createChatParticipant(
+        user2.id,
+        newSavedChat.id,
+      );
+    } catch (err: any) {
       this.deleteChatByID(newSavedChat.id);
       throw new ChatCreationError(`${err.message}`);
     }
-    
+
     return newSavedChat;
   }
 

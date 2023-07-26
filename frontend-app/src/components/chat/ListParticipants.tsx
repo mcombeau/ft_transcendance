@@ -1,6 +1,6 @@
 import { NavigateFunction } from "react-router-dom";
 import { Socket } from "socket.io-client";
-import { ChangeStatus, Channel, Status, User } from "./Chat";
+import { ChangeStatus, Channel, isUserMuted, Status, User } from "./Chat";
 import { checkStatus } from "./Chat";
 
 export const ListParticipants = (
@@ -17,7 +17,7 @@ export const ListParticipants = (
     } else if (participant.operator) {
       name += " ★";
     }
-    if (participant.muted) {
+    if (isUserMuted(participant)) {
       name += " 🔇";
       style = { fontStyle: "italic" };
     }
@@ -29,6 +29,7 @@ export const ListParticipants = (
         style={style}
       >
         {name}
+        <div>{participant.muted}</div>
       </li>
     );
   }
@@ -50,11 +51,12 @@ export const ListParticipants = (
                       socket,
                       channel.name,
                       current_user,
-                      participant.username
+                      participant.username,
+                      1 // TODO : parametrize later
                     );
                   }}
                 >
-                  {participant.muted ? "Unmute" : "Mute"}
+                  {isUserMuted(participant) ? "Unmute" : "Mute"}
                 </button>
                 <button
                   onClick={() => {

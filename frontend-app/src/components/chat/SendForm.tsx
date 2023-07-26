@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import { Socket } from "socket.io-client";
-import { Message, Channel } from "./Chat";
+import { Message, Channel, isUserMuted, isMuted } from "./Chat";
 
 export const SendForm = (
   current_channel: Channel,
@@ -20,8 +20,7 @@ export const SendForm = (
       current_channel.name == "" ||
       !cookies["Username"] ||
       !current_channel.participants.some((p) => p.username === current_user) ||
-      current_channel.participants.find((p) => p.username === current_user)
-        .muted
+      isMuted(current_channel, current_user)
     ) {
       console.log(
         "Message is empty or channel is not defined or not logged in. Or not in the channel"

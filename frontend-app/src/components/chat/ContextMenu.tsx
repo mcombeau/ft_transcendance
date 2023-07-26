@@ -34,7 +34,8 @@ export const ContextMenuEl = (
                 socket,
                 channel.name,
                 current_user,
-                contextMenuSender
+                contextMenuSender,
+                1 // TODO: parametrize later
               );
               setContextMenu(false);
             }}

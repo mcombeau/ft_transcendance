@@ -169,18 +169,6 @@ export class ChatParticipantsService {
     return participant.operator;
   }
 
-  async userIsMuted(channel_name: string, username: string) {
-    const channel = await this.chatService.fetchChatByName(channel_name);
-    const user = await this.userService.fetchUserByUsername(username);
-
-    const participant = await this.fetchParticipantByUserChatID(
-      user.id,
-      channel.id,
-    );
-
-    return participant.muted;
-  }
-
   async userIsBanned(channel_name: string, username: string) {
     const channel = await this.chatService.fetchChatByName(channel_name);
     const user = await this.userService.fetchUserByUsername(username);
@@ -191,5 +179,17 @@ export class ChatParticipantsService {
     );
 
     return participant.banned;
+  }
+
+  async userIsMuted(channel_name: string, username: string) {
+    const channel = await this.chatService.fetchChatByName(channel_name);
+    const user = await this.userService.fetchUserByUsername(username);
+
+    const participant = await this.fetchParticipantByUserChatID(
+      user.id,
+      channel.id,
+    );
+
+    return participant.muted.getTime() < new Date().getTime();
   }
 }

@@ -1,6 +1,6 @@
 export type updateParticipantParams = {
-    operator: boolean;
-    owner: boolean;
-    banned: boolean;
-    muted: boolean;
+  operator: boolean;
+  owner: boolean;
+  banned: boolean;
+  muted: Date;
 };

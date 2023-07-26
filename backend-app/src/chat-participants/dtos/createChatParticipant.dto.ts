@@ -1,23 +1,23 @@
-import { IsBoolean, IsNotEmpty, IsNumber } from "class-validator";
+import { IsBoolean, IsNotEmpty, IsNumber } from 'class-validator';
 
 export class createParticipantDto {
-    @IsNotEmpty()
-    @IsNumber()
-    userID: number;
-    
-    @IsNotEmpty()
-    @IsNumber()
-    chatRoomID: number;
+  @IsNotEmpty()
+  @IsNumber()
+  userID: number;
 
-    @IsBoolean()
-    owner: boolean;
+  @IsNotEmpty()
+  @IsNumber()
+  chatRoomID: number;
 
-    @IsBoolean()
-    operator: boolean;
+  @IsBoolean()
+  owner: boolean;
 
-    @IsBoolean()
-    banned: boolean;
+  @IsBoolean()
+  operator: boolean;
 
-    @IsBoolean()
-    muted: boolean;
+  @IsBoolean()
+  banned: boolean;
+
+  @IsNumber()
+  muted: Date;
 }

@@ -10,6 +10,7 @@ import { Server, Socket as ioSocket } from 'socket.io';
 import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
 import { ChatParticipantsService } from 'src/chat-participants/chat-participants.service';
 import { ChatsService } from 'src/chats/chats.service';
+import { DateTime } from 'luxon';
 
 @WebSocketGateway({
   cors: {
@@ -52,7 +53,12 @@ export class ChatGateway implements OnModuleInit {
         msg.sender,
         msg.channel,
       );
-    if (!sender || sender.muted || sender.banned) return;
+    if (
+      !sender ||
+      this.chatParticipantsService.userIsMuted(msg.channel, msg.sender) ||
+      sender.banned
+    )
+      return;
     socket.broadcast.emit('chat message', msg);
     this.chatMessagesService
       .createMessage(msg.msg, msg.sender, msg.channel, msg.datestamp)
@@ -74,10 +80,6 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('add chat')
   async onAddChat(@MessageBody() info: any) {
-    if (this.chatsService.fetchChatByName(info.name)) {
-      console.log(' This chat already exists. ');
-      return;
-    }
     this.chatsService.createChat(info);
     this.server.emit('add chat', info);
   }
@@ -139,13 +141,29 @@ export class ChatGateway implements OnModuleInit {
           console.log("Can't mute the chat owner.");
         } else if (participant.banned) {
           console.log("Can't mute someone who is already banned.");
+        } else if (
+          this.chatParticipantsService.userIsMuted(
+            info.channel_name,
+            info.target_user,
+          )
+        ) {
+          this.chatParticipantsService.updateParticipantByID(participant.id, {
+            operator: participant.operator,
+            banned: participant.banned,
+            owner: participant.owner,
+            muted: new Date(),
+          });
+          this.server.emit('mute', info);
         } else {
           this.chatParticipantsService.updateParticipantByID(participant.id, {
             operator: participant.operator,
             banned: participant.banned,
             owner: participant.owner,
-            muted: !participant.muted,
+            muted: new Date(
+              new Date().getTime() + info.lenght_in_minutes * 60000,
+            ),
           });
+          info.mute_date = participant.muted.getTime();
           this.server.emit('mute', info);
           console.log('muted ' + info.target_user);
         }

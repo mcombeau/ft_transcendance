@@ -22,6 +22,7 @@ export const SidePannel = (
     if (newchannel == "") return;
     console.log("Emit new chan");
     socket.emit("add chat", {
+      // TODO : investigate duplicate chats
       name: newchannel,
       password: "pass",
       private: false,
