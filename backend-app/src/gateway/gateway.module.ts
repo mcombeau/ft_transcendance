@@ -4,12 +4,14 @@ import { GameGateway } from './game.gateway';
 import { ChatMessagesModule } from 'src/chat-messages/chat-messages.module';
 import { ChatsModule } from 'src/chats/chats.module';
 import { UsersModule } from 'src/users/users.module';
+import { GamesModule } from 'src/games/games.module';
 
 @Module({
   imports: [
     forwardRef(() => ChatsModule),
     forwardRef(() => ChatMessagesModule),
     forwardRef(() => UsersModule),
+    forwardRef(() => GamesModule)
   ],
   providers: [
     ChatGateway,

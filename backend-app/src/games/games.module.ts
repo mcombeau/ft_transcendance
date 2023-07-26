@@ -7,6 +7,7 @@ import { GameEntity } from 'src/typeorm/entities/game.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([GameEntity])],
   controllers: [GamesController],
-  providers: [GamesService]
+  providers: [GamesService],
+  exports: [GamesService]
 })
 export class GamesModule {}
