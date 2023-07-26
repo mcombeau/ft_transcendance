@@ -133,12 +133,19 @@ export const Chat = () => {
     socket.on("add chat", (info: any) => {
       console.log("Added new chat");
       console.log(info);
-      var channel = {
+      var user: User = {
+        username: info.owner,
+        owner: true,
+        operator: true,
+        banned: false,
+        muted: false,
+      };
+      var channel: Channel = {
         name: info.name,
-        participants: [],
+        participants: [user],
         banned: [],
         private: info.private,
-        owner: info.username,
+        owner: info.owner,
       };
       setChannels((prev) => [...prev, channel]);
       setNewchannel("");

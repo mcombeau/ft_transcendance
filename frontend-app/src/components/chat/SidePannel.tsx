@@ -20,6 +20,7 @@ export const SidePannel = (
     e.preventDefault();
     // Create new channel
     if (newchannel == "") return;
+    console.log("Emit new chan");
     socket.emit("add chat", {
       name: newchannel,
       password: "pass",

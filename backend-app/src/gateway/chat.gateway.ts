@@ -74,6 +74,10 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('add chat')
   async onAddChat(@MessageBody() info: any) {
+    if (this.chatsService.fetchChatByName(info.name)) {
+      console.log(' This chat already exists. ');
+      return;
+    }
     this.chatsService.createChat(info);
     this.server.emit('add chat', info);
   }
@@ -246,7 +250,6 @@ export class ChatGateway implements OnModuleInit {
             info.target_user,
             info.channel_name,
           );
-
         if (participant.owner) {
           console.log("Can't kick the chat owner.");
         } else if (participant.banned) {
