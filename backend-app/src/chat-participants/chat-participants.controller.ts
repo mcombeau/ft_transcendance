@@ -18,7 +18,7 @@ export class ChatParticipantsController {
 
     @Post()
     createParticipant(@Body() participantDto: createParticipantDto) {
-        return this.participantService.createChatParticipant(participantDto.userID, participantDto.chatRoomID);
+        return this.participantService.createChatParticipant(participantDto.userID, participantDto.chatRoomID, 0);
     }
 
     @Patch(':id')
