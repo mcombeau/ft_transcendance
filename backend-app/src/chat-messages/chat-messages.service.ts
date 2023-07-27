@@ -4,7 +4,7 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ChatMessageEntity } from 'src/typeorm/entities/chat-message.entity';
+import { ChatMessageEntity } from 'src/chat-messages/entities/chat-message.entity';
 import { Repository } from 'typeorm';
 import { ChatsService } from 'src/chats/chats.service';
 import { UsersService } from 'src/users/users.service';

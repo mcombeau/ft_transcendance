@@ -1,6 +1,6 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ChatEntity } from 'src/typeorm/entities/chat.entity';
+import { ChatEntity } from 'src/chats/entities/chat.entity';
 import { Repository } from 'typeorm';
 import {
   createChatParams,

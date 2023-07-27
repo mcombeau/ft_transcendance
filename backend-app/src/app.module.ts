@@ -2,20 +2,20 @@ import { Module, ParseIntPipe } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserEntity } from './typeorm/entities/user.entity';
+import { UserEntity } from './users/entities/user.entity';
 import { UsersModule } from './users/users.module';
 import { ChatsModule } from './chats/chats.module';
 import { FriendsModule } from './friends/friends.module';
 import { GamesModule } from './games/games.module';
-import { ChatEntity } from './typeorm/entities/chat.entity';
-import { FriendEntity } from './typeorm/entities/friend.entity';
-import { GameEntity } from './typeorm/entities/game.entity';
+import { ChatEntity } from './chats/entities/chat.entity';
+import { FriendEntity } from './friends/entities/friend.entity';
+import { GameEntity } from './games/entities/game.entity';
 // import { ChatMessagesModule } from './chat-messages/chat-messages.module';
-import { ChatMessageEntity } from './typeorm/entities/chat-message.entity';
+import { ChatMessageEntity } from './chat-messages/entities/chat-message.entity';
 import { GatewayModule } from './gateway/gateway.module';
 import { AuthModule } from './auth/auth.module';
 import { ChatMessagesModule } from './chat-messages/chat-messages.module';
-import { ChatParticipantEntity } from './typeorm/entities/chat-participant.entity';
+import { ChatParticipantEntity } from './chat-participants/entities/chat-participant.entity';
 import { ChatParticipantsModule } from './chat-participants/chat-participants.module';
 
 @Module({

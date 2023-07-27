@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { GameEntity } from 'src/typeorm/entities/game.entity';
+import { GameEntity } from 'src/games/entities/game.entity';
 import { Repository } from 'typeorm';
 import { createGameParams, updateGameParams } from './utils/types';
 

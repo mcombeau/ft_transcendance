@@ -1,7 +1,7 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatsService } from 'src/chats/chats.service';
-import { ChatParticipantEntity } from 'src/typeorm/entities/chat-participant.entity';
+import { ChatParticipantEntity } from 'src/chat-participants/entities/chat-participant.entity';
 import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
 import { updateParticipantParams } from './utils/types';
