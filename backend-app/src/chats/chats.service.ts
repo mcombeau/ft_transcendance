@@ -45,7 +45,7 @@ export class ChatsService {
         throw new ChatCreationError(`'${chatDetails.name}': ${err.message}`);
       });
     const participant = await this.chatParticipantService
-      .createChatParticipant(user.id, newSavedChat.id)
+      .createChatParticipant(user.id, newSavedChat.id, 0)
       .catch((err: any) => {
         this.deleteChatByID(newSavedChat.id);
         throw new ChatCreationError(`'ownerID: ${user.id}': ${err.message}`);
@@ -54,7 +54,8 @@ export class ChatsService {
       owner: true,
       operator: true,
       banned: false,
-      muted: new Date().getTime(),
+      mutedUntil: new Date().getTime(),
+      invitedUntil: 0
     });
     return newSavedChat;
   }
@@ -77,10 +78,12 @@ export class ChatsService {
       await this.chatParticipantService.createChatParticipant(
         user1.id,
         newSavedChat.id,
+        0
       );
       await this.chatParticipantService.createChatParticipant(
         user2.id,
         newSavedChat.id,
+        0
       );
     } catch (err: any) {
       this.deleteChatByID(newSavedChat.id);
@@ -107,22 +110,35 @@ export class ChatsService {
   updateChatByID(id: number, chatDetails: updateChatParams) {
     const participant = chatDetails['participantID'];
     if (participant !== undefined) {
-      this.chatParticipantService.createChatParticipant(participant, id);
+      this.chatParticipantService.createChatParticipant(participant, id, 0);
     }
     delete chatDetails['participantID'];
     return this.chatRepository.update({ id }, { ...chatDetails });
   }
 
   addParticipantToChatByID(id: number, userID: number) {
-    this.chatParticipantService.createChatParticipant(userID, id);
+    this.chatParticipantService.createChatParticipant(userID, id, 0);
   }
 
-  async addParticipantToChatByUsername(name: string, username: string) {
-    const participant = await this.userService.fetchUserByUsername(username);
-    const channelID = await this.fetchChatByName(name);
-    this.chatParticipantService.createChatParticipant(
-      participant.id,
-      channelID.id,
+  async addParticipantToChatByUsername(chatRoomName: string, username: string) {
+    const user = await this.userService.fetchUserByUsername(username);
+    const chatRoom = await this.fetchChatByName(chatRoomName);
+
+    return this.chatParticipantService.createChatParticipant(
+      user.id,
+      chatRoom.id,
+      0
+    );
+  }
+
+  async inviteParticipantToChatByUsername(chatRoomName: string, username: string, inviteExpiryDate: number) {
+    const user = await this.userService.fetchUserByUsername(username);
+    const chatRoom = await this.fetchChatByName(chatRoomName);
+
+    return this.chatParticipantService.createChatParticipant(
+      user.id,
+      chatRoom.id,
+      inviteExpiryDate
     );
   }
 
