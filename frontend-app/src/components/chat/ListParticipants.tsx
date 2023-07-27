@@ -8,9 +8,7 @@ export const ListParticipants = (
   channel: Channel,
   navigate: NavigateFunction,
   current_user: string,
-  socket: Socket,
-  muteTime: number,
-  setMuteTime: Dispatch<SetStateAction<number>>
+  socket: Socket
 ) => {
   function displayUser(participant: User) {
     var name = participant.username;
@@ -64,17 +62,18 @@ export const ListParticipants = (
                   </button>
                 ) : (
                   <div>
-                    <select
-                      value={muteTime}
-                      onChange={(e) => setMuteTime(parseInt(e.target.value))}
-                    >
+                    <select id={"mute " + participant.username}>
                       <option value="1">1 minute</option>
-                      <option value="2">2 minute</option>
+                      <option value="5">5 minute</option>
                       <option value="60">1 hour</option>
                       <option value="1440">1 day</option>
                     </select>
                     <button
                       onClick={() => {
+                        var muteTime = document.getElementById(
+                          "mute " + participant.username
+                        )["value"];
+                        muteTime = parseInt(muteTime);
                         console.log("Muted for ", muteTime);
                         ChangeStatus(
                           "mute",
