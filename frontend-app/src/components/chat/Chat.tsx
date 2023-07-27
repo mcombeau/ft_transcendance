@@ -10,6 +10,7 @@ import Messages from "./Messages";
 import SettingsMenu from "./SettingsMenu";
 import SidePannel from "./SidePannel";
 import SendForm from "./SendForm";
+import { Socket } from "socket.io-client";
 
 export type Message = {
   datestamp: Date;
@@ -24,19 +25,74 @@ export type User = {
   owner: boolean;
   operator: boolean;
   banned: boolean;
-  muted: boolean;
+  muted: number;
 };
 
 export type Channel = {
   name: string;
-  creator: string;
+  owner: string;
   participants: User[];
+  banned: User[];
+  private: boolean;
 };
 
 export enum Status {
   Normal,
   Operator,
   Owner,
+}
+
+export function checkStatus(channel: Channel, username: string): Status {
+  if (!channel) return Status.Normal;
+  var user = channel.participants.find((p) => p.username === username); //TODO: maybe add some error management
+  if (!user) return Status.Normal;
+  if (user.owner) return Status.Owner;
+  if (user.operator) return Status.Operator;
+  return Status.Normal;
+}
+
+export function isUserMuted(user: User): boolean {
+  if (user.muted < new Date().getTime()) return false;
+  return true;
+}
+
+export function isMuted(channel: Channel, username: string): boolean {
+  console.log(username);
+  var user = channel.participants.find((p) => p.username === username);
+  console.log(user.muted);
+  if (!user) return false;
+  if (user.muted < new Date().getTime()) {
+    console.log("not muted");
+    return false;
+  }
+  console.log("muted");
+  return true;
+}
+
+export function ChangeStatus(
+  status: string,
+  socket: Socket,
+  channel_name: string,
+  operator_name: string,
+  target_name: string,
+  lenght_in_minutes: number = 0
+) {
+  const status_values = ["mute", "kick", "ban", "operator"];
+  if (!status_values.includes(status)) return;
+  if (status === "mute") {
+    socket.emit(status, {
+      channel_name: channel_name,
+      current_user: operator_name,
+      target_user: target_name,
+      lenght_in_minutes: lenght_in_minutes,
+    });
+    return;
+  }
+  socket.emit(status, {
+    channel_name: channel_name,
+    current_user: operator_name,
+    target_user: target_name,
+  });
 }
 
 export const Chat = () => {
@@ -49,14 +105,40 @@ export const Chat = () => {
   const [settings, setSettings] = useState(false);
   const [cookies, setCookie, removeCookie] = useCookies(["cookie-name"]);
   const [contextMenu, setContextMenu] = useState(false);
-  const [status, setStatus] = useState<Status>(Status.Normal);
   let navigate = useNavigate();
 
   function getChannel(channel_name: string): Channel {
     return channels.find((e) => e.name == channel_name);
   }
 
+  function handleJoinChat(info: any) {
+    var user: User = {
+      username: info.username,
+      owner: false,
+      operator: false,
+      banned: false,
+      muted: new Date().getTime(),
+    };
+
+    setChannels((prev) => {
+      const temp = [...prev];
+      return temp.map((chan) => {
+        if (chan.name === info.channel_name) {
+          if (
+            !chan.participants.some((p: User) => p.username === info.username)
+          ) {
+            chan.participants = [...chan.participants, user];
+          }
+        }
+        return chan;
+      });
+    });
+  }
+
   useEffect(() => {
+    setUsername(cookies["Username"]);
+    console.log(username);
+
     socket.on("chat message", (msg: Message) => {
       msg.read = false;
       setMessages((prev) => [...prev, msg]);
@@ -73,16 +155,122 @@ export const Chat = () => {
     socket.on("add chat", (info: any) => {
       console.log("Added new chat");
       console.log(info);
-      var channel = {
+      var user: User = {
+        username: info.owner,
+        owner: true,
+        operator: true,
+        banned: false,
+        muted: new Date().getTime(),
+      };
+      var channel: Channel = {
         name: info.name,
-        creator: "creator",
-        participants: [],
+        participants: [user],
+        banned: [],
+        private: info.private,
+        owner: info.owner,
       };
       setChannels((prev) => [...prev, channel]);
       setNewchannel("");
     });
 
-    if (channels.length == 0) {
+    socket.on("join chat", (info: any) => {
+      handleJoinChat(info);
+    });
+
+    socket.on("leave chat", (info: any) => {
+      setChannels((prev) => {
+        const temp = [...prev];
+        return temp.map((chan) => {
+          if (chan.name === info.channel_name) {
+            if (
+              chan.participants.some((p: User) => p.username === info.username)
+            ) {
+              chan.participants = chan.participants.filter(
+                (p) => p.username !== info.username
+              );
+            }
+          }
+          return chan;
+        });
+      });
+    });
+
+    socket.on("mute", (info: any) => {
+      setChannels((prev) => {
+        const temp = [...prev];
+        return temp.map((chan) => {
+          if (chan.name === info.channel_name) {
+            chan.participants.map((p) => {
+              if (p.username === info.target_user) {
+                p.muted = info.mute_date;
+              }
+              return p;
+            });
+          }
+          return chan;
+        });
+      });
+    });
+
+    socket.on("ban", (info: any) => {
+      setChannels((prev) => {
+        const temp = [...prev];
+        return temp.map((chan) => {
+          if (chan.name === info.channel_name) {
+            if (chan.banned.find((p) => p.username === info.target_user)) {
+              chan.banned = chan.banned.filter(
+                (p) => p.username !== info.target_user
+              );
+            } else if (
+              chan.participants.find((p) => p.username === info.target_user)
+            ) {
+              var banned_user = chan.participants.find(
+                (p) => p.username === info.target_user
+              );
+              banned_user.banned = true;
+              chan.participants = chan.participants.filter(
+                (p) => p.username !== info.target_user
+              );
+              chan.banned = [...chan.banned, banned_user];
+            }
+          }
+          return chan;
+        });
+      });
+    });
+
+    socket.on("kick", (info: any) => {
+      setChannels((prev) => {
+        const temp = [...prev];
+        return temp.map((chan) => {
+          if (chan.name === info.channel_name) {
+            chan.participants = chan.participants.filter(
+              (p) => p.username !== info.target_user
+            );
+          }
+          return chan;
+        });
+      });
+    });
+
+    socket.on("operator", (info: any) => {
+      setChannels((prev) => {
+        const temp = [...prev];
+        return temp.map((chan) => {
+          if (chan.name === info.channel_name) {
+            chan.participants.map((p) => {
+              if (p.username === info.target_user) {
+                p.operator = !p.operator;
+              }
+              return p;
+            });
+          }
+          return chan;
+        });
+      });
+    });
+
+    if (channels.length === 0) {
       fetch("http://localhost:3001/chats").then(async (response) => {
         const data = await response.json();
         if (!response.ok) {
@@ -90,27 +278,30 @@ export const Chat = () => {
           return;
         }
         data.map((e: any) => {
+          var participant_list = e.participants.map((user: any) => {
+            var newUser: User = {
+              username: user.participant.username,
+              owner: user.owner,
+              operator: user.operator,
+              banned: user.banned,
+              muted: user.muted,
+            };
+            return newUser;
+          });
           var chan: Channel = {
             name: e.name,
-            creator: "",
-            participants: e.participants.map((user: any) => {
-              var newUser: User = {
-                username: user.participant.username,
-                owner: user.owner,
-                operator: user.operator,
-                banned: user.banned,
-                muted: user.muted,
-              };
-              return newUser;
-            }),
+            private: e.private,
+            owner: e.username,
+            participants: participant_list.filter((user: any) => !user.banned),
+            banned: participant_list.filter((user: any) => user.banned),
           };
-          console.log(chan);
           setChannels((prev) => [...prev, chan]);
+          console.log(channels);
         });
       });
     }
 
-    if (messages.length == 0) {
+    if (messages.length === 0) {
       fetch("http://localhost:3001/chat-messages").then(async (response) => {
         const data = await response.json();
         if (!response.ok) {
@@ -141,9 +332,14 @@ export const Chat = () => {
 
   useEffect(() => {
     var message_els = document.getElementById("messages");
+    if (!message_els) return;
 
     message_els.scrollTop = message_els.scrollHeight;
   }, [messages]);
+
+  useEffect(() => {
+    console.log(channels);
+  }, [channels]);
 
   return (
     <WebSocketProvider value={socket}>
@@ -166,30 +362,29 @@ export const Chat = () => {
           {SettingsMenu(
             settings,
             setSettings,
-            status,
-            current_channel,
+            getChannel(current_channel),
             setCurrentChannel,
             socket,
-            messages, // TODO: replace by real channel list
-            navigate
+            navigate,
+            username
           )}
           {Messages(
             messages,
-            current_channel,
+            getChannel(current_channel),
             username,
             navigate,
             settings,
             contextMenu,
             setContextMenu,
-            status
+            socket
           )}
           {SendForm(
-            current_channel,
-            setStatus,
+            getChannel(current_channel),
             cookies,
             setMessages,
             setUsername,
-            socket
+            socket,
+            username
           )}
         </div>
       </div>

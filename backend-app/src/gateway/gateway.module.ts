@@ -13,10 +13,7 @@ import { GamesModule } from 'src/games/games.module';
     forwardRef(() => UsersModule),
     forwardRef(() => GamesModule)
   ],
-  providers: [
-    ChatGateway,
-    GameGateway,
-  ],
-  exports: [ChatGateway, GameGateway]
+  providers: [ChatGateway, GameGateway],
+  exports: [ChatGateway, GameGateway],
 })
 export class GatewayModule {}

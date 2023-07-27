@@ -103,6 +103,15 @@ li#mine {
   padding: 0rem 0.3rem;
 }
 
+#channel-info > li > .joinchan {
+  position: absolute;
+  top: 1.5rem;
+  right: 1rem;
+  background: white;
+  color: darkcyan;
+  padding: 0.2rem;
+}
+
 #channel-info > li > p {
   position: absolute;
   top: 0;
@@ -218,6 +227,7 @@ li#mine {
   color: white;
   border-radius: 3px;
   min-height: 20%;
+  overflow: scroll;
 }
 
 .settings > h3 {
@@ -326,7 +336,21 @@ li#mine {
   margin: 0.2rem 0.2rem 0.2rem 1rem;
 }
 
+.participant_list > div > div > div {
+  display: inline-block;
+  margin: 0.2rem 0.2rem 0.2rem 1rem;
+}
+
 .participant_list > div > div > button {
+  border: none;
+  border-radius: 0.2rem;
+  background-color: darkcyan;
+  padding: 0.2rem;
+  margin: 0.1rem;
+  color: white;
+}
+
+.participant_list > div > div > div > button {
   border: none;
   border-radius: 0.2rem;
   background-color: darkcyan;

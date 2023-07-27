@@ -9,7 +9,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { ChatsService } from './chats.service';
-import { createChatDto } from './dtos/createChats.dto';
+import { createChatDMDto, createChatDto } from './dtos/createChats.dto';
 import { updateChatDto } from './dtos/updateChats.dto';
 import { ChatNotFoundException } from 'src/exceptions/not-found.exception';
 
@@ -41,6 +41,11 @@ export class ChatsController {
   @Post()
   createChat(@Body() chatDto: createChatDto) {
     return this.chatService.createChat(chatDto);
+  }
+
+  @Post('dm')
+  createDM(@Body() chatDto: createChatDMDto) {
+    return this.chatService.createChatDM(chatDto);
   }
 
   @Patch(':id')

@@ -20,10 +20,12 @@ export const SidePannel = (
     e.preventDefault();
     // Create new channel
     if (newchannel == "") return;
-    console.log("Here!!!!");
+    console.log("Emit new chan");
     socket.emit("add chat", {
+      // TODO : investigate duplicate chats
       name: newchannel,
       password: "pass",
+      private: false,
       owner: username,
     });
   };
@@ -69,6 +71,25 @@ export const SidePannel = (
             }}
           >
             ⚙
+          </button>
+          <button
+            className="joinchan"
+            value={channel.name}
+            onClick={(e) => {
+              socket.emit("join chat", {
+                username: username,
+                channel_name: (e.target as HTMLInputElement).getAttribute(
+                  "value"
+                ),
+              });
+              // setCurrentChannel(
+              //   (e.target as HTMLInputElement).getAttribute("value")
+              // );
+              // setSettings(!settings);
+              // setContextMenu(false);
+            }}
+          >
+            Join
           </button>
         </li>
       </div>

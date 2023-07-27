@@ -47,7 +47,6 @@ export class ChatMessagesService {
     const newMessage = this.chatMessagesRepository.create({
       ...messageDetails,
     });
-    console.log(messageDetails);
     return this.chatMessagesRepository.save(newMessage);
   }
 
