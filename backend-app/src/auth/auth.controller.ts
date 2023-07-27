@@ -1,7 +1,16 @@
-import { Controller, Get, Req, Res, Redirect, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Req,
+  Res,
+  Redirect,
+  Query,
+  Inject,
+} from '@nestjs/common';
 import { Request } from 'express';
 import axios from 'axios';
 import { Response } from 'express';
+import { UsersService } from 'src/users/users.service';
 
 const CLIENT_ID =
   'u-s4t2ud-18f16c113212b9bfe7b0841fdf7783641ed72d9a63359b4071a723862605ceea'; // Replace with your OAuth client ID
@@ -10,6 +19,8 @@ const CLIENT_SECRET =
 
 @Controller('auth')
 export class AuthController {
+  constructor(private usersService: UsersService) {}
+
   @Get()
   @Redirect(
     `https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-18f16c113212b9bfe7b0841fdf7783641ed72d9a63359b4071a723862605ceea&redirect_uri=http%3A%2F%2Flocalhost%3A3001%2Fauth%2Fcallback&response_type=code`,
@@ -23,10 +34,8 @@ export class AuthController {
     console.log('[AuthController] Redirecting to 42 API...');
   }
 
-  @Get('home')
   @Redirect()
   logInUser(@Res() res: Response, username: string) {
-    console.log('LOGIN ', username);
     return res.redirect('http://localhost:3000');
   }
 
@@ -75,6 +84,17 @@ export class AuthController {
                 alt="Profile Picture">
                 `;
       console.log(pageContent);
+
+      var newUser = {
+        username: username,
+        email: email,
+      };
+      // Creating user in the database
+      var oldUser = await this.usersService.fetchUserByUsername(username);
+      if (!oldUser) {
+        this.usersService.createUser(newUser);
+      }
+
       this.logInUser(res, username);
       return pageContent;
     } catch (error) {
