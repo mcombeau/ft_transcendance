@@ -30,7 +30,6 @@ export const ListParticipants = (
         style={style}
       >
         {name}
-        <div>{participant.muted}</div>
       </li>
     );
   }
@@ -64,7 +63,7 @@ export const ListParticipants = (
                   <div>
                     <select id={"mute " + participant.username}>
                       <option value="1">1 minute</option>
-                      <option value="5">5 minute</option>
+                      <option value="5">5 minutes</option>
                       <option value="60">1 hour</option>
                       <option value="1440">1 day</option>
                     </select>
