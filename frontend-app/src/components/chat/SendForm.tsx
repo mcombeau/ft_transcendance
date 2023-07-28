@@ -1,11 +1,10 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import { Socket } from "socket.io-client";
-import { Message, Channel, isUserMuted, isMuted } from "./Chat";
+import { Message, Channel, isMuted } from "./Chat";
 
 export const SendForm = (
   current_channel: Channel,
   cookies: any,
-  setMessages: Dispatch<SetStateAction<Message[]>>,
   setUsername: Dispatch<SetStateAction<string>>,
   socket: Socket,
   current_user: string
@@ -16,8 +15,8 @@ export const SendForm = (
     e.preventDefault();
     if (
       !current_channel ||
-      value == "" ||
-      current_channel.name == "" ||
+      value === "" ||
+      current_channel.name === "" ||
       !cookies["Username"] ||
       !current_channel.participants.some((p) => p.username === current_user) ||
       isMuted(current_channel, current_user)
@@ -34,6 +33,7 @@ export const SendForm = (
       sender: cookies["Username"],
       channel: current_channel.name,
       read: true,
+      system: false,
     };
     socket.emit("chat message", msg);
     // setMessages((prev) => [...prev, msg]);

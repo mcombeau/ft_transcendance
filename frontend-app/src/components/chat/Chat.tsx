@@ -18,6 +18,7 @@ export type Message = {
   sender: string;
   channel: string;
   read: boolean;
+  system: boolean;
 };
 
 export type User = {
@@ -209,6 +210,15 @@ export const Chat = () => {
           return chan;
         });
       });
+      var message: Message = {
+        msg: "Someone has been muted",
+        datestamp: new Date(),
+        sender: "nobody",
+        channel: info.channel_name,
+        read: true,
+        system: true,
+      };
+      setMessages((prev) => [...prev, message]);
     });
 
     socket.on("ban", (info: any) => {
@@ -315,6 +325,7 @@ export const Chat = () => {
             sender: e.sender.username,
             channel: e.chatRoom.name,
             read: true,
+            system: false,
           };
           setMessages((prev) => [...prev, msg]);
           return e;
@@ -387,7 +398,6 @@ export const Chat = () => {
           {SendForm(
             getChannel(current_channel),
             cookies,
-            setMessages,
             setUsername,
             socket,
             username

@@ -30,10 +30,6 @@ export class ChatGateway implements OnModuleInit {
 
   onModuleInit() {
     this.server.on('connection', (socket) => {
-      console.log(socket.id);
-
-      console.log('A user connected');
-
       socket.broadcast.emit('connection event');
       socket.on('disconnect', () => {
         console.log('a user disconnected');

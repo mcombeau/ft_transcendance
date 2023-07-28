@@ -24,8 +24,15 @@ export const Messages = (
     ) {
       return;
     }
-    if (msg.channel != current_channel.name) return;
-    if (msg.sender == username) {
+    if (msg.channel !== current_channel.name) return;
+    if (msg.system === true) {
+      return (
+        <div id="announcement">
+          <li>{msg.msg}</li>
+        </div>
+      );
+    }
+    if (msg.sender === username) {
       return (
         <div id="rightmessage">
           <span
