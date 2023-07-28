@@ -1,4 +1,4 @@
-import { ChangeStatus, isMuted, isUserMuted, Status } from "./Chat";
+import { ChangeStatus, isMuted, Status } from "./Chat";
 import { useRef } from "react";
 import { Socket } from "socket.io-client";
 import { Channel } from "./Chat";
@@ -14,6 +14,9 @@ export const ContextMenuEl = (
   current_user: string
 ) => {
   const menuRef = useRef<HTMLDivElement>(null);
+  if (!contextMenu) {
+    return <div></div>;
+  }
   var options = (
     <ul>
       <li
@@ -24,7 +27,7 @@ export const ContextMenuEl = (
       >
         Block
       </li>
-      {checkStatus(channel, current_user) === Status.Operator &&
+      {checkStatus(channel, current_user) !== Status.Operator &&
       checkStatus(channel, contextMenuSender) !== Status.Owner ? (
         <div>
           <li
@@ -35,12 +38,12 @@ export const ContextMenuEl = (
                 channel.name,
                 current_user,
                 contextMenuSender,
-                1 // TODO: parametrize later
+                1
               );
               setContextMenu(false);
             }}
           >
-            {isMuted(channel, contextMenuSender) ? "Unmute" : "Mute"}
+            {isMuted(channel, contextMenuSender) ? "Unmute" : "Mute (1 min)"}
           </li>
           <li
             onClick={() => {
@@ -101,9 +104,6 @@ export const ContextMenuEl = (
       )}
     </ul>
   );
-  if (!contextMenu) {
-    return <div></div>;
-  }
 
   return (
     <div

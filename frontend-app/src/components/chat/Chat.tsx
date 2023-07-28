@@ -62,10 +62,8 @@ export function isMuted(channel: Channel, username: string): boolean {
   console.log(user.muted);
   if (!user) return false;
   if (user.muted < new Date().getTime()) {
-    console.log("not muted");
     return false;
   }
-  console.log("muted");
   return true;
 }
 
@@ -103,12 +101,12 @@ export const Chat = () => {
   const [current_channel, setCurrentChannel] = useState(""); // TODO: have screen if no channels
   const [username, setUsername] = useState("");
   const [settings, setSettings] = useState(false);
-  const [cookies, setCookie, removeCookie] = useCookies(["cookie-name"]);
+  const [cookies] = useCookies(["cookie-name"]);
   const [contextMenu, setContextMenu] = useState(false);
   let navigate = useNavigate();
 
   function getChannel(channel_name: string): Channel {
-    return channels.find((e) => e.name == channel_name);
+    return channels.find((e) => e.name === channel_name);
   }
 
   function handleJoinChat(info: any) {
@@ -145,8 +143,8 @@ export const Chat = () => {
     });
 
     socket.on("delete chat", (channelname: string) => {
-      setChannels((prev) => prev.filter((e) => e.name != channelname));
-      setMessages((prev) => prev.filter((e) => e.channel != channelname));
+      setChannels((prev) => prev.filter((e) => e.name !== channelname));
+      setMessages((prev) => prev.filter((e) => e.channel !== channelname));
       setSettings(false);
       setContextMenu(false);
       setCurrentChannel("");
@@ -170,6 +168,7 @@ export const Chat = () => {
         owner: info.owner,
       };
       setChannels((prev) => [...prev, channel]);
+      if (info.owner === username) setCurrentChannel(info.name);
       setNewchannel("");
     });
 
@@ -297,6 +296,7 @@ export const Chat = () => {
           };
           setChannels((prev) => [...prev, chan]);
           console.log(channels);
+          return e;
         });
       });
     }
@@ -317,6 +317,7 @@ export const Chat = () => {
             read: true,
           };
           setMessages((prev) => [...prev, msg]);
+          return e;
         });
       });
     }
@@ -324,9 +325,14 @@ export const Chat = () => {
     return () => {
       console.log("unregistering events");
       socket.off("chat message");
-      socket.off("connection event");
-      socket.off("disconnection event");
-      socket.off("connect");
+      socket.off("delete chat");
+      socket.off("add chat");
+      socket.off("join chat");
+      socket.off("leave chat");
+      socket.off("mute");
+      socket.off("kick");
+      socket.off("ban");
+      socket.off("operator");
     };
   }, []);
 

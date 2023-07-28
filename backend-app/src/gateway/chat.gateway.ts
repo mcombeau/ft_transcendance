@@ -83,13 +83,13 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('add chat')
   async onAddChat(@MessageBody() info: any) {
+    console.log('Server add chat');
     this.chatsService.createChat(info);
     this.server.emit('add chat', info);
   }
 
   @SubscribeMessage('join chat')
   async onJoinChat(@MessageBody() info: any) {
-    console.log('Someone trying to join');
     try {
       if (
         await this.chatParticipantsService.fetchParticipantByUserChatNames(
@@ -99,7 +99,6 @@ export class ChatGateway implements OnModuleInit {
       ) {
         return;
       }
-      console.log('Actually joining');
       this.chatsService.addParticipantToChatByUsername(
         info.channel_name,
         info.username,
