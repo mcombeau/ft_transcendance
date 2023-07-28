@@ -127,11 +127,28 @@ export const Chat = () => {
             !chan.participants.some((p: User) => p.username === info.username)
           ) {
             chan.participants = [...chan.participants, user];
+
+            serviceAnnouncement(
+              `${info.username} joined the channel.`,
+              info.channel_name
+            );
           }
         }
         return chan;
       });
     });
+  }
+
+  function serviceAnnouncement(content: string, channel_name: string) {
+    var message: Message = {
+      msg: content,
+      datestamp: new Date(),
+      sender: "",
+      channel: channel_name,
+      read: true,
+      system: true,
+    };
+    setMessages((prev) => [...prev, message]);
   }
 
   useEffect(() => {
@@ -188,6 +205,10 @@ export const Chat = () => {
               chan.participants = chan.participants.filter(
                 (p) => p.username !== info.username
               );
+              serviceAnnouncement(
+                `${info.username} has left the channel`,
+                info.channel_name
+              );
             }
           }
           return chan;
@@ -210,15 +231,12 @@ export const Chat = () => {
           return chan;
         });
       });
-      var message: Message = {
-        msg: "Someone has been muted",
-        datestamp: new Date(),
-        sender: "nobody",
-        channel: info.channel_name,
-        read: true,
-        system: true,
-      };
-      setMessages((prev) => [...prev, message]);
+      serviceAnnouncement(
+        `${info.target_user} has been muted until ${
+          new Date(info.mute_date).toString().split("GMT")[0]
+        }.`,
+        info.channel_name
+      );
     });
 
     socket.on("ban", (info: any) => {
@@ -246,6 +264,10 @@ export const Chat = () => {
           return chan;
         });
       });
+      serviceAnnouncement(
+        `${info.target_user} has been banned from this channel.`,
+        info.channel_name
+      );
     });
 
     socket.on("kick", (info: any) => {
@@ -260,6 +282,10 @@ export const Chat = () => {
           return chan;
         });
       });
+      serviceAnnouncement(
+        `${info.target_user} has been kicked from this channel.`,
+        info.channel_name
+      );
     });
 
     socket.on("operator", (info: any) => {
@@ -270,6 +296,17 @@ export const Chat = () => {
             chan.participants.map((p) => {
               if (p.username === info.target_user) {
                 p.operator = !p.operator;
+                if (p.operator) {
+                  serviceAnnouncement(
+                    `${info.target_user} is now an channel admin.`,
+                    info.channel_name
+                  );
+                } else {
+                  serviceAnnouncement(
+                    `${info.target_user} is not a channel admin anymore.`,
+                    info.channel_name
+                  );
+                }
               }
               return p;
             });
