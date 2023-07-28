@@ -298,7 +298,7 @@ export const Chat = () => {
                 p.operator = !p.operator;
                 if (p.operator) {
                   serviceAnnouncement(
-                    `${info.target_user} is now an channel admin.`,
+                    `${info.target_user} is now a channel admin.`,
                     info.channel_name
                   );
                 } else {
