@@ -96,7 +96,7 @@ export class ChatParticipantsService {
     return false;
   }
 
-  async createChatParticipant(userID: number, chatRoomID: number) {
+  async createChatParticipant(userID: number, chatRoomID: number, inviteExpiryDate: number) {
     const foundRecord = await this.participantRepository.find({
       where: {
         participant: { id: userID },
@@ -105,24 +105,25 @@ export class ChatParticipantsService {
     });
     if (foundRecord.length > 0) {
       console.log(
-        `[Chat Participant service]: User ${userID} is already in chat room ${chatRoomID}`,
+        `[Chat Participant service]: User ${userID} is already in or invited to chat room ${chatRoomID}`,
       );
       return foundRecord[0];
     }
     const newParticipant = this.participantRepository.create({
       participant: { id: userID },
       chatRoom: { id: chatRoomID },
+      invitedUntil: inviteExpiryDate
     });
     return this.participantRepository.save(newParticipant);
   }
-
+  
   async updateParticipantByID(
     id: number,
     participantDetails: updateParticipantParams,
   ) {
     console.log(`[Update participant]:`, participantDetails);
-    console.log(`[Update participant]: ${id} muted timestamp: ${participantDetails.muted}`);
-    const mutedTime = new Date(participantDetails.muted);
+    console.log(`[Update participant]: ${id} muted timestamp: ${participantDetails.mutedUntil}`);
+    const mutedTime = new Date(participantDetails.mutedUntil);
     console.log(`[Update participant]: ${id} muted Date: ${mutedTime}`);
     return this.participantRepository.update({ id }, { ...participantDetails });
   }
@@ -185,6 +186,24 @@ export class ChatParticipantsService {
     return participant.banned;
   }
 
+  async userIsInvited(channel_name: string, username: string) {
+    const channel = await this.chatService.fetchChatByName(channel_name);
+    const user = await this.userService.fetchUserByUsername(username);
+    const participant = await this.fetchParticipantByUserChatID(
+      user.id,
+      channel.id,
+    );
+    if (participant.invitedUntil === 0) {
+      console.log(`[Participants Is Invited]: User already in channel (accepted invite)`);
+      return false;
+    }
+    console.log(`[Participants Is Invited] Current timestamp: ${new Date().getTime()}`);
+    console.log(`[Participants Is Invited] ${username} invited timestamp: ${participant.invitedUntil}`);
+    var isInvited = participant.invitedUntil > new Date().getTime();
+    console.log(`[Participants Is Invited] ${username} is currently invited: ${isInvited}`)
+    return isInvited;
+  }
+
   async userIsMuted(channel_name: string, username: string) {
     const channel = await this.chatService.fetchChatByName(channel_name);
     const user = await this.userService.fetchUserByUsername(username);
@@ -194,13 +213,9 @@ export class ChatParticipantsService {
       channel.id,
     );
 
-    var currentDate = new Date();
-    console.log(`[Participants Is Muted] Current timestamp: ${currentDate.getTime()}`);
-    console.log(`[Participants Is Muted] Current date: ${currentDate}`);
-    var participantMutedUntil = new Date(participant.muted);
-    console.log(`[Participants Is Muted] ${username} mute timestamp: ${participant.muted}`);
-    console.log(`[Participants Is Muted] ${username} muted until: ${participantMutedUntil}`);
-    var isMuted = participant.muted > new Date().getTime();
+    console.log(`[Participants Is Muted] Current timestamp: ${new Date().getTime()}`);
+    console.log(`[Participants Is Muted] ${username} mute timestamp: ${participant.mutedUntil}`);
+    var isMuted = participant.mutedUntil > new Date().getTime();
     console.log(`[Participants Is Muted] ${username} is currently muted: ${isMuted}`)
     return isMuted;
   }

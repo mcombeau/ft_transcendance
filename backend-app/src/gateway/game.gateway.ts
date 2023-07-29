@@ -31,9 +31,9 @@ export class GameGateway implements OnModuleInit {
   onModuleInit() {
     this.server.on('connection', (socket) => {
       console.log(socket.id);
-      console.log('A user connected');
+      console.log('[Game Gateway] A user connected');
       socket.on('disconnect', () => {
-        console.log('a user disconnected');
+        console.log('[Game Gateway] A user disconnected');
       });
     });
   }
