@@ -37,11 +37,11 @@ export class ChatGateway implements OnModuleInit {
     this.server.on('connection', (socket) => {
       console.log(socket.id);
 
-      console.log('A user connected');
+      console.log('[Chat Gateway] A user connected');
 
       socket.broadcast.emit('connection event');
       socket.on('disconnect', () => {
-        console.log('a user disconnected');
+        console.log('[Chat Gateway] A user disconnected');
         socket.broadcast.emit('disconnection event');
       });
     });
@@ -267,7 +267,7 @@ export class ChatGateway implements OnModuleInit {
           }
         }
       } catch (e) {
-      console.log('Invite Error');
+      console.log('Invite Error:', e.message);
       console.log(e);
     }
   }

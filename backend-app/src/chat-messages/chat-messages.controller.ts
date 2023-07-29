@@ -12,18 +12,18 @@ import { ChatMessagesService } from './chat-messages.service';
 import { createMessageDto } from './dtos/createMessage.dto';
 import { ChatMessageNotFoundException } from 'src/exceptions/not-found.exception';
 import { NotFoundInterceptor } from 'src/exceptions/not-found.interceptor';
+import { ApiBadRequestResponse, ApiCreatedResponse, ApiOkResponse, ApiTags, ApiUnprocessableEntityResponse } from '@nestjs/swagger';
+import { ChatMessageEntity } from './entities/chat-message.entity';
 
 // TODO: remove unecessary controller
 @Controller('chat-messages')
+@ApiTags('chat-messages')
 export class ChatMessagesController {
   constructor(private readonly chatMessageService: ChatMessagesService) {}
 
-  @Get()
-  getAllMessages() {
-    return this.chatMessageService.fetchMessages();
-  }
-
   @Get(':id')
+  @ApiOkResponse({ type: ChatMessageEntity, description: 'Get user by ID.' })
+  @ApiBadRequestResponse({ description: 'Bad request.' })
   async getMessageByID(@Param('id', ParseIntPipe) id: number) {
     const message = await this.chatMessageService.fetchMessage(id);
     if (!message)
@@ -31,7 +31,16 @@ export class ChatMessagesController {
     return message;
   }
 
+  @Get()
+  @ApiOkResponse({ type: ChatMessageEntity, isArray: true, description: 'Get all chat messages.'})
+  getAllMessages() {
+    return this.chatMessageService.fetchMessages();
+  }
+
   @Post()
+  @ApiCreatedResponse({ type: ChatMessageEntity, description: 'Record created.' })
+  @ApiBadRequestResponse({ description: 'Bad request.' })
+  @ApiUnprocessableEntityResponse({ description: 'Database error. (Unprocessable entity)' })
   createChatMessage(@Body() messageDto: createMessageDto) {
     return this.chatMessageService.createMessage(
       messageDto.message,
@@ -42,6 +51,8 @@ export class ChatMessagesController {
   }
 
   @Delete(':id')
+  @ApiOkResponse({ description: 'Record deleted by ID.' })
+  @ApiBadRequestResponse({ description: 'Bad request' })
   async deleteMessageByID(@Param('id', ParseIntPipe) id: number) {
     await this.chatMessageService.deleteMessage(id);
   }
