@@ -11,6 +11,7 @@ import { Request } from 'express';
 import axios from 'axios';
 import { Response } from 'express';
 import { UsersService } from 'src/users/users.service';
+import { ApiTags } from '@nestjs/swagger';
 
 const CLIENT_ID =
   'u-s4t2ud-18f16c113212b9bfe7b0841fdf7783641ed72d9a63359b4071a723862605ceea'; // Replace with your OAuth client ID
@@ -18,6 +19,7 @@ const CLIENT_SECRET =
   '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'; // Replace with your OAuth client secret
 
 @Controller('auth')
+@ApiTags('auth')
 export class AuthController {
   constructor(private usersService: UsersService) {}
 
