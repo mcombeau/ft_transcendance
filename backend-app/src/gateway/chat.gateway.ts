@@ -117,8 +117,23 @@ export class ChatGateway implements OnModuleInit {
         await this.chatParticipantsService.fetchParticipantByUserChatNames(
           info.username,
           info.channel_name,
-        ) // TODO: check if you are banned you can't get any info
+        )
       ) {
+        if (
+          await this.chatParticipantsService.userIsBanned(
+            info.channel_name,
+            info.username,
+          )
+        ) {
+          console.log("Can't join chat if you are banned");
+          return;
+        }
+        console.log('User already in channel');
+        return;
+      } else if (
+        (await this.chatsService.fetchChatByName(info.channel_name)).private
+      ) {
+        console.log("Can't join private chat");
         return;
       }
       this.chatsService.addParticipantToChatByUsername(
@@ -128,6 +143,7 @@ export class ChatGateway implements OnModuleInit {
       this.server.emit('join chat', info);
     } catch (e) {
       console.log('Chat join Error');
+      console.log(e);
     }
   }
 
