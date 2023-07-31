@@ -61,8 +61,11 @@ export const SettingsMenu = (
             <input
               type="checkbox"
               checked={current_channel.private}
-              onChange={(e) => {
-                // socket.emit("")
+              onChange={() => {
+                socket.emit("toggle private", {
+                  channel_name: current_channel.name,
+                  sender: current_user,
+                });
               }}
             />
             <span className="slider round"></span>

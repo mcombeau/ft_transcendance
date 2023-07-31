@@ -168,6 +168,18 @@ export const Chat = () => {
       setCurrentChannel("");
     });
 
+    socket.on("toggle private", (info: any) => {
+      setChannels((prev) => {
+        const temp = [...prev];
+        return temp.map((chan) => {
+          if (chan.name === info.channel_name) {
+            chan.private = !chan.private;
+          }
+          return chan;
+        });
+      });
+    });
+
     socket.on("add chat", (info: any) => {
       console.log("Added new chat");
       console.log(info);
@@ -381,6 +393,7 @@ export const Chat = () => {
       socket.off("kick");
       socket.off("ban");
       socket.off("operator");
+      socket.off("toggle private");
     };
   }, []);
 
