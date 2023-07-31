@@ -96,7 +96,11 @@ export class ChatParticipantsService {
     return false;
   }
 
-  async createChatParticipant(userID: number, chatRoomID: number) {
+  async createChatParticipant(
+    userID: number,
+    chatRoomID: number,
+    inviteExpiryDate: number,
+  ) {
     const foundRecord = await this.participantRepository.find({
       where: {
         participant: { id: userID },
@@ -109,6 +113,7 @@ export class ChatParticipantsService {
     const newParticipant = this.participantRepository.create({
       participant: { id: userID },
       chatRoom: { id: chatRoomID },
+      invitedUntil: inviteExpiryDate,
     });
     return this.participantRepository.save(newParticipant);
   }
@@ -178,6 +183,32 @@ export class ChatParticipantsService {
     return participant.banned;
   }
 
+  async userIsInvited(channel_name: string, username: string) {
+    const channel = await this.chatService.fetchChatByName(channel_name);
+    const user = await this.userService.fetchUserByUsername(username);
+    const participant = await this.fetchParticipantByUserChatID(
+      user.id,
+      channel.id,
+    );
+    if (participant.invitedUntil === 0) {
+      console.log(
+        `[Participants Is Invited]: User already in channel (accepted invite)`,
+      );
+      return false;
+    }
+    console.log(
+      `[Participants Is Invited] Current timestamp: ${new Date().getTime()}`,
+    );
+    console.log(
+      `[Participants Is Invited] ${username} invited timestamp: ${participant.invitedUntil}`,
+    );
+    var isInvited = participant.invitedUntil > new Date().getTime();
+    console.log(
+      `[Participants Is Invited] ${username} is currently invited: ${isInvited}`,
+    );
+    return isInvited;
+  }
+
   async userIsMuted(channel_name: string, username: string) {
     const channel = await this.chatService.fetchChatByName(channel_name);
     const user = await this.userService.fetchUserByUsername(username);
@@ -187,7 +218,7 @@ export class ChatParticipantsService {
       channel.id,
     );
 
-    var isMuted = participant.muted > new Date().getTime();
+    var isMuted = participant.mutedUntil > new Date().getTime();
     return isMuted;
   }
 }

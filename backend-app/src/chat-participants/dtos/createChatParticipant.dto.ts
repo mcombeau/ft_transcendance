@@ -19,5 +19,8 @@ export class createParticipantDto {
   banned: boolean;
 
   @IsNumber()
-  muted: bigint;
+  mutedUntil: bigint;
+
+  @IsNumber()
+  invitedUntil: bigint;
 }
