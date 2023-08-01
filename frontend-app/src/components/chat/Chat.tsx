@@ -26,13 +26,15 @@ export type User = {
   owner: boolean;
   operator: boolean;
   banned: boolean;
-  muted: number;
+  mutedUntil: number;
+  invitedUntil: number;
 };
 
 export type Channel = {
   name: string;
   owner: string;
   participants: User[];
+  invited: User[];
   banned: User[];
   private: boolean;
 };
@@ -53,16 +55,16 @@ export function checkStatus(channel: Channel, username: string): Status {
 }
 
 export function isUserMuted(user: User): boolean {
-  if (user.muted < new Date().getTime()) return false;
+  if (user.mutedUntil < new Date().getTime()) return false;
   return true;
 }
 
 export function isMuted(channel: Channel, username: string): boolean {
   console.log(username);
   var user = channel.participants.find((p) => p.username === username);
-  console.log(user.muted);
+  console.log(user.mutedUntil);
   if (!user) return false;
-  if (user.muted < new Date().getTime()) {
+  if (user.mutedUntil < new Date().getTime()) {
     return false;
   }
   return true;
@@ -116,7 +118,8 @@ export const Chat = () => {
       owner: false,
       operator: false,
       banned: false,
-      muted: new Date().getTime(),
+      mutedUntil: new Date().getTime(),
+      invitedUntil: 0,
     };
 
     setChannels((prev) => {
@@ -188,12 +191,14 @@ export const Chat = () => {
         owner: true,
         operator: true,
         banned: false,
-        muted: new Date().getTime(),
+        mutedUntil: new Date().getTime(),
+        invitedUntil: 0,
       };
       var channel: Channel = {
         name: info.name,
         participants: [user],
         banned: [],
+        invited: [],
         private: info.private,
         owner: info.owner,
       };
@@ -235,7 +240,7 @@ export const Chat = () => {
           if (chan.name === info.channel_name) {
             chan.participants.map((p) => {
               if (p.username === info.target_user) {
-                p.muted = info.mute_date;
+                p.mutedUntil = info.mute_date;
               }
               return p;
             });
@@ -280,6 +285,68 @@ export const Chat = () => {
         `${info.target_user} has been banned from this channel.`,
         info.channel_name
       );
+    });
+
+    socket.on("invite", (info: any) => {
+      setChannels((prev) => {
+        const temp = [...prev];
+        return temp.map((chan) => {
+          if (chan.name === info.channel_name) {
+            var invited_user: User = {
+              username: info.target_user,
+              owner: false,
+              operator: false,
+              banned: false,
+              mutedUntil: new Date().getTime(),
+              invitedUntil: info.invite_date,
+            };
+            chan.participants = chan.participants.filter(
+              (p) => p.username !== info.target_user
+            );
+            chan.invited = [...chan.invited, invited_user];
+          }
+          return chan;
+        });
+      });
+      serviceAnnouncement(
+        `${info.target_user} has been invited to this channel.`,
+        info.channel_name
+      );
+    });
+
+    socket.on("accept invite", (info: any) => {
+      var user: User = {
+        username: info.target_user,
+        owner: false,
+        operator: false,
+        banned: false,
+        mutedUntil: new Date().getTime(),
+        invitedUntil: 0,
+      };
+
+      setChannels((prev) => {
+        const temp = [...prev];
+        return temp.map((chan) => {
+          if (chan.name === info.channel_name) {
+            if (
+              !chan.participants.some(
+                (p: User) => p.username === info.target_user
+              )
+            ) {
+              chan.participants = [...chan.participants, user];
+
+              serviceAnnouncement(
+                `${info.username} joined the channel.`,
+                info.channel_name
+              );
+              chan.invited = chan.invited.filter(
+                (e) => e.username !== info.target_user
+              );
+            }
+          }
+          return chan;
+        });
+      });
     });
 
     socket.on("kick", (info: any) => {
@@ -342,7 +409,8 @@ export const Chat = () => {
               owner: user.owner,
               operator: user.operator,
               banned: user.banned,
-              muted: user.muted,
+              mutedUntil: user.mutedUntil,
+              invitedUntil: user.invitedUntil,
             };
             return newUser;
           });
@@ -350,8 +418,13 @@ export const Chat = () => {
             name: e.name,
             private: e.private,
             owner: e.username,
-            participants: participant_list.filter((user: any) => !user.banned),
+            participants: participant_list.filter(
+              (user: any) => !user.banned && user.invitedUntil != 0
+            ), // TODO : double check it works
             banned: participant_list.filter((user: any) => user.banned),
+            invited: participant_list.filter(
+              (user: any) => user.invitedUntil != 0
+            ),
           };
           setChannels((prev) => [...prev, chan]);
           console.log(channels);
@@ -394,6 +467,8 @@ export const Chat = () => {
       socket.off("ban");
       socket.off("operator");
       socket.off("toggle private");
+      socket.off("invite");
+      socket.off("accept invite");
     };
   }, []);
 

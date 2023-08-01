@@ -219,6 +219,7 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('invite')
   async onInvite(@MessageBody() info: any) {
+    // TODO: check status sender of invite
     try {
       var participant =
         await this.chatParticipantsService.fetchParticipantByUserChatNames(
@@ -273,6 +274,7 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('accept invite')
   async onAcceptInvite(@MessageBody() info: any) {
+    // TODO : deal with invited but banned
     try {
       var participant =
         await this.chatParticipantsService.fetchParticipantByUserChatNames(
@@ -310,7 +312,7 @@ export class ChatGateway implements OnModuleInit {
             participant,
           );
           info.invite_date = participant.invitedUntil;
-          this.server.emit('invite', info);
+          this.server.emit('accept invite', info);
         } else {
           // if participant is not currently invited and is trying to accept an invite, delete
           // participant from channel so participant can be invited again.

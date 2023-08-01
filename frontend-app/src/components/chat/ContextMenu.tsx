@@ -27,7 +27,7 @@ export const ContextMenuEl = (
       >
         Block
       </li>
-      {checkStatus(channel, current_user) !== Status.Operator &&
+      {checkStatus(channel, current_user) !== Status.Operator && // TODO: double check logic
       checkStatus(channel, contextMenuSender) !== Status.Owner ? (
         <div>
           <li
@@ -65,6 +65,21 @@ export const ContextMenuEl = (
               console.log("Banned " + contextMenuSender);
               ChangeStatus(
                 "ban",
+                socket,
+                channel.name,
+                current_user,
+                contextMenuSender
+              );
+              setContextMenu(false);
+            }}
+          >
+            Ban
+          </li>
+          <li
+            onClick={() => {
+              console.log("Invited " + contextMenuSender);
+              ChangeStatus(
+                "invite",
                 socket,
                 channel.name,
                 current_user,
