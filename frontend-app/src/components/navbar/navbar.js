@@ -25,8 +25,9 @@ function Navbar() {
             <NavbarLink to="/"> Home</NavbarLink>
             <NavbarLink to="/login"> Login</NavbarLink>
             <NavbarLink to="/chat"> Chat</NavbarLink>
-            <NavbarLink to="/play"> Play Game</NavbarLink>
+            <NavbarLink to="/play"> Game</NavbarLink>
             <NavbarLink to="/leaderboard"> Leaderboard</NavbarLink>
+            <NavbarLink to="/profile"> Profile</NavbarLink>
             <OpenLinksButton
               onClick={() => {
                 setExtendNavbar((curr) => !curr);
@@ -41,12 +42,17 @@ function Navbar() {
         </RightContainer>
       </NavbarInnerContainer>
       {extendNavbar && (
-        <NavbarExtendedContainer>
+        <NavbarExtendedContainer
+          onClick={() => {
+                setExtendNavbar((curr) => !curr);
+              }}
+        >
           <NavbarLinkExtended to="/"> Home</NavbarLinkExtended>
           <NavbarLinkExtended to="/login"> Login</NavbarLinkExtended>
           <NavbarLinkExtended to="/chat"> Chat</NavbarLinkExtended>
           <NavbarLinkExtended to="/play"> Play</NavbarLinkExtended>
           <NavbarLinkExtended to="/leaderboard"> Leaderboard</NavbarLinkExtended>
+          <NavbarLinkExtended to="/profile"> My Profile</NavbarLinkExtended>
         </NavbarExtendedContainer>
       )}
     </NavbarContainer>

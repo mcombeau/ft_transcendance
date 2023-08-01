@@ -3,7 +3,6 @@ import Button from "./Button";
 import Icon from "./Icon";
 import Input from "./Input";
 import "./login.css";
-import { FaInstagram } from "react-icons/fa";
 import { useState } from "react";
 import { useCookies } from "react-cookie";
 
@@ -61,10 +60,10 @@ function Login() {
         <HorizontalRule />
         <IconsContainer>
           <Icon color={InstagramBackground}>
-            <FaInstagram />
+            <a href="#"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/42_Logo.svg/1200px-42_Logo.svg.png" alt="School 42" width="45px" height="40px" /></a>
           </Icon>
         </IconsContainer>
-        <ForgotPassword>Forgot Password ?</ForgotPassword>
+        <ForgotPassword>Forgot Password?</ForgotPassword>
       </div>
     </MainContainer>
   );
