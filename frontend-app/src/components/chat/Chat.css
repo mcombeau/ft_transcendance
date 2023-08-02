@@ -109,6 +109,14 @@ li#mine {
   background-color: darkcyan;
 }
 
+/* #channel-info > li.chanCurrent.dm { */
+/*   background-color: skyblue; */
+/* } */
+
+/* #channel-info > li.dm { */
+/*   background-color: lightskyblue; */
+/* } */
+
 #channel-info > li > button {
   position: absolute;
   top: 0;

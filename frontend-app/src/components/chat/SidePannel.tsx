@@ -30,6 +30,11 @@ export const SidePannel = (
     });
   };
 
+  function getDMChannelAlias(channel: Channel, current_user: string) {
+    return channel.participants.find((p) => p.username != current_user)
+      .username;
+  }
+
   const channelInfo = (channel: Channel) => {
     var isCurrent = channel.name == current_channel;
     var unreadMessages: number = messages
@@ -39,6 +44,17 @@ export const SidePannel = (
       .filter((msg) => {
         return msg.read == false;
       }).length;
+    var channel_alias = channel.dm
+      ? `💬 ${getDMChannelAlias(channel, username)}`
+      : channel.name;
+    var classname = "channotCurrent";
+    if (isCurrent) {
+      classname = "chanCurrent";
+    }
+    if (channel.dm) {
+      console.log(channel.name, " is a dm");
+      classname += " dm";
+    }
     return (
       <div id="channel-info">
         <li
@@ -56,10 +72,10 @@ export const SidePannel = (
               })
             );
           }}
-          className={isCurrent ? "chanCurrent" : "channotCurrent"}
+          className={classname}
         >
           {unreadMessages > 0 && <p>{unreadMessages}</p>}
-          {channel.name}
+          {channel_alias}
           <button
             value={channel.name}
             onClick={(e) => {
@@ -82,11 +98,6 @@ export const SidePannel = (
                   "value"
                 ),
               });
-              // setCurrentChannel(
-              //   (e.target as HTMLInputElement).getAttribute("value")
-              // );
-              // setSettings(!settings);
-              // setContextMenu(false);
             }}
           >
             Join

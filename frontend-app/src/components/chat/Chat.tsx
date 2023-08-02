@@ -37,6 +37,7 @@ export type Channel = {
   invited: User[];
   banned: User[];
   private: boolean;
+  dm: boolean;
 };
 
 export enum Status {
@@ -201,10 +202,12 @@ export const Chat = () => {
         invited: [],
         private: info.private,
         owner: info.owner,
+        dm: false,
       };
       setChannels((prev) => [...prev, channel]);
       if (info.owner === username) setCurrentChannel(info.name);
       setNewchannel("");
+      serviceAnnouncement(`${info.owner} created channel.`, info.name);
     });
 
     socket.on("join chat", (info: any) => {
@@ -420,7 +423,8 @@ export const Chat = () => {
         banned: [],
         invited: [],
         private: true,
-        owner: "", // TODO: add dm true
+        owner: "",
+        dm: true,
       };
       setChannels((prev) => [...prev, channel]);
     });
@@ -444,10 +448,13 @@ export const Chat = () => {
             };
             return newUser;
           });
+          console.log("HERE", e);
           var chan: Channel = {
             name: e.name,
             private: e.private,
-            owner: participant_list.find((u: any) => u.owner).username,
+            owner: e.directMessage
+              ? ""
+              : participant_list.find((u: any) => u.owner).username,
             participants: participant_list.filter(
               (user: any) => !user.banned && user.invitedUntil == 0
             ),
@@ -455,6 +462,7 @@ export const Chat = () => {
             invited: participant_list.filter(
               (user: any) => user.invitedUntil != 0
             ),
+            dm: e.directMessage,
           };
           setChannels((prev) => [...prev, chan]);
           return e;
