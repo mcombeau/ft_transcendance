@@ -29,13 +29,30 @@ export class ChatsService {
   private async hashPassword(password: string) {
     const salt = await bcrypt.genSalt();
     const hash = await bcrypt.hash(password, salt);
-    console.log("Hashed password \"", password, "\"", hash);
+    console.log("[Chat Service] Hashed password \"", password, "\"", hash);
     return hash;
   }
 
   private async checkPassword(password: string, hash: string) {
     const isMatch = await bcrypt.compare(password, hash);
+    console.log("[Chat Service] Password \"", password, "\" is match?", isMatch);
     return isMatch;
+  }
+
+  public async checkPasswordForChatByName(password: string, chatName: string) {
+    const chatRoom = await this.fetchChatByName(chatName);
+    if (!chatRoom) {
+      return false;
+    }
+    return this.checkPassword(password, chatRoom.password);
+  }
+
+  public async checkPasswordForChatByID(password: string, chatRoomID: number) {
+    const chatRoom = await this.fetchChatByID(chatRoomID);
+    if (!chatRoom) {
+      return false;
+    }
+    return this.checkPassword(password, chatRoom.password);
   }
 
   fetchChats() {
@@ -47,9 +64,6 @@ export class ChatsService {
   async createChat(chatDetails: createChatParams) {
     const user = await this.userService.fetchUserByUsername(chatDetails.owner);
     const passwordHash = await this.hashPassword(chatDetails.password);
-    console.log("Pasword is \"hello\" ?", this.checkPassword("hello", passwordHash));
-    console.log("Pasword is \"Pass\" ?", this.checkPassword("Pass", passwordHash));
-    console.log("Pasword is \"pass\" ?", this.checkPassword("pass", passwordHash));
     const newChat = this.chatRepository.create({
       name: chatDetails.name,
       password: passwordHash,
