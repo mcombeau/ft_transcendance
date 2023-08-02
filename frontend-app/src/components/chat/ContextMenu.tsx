@@ -6,7 +6,7 @@ import { checkStatus } from "./Chat";
 
 export const ContextMenuEl = (
   contextMenu: boolean,
-  contextMenuSender: string,
+  target_user: string,
   setContextMenu: any,
   contextMenuPos: any,
   socket: Socket,
@@ -21,14 +21,14 @@ export const ContextMenuEl = (
     <ul>
       <li
         onClick={() => {
-          console.log("Blocked " + contextMenuSender);
+          console.log("Blocked " + target_user);
           setContextMenu(false);
         }}
       >
         Block
       </li>
       {checkStatus(channel, current_user) !== Status.Operator && // TODO: double check logic
-      checkStatus(channel, contextMenuSender) !== Status.Owner ? (
+      checkStatus(channel, target_user) !== Status.Owner ? (
         <div>
           <li
             onClick={() => {
@@ -37,23 +37,23 @@ export const ContextMenuEl = (
                 socket,
                 channel.name,
                 current_user,
-                contextMenuSender,
+                target_user,
                 1
               );
               setContextMenu(false);
             }}
           >
-            {isMuted(channel, contextMenuSender) ? "Unmute" : "Mute (1 min)"}
+            {isMuted(channel, target_user) ? "Unmute" : "Mute (1 min)"}
           </li>
           <li
             onClick={() => {
-              console.log("Kicked " + contextMenuSender);
+              console.log("Kicked " + target_user);
               ChangeStatus(
                 "kick",
                 socket,
                 channel.name,
                 current_user,
-                contextMenuSender
+                target_user
               );
               setContextMenu(false);
             }}
@@ -62,13 +62,13 @@ export const ContextMenuEl = (
           </li>
           <li
             onClick={() => {
-              console.log("Banned " + contextMenuSender);
+              console.log("Banned " + target_user);
               ChangeStatus(
                 "ban",
                 socket,
                 channel.name,
                 current_user,
-                contextMenuSender
+                target_user
               );
               setContextMenu(false);
             }}
@@ -77,18 +77,21 @@ export const ContextMenuEl = (
           </li>
           <li
             onClick={() => {
-              console.log("Invited " + contextMenuSender);
+              console.log("Invited " + target_user);
+              var channel_name = prompt(
+                "Which channel do you want to send an invitation for ?"
+              );
               ChangeStatus(
                 "invite",
                 socket,
-                channel.name,
+                channel_name,
                 current_user,
-                contextMenuSender
+                target_user
               );
               setContextMenu(false);
             }}
           >
-            Ban
+            Invite
           </li>
         </div>
       ) : (
@@ -98,18 +101,18 @@ export const ContextMenuEl = (
         <div>
           <li
             onClick={() => {
-              console.log("Made operator " + contextMenuSender);
+              console.log("Made operator " + target_user);
               ChangeStatus(
                 "operator",
                 socket,
                 channel.name,
                 current_user,
-                contextMenuSender
+                target_user
               );
               setContextMenu(false);
             }}
           >
-            {checkStatus(channel, contextMenuSender) === Status.Operator
+            {checkStatus(channel, target_user) === Status.Operator
               ? "Remove from admins"
               : "Make admin"}
           </li>
@@ -129,7 +132,7 @@ export const ContextMenuEl = (
         left: contextMenuPos.x + 15,
       }}
     >
-      <p>{contextMenuSender}</p>
+      <p>{target_user}</p>
       {options}
       <button onClick={() => setContextMenu(false)}>✕</button>
     </div>
