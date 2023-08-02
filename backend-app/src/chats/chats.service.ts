@@ -11,6 +11,7 @@ import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
 import { ChatParticipantsService } from 'src/chat-participants/chat-participants.service';
 import { ChatCreationError } from 'src/exceptions/bad-request.interceptor';
 import { UsersService } from 'src/users/users.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class ChatsService {
@@ -25,6 +26,35 @@ export class ChatsService {
     private userService: UsersService,
   ) {}
 
+  private async hashPassword(password: string) {
+    const salt = await bcrypt.genSalt();
+    const hash = await bcrypt.hash(password, salt);
+    console.log("[Chat Service] Hashed password \"", password, "\"", hash);
+    return hash;
+  }
+
+  private async checkPassword(password: string, hash: string) {
+    const isMatch = await bcrypt.compare(password, hash);
+    console.log("[Chat Service] Password \"", password, "\" is match?", isMatch);
+    return isMatch;
+  }
+
+  public async checkPasswordForChatByName(password: string, chatName: string) {
+    const chatRoom = await this.fetchChatByName(chatName);
+    if (!chatRoom) {
+      return false;
+    }
+    return this.checkPassword(password, chatRoom.password);
+  }
+
+  public async checkPasswordForChatByID(password: string, chatRoomID: number) {
+    const chatRoom = await this.fetchChatByID(chatRoomID);
+    if (!chatRoom) {
+      return false;
+    }
+    return this.checkPassword(password, chatRoom.password);
+  }
+
   fetchChats() {
     return this.chatRepository.find({
       relations: ['participants.participant'],
@@ -33,9 +63,10 @@ export class ChatsService {
 
   async createChat(chatDetails: createChatParams) {
     const user = await this.userService.fetchUserByUsername(chatDetails.owner);
+    const passwordHash = await this.hashPassword(chatDetails.password);
     const newChat = this.chatRepository.create({
       name: chatDetails.name,
-      password: chatDetails.password,
+      password: passwordHash,
       private: chatDetails.private,
       directMessage: false,
       createdAt: new Date(),
