@@ -414,18 +414,20 @@ export const Chat = () => {
             };
             return newUser;
           });
+          console.log("Participants ", participant_list);
           var chan: Channel = {
             name: e.name,
             private: e.private,
             owner: e.username,
             participants: participant_list.filter(
-              (user: any) => !user.banned && user.invitedUntil != 0
+              (user: any) => !user.banned && user.invitedUntil == 0
             ), // TODO : double check it works
             banned: participant_list.filter((user: any) => user.banned),
             invited: participant_list.filter(
               (user: any) => user.invitedUntil != 0
             ),
           };
+          console.log("Channel ", chan.name, chan);
           setChannels((prev) => [...prev, chan]);
           console.log(channels);
           return e;
