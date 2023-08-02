@@ -78,7 +78,7 @@ export function ChangeStatus(
   target_name: string,
   lenght_in_minutes: number = 0
 ) {
-  const status_values = ["mute", "kick", "ban", "operator"];
+  const status_values = ["mute", "kick", "ban", "operator", "invite"];
   if (!status_values.includes(status)) return;
   if (status === "mute") {
     socket.emit(status, {
@@ -288,6 +288,7 @@ export const Chat = () => {
     });
 
     socket.on("invite", (info: any) => {
+      console.log("Received invite info");
       setChannels((prev) => {
         const temp = [...prev];
         return temp.map((chan) => {
@@ -414,22 +415,19 @@ export const Chat = () => {
             };
             return newUser;
           });
-          console.log("Participants ", participant_list);
           var chan: Channel = {
             name: e.name,
             private: e.private,
-            owner: e.username,
+            owner: participant_list.find((u: any) => u.owner).username,
             participants: participant_list.filter(
               (user: any) => !user.banned && user.invitedUntil == 0
-            ), // TODO : double check it works
+            ),
             banned: participant_list.filter((user: any) => user.banned),
             invited: participant_list.filter(
               (user: any) => user.invitedUntil != 0
             ),
           };
-          console.log("Channel ", chan.name, chan);
           setChannels((prev) => [...prev, chan]);
-          console.log(channels);
           return e;
         });
       });
