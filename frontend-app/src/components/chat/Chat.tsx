@@ -78,7 +78,7 @@ export function ChangeStatus(
   target_name: string,
   lenght_in_minutes: number = 0
 ) {
-  const status_values = ["mute", "kick", "ban", "operator", "invite"];
+  const status_values = ["mute", "kick", "ban", "operator", "invite", "dm"];
   if (!status_values.includes(status)) return;
   if (status === "mute") {
     socket.emit(status, {
@@ -396,6 +396,35 @@ export const Chat = () => {
       });
     });
 
+    socket.on("dm", (info: any) => {
+      console.log(info);
+      var user1: User = {
+        username: info.user1,
+        owner: false,
+        operator: false,
+        banned: false,
+        mutedUntil: new Date().getTime(),
+        invitedUntil: 0,
+      };
+      var user2: User = {
+        username: info.user2,
+        owner: false,
+        operator: false,
+        banned: false,
+        mutedUntil: new Date().getTime(),
+        invitedUntil: 0,
+      };
+      var channel: Channel = {
+        name: info.name,
+        participants: [user1, user2],
+        banned: [],
+        invited: [],
+        private: true,
+        owner: "", // TODO: add dm true
+      };
+      setChannels((prev) => [...prev, channel]);
+    });
+
     if (channels.length === 0) {
       fetch("http://localhost:3001/chats").then(async (response) => {
         const data = await response.json();
@@ -469,6 +498,7 @@ export const Chat = () => {
       socket.off("toggle private");
       socket.off("invite");
       socket.off("accept invite");
+      socket.off("dm");
     };
   }, []);
 

@@ -17,6 +17,7 @@ export const ContextMenuEl = (
   if (!contextMenu) {
     return <div></div>;
   }
+  // TODO: refact li
   var options = (
     <ul>
       <li
@@ -26,6 +27,15 @@ export const ContextMenuEl = (
         }}
       >
         Block
+      </li>
+      <li
+        onClick={() => {
+          console.log("DM " + target_user);
+          ChangeStatus("dm", socket, "", current_user, target_user);
+          setContextMenu(false);
+        }}
+      >
+        DM
       </li>
       {checkStatus(channel, current_user) !== Status.Operator && // TODO: double check logic
       checkStatus(channel, target_user) !== Status.Owner ? (

@@ -442,4 +442,21 @@ export class ChatGateway implements OnModuleInit {
       console.log(e);
     }
   }
+
+  @SubscribeMessage('dm')
+  async onDM(@MessageBody() info: any) {
+    try {
+      var params = {
+        name: `DM: ${info.current_user} / ${info.target_user}`,
+        password: '',
+        user1: info.current_user,
+        user2: info.target_user,
+      };
+      this.chatsService.createChatDM(params);
+      this.server.emit('dm', params);
+    } catch (e) {
+      console.log('DM Error');
+      console.log(e);
+    }
+  }
 }
