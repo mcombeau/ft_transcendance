@@ -37,6 +37,7 @@ export class ChatsService {
       name: chatDetails.name,
       password: chatDetails.password,
       private: chatDetails.private,
+      directMessage: false,
       createdAt: new Date(),
     });
     const newSavedChat = await this.chatRepository
@@ -67,6 +68,7 @@ export class ChatsService {
       name: chatDetails.name,
       password: chatDetails.password,
       private: true,
+      directMessage: true,
       createdAt: new Date(),
     });
     const newSavedChat = await this.chatRepository

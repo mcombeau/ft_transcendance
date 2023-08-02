@@ -14,6 +14,10 @@ export class createChatDto {
   private: boolean;
 
   @IsNotEmpty()
+  @IsBoolean()
+  directMessage: boolean;
+
+  @IsNotEmpty()
   @IsAlphanumeric()
   owner: string;
 }
@@ -30,6 +34,10 @@ export class createChatDMDto {
   @IsNotEmpty()
   @IsBoolean()
   private: boolean;
+
+  @IsNotEmpty()
+  @IsBoolean()
+  directMessage: boolean;
 
   @IsNotEmpty()
   @IsAlphanumeric()

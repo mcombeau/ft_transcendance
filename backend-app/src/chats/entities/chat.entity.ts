@@ -17,6 +17,9 @@ export class ChatEntity {
   private: boolean;
 
   @Column()
+  directMessage: boolean;
+
+  @Column()
   createdAt: Date;
 
   @OneToMany(() => ChatMessageEntity, (chatMessage) => chatMessage.chatRoom, {
