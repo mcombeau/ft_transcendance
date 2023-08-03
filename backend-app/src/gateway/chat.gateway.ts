@@ -10,7 +10,10 @@ import { error } from 'console';
 import { Server, Socket as ioSocket } from 'socket.io';
 import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
 import { ChatParticipantsService } from 'src/chat-participants/chat-participants.service';
+import { ChatParticipantEntity } from 'src/chat-participants/entities/chat-participant.entity';
 import { ChatsService } from 'src/chats/chats.service';
+import { ChatEntity } from 'src/chats/entities/chat.entity';
+import { ChatCreationError, ChatJoinError, ChatMuteError, ChatPermissionError } from 'src/exceptions/bad-request.interceptor';
 import { UsersService } from 'src/users/users.service';
 
 @WebSocketGateway({
@@ -34,12 +37,80 @@ export class ChatGateway implements OnModuleInit {
 
   onModuleInit() {
     this.server.on('connection', (socket) => {
+      console.log('[Chat Gateway]: A user connected', socket.id);
       socket.broadcast.emit('connection event');
       socket.on('disconnect', () => {
-        console.log('a user disconnected');
+        console.log('[Chat Gateway]: A user disconnected', socket.id);
         socket.broadcast.emit('disconnection event');
       });
     });
+  }
+
+  // -------------------- EVENTS
+
+  @SubscribeMessage('add chat')
+  async onAddChat(@MessageBody() info: any) {
+    console.log('[Chat Gateway]: Add chat', info);
+    try {
+      await this.chatsService.createChat(info);
+      this.server.emit('add chat', info);
+    }
+    catch (e) {
+      console.log("[Chat Gateway]: Chat creation error:", e.message);
+    }
+  }
+
+  @SubscribeMessage('dm')
+  async onDM(@MessageBody() info: any) {
+    try {
+      var params = {
+        name: `DM: ${info.current_user} / ${info.target_user}`,
+        password: '',
+        user1: info.current_user,
+        user2: info.target_user,
+      };
+      this.chatsService.createChatDM(params);
+      this.server.emit('dm', params);
+    } catch (e) {
+      console.log("[Chat Gateway]: DM creation error:", e.message);
+    }
+  }
+
+  @SubscribeMessage('delete chat')
+  async onDeleteChat(@MessageBody() info: any) {
+    console.log('[Chat Gateway]: Delete chat', info);
+    try {
+      const chat = await this.chatsService.fetchChatByName(info);
+      await this.chatsService.deleteChatByID(chat.id);
+      this.server.emit('delete chat', info);
+    }
+    catch (e) {
+      console.log("[Chat Gateway]: Chat deletion error:", e.message);
+    }
+  }
+
+  @SubscribeMessage('join chat')
+  async onJoinChat(@MessageBody() info: any) {
+    console.log("[Chat Gateway]: Join chat", info);
+    try {
+      await this.addUserToChat(info.username, info.channel_name);
+      this.server.emit('join chat', info);
+    } catch (e) {
+      console.log("[Chat Gateway]: Chat join error:", e.message);
+    }
+  }
+
+  @SubscribeMessage('leave chat')
+  async onLeaveChat(@MessageBody() info: any) {
+    try {
+      this.chatsService.removeParticipantFromChatByUsername(
+        info.channel_name,
+        info.username,
+      );
+      this.server.emit('leave chat', info);
+    } catch (e) {
+      console.log("[Chat Gateway]: Chat leave error:", e.message);
+    }
   }
 
   @SubscribeMessage('chat message')
@@ -70,16 +141,15 @@ export class ChatGateway implements OnModuleInit {
       });
   }
 
-  @SubscribeMessage('delete chat')
-  async onDeleteChat(@MessageBody() info: any) {
-    console.log('[Chat Gateway]: Delete chat', info);
-    var entity = await this.chatsService.fetchChatByName(info);
-    var id = entity.id;
-
-    this.chatsService.deleteChatByID(id).catch((err: any) => {
-      console.log(err);
-    });
-    this.server.emit('delete chat', info);
+  @SubscribeMessage('mute')
+  async onMute(@MessageBody() info: any) {
+    try {
+      info.mute_date = await this.toggleMute(info.channel_name, info.current_user, info.target_user, info.lenght_in_minutes);
+      this.server.emit('mute', info);
+    }
+    catch (e) {
+      console.log("[Chat Gateway]: User mute error:", e.message);
+    }
   }
 
   @SubscribeMessage('toggle private')
@@ -104,123 +174,6 @@ export class ChatGateway implements OnModuleInit {
     this.server.emit('toggle private', info);
   }
 
-  @SubscribeMessage('add chat')
-  async onAddChat(@MessageBody() info: any) {
-    console.log('[Chat Gateway]: Add chat', info);
-    try {
-      await this.chatsService.createChat(info);
-      this.server.emit('add chat', info);
-    }
-    catch (e) {
-      console.log("[Chat Gateway]: Chat creation error:", e.message);
-    }
-  }
-
-  @SubscribeMessage('join chat')
-  async onJoinChat(@MessageBody() info: any) {
-    console.log("[Chat Gateway]: Join chat", info);
-    try {
-      if (
-        await this.chatParticipantsService.fetchParticipantByUserChatNames(
-          info.username,
-          info.channel_name,
-        )
-      ) {
-        if (
-          await this.chatParticipantsService.userIsBanned(
-            info.channel_name,
-            info.username,
-          )
-        ) {
-          console.log("Can't join chat if you are banned");
-          return;
-        }
-        console.log('User already in channel');
-        return;
-      } else if (
-        (await this.chatsService.fetchChatByName(info.channel_name)).private
-      ) {
-        console.log("Can't join private chat");
-        return;
-      }
-      this.chatsService.addParticipantToChatByUsername(
-        info.channel_name,
-        info.username,
-      );
-      this.server.emit('join chat', info);
-    } catch (e) {
-      console.log("[Chat Gateway]: Chat join error:", e.message);
-    }
-  }
-
-  @SubscribeMessage('leave chat')
-  async onLeaveChat(@MessageBody() info: any) {
-    try {
-      this.chatsService.removeParticipantFromChatByUsername(
-        info.channel_name,
-        info.username,
-      );
-      this.server.emit('leave chat', info);
-    } catch (e) {
-      console.log("[Chat Gateway]: Chat leave error:", e.message);
-    }
-  }
-
-  @SubscribeMessage('mute')
-  async onMute(@MessageBody() info: any) {
-    try {
-      if (
-        !this.chatParticipantsService.userIsOperator(
-          info.channel_name,
-          info.current_user,
-        )
-      ) {
-        console.log("This user is not operator. They can't mute other users.");
-      } else {
-        var participant =
-          await this.chatParticipantsService.fetchParticipantByUserChatNames(
-            info.target_user,
-            info.channel_name,
-          );
-
-        if (participant.owner) {
-          console.log("Can't mute the chat owner.");
-        } else if (participant.banned) {
-          console.log("Can't mute someone who is already banned.");
-        } else {
-          var isCurrentlyMuted = await this.chatParticipantsService.userIsMuted(
-            info.channel_name,
-            info.target_user,
-          );
-          if (isCurrentlyMuted) {
-            var newMutedTimestamp = new Date().getTime();
-          } else if (!isCurrentlyMuted) {
-            newMutedTimestamp = new Date(
-              Date.now() + info.lenght_in_minutes * (60 * 1000),
-            ).getTime();
-          }
-          var participant_update = {
-            operator: participant.operator,
-            banned: participant.banned,
-            owner: participant.owner,
-            mutedUntil: newMutedTimestamp,
-            invitedUntil: participant.invitedUntil,
-          };
-          console.log(`[Chat gateway]: Toggling mute `, participant_update);
-          await this.chatParticipantsService.updateParticipantByID(
-            participant.id,
-            participant_update,
-          );
-          info.mute_date = participant_update.mutedUntil;
-          this.server.emit('mute', info);
-          console.log('Toggled mute ' + info.target_user);
-          console.log(new Date(participant_update.mutedUntil));
-        }
-      }
-    } catch (e) {
-      console.log("[Chat Gateway]: User mute error:", e.message);
-    }
-  }
 
   @SubscribeMessage('invite')
   async onInvite(@MessageBody() info: any) {
@@ -335,38 +288,10 @@ export class ChatGateway implements OnModuleInit {
   @SubscribeMessage('operator')
   async onMakeOperator(@MessageBody() info: any) {
     try {
-      if (
-        !this.chatParticipantsService.userIsOwner(
-          info.channel_name,
-          info.current_user,
-        )
-      ) {
-        console.log(
-          "This user is not owner. They can't make other users operator.",
-        );
-      } else {
-        var participant =
-          await this.chatParticipantsService.fetchParticipantByUserChatNames(
-            info.target_user,
-            info.channel_name,
-          );
-
-        if (participant.owner) {
-          console.log('The chan owner is always operator.');
-        } else if (participant.banned) {
-          console.log("Can't make operator someone who is already banned.");
-        } else {
-          this.chatParticipantsService.updateParticipantByID(participant.id, {
-            operator: !participant.operator,
-            banned: participant.banned,
-            owner: participant.owner,
-            mutedUntil: participant.mutedUntil,
-            invitedUntil: participant.invitedUntil,
-          });
-          this.server.emit('operator', info);
-        }
-      }
-    } catch (e) {
+      await this.toggleOperator(info.channel_name, info.current_user, info.target_user);
+      this.server.emit('operator', info);
+    }
+    catch (e) {
       console.log("[Chat Gateway]: Operator promotion error:", e.message);
     }
   }
@@ -374,38 +299,10 @@ export class ChatGateway implements OnModuleInit {
   @SubscribeMessage('ban')
   async onBan(@MessageBody() info: any) {
     try {
-      if (
-        !this.chatParticipantsService.userIsOperator(
-          info.channel_name,
-          info.current_user,
-        )
-      ) {
-        console.log("This user is not operator. They can't ban other users.");
-      } else {
-        var participant =
-          await this.chatParticipantsService.fetchParticipantByUserChatNames(
-            info.target_user,
-            info.channel_name,
-          );
-
-        if (participant.owner) {
-          console.log("Can't ban the chat owner.");
-        } else {
-          if (participant.banned) {
-            this.chatParticipantsService.deleteParticipantByID(participant.id);
-          } else {
-            this.chatParticipantsService.updateParticipantByID(participant.id, {
-              operator: participant.operator,
-              banned: true,
-              owner: participant.owner,
-              mutedUntil: participant.mutedUntil,
-              invitedUntil: participant.invitedUntil,
-            });
-          }
-          this.server.emit('ban', info);
-        }
-      }
-    } catch (e) {
+      await this.banUser(info.channel_name, info.current_user, info.target_user);
+      this.server.emit('ban', info);
+    }
+    catch (e) {
       console.log("[Chat Gateway]: User ban error:", e.message);
     }
   }
@@ -413,49 +310,186 @@ export class ChatGateway implements OnModuleInit {
   @SubscribeMessage('kick')
   async onKick(@MessageBody() info: any) {
     try {
-      if (
-        !this.chatParticipantsService.userIsOperator(
-          info.channel_name,
-          info.current_user,
-        )
-      ) {
-        console.log("This user is not operator. They can't kick other users.");
-      } else {
-        var participant =
-          await this.chatParticipantsService.fetchParticipantByUserChatNames(
-            info.target_user,
-            info.channel_name,
-          );
-        if (participant.owner) {
-          console.log("Can't kick the chat owner.");
-        } else if (participant.banned) {
-          console.log("Can't kick someone who is already banned.");
-        } else {
-          this.chatParticipantsService.deleteParticipantInChatByUsername(
-            info.target_user,
-            info.channel_name,
-          );
-          this.server.emit('kick', info);
-        }
-      }
-    } catch (e) {
+      await this.kickUser(info.channel_name, info.current_user, info.target_user);
+      this.server.emit('kick', info);
+    }
+    catch (e) {
       console.log("[Chat Gateway]: User kick error:", e.message);
     }
   }
 
-  @SubscribeMessage('dm')
-  async onDM(@MessageBody() info: any) {
-    try {
-      var params = {
-        name: `DM: ${info.current_user} / ${info.target_user}`,
-        password: '',
-        user1: info.current_user,
-        user2: info.target_user,
-      };
-      this.chatsService.createChatDM(params);
-      this.server.emit('dm', params);
-    } catch (e) {
-      console.log("[Chat Gateway]: DM creation error:", e.message);
+
+  // --------------------  PERMISSION CHECKS
+
+
+
+
+  private async getParticipant(chatRoomName: string, username: string) {
+    const chatRoom = await this.chatsService.fetchChatByName(chatRoomName);
+    if (! chatRoom) {
+      throw new ChatPermissionError(`Chat '${chatRoomName} does not exist.`);
     }
+    const userParticipant = await this.chatParticipantsService.fetchParticipantByUserChatNames(username, chatRoomName);
+    if (!userParticipant) {
+      throw new ChatPermissionError(`User '${username} is not in or invited to chat '${chatRoomName}`);
+    }
+    return userParticipant;
+  }
+
+  private async checkUserIsOwner(user: ChatParticipantEntity) {
+    if (!user) {
+      throw new ChatPermissionError(`Unexpected error during owner permission check: participant does not exist.`);
+    }
+    if (!user.owner) {
+      throw new ChatPermissionError(`User '${user.participant.username}' is not owner of chat '${user.chatRoom.name}'.`);
+    }
+  }
+
+  private async checkUserIsNotOwner(user: ChatParticipantEntity) {
+    if (!user) {
+      throw new ChatPermissionError(`Unexpected error during owner permission check: participant does not exist.`);
+    }
+    if (user.owner) {
+      throw new ChatPermissionError(`User '${user.participant.username}' is owner of chat '${user.chatRoom.name}'.`);
+    }
+  }
+
+  private async checkUserHasOperatorPermissions(user: ChatParticipantEntity) {
+    if (!user) {
+      throw new ChatPermissionError(`Unexpected error during operator permission check: participant does not exist.`);
+    }
+    if (!user.operator && !user.owner) {
+      throw new ChatPermissionError(`User '${user.participant.username}' does not have operator privileges in chat '${user.chatRoom.name}'.`);
+    }
+  }
+
+  private async checkUserIsNotOperator(user: ChatParticipantEntity) {
+    if (!user) {
+      throw new ChatPermissionError(`Unexpected error during operator permission check: participant does not exist.`);
+    }
+    if (user.operator || user.owner) {
+      throw new ChatPermissionError(`User '${user.participant.username}' is operator of chat '${user.chatRoom.name}'.`);
+    }
+  }
+
+  private async checkUserIsNotBanned(user: ChatParticipantEntity) {
+    if (!user) {
+      throw new ChatPermissionError(`Unexpected error during operator permission check: participant does not exist.`);
+    }
+    if (user.banned) {
+      throw new ChatPermissionError(`User '${user.participant.username}' is banned from chat '${user.chatRoom.name}'.`);
+    }
+  }
+
+
+  // -------------------- HANDLERS
+  
+
+  private async addUserToChat(username: string, chatRoomName: string) {
+    const chatRoom = await this.chatsService.fetchChatByName(chatRoomName);
+    const participant = await this.chatParticipantsService.fetchParticipantByUserChatNames(
+      username,
+      chatRoomName,
+    );
+    if (!chatRoom) {
+      throw new ChatJoinError(`Chat '${chatRoomName}' does not exist.`);
+    }
+    if (chatRoom.private === true) {
+      throw new ChatJoinError(`Chat '${chatRoomName}' is private.`);
+    }
+    if (participant && participant.invitedUntil === 0) {
+      throw new ChatJoinError(`User '${username}' is already in chat '${chatRoomName}'.`);
+    }
+    if (participant && participant.banned) {
+      throw new ChatJoinError(`User '${username}' is banned from chat '${chatRoomName}'.`);
+    }
+    this.chatsService.addParticipantToChatByUsername(
+      chatRoomName,
+      username,
+    );
+  }
+
+  private async toggleMute(chatRoomName: string, username: string, targetUsername: string, minutes: number) {
+    const user = await this.getParticipant(chatRoomName, username);
+    const target = await this.getParticipant(chatRoomName, targetUsername);
+
+    await this.checkUserHasOperatorPermissions(user);
+    await this.checkUserIsNotOperator(target);
+    await this.checkUserIsNotBanned(target);
+
+    const isCurrentlyMuted = await this.chatParticipantsService.userIsMuted(
+      chatRoomName,
+      targetUsername,
+      );
+    if (isCurrentlyMuted) {
+      var newMutedTimestamp = new Date().getTime();
+    } else if (!isCurrentlyMuted) {
+      newMutedTimestamp = new Date(
+        Date.now() + minutes * (60 * 1000),
+        ).getTime();
+    }
+    var participant_update = {
+      operator: target.operator,
+      banned: target.banned,
+      owner: target.owner,
+      mutedUntil: newMutedTimestamp,
+      invitedUntil: target.invitedUntil,
+    };
+    await this.chatParticipantsService.updateParticipantByID(
+      target.id,
+      participant_update,
+    );
+    return (participant_update.mutedUntil);
+  }
+
+  private async toggleOperator(chatRoomName: string, username: string, targetUsername: string) {
+    const user = await this.getParticipant(chatRoomName, username);
+    const target = await this.getParticipant(chatRoomName, targetUsername);
+
+    await this.checkUserIsOwner(user);
+    await this.checkUserIsNotOwner(target);
+    await this.checkUserIsNotBanned(target);
+    
+    this.chatParticipantsService.updateParticipantByID(target.id, {
+      operator: !target.operator,
+      banned: target.banned,
+      owner: target.owner,
+      mutedUntil: target.mutedUntil,
+      invitedUntil: target.invitedUntil,
+    });
+  }
+
+  private async banUser(chatRoomName: string, username: string, targetUsername: string) {
+    const user = await this.getParticipant(chatRoomName, username);
+    const target = await this.getParticipant(chatRoomName, targetUsername);
+
+    await this.checkUserHasOperatorPermissions(user);
+    await this.checkUserIsNotOwner(target);
+
+    if (target.banned) {
+      this.chatParticipantsService.deleteParticipantByID(target.id);
+    } else {
+      this.chatParticipantsService.updateParticipantByID(target.id, {
+        operator: target.operator,
+        banned: true,
+        owner: target.owner,
+        mutedUntil: target.mutedUntil,
+        invitedUntil: target.invitedUntil,
+      });
+    }
+  }
+
+  private async kickUser(chatRoomName: string, username: string, targetUsername: string) {
+    const user = await this.getParticipant(chatRoomName, username);
+    const target = await this.getParticipant(chatRoomName, targetUsername);
+
+    await this.checkUserHasOperatorPermissions(user);
+    await this.checkUserIsNotOwner(target);
+    await this.checkUserIsNotBanned(target);
+
+    this.chatParticipantsService.deleteParticipantInChatByUsername(
+      target.participant.username,
+      chatRoomName,
+    );
   }
 }
