@@ -12,6 +12,7 @@ import { ChatParticipantsService } from 'src/chat-participants/chat-participants
 import { ChatCreationError } from 'src/exceptions/bad-request.interceptor';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
+import { WsException } from '@nestjs/websockets';
 
 @Injectable()
 export class ChatsService {
@@ -61,7 +62,29 @@ export class ChatsService {
     });
   }
 
+  fetchPublicChats() {
+    return this.chatRepository.find({
+      where: { private: false },
+      relations: ['participants.participant'],
+    })
+  }
+
+  fetchDMChats() {
+    return this.chatRepository.find({
+      where: { directMessage: true },
+      relations: ['participants.participant'],
+    })
+  }
+
+  async fetchUserChatsByUsername( username: string ) {
+    const user = await this.userService.fetchUserByUsername(username);
+    return this.chatParticipantService.fetchParticipantsByUserID(user.id);;
+  }
+
   async createChat(chatDetails: createChatParams) {
+    if (chatDetails.name.startsWith("DM:")) {
+      throw new ChatCreationError(`'${chatDetails.name}': Chat name cannot start with "DM:"`);
+    }
     const user = await this.userService.fetchUserByUsername(chatDetails.owner);
     const passwordHash = await this.hashPassword(chatDetails.password);
     const newChat = this.chatRepository.create({
@@ -93,6 +116,9 @@ export class ChatsService {
   }
 
   async createChatDM(chatDetails: createDMParams) {
+    if (!chatDetails.name.startsWith("DM:")) {
+      throw new ChatCreationError(`'${chatDetails.name}': DM chat must start with "DM:"`);
+    }
     const user1 = await this.userService.fetchUserByUsername(chatDetails.user1);
     const user2 = await this.userService.fetchUserByUsername(chatDetails.user2);
     const newChat = this.chatRepository.create({

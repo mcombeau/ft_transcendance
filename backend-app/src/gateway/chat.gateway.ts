@@ -7,7 +7,6 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { error } from 'console';
-import { partition } from 'rxjs';
 import { Server, Socket as ioSocket } from 'socket.io';
 import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
 import { ChatParticipantsService } from 'src/chat-participants/chat-participants.service';
@@ -73,6 +72,7 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('delete chat')
   async onDeleteChat(@MessageBody() info: any) {
+    console.log('[Chat Gateway]: Delete chat', info);
     var entity = await this.chatsService.fetchChatByName(info);
     var id = entity.id;
 
@@ -84,6 +84,7 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('toggle private')
   async onTogglePrivate(@MessageBody() info: any) {
+    console.log('[Chat Gateway]: Toggle private chat');
     var chat = await this.chatsService.fetchChatByName(info.channel_name);
     var id = chat.id;
 
@@ -105,13 +106,19 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('add chat')
   async onAddChat(@MessageBody() info: any) {
-    console.log('Server add chat');
-    this.chatsService.createChat(info);
-    this.server.emit('add chat', info);
+    console.log('[Chat Gateway]: Add chat', info);
+    try {
+      await this.chatsService.createChat(info);
+      this.server.emit('add chat', info);
+    }
+    catch (e) {
+      console.log("[Chat Gateway]: Chat creation error:", e.message);
+    }
   }
 
   @SubscribeMessage('join chat')
   async onJoinChat(@MessageBody() info: any) {
+    console.log("[Chat Gateway]: Join chat", info);
     try {
       if (
         await this.chatParticipantsService.fetchParticipantByUserChatNames(
@@ -142,8 +149,7 @@ export class ChatGateway implements OnModuleInit {
       );
       this.server.emit('join chat', info);
     } catch (e) {
-      console.log('Chat join Error');
-      console.log(e);
+      console.log("[Chat Gateway]: Chat join error:", e.message);
     }
   }
 
@@ -156,7 +162,7 @@ export class ChatGateway implements OnModuleInit {
       );
       this.server.emit('leave chat', info);
     } catch (e) {
-      console.log('Chat leave Error');
+      console.log("[Chat Gateway]: Chat leave error:", e.message);
     }
   }
 
@@ -212,8 +218,7 @@ export class ChatGateway implements OnModuleInit {
         }
       }
     } catch (e) {
-      console.log('Mute Error');
-      console.log(e);
+      console.log("[Chat Gateway]: User mute error:", e.message);
     }
   }
 
@@ -267,8 +272,7 @@ export class ChatGateway implements OnModuleInit {
         this.server.emit('invite', info);
       }
     } catch (e) {
-      console.log('Invite Error');
-      console.log(e);
+      console.log("[Chat Gateway]: Chat invite error:", e.message);
     }
   }
 
@@ -324,8 +328,7 @@ export class ChatGateway implements OnModuleInit {
         }
       }
     } catch (e) {
-      console.log('Invite Error');
-      console.log(e);
+      console.log("[Chat Gateway]: Chat accept invite error:", e.message);
     }
   }
 
@@ -364,8 +367,7 @@ export class ChatGateway implements OnModuleInit {
         }
       }
     } catch (e) {
-      console.log('Operator making Error');
-      console.log(e);
+      console.log("[Chat Gateway]: Operator promotion error:", e.message);
     }
   }
 
@@ -404,8 +406,7 @@ export class ChatGateway implements OnModuleInit {
         }
       }
     } catch (e) {
-      console.log('Ban Error');
-      console.log(e);
+      console.log("[Chat Gateway]: User ban error:", e.message);
     }
   }
 
@@ -438,8 +439,7 @@ export class ChatGateway implements OnModuleInit {
         }
       }
     } catch (e) {
-      console.log('Kick Error');
-      console.log(e);
+      console.log("[Chat Gateway]: User kick error:", e.message);
     }
   }
 
@@ -455,8 +455,7 @@ export class ChatGateway implements OnModuleInit {
       this.chatsService.createChatDM(params);
       this.server.emit('dm', params);
     } catch (e) {
-      console.log('DM Error');
-      console.log(e);
+      console.log("[Chat Gateway]: DM creation error:", e.message);
     }
   }
 }

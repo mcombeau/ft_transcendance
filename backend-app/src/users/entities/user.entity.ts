@@ -15,5 +15,5 @@ export class UserEntity {
     @OneToMany( () => ChatMessageEntity, (chatMessage) => chatMessage.sender, { nullable: true } )
     messages: ChatMessageEntity[];
     @OneToMany( () => ChatParticipantEntity, (participant) => participant.participant, { nullable: true } )
-    chatRooms: ChatMessageEntity[];
+    chatRooms: ChatParticipantEntity[];
 }
