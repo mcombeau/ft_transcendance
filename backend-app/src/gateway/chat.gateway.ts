@@ -309,7 +309,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
 
-  
+
   // -------------------- HANDLERS
   
 
@@ -360,13 +360,10 @@ export class ChatGateway implements OnModuleInit {
     await this.checkUserIsNotOperator(target);
     await this.checkUserIsNotBanned(target);
 
-    const isCurrentlyMuted = await this.chatParticipantsService.userIsMuted(
-      chatRoomName,
-      targetUsername,
-      );
-    if (isCurrentlyMuted) {
+    if (user.mutedUntil > new Date().getTime()) {
       var newMutedTimestamp = new Date().getTime();
-    } else if (!isCurrentlyMuted) {
+    }
+    else {
       newMutedTimestamp = new Date(
         Date.now() + minutes * (60 * 1000),
         ).getTime();
