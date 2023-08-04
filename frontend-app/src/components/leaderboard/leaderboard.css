@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css?family=Muli&display=swap');
 @import url('https://fonts.googleapis.com/css?family=Quicksand&display=swap');
 
-#lead {
+main {
 	min-height: 100vh;
 	background-color: black;
 	display: flex;
@@ -9,7 +9,7 @@
 	justify-content: center;
 }
 
-main {
+#lead {
 	width: 40rem;
 	height: 50rem;
 	background-color: #ffffff;

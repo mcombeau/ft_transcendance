@@ -3,43 +3,41 @@ import "./home.css"
 
 function Home() {
     return (
-        <body>
-            <div id="home">
-            <section class="section">
-                <div class="box-main">
-                    <div class="firstHalf">
-                        <h1 class="text-big">
+        <div id="home">
+            <section className="section">
+                <div className="box-main">
+                    <div className="firstHalf">
+                        <h1 className="text-big">
                             Pong Game
                         </h1>
-                        <p class="text-small">
+                        <p className="text-small">
                             We have made a great implementation of Pong game, which is easy and fun to play.
                         </p>
                     </div>
                 </div>
             </section>
-            <section class="section">
-                <div class="box-main">
-                    <div class="secondHalf">
-                        <h1 class="text-big" id="program">
+            <section className="section">
+                <div className="box-main">
+                    <div className="secondHalf">
+                        <h1 className="text-big" id="program">
                                 Let's start playing
                         </h1>
-                        <NavLink to="/login"><button class="login" role="login">Login</button></NavLink>
+                        <NavLink to="/login"><button className="login" role="login">Login</button></NavLink>
                     </div>
                 </div>
             </section>
-            <footer class="footer">
-                <div class="footer__addr">
-                    <h1 class="footer__logo">Ping Pong</h1>
+            <footer className="footer">
+                <div className="footer__addr">
+                    <h1 className="footer__logo">Ping Pong</h1>
                 </div>
-                <div class="legal">
+                <div className="legal">
                     <p>&copy; 2023 PingPong. All rights reserved.</p>
-                    <div class="legal__links">
-                        <span>Made with <span class="heart">♥</span> from 42</span>
+                    <div className="legal__links">
+                        <span>Made with <span className="heart">♥</span> from 42</span>
                     </div>
                 </div>
             </footer>
         </div>
-    </body>
     )
 }
 

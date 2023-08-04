@@ -15,10 +15,10 @@ import {
 import LogoImg from "./../../ping.svg";
 
 function Navbar() {
-  const [extendNavbar, setExtendNavbar] = useState(false);
+  const [extendnavbar, setExtendNavbar] = useState(false);
 
   return (
-    <NavbarContainer extendNavbar={extendNavbar}>
+    <NavbarContainer extendnavbar={extendnavbar}>
       <NavbarInnerContainer>
         <LeftContainer>
           <NavbarLinkContainer>
@@ -33,7 +33,7 @@ function Navbar() {
                 setExtendNavbar((curr) => !curr);
               }}
             >
-              {extendNavbar ? <>&#10005;</> : <> &#8801;</>}
+              {extendnavbar ? <>&#10005;</> : <> &#8801;</>}
             </OpenLinksButton>
           </NavbarLinkContainer>
         </LeftContainer>
@@ -41,7 +41,7 @@ function Navbar() {
           <Logo src={LogoImg}></Logo>
         </RightContainer>
       </NavbarInnerContainer>
-      {extendNavbar && (
+      {extendnavbar && (
         <NavbarExtendedContainer
           onClick={() => {
                 setExtendNavbar((curr) => !curr);

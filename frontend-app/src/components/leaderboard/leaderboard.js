@@ -2,49 +2,51 @@ import "./leaderboard.css"
 
 function Leaderboard() {
     return (
-    <body id="lead">
-        <main>
+    <main>
+        <div id="lead" >
         <div id="header">
             <h1>Game Ranking</h1>
         </div>
         <div id="leaderboard">
-            <div class="ribbon"></div>
+            <div className="ribbon"></div>
             <table>
-            <tr>
-                <td class="number">1</td>
-                <td class="name">Lee</td>
-                <td class="points">
-                258.244 <img class="gold-medal" src="https://github.com/malunaridev/Challenges-iCodeThis/blob/master/4-leaderboard/assets/gold-medal.png?raw=true" alt="gold medal"/>
-                </td>
-            </tr>
-            <tr>
-                <td class="number">2</td>
-                <td class="name">Mark</td>
-                <td class="points">258.242</td>
-            </tr>
-            <tr>
-                <td class="number">3</td>
-                <td class="name">Fran</td>
-                <td class="points">258.223</td>
-            </tr>
-            <tr>
-                <td class="number">4</td>
-                <td class="name">Sara</td>
-                <td class="points">258.212</td>
-            </tr>
-            <tr>
-                <td class="number">5</td>
-                <td class="name">John</td>
-                <td class="points">258.208</td>
-            </tr>
+                <tbody>
+                    <tr>
+                        <td className="number">1</td>
+                        <td className="name">Lee</td>
+                        <td className="points">
+                        258.244 <img className="gold-medal" src="https://github.com/malunaridev/Challenges-iCodeThis/blob/master/4-leaderboard/assets/gold-medal.png?raw=true" alt="gold medal"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td className="number">2</td>
+                        <td className="name">Mark</td>
+                        <td className="points">258.242</td>
+                    </tr>
+                    <tr>
+                        <td className="number">3</td>
+                        <td className="name">Fran</td>
+                        <td className="points">258.223</td>
+                    </tr>
+                    <tr>
+                        <td className="number">4</td>
+                        <td className="name">Sara</td>
+                        <td className="points">258.212</td>
+                    </tr>
+                    <tr>
+                        <td className="number">5</td>
+                        <td className="name">John</td>
+                        <td className="points">258.208</td>
+                    </tr>
+                </tbody>
             </table>
             <div id="buttons">
-            <button class="exit">back</button>
-            <button class="continue">More</button>
+            <button className="exit">back</button>
+            <button className="continue">More</button>
             </div>
         </div>
-        </main>
-    </body>
+    </div>
+    </main>
     )
 };
 

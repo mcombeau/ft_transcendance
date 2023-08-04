@@ -123,4 +123,20 @@
 }
 
 
+@media screen and (max-width: 800px) {
+	.text-big {
+		font-weight: 300;
+		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+		font-size: 20px;
+		margin-bottom: 10px;
+	}
+	  
+	  .text-small {
+		font-size: 12px;
+		font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+	}
+}
+
+
+
 

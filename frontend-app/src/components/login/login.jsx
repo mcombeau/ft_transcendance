@@ -37,12 +37,12 @@ function Login() {
   };
 
   return (
+  <form onSubmit={createUser}>
     <MainContainer id="login">
       <div className="log">
         <WelcomeText>Welcome to the Game</WelcomeText>
-        <form onSubmit={createUser}>
-          {/* <InputContainer> */}
-          <input
+          <InputContainer>
+          <Input
             type="text"
             placeholder="Username"
             value={username}
@@ -50,12 +50,11 @@ function Login() {
               setUsername(e.target.value);
             }}
           />
-          <input type="password" placeholder="Password" />
-          {/* </InputContainer> */}
+          <Input type="password" placeholder="Password" />
+          </InputContainer>
           <ButtonContainer>
             <Button content="Sign Up" />
           </ButtonContainer>
-        </form>
         <LoginWith>OR LOGIN WITH</LoginWith>
         <HorizontalRule />
         <IconsContainer>
@@ -66,6 +65,7 @@ function Login() {
         <ForgotPassword>Forgot Password?</ForgotPassword>
       </div>
     </MainContainer>
+  </form>
   );
 }
 
