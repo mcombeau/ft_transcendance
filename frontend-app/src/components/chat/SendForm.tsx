@@ -34,6 +34,7 @@ export const SendForm = (
       channel: current_channel.name,
       read: true,
       system: false,
+      invite: false,
     };
     socket.emit("chat message", msg);
     // setMessages((prev) => [...prev, msg]);

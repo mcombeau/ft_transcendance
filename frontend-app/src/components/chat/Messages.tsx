@@ -32,6 +32,13 @@ export const Messages = (
         </div>
       );
     }
+    if (msg.invite === true) {
+      return (
+        <div id="invite">
+          <li>{msg.msg}</li>
+        </div>
+      );
+    }
     if (msg.sender === username) {
       return (
         <div id="rightmessage">

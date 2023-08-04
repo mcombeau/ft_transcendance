@@ -446,14 +446,19 @@ export class ChatGateway implements OnModuleInit {
   @SubscribeMessage('dm')
   async onDM(@MessageBody() info: any) {
     try {
+      if (info.current_user < info.target_user) {
+        var name = `DM: ${info.current_user} / ${info.target_user}`;
+      } else {
+        name = `DM: ${info.target_user} / ${info.current_user}`;
+      }
       var params = {
-        name: `DM: ${info.current_user} / ${info.target_user}`,
+        name: name,
         password: '',
         user1: info.current_user,
         user2: info.target_user,
       };
       this.chatsService.createChatDM(params);
-      this.server.emit('dm', params);
+      this.server.emit('dm', info);
     } catch (e) {
       console.log('DM Error');
       console.log(e);
