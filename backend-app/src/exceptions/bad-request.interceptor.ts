@@ -3,6 +3,7 @@ import { Observable, catchError } from "rxjs";
 import { ChatCreationException } from "./bad-request.exception";
 
 export class ChatCreationError extends Error {}
+export class GameCreationError extends Error {}
 
 @Injectable()
 export class BadRequestInterceptor implements NestInterceptor {

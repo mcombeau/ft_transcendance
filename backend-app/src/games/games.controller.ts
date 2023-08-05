@@ -23,8 +23,6 @@ export class GamesController {
     @ApiUnprocessableEntityResponse({ description: 'Database error. (Unprocessable entity)' })
     @UsePipes(new ValidationPipe())
     createGame(@Body() gameDto: createGameDto) {
-        console.log('A game has been posted');
-        console.log(gameDto);
         return this.gameService.createGame(gameDto);
     }
 
@@ -33,6 +31,36 @@ export class GamesController {
     @ApiBadRequestResponse({ description: 'Bad request.' })
     async getGameByID(@Param('id', ParseIntPipe) id: number) {
         const game = await this.gameService.fetchGameByID(id);
+        if (!game)
+            throw new GameNotFoundError(id.toString());
+        return game;
+    }
+
+    @Get('all/user/:id')
+    @ApiOkResponse({ type: GameEntity, description: 'Get all user games by user ID.' })
+    @ApiBadRequestResponse({ description: 'Bad request.' })
+    async getUserGamesByID(@Param('id', ParseIntPipe) id: number) {
+        const game = await this.gameService.fetchUserAllGamesByID(id);
+        if (!game)
+            throw new GameNotFoundError(id.toString());
+        return game;
+    }
+
+    @Get('won/user/:id')
+    @ApiOkResponse({ type: GameEntity, description: 'Get all user games by user ID.' })
+    @ApiBadRequestResponse({ description: 'Bad request.' })
+    async getUserWonGamesByID(@Param('id', ParseIntPipe) id: number) {
+        const game = await this.gameService.fetchUserWonGamesByID(id);
+        if (!game)
+            throw new GameNotFoundError(id.toString());
+        return game;
+    }
+
+    @Get('lost/user/:id')
+    @ApiOkResponse({ type: GameEntity, description: 'Get all user games by user ID.' })
+    @ApiBadRequestResponse({ description: 'Bad request.' })
+    async getUserLostGamesByID(@Param('id', ParseIntPipe) id: number) {
+        const game = await this.gameService.fetchUserLostGamesByID(id);
         if (!game)
             throw new GameNotFoundError(id.toString());
         return game;
