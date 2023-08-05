@@ -8,6 +8,7 @@ import { GameEntity } from './entities/game.entity';
 import { UsersService } from 'src/users/users.service';
 import { highScoreParams } from './utils/types';
 import { highScoreDto } from './dtos/highScore.dto';
+import { UserNotFoundException } from 'src/exceptions/not-found.exception';
 
 @Controller('games')
 @ApiTags('games')
@@ -44,6 +45,9 @@ export class GamesController {
     @ApiBadRequestResponse({ description: 'Bad request.' })
     async getUserGamesByUsername(@Param('username') username: string) {
         const user = await this.userService.fetchUserByUsername(username);
+        if (!user) {
+            throw new UserNotFoundException(username);
+        }
         const games = await this.gameService.fetchUserAllGamesByID(user.id);
         if (!games)
             throw new GameNotFoundError(username);
@@ -55,6 +59,9 @@ export class GamesController {
     @ApiBadRequestResponse({ description: 'Bad request.' })
     async getUserWonGamesByUsername(@Param('username') username: string) {
         const user = await this.userService.fetchUserByUsername(username);
+        if (!user) {
+            throw new UserNotFoundException(username);
+        }
         const games = await this.gameService.fetchUserWonGamesByID(user.id);
         if (!games)
             throw new GameNotFoundError(username);
@@ -66,6 +73,9 @@ export class GamesController {
     @ApiBadRequestResponse({ description: 'Bad request.' })
     async getUserLostGamesByUsername(@Param('username') username: string) {
         const user = await this.userService.fetchUserByUsername(username);
+        if (!user) {
+            throw new UserNotFoundException(username);
+        }
         const games = await this.gameService.fetchUserLostGamesByID(user.id);
         if (!games)
             throw new GameNotFoundError(username);
@@ -77,6 +87,9 @@ export class GamesController {
     @ApiBadRequestResponse({ description: 'Bad request.' })
     async getUserHighScoreByUsername(@Param('username') username: string) {
         const user = await this.userService.fetchUserByUsername(username);
+        if (!user) {
+            throw new UserNotFoundException(username);
+        }
         const score: highScoreDto = {
             username: username,
             highScore: await this.gameService.fetchUserHighScorebyID(user.id),
