@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { createGameParams, updateGameParams } from './utils/types';
 import { UsersService } from 'src/users/users.service';
 import { GameCreationError } from 'src/exceptions/bad-request.interceptor';
+import { highScoreDto } from './dtos/highScore.dto';
 
 @Injectable()
 export class GamesService {
@@ -49,6 +50,15 @@ export class GamesService {
             relations: ['winner', 'loser'],
           });
         return lostGames;
+    }
+
+    async fetchUserHighScorebyID(userID: number) {
+        const wonGames = await this.fetchUserWonGamesByID(userID);
+        var highScore = 0;
+        wonGames.forEach( (e) => {
+            highScore += e.winnerScore;
+        });
+        return highScore;
     }
 
     async createGame(gameDetails: createGameParams) {
