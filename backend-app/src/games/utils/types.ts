@@ -11,8 +11,3 @@ export type updateGameParams = {
     winnerScore: number;
     loserScore: number;
 };
-
-export type highScoreParams = {
-    username: string,
-    highscore: number
-}
