@@ -5,11 +5,12 @@ import { updateGameDto } from './dtos/updateGame.dto';
 import { GameNotFoundError } from 'src/exceptions/not-found.interceptor';
 import { ApiBadRequestResponse, ApiCreatedResponse, ApiOkResponse, ApiTags, ApiUnprocessableEntityResponse } from '@nestjs/swagger';
 import { GameEntity } from './entities/game.entity';
+import { UsersService } from 'src/users/users.service';
 
 @Controller('games')
 @ApiTags('games')
 export class GamesController {
-    constructor(private gameService: GamesService) {}
+    constructor(private gameService: GamesService, private userService: UsersService) {}
 
     @Get()
     @ApiOkResponse({ type: GameEntity, isArray: true, description: 'Get all game records.' })
@@ -36,34 +37,37 @@ export class GamesController {
         return game;
     }
 
-    @Get('all/user/:id')
-    @ApiOkResponse({ type: GameEntity, description: 'Get all user games by user ID.' })
+    @Get('all/:username')
+    @ApiOkResponse({ type: GameEntity, description: 'Get all user games by username.' })
     @ApiBadRequestResponse({ description: 'Bad request.' })
-    async getUserGamesByID(@Param('id', ParseIntPipe) id: number) {
-        const game = await this.gameService.fetchUserAllGamesByID(id);
-        if (!game)
-            throw new GameNotFoundError(id.toString());
-        return game;
+    async getUserGamesByID(@Param('username') username: string) {
+        const user = await this.userService.fetchUserByUsername(username);
+        const games = await this.gameService.fetchUserAllGamesByID(user.id);
+        if (!games)
+            throw new GameNotFoundError(username);
+        return games;
     }
 
-    @Get('won/user/:id')
-    @ApiOkResponse({ type: GameEntity, description: 'Get all user games by user ID.' })
+    @Get('won/:username')
+    @ApiOkResponse({ type: GameEntity, description: 'Get all user games by username.' })
     @ApiBadRequestResponse({ description: 'Bad request.' })
-    async getUserWonGamesByID(@Param('id', ParseIntPipe) id: number) {
-        const game = await this.gameService.fetchUserWonGamesByID(id);
-        if (!game)
-            throw new GameNotFoundError(id.toString());
-        return game;
+    async getUserWonGamesByID(@Param('username') username: string) {
+        const user = await this.userService.fetchUserByUsername(username);
+        const games = await this.gameService.fetchUserWonGamesByID(user.id);
+        if (!games)
+            throw new GameNotFoundError(username);
+        return games;
     }
 
-    @Get('lost/user/:id')
-    @ApiOkResponse({ type: GameEntity, description: 'Get all user games by user ID.' })
+    @Get('lost/:username')
+    @ApiOkResponse({ type: GameEntity, description: 'Get all user games by username.' })
     @ApiBadRequestResponse({ description: 'Bad request.' })
-    async getUserLostGamesByID(@Param('id', ParseIntPipe) id: number) {
-        const game = await this.gameService.fetchUserLostGamesByID(id);
-        if (!game)
-            throw new GameNotFoundError(id.toString());
-        return game;
+    async getUserLostGamesByID(@Param('username') username: string) {
+        const user = await this.userService.fetchUserByUsername(username);
+        const games = await this.gameService.fetchUserLostGamesByID(user.id);
+        if (!games)
+            throw new GameNotFoundError(username);
+        return games;
     }
 
     @Patch(':id')
