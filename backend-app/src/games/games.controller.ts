@@ -5,11 +5,15 @@ import { updateGameDto } from './dtos/updateGame.dto';
 import { GameNotFoundError } from 'src/exceptions/not-found.interceptor';
 import { ApiBadRequestResponse, ApiCreatedResponse, ApiOkResponse, ApiTags, ApiUnprocessableEntityResponse } from '@nestjs/swagger';
 import { GameEntity } from './entities/game.entity';
+import { UsersService } from 'src/users/users.service';
+import { highScoreParams } from './utils/types';
+import { highScoreDto } from './dtos/highScore.dto';
+import { UserNotFoundException } from 'src/exceptions/not-found.exception';
 
 @Controller('games')
 @ApiTags('games')
 export class GamesController {
-    constructor(private gameService: GamesService) {}
+    constructor(private gameService: GamesService, private userService: UsersService) {}
 
     @Get()
     @ApiOkResponse({ type: GameEntity, isArray: true, description: 'Get all game records.' })
@@ -23,8 +27,6 @@ export class GamesController {
     @ApiUnprocessableEntityResponse({ description: 'Database error. (Unprocessable entity)' })
     @UsePipes(new ValidationPipe())
     createGame(@Body() gameDto: createGameDto) {
-        console.log('A game has been posted');
-        console.log(gameDto);
         return this.gameService.createGame(gameDto);
     }
 
@@ -36,6 +38,63 @@ export class GamesController {
         if (!game)
             throw new GameNotFoundError(id.toString());
         return game;
+    }
+
+    @Get('all/:username')
+    @ApiOkResponse({ type: GameEntity, description: 'Get all user games by username.' })
+    @ApiBadRequestResponse({ description: 'Bad request.' })
+    async getUserGamesByUsername(@Param('username') username: string) {
+        const user = await this.userService.fetchUserByUsername(username);
+        if (!user) {
+            throw new UserNotFoundException(username);
+        }
+        const games = await this.gameService.fetchUserAllGamesByID(user.id);
+        if (!games)
+            throw new GameNotFoundError(username);
+        return games;
+    }
+
+    @Get('won/:username')
+    @ApiOkResponse({ type: GameEntity, description: 'Get user won games by username.' })
+    @ApiBadRequestResponse({ description: 'Bad request.' })
+    async getUserWonGamesByUsername(@Param('username') username: string) {
+        const user = await this.userService.fetchUserByUsername(username);
+        if (!user) {
+            throw new UserNotFoundException(username);
+        }
+        const games = await this.gameService.fetchUserWonGamesByID(user.id);
+        if (!games)
+            throw new GameNotFoundError(username);
+        return games;
+    }
+
+    @Get('lost/:username')
+    @ApiOkResponse({ type: GameEntity, description: 'Get user lost games by username.' })
+    @ApiBadRequestResponse({ description: 'Bad request.' })
+    async getUserLostGamesByUsername(@Param('username') username: string) {
+        const user = await this.userService.fetchUserByUsername(username);
+        if (!user) {
+            throw new UserNotFoundException(username);
+        }
+        const games = await this.gameService.fetchUserLostGamesByID(user.id);
+        if (!games)
+            throw new GameNotFoundError(username);
+        return games;
+    }
+
+    @Get('highscore/:username')
+    @ApiOkResponse({ type: highScoreDto, description: 'Get user highscore by username.' })
+    @ApiBadRequestResponse({ description: 'Bad request.' })
+    async getUserHighScoreByUsername(@Param('username') username: string) {
+        const user = await this.userService.fetchUserByUsername(username);
+        if (!user) {
+            throw new UserNotFoundException(username);
+        }
+        const score: highScoreDto = {
+            username: username,
+            highScore: await this.gameService.fetchUserHighScorebyID(user.id),
+        };
+        return score;
     }
 
     @Patch(':id')
