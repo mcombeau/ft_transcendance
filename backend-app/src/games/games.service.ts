@@ -61,6 +61,24 @@ export class GamesService {
         return highScore;
     }
 
+    async fetchAllHighScores() {
+        const users = await this.userService.fetchUsers();
+        var highScores: highScoreDto[] = [];
+
+        for (const e of users) {
+            const score = await this.fetchUserHighScorebyID(e.id);
+            highScores.push({
+                username: e.username,
+                highScore: score,
+            });
+        }
+        highScores.sort( (a, b) => {
+            const result = a.highScore - b.highScore;
+            return result * -1;
+        });
+        return highScores;
+    }
+
     async createGame(gameDetails: createGameParams) {
         const winner = await this.userService.fetchUserByUsername(gameDetails.winnerName);
         const loser = await this.userService.fetchUserByUsername(gameDetails.loserName);

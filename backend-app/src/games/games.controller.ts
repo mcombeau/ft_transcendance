@@ -21,6 +21,13 @@ export class GamesController {
         return this.gameService.fetchGames();
     }
 
+    @Get('highscores')
+    @ApiOkResponse({ type: highScoreDto, isArray: true, description: 'Get all highscores.' })
+    async getHighScores() {
+        const highScores = await this.gameService.fetchAllHighScores();
+        return highScores;
+    }
+
     @Post()
     @ApiCreatedResponse({ type: GameEntity, description: 'Create record.' })
     @ApiBadRequestResponse({ description: 'Bad request.' })
