@@ -6,7 +6,6 @@ import { GameNotFoundError } from 'src/exceptions/not-found.interceptor';
 import { ApiBadRequestResponse, ApiCreatedResponse, ApiOkResponse, ApiTags, ApiUnprocessableEntityResponse } from '@nestjs/swagger';
 import { GameEntity } from './entities/game.entity';
 import { UsersService } from 'src/users/users.service';
-import { highScoreParams } from './utils/types';
 import { highScoreDto } from './dtos/highScore.dto';
 import { UserNotFoundException } from 'src/exceptions/not-found.exception';
 
