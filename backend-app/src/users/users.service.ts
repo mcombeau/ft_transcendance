@@ -25,11 +25,17 @@ export class UsersService {
   }
 
   fetchUserByID(id: number) {
-    return this.userRepository.findOne({ where: { id }, relations: ['chatRooms.chatRoom'] });
+    return this.userRepository.findOne({
+      where: { id },
+      relations: ['chatRooms.chatRoom'],
+    });
   }
 
   fetchUserByUsername(username: string) {
-    return this.userRepository.findOne({ where: { username: username }, relations: ['chatRooms.chatRoom'] });
+    return this.userRepository.findOne({
+      where: { username: username },
+      relations: ['chatRooms.chatRoom'],
+    });
   }
 
   updateUserByID(id: number, userDetails: updateUserParams) {

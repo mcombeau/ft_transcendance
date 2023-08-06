@@ -158,38 +158,26 @@ export const Chat = () => {
   }
 
   function invite(channel_name: string, sender: string, target: string) {
-    var content: string = `${sender} invites you to join ${channel_name}`;
-    if (sender === username) {
-      content = `You invited ${target} to join ${channel_name}`;
-    }
-    // Create dm if does not exist
-    var target_dm = channels.find(
-      (c) =>
-        c.dm &&
-        c.participants.find((p) => p.username === sender) &&
-        c.participants.find((p) => p.username === target)
-    );
-    if (target_dm == undefined) {
-      console.log("Got here");
-      ChangeStatus("dm", socket, "", sender, target);
-      target_dm = channels.find(
-        (c) =>
-          c.dm &&
-          c.participants.find((p) => p.username === sender) &&
-          c.participants.find((p) => p.username === target)
-      );
-    }
-    console.log("Target ", target_dm);
-    var message: Message = {
-      msg: content,
-      datestamp: new Date(),
-      sender: sender,
-      channel: target_dm.name,
-      read: true,
-      system: true,
-      invite: false,
-    };
-    setMessages((prev) => [...prev, message]);
+    // var content: string = `${sender} invites you to join ${channel_name}`;
+    // if (sender === username) {
+    //   content = `You invited ${target} to join ${channel_name}`;
+    // }
+    // // Create dm if does not exist
+    // var target_dm: string =
+    //   sender < target
+    //     ? `DM: ${sender} / ${target}`
+    //     : `DM: ${target} / ${sender}`; // TODO : this is ugly maybe change it
+    // ChangeStatus("dm", socket, "", sender, target);
+    // var message: Message = {
+    //   msg: content,
+    //   datestamp: new Date(),
+    //   sender: sender,
+    //   channel: target_dm,
+    //   read: true,
+    //   system: true,
+    //   invite: false,
+    // };
+    // socket.emit("chat message", message);
   }
 
   useEffect(() => {
