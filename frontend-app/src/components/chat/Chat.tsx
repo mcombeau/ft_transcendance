@@ -158,6 +158,8 @@ export const Chat = () => {
   }
 
   function invite(channel_name: string, sender: string, target: string) {
+    // TODO: actually make the invite acceptable
+    //
     // var content: string = `${sender} invites you to join ${channel_name}`;
     // if (sender === username) {
     //   content = `You invited ${target} to join ${channel_name}`;

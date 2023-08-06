@@ -65,6 +65,7 @@ export class ChatGateway implements OnModuleInit {
   @SubscribeMessage('dm')
   async onDM(@MessageBody() info: any) {
     try {
+      // TODO: move that logic to the dm creation service
       if (info.current_user < info.target_user) {
         var name = `DM: ${info.current_user} / ${info.target_user}`;
       } else {
@@ -120,10 +121,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('chat message')
-  async onChatMessage(
-    @MessageBody() msg: any,
-    @ConnectedSocket() socket: ioSocket,
-  ) {
+  async onChatMessage(@MessageBody() msg: any) {
     console.log('[Chat Gateway]: Sending chat message');
     try {
       await this.registerChatMessage(
@@ -179,15 +177,18 @@ export class ChatGateway implements OnModuleInit {
       //   info.target_user,
       //   info.invite_date,
       // );
-	  var dm_channel = this.chatsService.fetchDMChats();
       this.onDM(info); // Create dm in case not created yet
-	  var msg = {
-        channel: ,
-        sender: ,
-        msg: ,
-        datestamp: ,
-	  };
-	  this.onChatMessage(msg, socket)
+      var dm_channel = await this.chatsService.fetchDMByUsernames(
+        info.current_user,
+        info.target_user,
+      );
+      var msg = {
+        channel: dm_channel.name,
+        sender: info.sender,
+        msg: `${info.sender} invites you to join ${info.channel_name}`,
+        datestamp: new Date(),
+      };
+      this.onChatMessage(msg);
 
       this.server.emit('invite', info);
     } catch (e) {
