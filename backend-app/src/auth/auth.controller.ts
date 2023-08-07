@@ -12,6 +12,7 @@ import axios from 'axios';
 import { Response } from 'express';
 import { UsersService } from 'src/users/users.service';
 import { ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 const CLIENT_ID =
   'u-s4t2ud-18f16c113212b9bfe7b0841fdf7783641ed72d9a63359b4071a723862605ceea'; // Replace with your OAuth client ID
@@ -93,6 +94,7 @@ export class AuthController {
       };
       // Creating user in the database
       var oldUser = await this.usersService.fetchUserByUsername(username);
+
       if (!oldUser) {
         this.usersService.createUser(newUser);
       }
@@ -106,3 +108,4 @@ export class AuthController {
     }
   }
 }
+
