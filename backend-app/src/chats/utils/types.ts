@@ -19,3 +19,7 @@ export type updateChatParams = {
   participantID: number;
 };
 
+export type participantUsernames = {
+  username: string;
+}
+
