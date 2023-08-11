@@ -557,6 +557,12 @@ export const Chat = () => {
     console.log(channels);
   }, [channels]);
 
+  useEffect(() => {
+    if (username === undefined) {
+      alert("You have no username"); // TODO : remove = for debug purposes
+    }
+  }, [username]);
+
   return (
     <WebSocketProvider value={socket}>
       <div className="chat-container">
