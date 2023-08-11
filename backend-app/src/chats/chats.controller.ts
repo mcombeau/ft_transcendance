@@ -25,6 +25,14 @@ export class ChatsController {
     return chat;
   }
 
+  @Get(':name/usernames')
+  async getChatUsersByChatName(@Param('name') name: string) {
+    const participants = await this.chatService.fetchParticipantUsernamesByChatName(name);
+    if (!participants)
+      throw new ChatNotFoundException(name);
+    return participants;
+  }
+
   @Get(':id')
   async getChatByID(@Param('id', ParseIntPipe) id: number) {
     const chat = await this.chatService.fetchChatByID(id);
@@ -37,6 +45,8 @@ export class ChatsController {
   getChats() {
     return this.chatService.fetchChats();
   }
+
+  
 
   @Post()
   createChat(@Body() chatDto: createChatDto) {

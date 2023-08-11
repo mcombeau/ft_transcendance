@@ -6,6 +6,7 @@ import {
   createChatParams,
   createDMParams,
   updateChatParams,
+  participantUsernames,
 } from './utils/types';
 import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
 import { ChatParticipantsService } from 'src/chat-participants/chat-participants.service';
@@ -13,6 +14,7 @@ import { ChatCreationError } from 'src/exceptions/bad-request.interceptor';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { WsException } from '@nestjs/websockets';
+import { ChatFetchError } from 'src/exceptions/bad-request.exception';
 
 @Injectable()
 export class ChatsService {
@@ -74,6 +76,20 @@ export class ChatsService {
       where: { directMessage: true },
       relations: ['participants.participant'],
     });
+  }
+
+  async fetchParticipantUsernamesByChatName(chatRoomName: string) {
+    const chat = await this.fetchChatByName(chatRoomName);
+    if (!chat) {
+      throw new ChatFetchError(chatRoomName);
+    }
+    var participantUsernames: participantUsernames[] = [];
+    for (const e of chat.participants) {
+      participantUsernames.push({
+        username: e.participant.username,
+      });
+    }
+    return participantUsernames;
   }
 
   async fetchUserChatsByUsername(username: string) {
