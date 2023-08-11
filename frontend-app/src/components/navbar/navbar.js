@@ -15,25 +15,24 @@ import {
 import LogoImg from "./../../ping.svg";
 
 function Navbar() {
-  const [extendnavbar, setExtendNavbar] = useState(false);
+  const [extendNavbar, setExtendNavbar] = useState(false);
 
   return (
-    <NavbarContainer extendnavbar={extendnavbar}>
+    <NavbarContainer extendNavbar={extendNavbar}>
       <NavbarInnerContainer>
         <LeftContainer>
           <NavbarLinkContainer>
             <NavbarLink to="/"> Home</NavbarLink>
             <NavbarLink to="/login"> Login</NavbarLink>
             <NavbarLink to="/chat"> Chat</NavbarLink>
-            <NavbarLink to="/play"> Game</NavbarLink>
+            <NavbarLink to="/play"> Play Game</NavbarLink>
             <NavbarLink to="/leaderboard"> Leaderboard</NavbarLink>
-            <NavbarLink to="/profile"> Profile</NavbarLink>
             <OpenLinksButton
               onClick={() => {
                 setExtendNavbar((curr) => !curr);
               }}
             >
-              {extendnavbar ? <>&#10005;</> : <> &#8801;</>}
+              {extendNavbar ? <>&#10005;</> : <> &#8801;</>}
             </OpenLinksButton>
           </NavbarLinkContainer>
         </LeftContainer>
@@ -41,18 +40,13 @@ function Navbar() {
           <Logo src={LogoImg}></Logo>
         </RightContainer>
       </NavbarInnerContainer>
-      {extendnavbar && (
-        <NavbarExtendedContainer
-          onClick={() => {
-                setExtendNavbar((curr) => !curr);
-              }}
-        >
+      {extendNavbar && (
+        <NavbarExtendedContainer>
           <NavbarLinkExtended to="/"> Home</NavbarLinkExtended>
           <NavbarLinkExtended to="/login"> Login</NavbarLinkExtended>
           <NavbarLinkExtended to="/chat"> Chat</NavbarLinkExtended>
           <NavbarLinkExtended to="/play"> Play</NavbarLinkExtended>
           <NavbarLinkExtended to="/leaderboard"> Leaderboard</NavbarLinkExtended>
-          <NavbarLinkExtended to="/profile"> My Profile</NavbarLinkExtended>
         </NavbarExtendedContainer>
       )}
     </NavbarContainer>
