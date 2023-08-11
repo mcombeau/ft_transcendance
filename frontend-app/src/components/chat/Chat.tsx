@@ -157,29 +157,27 @@ export const Chat = () => {
     setMessages((prev) => [...prev, message]);
   }
 
-  function invite(channel_name: string, sender: string, target: string) {
-    // TODO: actually make the invite acceptable
-    //
-    // var content: string = `${sender} invites you to join ${channel_name}`;
-    // if (sender === username) {
-    //   content = `You invited ${target} to join ${channel_name}`;
-    // }
-    // // Create dm if does not exist
-    // var target_dm: string =
-    //   sender < target
-    //     ? `DM: ${sender} / ${target}`
-    //     : `DM: ${target} / ${sender}`; // TODO : this is ugly maybe change it
-    // ChangeStatus("dm", socket, "", sender, target);
-    // var message: Message = {
-    //   msg: content,
-    //   datestamp: new Date(),
-    //   sender: sender,
-    //   channel: target_dm,
-    //   read: true,
-    //   system: true,
-    //   invite: false,
-    // };
-    // socket.emit("chat message", message);
+  function invite(
+    channel_name: string,
+    sender: string,
+    target: string,
+    target_dm: string
+  ) {
+    var content: string = `${sender} invites you to join ${channel_name}`;
+    if (sender === username) {
+      content = `You invited ${target} to join ${channel_name}`;
+    }
+    // Create dm if does not exist
+    var message: Message = {
+      msg: content,
+      datestamp: new Date(),
+      sender: sender,
+      channel: target_dm,
+      read: true,
+      system: true,
+      invite: true,
+    };
+    setMessages([...messages, message]);
   }
 
   useEffect(() => {
@@ -343,7 +341,12 @@ export const Chat = () => {
         `${info.target_user} has been invited to this channel.`,
         info.channel_name
       );
-      invite(info.channel_name, info.current_user, info.target_user);
+      invite(
+        info.channel_name,
+        info.current_user,
+        info.target_user,
+        info.dm_channel
+      );
     });
 
     socket.on("accept invite", (info: any) => {

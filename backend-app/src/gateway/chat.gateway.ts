@@ -78,6 +78,7 @@ export class ChatGateway implements OnModuleInit {
         user2: info.target_user,
       };
       await this.chatsService.createChatDM(params); // TODO : see what happens if already exists
+      console.log('Created dm !!!!!!!!!!!!');
       this.server.emit('dm', params);
     } catch (e) {
       console.log('[Chat Gateway]: DM creation error:', e.message);
@@ -171,24 +172,20 @@ export class ChatGateway implements OnModuleInit {
       info.invite_date = new Date(
         Date.now() + 1 * (60 * 60 * 1000), // time + 1 hour
       ).getTime();
-      // await this.inviteUserUntil(
-      //   info.channel_name,
-      //   info.current_user,
-      //   info.target_user,
-      //   info.invite_date,
-      // );
-      this.onDM(info); // Create dm in case not created yet
+      await this.inviteUserUntil(
+        info.channel_name,
+        info.current_user,
+        info.target_user,
+        info.invite_date,
+      );
+      await this.onDM(info); // Create dm in case not created yet
+      console.log('Searching for dm');
       var dm_channel = await this.chatsService.fetchDMByUsernames(
         info.current_user,
         info.target_user,
       );
-      var msg = {
-        channel: dm_channel.name,
-        sender: info.sender,
-        msg: `${info.sender} invites you to join ${info.channel_name}`,
-        datestamp: new Date(),
-      };
-      this.onChatMessage(msg);
+      console.log(dm_channel);
+      info.dm_channel = dm_channel.name;
 
       this.server.emit('invite', info);
     } catch (e) {

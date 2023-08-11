@@ -25,16 +25,16 @@ export const Messages = (
       return;
     }
     if (msg.channel !== current_channel.name) return;
-    if (msg.system === true) {
+    if (msg.invite) {
       return (
-        <div id="announcement">
+        <div id="invite">
           <li>{msg.msg}</li>
         </div>
       );
     }
-    if (msg.invite === true) {
+    if (msg.system) {
       return (
-        <div id="invite">
+        <div id="announcement">
           <li>{msg.msg}</li>
         </div>
       );

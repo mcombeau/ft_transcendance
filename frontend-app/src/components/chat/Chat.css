@@ -41,6 +41,22 @@ body {
   text-align: left;
 }
 
+#invite {
+  padding: 0.2rem;
+  margin: 0.2rem 0.2rem 0.2rem 1.2rem;
+  background: transparent;
+}
+
+#invite > li {
+  padding: 0.2rem;
+  margin: 0.2rem 0.2rem 0.2rem 0.75rem;
+  background: transparent;
+  color: blue;
+  font-size: small;
+  font-style: italic;
+  text-align: left;
+}
+
 li#mine {
   padding: 1rem 1.5rem;
   margin: 0.75rem 0rem 0.75rem 0.75rem;
