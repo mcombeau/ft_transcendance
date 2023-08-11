@@ -58,7 +58,9 @@ export class ChatGateway implements OnModuleInit {
       await this.chatsService.createChat(info);
       this.server.emit('add chat', info);
     } catch (e) {
-      console.log('[Chat Gateway]: Chat creation error:', e.message);
+      var err_msg = '[Chat Gateway]: Chat creation error:' + e.message;
+      console.log(err_msg);
+      this.server.emit('error', err_msg);
     }
   }
 
@@ -81,7 +83,9 @@ export class ChatGateway implements OnModuleInit {
       console.log('Created dm !!!!!!!!!!!!');
       this.server.emit('dm', params);
     } catch (e) {
-      console.log('[Chat Gateway]: DM creation error:', e.message);
+      var err_msg = '[Chat Gateway]: DM creation error:' + e.message;
+      console.log(err_msg);
+      this.server.emit('error', err_msg);
     }
   }
 
@@ -93,7 +97,9 @@ export class ChatGateway implements OnModuleInit {
       await this.chatsService.deleteChatByID(chat.id);
       this.server.emit('delete chat', info);
     } catch (e) {
-      console.log('[Chat Gateway]: Chat deletion error:', e.message);
+      var err_msg = '[Chat Gateway]: Chat deletion error:' + e.message;
+      console.log(err_msg);
+      this.server.emit('error', err_msg);
     }
   }
 
@@ -104,7 +110,9 @@ export class ChatGateway implements OnModuleInit {
       await this.addUserToChat(info.username, info.channel_name);
       this.server.emit('join chat', info);
     } catch (e) {
-      console.log('[Chat Gateway]: Chat join error:', e.message);
+      var err_msg = '[Chat Gateway]: Chat join error:' + e.message;
+      console.log(err_msg);
+      this.server.emit('error', err_msg);
     }
   }
 
@@ -117,7 +125,9 @@ export class ChatGateway implements OnModuleInit {
       );
       this.server.emit('leave chat', info);
     } catch (e) {
-      console.log('[Chat Gateway]: Chat leave error:', e.message);
+      var err_msg = '[Chat Gateway]: Chat leave error:' + e.message;
+      console.log(err_msg);
+      this.server.emit(err_msg);
     }
   }
 
@@ -133,10 +143,10 @@ export class ChatGateway implements OnModuleInit {
       );
       this.server.emit('chat message', msg);
     } catch (e) {
-      console.log(
-        '[Chat Gateway]: Chat message registration error:',
-        e.message,
-      );
+      var err_msg =
+        '[Chat Gateway]: Chat message registration error:' + e.message;
+      console.log(err_msg);
+      this.server.emit(err_msg);
     }
   }
 
@@ -151,7 +161,9 @@ export class ChatGateway implements OnModuleInit {
       );
       this.server.emit('mute', info);
     } catch (e) {
-      console.log('[Chat Gateway]: User mute error:', e.message);
+      var err_msg = '[Chat Gateway]: User mute error:' + e.message;
+      console.log(err_msg);
+      this.server.emit(err_msg);
     }
   }
 
@@ -162,7 +174,9 @@ export class ChatGateway implements OnModuleInit {
       await this.toggleChatPrivacy(info.channel_name, info.sender);
       this.server.emit('toggle private', info);
     } catch (e) {
-      console.log('[Chat Gateway]: Chat privacy toggle error:', e.message);
+      var err_msg = '[Chat Gateway]: Chat privacy toggle error:' + e.message;
+      console.log(err_msg);
+      this.server.emit(err_msg);
     }
   }
 
@@ -189,7 +203,9 @@ export class ChatGateway implements OnModuleInit {
 
       this.server.emit('invite', info);
     } catch (e) {
-      console.log('[Chat Gateway]: Chat invite error:', e.message);
+      var err_msg = '[Chat Gateway]: Chat invite error:' + e.message;
+      console.log(err_msg);
+      this.server.emit(err_msg);
     }
   }
 
@@ -200,7 +216,9 @@ export class ChatGateway implements OnModuleInit {
       info.invite_date = 0;
       this.server.emit('accept invite', info);
     } catch (e) {
-      console.log('[Chat Gateway]: Chat accept invite error:', e.message);
+      var err_msg = '[Chat Gateway]: Chat accept invite error:' + e.message;
+      console.log(err_msg);
+      this.server.emit(err_msg);
     }
   }
 
@@ -228,7 +246,9 @@ export class ChatGateway implements OnModuleInit {
       );
       this.server.emit('ban', info);
     } catch (e) {
-      console.log('[Chat Gateway]: User ban error:', e.message);
+      var err_msg = '[Chat Gateway]: User ban error:' + e.message;
+      console.log(err_msg);
+      this.server.emit(err_msg);
     }
   }
 
@@ -242,7 +262,9 @@ export class ChatGateway implements OnModuleInit {
       );
       this.server.emit('kick', info);
     } catch (e) {
-      console.log('[Chat Gateway]: User kick error:', e.message);
+      var err_msg = '[Chat Gateway]: User kick error:' + e.message;
+      console.log(err_msg);
+      this.server.emit(err_msg);
     }
   }
 

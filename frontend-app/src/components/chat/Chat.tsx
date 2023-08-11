@@ -184,6 +184,9 @@ export const Chat = () => {
     setUsername(cookies["Username"]);
     console.log(username);
 
+    socket.on("error", (error_msg: string) => {
+      alert(error_msg);
+    });
     socket.on("chat message", (msg: Message) => {
       msg.read = false;
       setMessages((prev) => [...prev, msg]);
@@ -527,6 +530,7 @@ export const Chat = () => {
     return () => {
       console.log("unregistering events");
       socket.off("chat message");
+      socket.off("error");
       socket.off("delete chat");
       socket.off("add chat");
       socket.off("join chat");
