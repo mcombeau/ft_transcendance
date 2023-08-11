@@ -1,15 +1,23 @@
-import { IsNotEmpty, IsNumber } from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
+import { IsAlphanumeric, IsNotEmpty, IsNumber, isAlphanumeric } from "class-validator";
 
 export class updateGameDto {
+    @ApiProperty()
     @IsNotEmpty()
-    @IsNumber()
-    winnerID: number;
+    @IsAlphanumeric()
+    winnerName: string;
+
+    @ApiProperty()
     @IsNotEmpty()
-    @IsNumber()
-    loserID: number;
+    @IsAlphanumeric()
+    loserName: string;
+
+    @ApiProperty()
     @IsNotEmpty()
     @IsNumber()
     winnerScore: number;
+
+    @ApiProperty()
     @IsNotEmpty()
     @IsNumber()
     loserScore: number;
