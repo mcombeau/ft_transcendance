@@ -63,7 +63,7 @@ export function isUserMuted(user: User): boolean {
 
 export function isMuted(channel: Channel, username: string): boolean {
   console.log(username);
-  var user = channel.participants.find((p) => p.username === username);
+  var user = channel.participants.find((p) => p.username === username); // TODO: understand how this can be undefined
   console.log(user.mutedUntil);
   if (!user) return false;
   if (user.mutedUntil < new Date().getTime()) {

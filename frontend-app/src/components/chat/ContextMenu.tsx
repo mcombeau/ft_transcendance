@@ -91,6 +91,7 @@ export const ContextMenuEl = (
               var channel_name = prompt(
                 "Which channel do you want to send an invitation for ?"
               );
+              console.log("THERE");
               console.log("channame", channel_name);
               if (channel_name === null) {
                 console.log("Cant invite to null channel");
