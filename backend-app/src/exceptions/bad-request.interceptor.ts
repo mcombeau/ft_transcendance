@@ -1,6 +1,6 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from "@nestjs/common";
 import { Observable, catchError } from "rxjs";
-import { ChatCreationException } from "./bad-request.exception";
+import { ChatCreationException, InviteCreationException } from "./bad-request.exception";
 
 export class ChatCreationError extends Error {}
 export class GameCreationError extends Error {}
@@ -14,9 +14,14 @@ export class BadRequestInterceptor implements NestInterceptor {
                 if (error instanceof ChatCreationError) {
                     throw new ChatCreationException(error.message);
                 }
+                else if (error instanceof InviteCreationError) {
+                    console.log("THROWING HTTP INVITE EXCEPTION");
+                    throw new InviteCreationException(error.message);
+                }
                 else {
                     throw error;
                 }
             }));
     }
+
 }

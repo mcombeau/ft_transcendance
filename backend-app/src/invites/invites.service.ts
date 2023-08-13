@@ -6,6 +6,8 @@ import { Repository } from 'typeorm';
 import { inviteParams } from './utils/types';
 import { InviteEntity, inviteType } from './entities/Invite.entity';
 import { InviteCreationError } from 'src/exceptions/bad-request.interceptor';
+import { UserEntity } from 'src/users/entities/user.entity';
+import { ChatEntity } from 'src/chats/entities/chat.entity';
 
 @Injectable()
 export class InvitesService {
@@ -58,14 +60,11 @@ export class InvitesService {
   async createInvite(inviteDetails: inviteParams) {
     switch(inviteDetails.type) {
       case inviteType.CHAT:
-        this.createChatInvite(inviteDetails);
-        break;
+        return this.createChatInvite(inviteDetails);
       case inviteType.GAME:
-        this.createGameInvite(inviteDetails);
-        break;
+        return this.createGameInvite(inviteDetails);
       case inviteType.FRIEND:
-        this.createFriendInvite(inviteDetails);
-        break;
+        return this.createFriendInvite(inviteDetails);
       default:
         throw new InviteCreationError('invalid invite type.');
     }
@@ -79,21 +78,37 @@ export class InvitesService {
     if (!sender || !invitedUser || !chatRoom) {
       throw new InviteCreationError('invalid parameters for invite creation.');
     }
+    
     var inviteExpiry = new Date(
       Date.now() + 1 * (60 * 60 * 1000), // time + 1 hour
     ).getTime();
 
-    return this.inviteRepository.save({
-      type: inviteType.CHAT,
-      expiresAt: inviteExpiry,
-      inviteSender: sender,
-      invitedUser: invitedUser,
-      chatRoom: chatRoom,
+    var invite = await this.inviteRepository.findOne({
+      where:
+        {
+          inviteSender: sender,
+          invitedUser: invitedUser,
+          chatRoom: chatRoom,
+        }
     });
+    if (invite) {
+      // invite already exists, updating invite expiry.
+      await this.inviteRepository.update(invite.id, { expiresAt: inviteExpiry});
+      return this.fetchInviteByID(invite.id);;
+    }
+    else {
+      return this.inviteRepository.save({
+        type: inviteType.CHAT,
+        expiresAt: inviteExpiry,
+        inviteSender: sender,
+        invitedUser: invitedUser,
+        chatRoom: chatRoom,
+      });
+    }
   }
 
   private async createGameInvite(inviteDetails: inviteParams) {
-    // TODO [mcombeau]: implement thi
+    // TODO [mcombeau]: implement this
     throw new InviteCreationError('game invites not implemented yet.');
   }
 
