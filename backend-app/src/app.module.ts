@@ -17,6 +17,8 @@ import { AuthModule } from './auth/auth.module';
 import { ChatMessagesModule } from './chat-messages/chat-messages.module';
 import { ChatParticipantEntity } from './chat-participants/entities/chat-participant.entity';
 import { ChatParticipantsModule } from './chat-participants/chat-participants.module';
+import { InviteEntity } from './invites/entities/Invite.entity';
+import { InvitesModule } from './invites/invites.module';
 
 @Module({
   imports: [
@@ -34,6 +36,7 @@ import { ChatParticipantsModule } from './chat-participants/chat-participants.mo
         ChatParticipantEntity,
         FriendEntity,
         GameEntity,
+        InviteEntity
       ],
       synchronize: true,
     }),
@@ -45,6 +48,7 @@ import { ChatParticipantsModule } from './chat-participants/chat-participants.mo
     AuthModule,
     ChatMessagesModule,
     ChatParticipantsModule,
+    InvitesModule
   ],
   controllers: [AppController],
   providers: [AppService],
