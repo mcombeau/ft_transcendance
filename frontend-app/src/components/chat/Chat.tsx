@@ -108,6 +108,7 @@ export const Chat = () => {
   const [settings, setSettings] = useState(false);
   const [cookies] = useCookies(["cookie-name"]);
   const [contextMenu, setContextMenu] = useState(false);
+  const [invitesPannel, setInvitesPannel] = useState(false);
   let navigate = useNavigate();
 
   function getChannel(channel_name: string): Channel {
@@ -578,7 +579,9 @@ export const Chat = () => {
           setSettings,
           setContextMenu,
           channels,
-          username
+          username,
+          invitesPannel,
+          setInvitesPannel
         )}
         <div className="chat">
           {SettingsMenu(

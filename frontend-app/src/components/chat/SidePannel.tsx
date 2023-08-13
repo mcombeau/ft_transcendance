@@ -14,7 +14,9 @@ export const SidePannel = (
   setSettings: Dispatch<SetStateAction<boolean>>,
   setContextMenu: Dispatch<SetStateAction<boolean>>,
   channels: Channel[],
-  username: string
+  username: string,
+  invitesPannel: boolean,
+  setInvitesPannel: Dispatch<SetStateAction<boolean>>
 ) => {
   const createChannel = (e: any) => {
     e.preventDefault();
@@ -34,6 +36,27 @@ export const SidePannel = (
     return channel.participants.find((p) => p.username != current_user)
       .username;
   }
+
+  const invitePannel = () => {
+    var classname = "channotCurrent";
+    if (invitesPannel) {
+      classname = "chanCurrent";
+    }
+    return (
+      <div id="channel-info">
+        <li
+          value={"INVITES"}
+          onClick={(e) => {
+            setCurrentChannel("");
+            setInvitesPannel(true);
+          }}
+          className={classname}
+        >
+          INVITES
+        </li>
+      </div>
+    );
+  };
 
   const channelInfo = (channel: Channel) => {
     var isCurrent = channel.name == current_channel;
@@ -62,6 +85,7 @@ export const SidePannel = (
           onClick={(e) => {
             var target = (e.target as HTMLInputElement).getAttribute("value");
             setCurrentChannel(target);
+            setInvitesPannel(false);
             setMessages(
               messages.map((msg) => {
                 if (msg.channel == target) {
@@ -82,6 +106,7 @@ export const SidePannel = (
               setCurrentChannel(
                 (e.target as HTMLInputElement).getAttribute("value")
               );
+              setInvitesPannel(false);
               setSettings(!settings);
               setContextMenu(false);
             }}
@@ -119,6 +144,7 @@ export const SidePannel = (
         <button>+</button>
       </form>
       <div id="channels">
+        {invitePannel()}
         {channels.map((channel: Channel) => channelInfo(channel))}
       </div>
     </div>
