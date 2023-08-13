@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 import { Socket } from "socket.io-client";
-import { Channel, Message } from "./Chat";
+import { Channel, Invite, Message } from "./Chat";
 
 export const SidePannel = (
   newchannel: string,

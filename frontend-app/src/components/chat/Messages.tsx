@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import { NavigateFunction } from "react-router-dom";
 import { Socket } from "socket.io-client";
-import { Message, Channel } from "./Chat";
+import { Message, Channel, Invite, typeInvite } from "./Chat";
 import { ContextMenuEl } from "./ContextMenu";
 
 export const Messages = (
@@ -12,7 +12,9 @@ export const Messages = (
   settings: boolean,
   contextMenu: boolean,
   setContextMenu: Dispatch<SetStateAction<boolean>>,
-  socket: Socket
+  socket: Socket,
+  invitesPannel: boolean,
+  invites: Invite[]
 ) => {
   const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
   const [contextMenuSender, setContextMenuSender] = useState("");
@@ -25,13 +27,6 @@ export const Messages = (
       return;
     }
     if (msg.channel !== current_channel.name) return;
-    if (msg.invite) {
-      return (
-        <div id="invite">
-          <li>{msg.msg}</li>
-        </div>
-      );
-    }
     if (msg.system) {
       return (
         <div id="announcement">
@@ -78,6 +73,27 @@ export const Messages = (
       </div>
     );
   };
+
+  const inviteStatus = (invite: Invite) => {
+    if (invite.type === typeInvite.Chat) {
+      var text = `${invite.sender} invites you to join the chat ${invite.target}`;
+    }
+    return (
+      // TODO: make actual type
+      <div id="invite">
+        <p>{text}</p>
+        <button id="accept">Accept</button>
+        <button id="refuse">Refuse</button>
+      </div>
+    );
+  };
+  if (invitesPannel) {
+    return (
+      <div id="messages">
+        {invites.map((invite: Invite) => inviteStatus(invite))}
+      </div>
+    );
+  }
 
   return (
     <div id="messages">

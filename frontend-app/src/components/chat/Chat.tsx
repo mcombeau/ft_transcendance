@@ -41,6 +41,21 @@ export type Channel = {
   dm: boolean;
 };
 
+export enum typeInvite {
+  Chat,
+  Game,
+  Friend,
+}
+
+export type Invite = {
+  id: number;
+  target_user: string;
+  sender: string;
+  type: typeInvite;
+  target: string;
+  expirationDate: number;
+};
+
 export enum Status {
   Normal,
   Operator,
@@ -109,6 +124,7 @@ export const Chat = () => {
   const [cookies] = useCookies(["cookie-name"]);
   const [contextMenu, setContextMenu] = useState(false);
   const [invitesPannel, setInvitesPannel] = useState(false);
+  const [invites, setInvites] = useState([]);
   let navigate = useNavigate();
 
   function getChannel(channel_name: string): Channel {
@@ -156,29 +172,6 @@ export const Chat = () => {
       invite: false,
     };
     setMessages((prev) => [...prev, message]);
-  }
-
-  function invite(
-    channel_name: string,
-    sender: string,
-    target: string,
-    target_dm: string
-  ) {
-    var content: string = `${sender} invites you to join ${channel_name}`;
-    if (sender === username) {
-      content = `You invited ${target} to join ${channel_name}`;
-    }
-    // Create dm if does not exist
-    var message: Message = {
-      msg: content,
-      datestamp: new Date(),
-      sender: sender,
-      channel: target_dm,
-      read: true,
-      system: true,
-      invite: true,
-    };
-    setMessages([...messages, message]);
   }
 
   useEffect(() => {
@@ -345,12 +338,15 @@ export const Chat = () => {
         `${info.target_user} has been invited to this channel.`,
         info.channel_name
       );
-      invite(
-        info.channel_name,
-        info.current_user,
-        info.target_user,
-        info.dm_channel
-      );
+      var invite: Invite = {
+        id: 0,
+        target_user: info.target_user,
+        sender: info.sender,
+        type: typeInvite.Chat,
+        target: info.channel_name,
+        expirationDate: info.invite_date,
+      };
+      setInvites((prev) => [...prev, invite]);
     });
 
     socket.on("accept invite", (info: any) => {
@@ -483,7 +479,6 @@ export const Chat = () => {
             };
             return newUser;
           });
-          console.log("HERE", e);
           var chan: Channel = {
             name: e.name,
             private: e.private,
@@ -504,6 +499,47 @@ export const Chat = () => {
         });
       });
     }
+
+    // TODO: fetch the invites
+    // if (invites.length === 0) {
+    //   fetch("http://localhost:3001/invites").then(async (response) => {
+    //     const data = await response.json();
+    //     if (!response.ok) {
+    //       console.log("error response load channels");
+    //       return;
+    //     }
+    //     data.map((e: any) => {
+    //       var participant_list = e.participants.map((user: any) => {
+    //         var newUser: User = {
+    //           username: user.participant.username,
+    //           owner: user.owner,
+    //           operator: user.operator,
+    //           banned: user.banned,
+    //           mutedUntil: user.mutedUntil,
+    //           invitedUntil: user.invitedUntil,
+    //         };
+    //         return newUser;
+    //       });
+    //       var chan: Channel = {
+    //         name: e.name,
+    //         private: e.private,
+    //         owner: e.directMessage
+    //           ? ""
+    //           : participant_list.find((u: any) => u.owner).username,
+    //         participants: participant_list.filter(
+    //           (user: any) => !user.banned && user.invitedUntil == 0
+    //         ),
+    //         banned: participant_list.filter((user: any) => user.banned),
+    //         invited: participant_list.filter(
+    //           (user: any) => user.invitedUntil != 0
+    //         ),
+    //         dm: e.directMessage,
+    //       };
+    //       setChannels((prev) => [...prev, chan]);
+    //       return e;
+    //     });
+    //   });
+    // }
 
     if (messages.length === 0) {
       fetch("http://localhost:3001/chat-messages").then(async (response) => {
@@ -601,7 +637,9 @@ export const Chat = () => {
             settings,
             contextMenu,
             setContextMenu,
-            socket
+            socket,
+            invitesPannel,
+            invites
           )}
           {SendForm(
             getChannel(current_channel),
