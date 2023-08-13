@@ -4,7 +4,6 @@ import { GameGateway } from './game.gateway';
 import { ChatMessagesModule } from 'src/chat-messages/chat-messages.module';
 import { ChatsModule } from 'src/chats/chats.module';
 import { UsersModule } from 'src/users/users.module';
-import { ChatParticipantsModule } from 'src/chat-participants/chat-participants.module';
 import { GamesModule } from 'src/games/games.module';
 import { ChatParticipantsModule } from 'src/chat-participants/chat-participants.module';
 
