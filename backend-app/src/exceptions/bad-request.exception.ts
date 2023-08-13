@@ -6,6 +6,12 @@ export class ChatCreationException extends BadRequestException {
     }
 }
 
+export class InviteCreationException extends BadRequestException {
+    constructor(message: string) {
+        super(`Could not invite user: ${message}`);
+    }
+}
+
 export class ParticipantAlreadyInChatRoomException extends BadRequestException {
     constructor(user: string, chatRoom: string) {
         super(`User '${user}' is already in chat room '${chatRoom}`);
