@@ -4,6 +4,7 @@ import { ChatCreationException } from "./bad-request.exception";
 
 export class ChatCreationError extends Error {}
 export class GameCreationError extends Error {}
+export class InviteCreationError extends Error {}
 
 @Injectable()
 export class BadRequestInterceptor implements NestInterceptor {

@@ -1,49 +1,54 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiCreatedResponse, ApiOkResponse, ApiTags, ApiUnprocessableEntityResponse } from '@nestjs/swagger';
 import { InvitesService } from './invites.service';
+import { InviteEntity } from './entities/Invite.entity';
+import { createInviteDto } from './dtos/createInvite.dto';
 
 @Controller('invites')
 @ApiTags('invites')
 export class InvitesController {
     constructor(private inviteService: InvitesService) {}
 
-    // @Get(':id')
-    // @ApiOkResponse({ type: ChatParticipantEntity, description: 'Get chat participant by ID.' })
-    // @ApiBadRequestResponse({ description: 'Bad request.' })
-    // getParticipantByID(@Param('id', ParseIntPipe) id: number) {
-    //     return this.participantService.fetchParticipantByID(id);
-    // }
+    @Get(':id')
+    @ApiOkResponse({ type: InviteEntity, description: 'Get invite by ID.' })
+    @ApiBadRequestResponse({ description: 'Bad request.' })
+    getInviteByID(@Param('id', ParseIntPipe) id: number) {
+        return this.inviteService.fetchInviteByID(id);
+    }
 
-    // @Get()
-    // @ApiOkResponse({ type: ChatParticipantEntity, isArray: true, description: 'Get all chat participants.'})
-    // getAllParticipants() {
-    //     return this.participantService.fetchParticipants();
-    // }
+    @Get('/sender/:username')
+    @ApiOkResponse({ type: InviteEntity, description: 'Get invite by sender username.' })
+    @ApiBadRequestResponse({ description: 'Bad request.' })
+    getInvitesBySenderUsername(@Param('username') username: string) {
+        return this.inviteService.fetchInvitesBySenderUsername(username);
+    }
 
-    // @Post()
-    // @ApiCreatedResponse({ type: ChatParticipantEntity, description: 'Record created.' })
-    // @ApiBadRequestResponse({ description: 'Bad request.' })
-    // @ApiUnprocessableEntityResponse({ description: 'Database error. (Unprocessable entity)' })
-    // createParticipant(@Body() participantDto: createParticipantDto) {
-    //     return this.participantService.createChatParticipant(participantDto.userID, participantDto.chatRoomID, 0);
-    // }
+    @Get('/received/:username')
+    @ApiOkResponse({ type: InviteEntity, description: 'Get invite by invited user username.' })
+    @ApiBadRequestResponse({ description: 'Bad request.' })
+    getInvitesByInvitedUsername(@Param('username') username: string) {
+        return this.inviteService.fetchInvitesByInvitedUsername(username);
+    }
 
-    // @Patch(':id')
-    // @ApiCreatedResponse({ type: ChatParticipantEntity, description: 'Record updated.' })
-    // @ApiBadRequestResponse({ description: 'Bad request' })
-    // @ApiUnprocessableEntityResponse({ description: 'Database error. (Unprocessable entity)' })
-    // async updateParticipantByID(
-    //     @Param('id', ParseIntPipe) id: number,
-    //     @Body() updateParticipantDto: updateParticipantDto,
-    // ) {
-    //     await this.participantService.updateParticipantByID(id, updateParticipantDto);
-    // }
+    @Get()
+    @ApiOkResponse({ type: InviteEntity, description: 'Get all invites.'})
+    getAllInvites() {
+        return this.inviteService.fetchAllInvites();
+    }
 
-    // @Delete(':id')
-    // @ApiOkResponse({ description: 'Record deleted by ID.' })
-    // @ApiBadRequestResponse({ description: 'Bad request' })
-    // @ApiUnprocessableEntityResponse({ description: 'Database error. (Unprocessable entity)' })
-    // deleteParticipantByID(@Param('id', ParseIntPipe) id: number) {
-    //     return this.participantService.deleteParticipantByID(id);
-    // }
+    @Post()
+    @ApiCreatedResponse({ type: InviteEntity, description: 'Record created.' })
+    @ApiBadRequestResponse({ description: 'Bad request.' })
+    @ApiUnprocessableEntityResponse({ description: 'Database error. (Unprocessable entity)' })
+    createInvite(@Body() inviteDto: createInviteDto) {
+        return this.inviteService.createInvite(inviteDto);
+    }
+
+    @Delete(':id')
+    @ApiOkResponse({ description: 'Record deleted by ID.' })
+    @ApiBadRequestResponse({ description: 'Bad request' })
+    @ApiUnprocessableEntityResponse({ description: 'Database error. (Unprocessable entity)' })
+    deleteInviteByID(@Param('id', ParseIntPipe) id: number) {
+        return this.inviteService.deleteInviteByID(id);
+    }
 }
