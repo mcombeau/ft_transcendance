@@ -11,6 +11,12 @@ import { UserEntity } from '../../users/entities/user.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { GameEntity } from 'src/games/entities/game.entity';
 
+export enum inviteType {
+  CHAT = 'chat',
+  GAME = 'game',
+  FRIEND = 'friend'
+}
+
 @Entity({ name: 'invites' })
 export class InviteEntity {
 
@@ -18,6 +24,10 @@ export class InviteEntity {
   @PrimaryGeneratedColumn()
   id: number;
   
+  @ApiProperty()
+  @Column({ type: "enum", enum: inviteType, default: inviteType.CHAT })
+  type: inviteType;
+
   @ApiProperty()
   @Column({ default: new Date().getTime(), type: 'bigint' })
   expiresAt: number;

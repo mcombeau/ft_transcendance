@@ -1,7 +1,6 @@
-export type updateParticipantParams = {
-  operator: boolean;
-  owner: boolean;
-  banned: boolean;
-  mutedUntil: number;
-  invitedUntil: number;
+export type inviteParams = {
+  type: string;
+  senderUsername: string;
+  invitedUsername: string;
+  chatRoomName: string;
 };
