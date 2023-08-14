@@ -498,46 +498,35 @@ export const Chat = () => {
       });
     }
 
-    // TODO: fetch the invites
-    // if (invites.length === 0) {
-    //   fetch("http://localhost:3001/invites").then(async (response) => {
-    //     const data = await response.json();
-    //     if (!response.ok) {
-    //       console.log("error response load channels");
-    //       return;
-    //     }
-    //     data.map((e: any) => {
-    //       var participant_list = e.participants.map((user: any) => {
-    //         var newUser: User = {
-    //           username: user.participant.username,
-    //           owner: user.owner,
-    //           operator: user.operator,
-    //           banned: user.banned,
-    //           mutedUntil: user.mutedUntil,
-    //           invitedUntil: user.invitedUntil,
-    //         };
-    //         return newUser;
-    //       });
-    //       var chan: Channel = {
-    //         name: e.name,
-    //         private: e.private,
-    //         owner: e.directMessage
-    //           ? ""
-    //           : participant_list.find((u: any) => u.owner).username,
-    //         participants: participant_list.filter(
-    //           (user: any) => !user.banned && user.invitedUntil == 0
-    //         ),
-    //         banned: participant_list.filter((user: any) => user.banned),
-    //         invited: participant_list.filter(
-    //           (user: any) => user.invitedUntil != 0
-    //         ),
-    //         dm: e.directMessage,
-    //       };
-    //       setChannels((prev) => [...prev, chan]);
-    //       return e;
-    //     });
-    //   });
-    // }
+    if (invites.length === 0) {
+      fetch(`http://localhost:3001/invites/received/${username}`).then(
+        async (response) => {
+          const data = await response.json();
+          if (!response.ok) {
+            console.log("error response load channels");
+            return;
+          }
+          data.map((e: any) => {
+            var type: typeInvite = typeInvite.Chat;
+            if (e.type === "game") {
+              type = typeInvite.Game;
+            } else if (e.type === "friend") {
+              type = typeInvite.Friend;
+            }
+            var invite: Invite = {
+              id: e.id,
+              target_user: e.invitedUser,
+              sender: e.inviteSender,
+              type: type,
+              target: e.chatRoom.name,
+              expirationDate: e.expiresAt,
+            };
+
+            setInvites((prev) => [...prev, invite]);
+          });
+        }
+      );
+    }
 
     if (messages.length === 0) {
       fetch("http://localhost:3001/chat-messages").then(async (response) => {
