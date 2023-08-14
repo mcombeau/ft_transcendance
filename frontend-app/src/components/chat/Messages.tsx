@@ -91,6 +91,15 @@ export const Messages = (
     return (
       <div id="messages">
         {invites.map((invite: Invite) => inviteStatus(invite))}
+        {ContextMenuEl(
+          contextMenu,
+          contextMenuSender,
+          setContextMenu,
+          contextMenuPos,
+          socket,
+          current_channel,
+          username
+        )}
       </div>
     );
   }
