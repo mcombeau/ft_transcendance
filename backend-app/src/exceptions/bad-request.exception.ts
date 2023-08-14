@@ -18,3 +18,8 @@ export class ParticipantAlreadyInChatRoomException extends BadRequestException {
   }
 }
 
+export class ChatFetchError extends BadRequestException {
+  constructor(message: string) {
+    super(`Could not fetch chat: ${message}`);
+  }
+}
