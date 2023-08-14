@@ -59,6 +59,28 @@ function Login() {
         </form>
         <LoginWith>OR LOGIN WITH</LoginWith>
         <HorizontalRule />
+        <button
+          onClick={() => {
+            var request = {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            };
+            fetch("http://localhost:3001/auth", request).then(
+              async (response) => {
+                const data = await response.json();
+                if (!response.ok) {
+                  console.log("error user creation");
+                  return;
+                }
+                console.log("RESPONSE: ", data);
+              }
+            );
+          }}
+        >
+          Auth
+        </button>
         <IconsContainer>
           <Icon color={InstagramBackground}>
             <FaInstagram />
