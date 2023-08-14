@@ -13,6 +13,8 @@ import { Response } from 'express';
 import { UsersService } from 'src/users/users.service';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { UserEntity } from 'src/users/entities/user.entity';
+import { JwtService } from '@nestjs/jwt';
 
 const CLIENT_ID =
   'u-s4t2ud-18f16c113212b9bfe7b0841fdf7783641ed72d9a63359b4071a723862605ceea'; // Replace with your OAuth client ID
@@ -22,7 +24,10 @@ const CLIENT_SECRET =
 @Controller('auth')
 @ApiTags('auth')
 export class AuthController {
-  constructor(private usersService: UsersService) {}
+  constructor(
+    private usersService: UsersService, 
+    private jwtService: JwtService
+  ) {}
 
   @Get()
   @Redirect(
@@ -38,8 +43,14 @@ export class AuthController {
   }
 
   @Redirect()
-  logInUser(@Res() res: Response, username: string) {
-    return res.redirect('http://localhost:3000');
+  async logInUser(@Res() res: Response, user: UserEntity) {
+    res.redirect('http://localhost:3000');
+    const payload = { sub: user.id, username: user.username };
+    const token = await this.jwtService.signAsync(payload);
+    console.log("TOKEN:", token);
+    return {
+      access_token: token,
+    };
   }
 
   @Get(':callback')
@@ -80,30 +91,19 @@ export class AuthController {
       const username = userInfo.login;
       const email = userInfo.email;
       const profilePicture = userInfo.image.link;
-      const pageContent = `
-                <h1>Hello, ${userInfo.login}! You are authorized through 42 API.</h1>
-                <p>Email: ${email}</p>
-                <img src="${profilePicture}"
-                alt="Profile Picture">
-                `;
-      console.log(pageContent);
 
-      var newUser = {
-        username: username,
-        email: email,
-      };
       // Creating user in the database
-      var oldUser = await this.usersService.fetchUserByUsername(username);
-
-      if (!oldUser) {
-        this.usersService.createUser(newUser);
+      var existingUser = await this.usersService.fetchUserByUsername(username);
+      if (!existingUser) {
+        this.usersService.createUser({
+          username: username,
+          email: email
+        });
       }
-
-      this.logInUser(res, username);
-      return pageContent;
+      console.log("Get done.");
+      return this.logInUser(res, username);
     } catch (error) {
       console.error(error);
-
       return 'An error occurred during the authorization process.';
     }
   }
