@@ -192,21 +192,6 @@ export class ChatGateway implements OnModuleInit {
         info.target_user,
         info.invite_date,
       );
-      var dm_channel = await this.chatsService.fetchDMByUsernames(
-        info.current_user,
-        info.target_user,
-      );
-      if (!dm_channel) {
-        console.log('Creating dm channel');
-        await this.onDM(info); // Create dm in case not created yet
-        dm_channel = await this.chatsService.fetchDMByUsernames(
-          info.current_user,
-          info.target_user,
-        );
-      }
-      console.log(dm_channel);
-      info.dm_channel = dm_channel.name;
-
       this.server.emit('invite', info);
     } catch (e) {
       var err_msg = '[Chat Gateway]: Chat invite error:' + e.message;
