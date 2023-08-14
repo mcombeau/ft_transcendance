@@ -57,14 +57,23 @@ export class InvitesService {
     });
   }
 
-  async createInvite(inviteDetails: inviteParams) {
+  async fetchInviteByInvitedUserChatRoomNames(invitedUsername: string, chatRoomName: string) {
+    const chatRoom = await this.chatService.fetchChatByName(chatRoomName);
+    const user = await this.userService.fetchUserByUsername(invitedUsername);
+    return this.inviteRepository.findOne({
+      where: { invitedUser: user, chatRoom: chatRoom },
+      relations: ['inviteSender', 'invitedUser', 'chatRoom'],
+    })
+  }
+
+  async createInvite(inviteDetails: inviteParams): Promise<InviteEntity> {
     switch(inviteDetails.type) {
       case inviteType.CHAT:
         return this.createChatInvite(inviteDetails);
-      case inviteType.GAME:
-        return this.createGameInvite(inviteDetails);
-      case inviteType.FRIEND:
-        return this.createFriendInvite(inviteDetails);
+      // case inviteType.GAME:
+      //   return this.createGameInvite(inviteDetails);
+      // case inviteType.FRIEND:
+      //   return this.createFriendInvite(inviteDetails);
       default:
         throw new InviteCreationError('invalid invite type.');
     }

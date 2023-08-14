@@ -16,7 +16,10 @@ import {
   ChatJoinError,
   ChatMuteError,
   ChatPermissionError,
+  InviteCreationError,
 } from 'src/exceptions/bad-request.interceptor';
+import { InviteEntity } from 'src/invites/entities/Invite.entity';
+import { InvitesService } from 'src/invites/invites.service';
 import { UsersService } from 'src/users/users.service';
 
 @WebSocketGateway({
@@ -34,6 +37,8 @@ export class ChatGateway implements OnModuleInit {
     private chatParticipantsService: ChatParticipantsService,
     @Inject(forwardRef(() => UsersService))
     private userService: UsersService,
+    @Inject(forwardRef(() => InvitesService))
+    private inviteService: InvitesService,
   ) {}
   @WebSocketServer()
   server: Server;
@@ -183,15 +188,12 @@ export class ChatGateway implements OnModuleInit {
   @SubscribeMessage('invite')
   async onInvite(@MessageBody() info: any) {
     try {
-      info.invite_date = new Date(
-        Date.now() + 1 * (60 * 60 * 1000), // time + 1 hour
-      ).getTime();
-      await this.inviteUserUntil(
+      var inviteExpiry = await this.inviteUser(
         info.channel_name,
         info.current_user,
-        info.target_user,
-        info.invite_date,
+        info.target_user
       );
+      info.inviteDate = inviteExpiry;
       this.server.emit('invite', info);
     } catch (e) {
       var err_msg = '[Chat Gateway]: Chat invite error:' + e.message;
@@ -357,41 +359,38 @@ export class ChatGateway implements OnModuleInit {
     }
   }
 
-  private async checkUserInviteIsNotPending(user: ChatParticipantEntity) {
-    if (!user) {
+  private async checkUserInviteIsNotPending(invite: InviteEntity) {
+    if (!invite) {
       throw new ChatPermissionError(
-        `Unexpected error during invite check: participant does not exist.`,
+        `Unexpected error during invite check: invite does not exist.`,
       );
     }
-    if (user.invitedUntil > new Date().getTime()) {
+    if (invite.expiresAt > new Date().getTime()) {
       throw new ChatPermissionError(
-        `User '${user.participant.username}' invite to chat '${user.chatRoom.name}' is pending.`,
+        `User '${invite.invitedUser.username}' invite to chat '${invite.chatRoom.name}' is pending.`,
       );
     }
   }
 
-  private async checkUserInviteHasNotExpired(user: ChatParticipantEntity) {
-    if (!user) {
+  private async checkUserInviteHasNotExpired(username: string, chatRoomName: string) {
+    const invite = await this.inviteService.fetchInviteByInvitedUserChatRoomNames(username, chatRoomName);
+    if (!invite) {
       throw new ChatPermissionError(
-        `Unexpected error during invite check: participant does not exist.`,
+        `User '${username}' has not been invited to chat '${chatRoomName}'.`,
       );
     }
-    if (user.invitedUntil < new Date().getTime()) {
+    if (invite.expiresAt < new Date().getTime()) {
+      this.inviteService.deleteInviteByID(invite.id);
       throw new ChatPermissionError(
-        `User '${user.participant.username}' invite to chat '${user.chatRoom.name}' has expired.`,
+        `User '${username}' invite to chat '${chatRoomName}' has expired.`,
       );
     }
   }
 
   private async checkUserHasNotAlreadyAcceptedInvite(
-    user: ChatParticipantEntity,
+    user: ChatParticipantEntity
   ) {
-    if (!user) {
-      throw new ChatPermissionError(
-        `Unexpected error during invite check: participant does not exist.`,
-      );
-    }
-    if (user.invitedUntil === 0) {
+    if (user) {
       throw new ChatPermissionError(
         `User '${user.participant.username}' has already accepted invite to chat '${user.chatRoom.name}'.`,
       );
@@ -556,61 +555,47 @@ export class ChatGateway implements OnModuleInit {
     });
   }
 
-  private async inviteUserUntil(
+  private async inviteUser(
     chatRoomName: string,
     username: string,
-    targetUsername: string,
-    inviteUntil: number,
+    targetUsername: string
   ) {
-    // TODO: Check if user has rights to invite target.
     const user = await this.getParticipant(chatRoomName, username);
+    if (!user) {
+      throw new InviteCreationError(`${user.participant.username} cannot invite: not in chat room.`);
+    }
 
     var target =
       await this.chatParticipantsService.fetchParticipantByUserChatNames(
         targetUsername,
         chatRoomName,
       );
-
     if (target) {
-      // Target is in chan => has already been invited or accepted invite
-      await this.checkUserHasNotAlreadyAcceptedInvite(target);
-      await this.checkUserInviteIsNotPending(target);
-      // If invite is not already accepted or still pending, it has expired,
-      // which means we should update the user invite.
-      await this.chatParticipantsService.updateParticipantByID(target.id, {
-        owner: target.owner,
-        operator: target.operator,
-        banned: target.banned,
-        mutedUntil: target.mutedUntil,
-        invitedUntil: inviteUntil,
-      });
-    } else if (!target) {
-      // Target in not in chan => has not been invited yet
-      target = await this.chatsService.inviteParticipantToChatByUsername(
-        chatRoomName,
-        targetUsername,
-        inviteUntil,
-      );
+      throw new InviteCreationError(`${target.participant.username} cannot be invited: already in chat room ${chatRoomName}`);
     }
-    return inviteUntil;
+    const invite = await this.inviteService.createInvite({
+      type: 'chat',
+      senderUsername: username,
+      invitedUsername: targetUsername,
+      chatRoomName: chatRoomName
+    });
+    return invite.expiresAt;
   }
 
   private async acceptUserInvite(chatRoomName: string, username: string) {
     try {
-      const user = await this.getParticipant(chatRoomName, username);
-      await this.checkUserIsNotBanned(user);
-      await this.checkUserHasNotAlreadyAcceptedInvite(user);
-      await this.checkUserInviteHasNotExpired(user);
+      const invite = await this.inviteService.fetchInviteByInvitedUserChatRoomNames(username, chatRoomName);
+      await this.checkUserInviteHasNotExpired(username, chatRoomName);
 
-      // if participant is currently invited (invite has not expired), set invited timestamp to 0
-      // to indicate the invite was accepted
-      await this.chatParticipantsService.updateParticipantByID(user.id, {
-        operator: user.operator,
-        owner: user.owner,
-        banned: user.banned,
-        mutedUntil: user.mutedUntil,
-        invitedUntil: 0,
-      });
+      const user = await this.getParticipant(chatRoomName, username);
+      if (user) {
+        await this.checkUserHasNotAlreadyAcceptedInvite(user);
+        await this.checkUserIsNotBanned(user);
+      }
+
+      await this.chatParticipantsService.createChatParticipant(invite.invitedUser.id, invite.chatRoom.id, invite.expiresAt);
+      await this.inviteService.deleteInviteByID(invite.id);
+
     } catch (e) {
       // if participant is not currently invited and is trying to accept an invite, delete
       // participant from channel so participant can be invited again.
