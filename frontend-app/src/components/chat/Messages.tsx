@@ -80,7 +80,7 @@ export const Messages = (
     }
     return (
       // TODO: make actual type
-      <div id="invite">
+      <div id="messages invite">
         <p>{text}</p>
         <button id="accept">Accept</button>
         <button id="refuse">Refuse</button>

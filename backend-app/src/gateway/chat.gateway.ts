@@ -186,12 +186,12 @@ export class ChatGateway implements OnModuleInit {
       info.invite_date = new Date(
         Date.now() + 1 * (60 * 60 * 1000), // time + 1 hour
       ).getTime();
-      await this.inviteUserUntil(
-        info.channel_name,
-        info.current_user,
-        info.target_user,
-        info.invite_date,
-      );
+      // await this.inviteUserUntil(
+      //   info.channel_name,
+      //   info.current_user,
+      //   info.target_user,
+      //   info.invite_date,
+      // );
       this.server.emit('invite', info);
     } catch (e) {
       var err_msg = '[Chat Gateway]: Chat invite error:' + e.message;
