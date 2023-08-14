@@ -192,12 +192,18 @@ export class ChatGateway implements OnModuleInit {
         info.target_user,
         info.invite_date,
       );
-      await this.onDM(info); // Create dm in case not created yet
-      console.log('Searching for dm');
       var dm_channel = await this.chatsService.fetchDMByUsernames(
         info.current_user,
         info.target_user,
       );
+      if (!dm_channel) {
+        console.log('Creating dm channel');
+        await this.onDM(info); // Create dm in case not created yet
+        dm_channel = await this.chatsService.fetchDMByUsernames(
+          info.current_user,
+          info.target_user,
+        );
+      }
       console.log(dm_channel);
       info.dm_channel = dm_channel.name;
 
