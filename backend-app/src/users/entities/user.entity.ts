@@ -15,6 +15,10 @@ export class UserEntity {
     username: string;
 
     @ApiProperty()
+    @Column({ nullable: true })
+    password: string;
+
+    @ApiProperty()
     @Column()
     email: string;
 
