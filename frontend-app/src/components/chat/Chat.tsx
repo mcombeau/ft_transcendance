@@ -270,8 +270,14 @@ export const Chat = () => {
       });
     });
 
+    var request = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: cookies["token"],
+      },
+    };
     if (channels.length === 0) {
-      fetch("http://localhost:3001/chats").then(async (response) => {
+      fetch("http://localhost:3001/chats", request).then(async (response) => {
         const data = await response.json();
         if (!response.ok) {
           console.log("error response load channels");
@@ -302,23 +308,25 @@ export const Chat = () => {
     }
 
     if (messages.length === 0) {
-      fetch("http://localhost:3001/chat-messages").then(async (response) => {
-        const data = await response.json();
-        if (!response.ok) {
-          console.log("error response load messages");
-          return;
+      fetch("http://localhost:3001/chat-messages", request).then(
+        async (response) => {
+          const data = await response.json();
+          if (!response.ok) {
+            console.log("error response load messages");
+            return;
+          }
+          data.map((e: any) => {
+            var msg: Message = {
+              datestamp: e.sentAt,
+              msg: e.message,
+              sender: e.sender.username,
+              channel: e.chatRoom.name,
+              read: true,
+            };
+            setMessages((prev) => [...prev, msg]);
+          });
         }
-        data.map((e: any) => {
-          var msg: Message = {
-            datestamp: e.sentAt,
-            msg: e.message,
-            sender: e.sender.username,
-            channel: e.chatRoom.name,
-            read: true,
-          };
-          setMessages((prev) => [...prev, msg]);
-        });
-      });
+      );
     }
 
     return () => {

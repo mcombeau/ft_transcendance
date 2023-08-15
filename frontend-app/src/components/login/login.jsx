@@ -35,7 +35,7 @@ function Login() {
           console.log("error user login");
           return;
         }
-        setCookie("token", data.access_token, { path: "/" });
+        setCookie("token", `Bearer ${data.access_token}`, { path: "/" });
         setCookie("Username", username, { path: "/" });
         console.log("Access Token " + data.access_token);
       }
@@ -45,7 +45,6 @@ function Login() {
   };
 
   const signIn = (e) => {
-    console.log("I am heeeeere");
     e.preventDefault();
     if (newUsername === "" || newPassword === "" || email === "") return;
     var request = {
