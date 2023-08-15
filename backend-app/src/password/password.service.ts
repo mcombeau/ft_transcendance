@@ -5,12 +5,7 @@ import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class PasswordService {
-  constructor(
-    @Inject(forwardRef(() => UsersService))
-      private userService: UsersService,
-    @Inject(forwardRef( () => ChatsService))
-      private chatService: ChatsService,
-  ) {}
+  constructor() {}
 
   async hashPassword(password: string) {
     const salt = await bcrypt.genSalt();
