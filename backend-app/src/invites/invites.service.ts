@@ -66,6 +66,15 @@ export class InvitesService {
     })
   }
 
+  async fetchAllInvitesByInvitedUserChatRoomNames(invitedUsername: string, chatRoomName: string) {
+    const chatRoom = await this.chatService.fetchChatByName(chatRoomName);
+    const user = await this.userService.fetchUserByUsername(invitedUsername);
+    return this.inviteRepository.find({
+      where: { invitedUser: user, chatRoom: chatRoom },
+      relations: ['inviteSender', 'invitedUser', 'chatRoom'],
+    })
+  }
+
   async createInvite(inviteDetails: inviteParams): Promise<InviteEntity> {
     switch(inviteDetails.type) {
       case inviteType.CHAT:
@@ -124,6 +133,14 @@ export class InvitesService {
   private async createFriendInvite(inviteDetails: inviteParams) {
     // TODO [mcombeau]: implement this
     throw new InviteCreationError('friend invites not implemented yet.');
+  }
+
+  async deleteInvitesByInvitedUserChatRoomName(invitedUsername: string, chatRoomName: string) {
+    const invites = await this.fetchAllInvitesByInvitedUserChatRoomNames(invitedUsername, chatRoomName);
+    for (const e of invites) {
+      await this.deleteInviteByID(e.id);
+    }
+    return;
   }
 
   async deleteInviteByID(id: number) {

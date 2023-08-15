@@ -562,15 +562,12 @@ export class ChatGateway implements OnModuleInit {
     });
   }
 
-  private async inviteUser(
-    chatRoomName: string,
-    username: string,
-    targetUsername: string,
+  private async inviteUser(chatRoomName: string, username: string, targetUsername: string,
   ) {
     const user = await this.getParticipant(chatRoomName, username);
     if (!user) {
       throw new InviteCreationError(
-        `${user.participant.username} cannot invite: not in chat room.`,
+        `${user.participant.username} cannot invite: invite sender not in chat room.`,
       );
     }
 
@@ -602,6 +599,7 @@ export class ChatGateway implements OnModuleInit {
         );
       await this.checkUserInviteHasNotExpired(username, chatRoomName);
 
+      // TODO: can a banned user be invited to chatroom?
       const user = await this.getParticipant(chatRoomName, username);
       if (user) {
         await this.checkUserHasNotAlreadyAcceptedInvite(user);
@@ -613,15 +611,8 @@ export class ChatGateway implements OnModuleInit {
         invite.chatRoom.id,
         invite.expiresAt,
       );
-      await this.inviteService.deleteInviteByID(invite.id);
+      await this.inviteService.deleteInvitesByInvitedUserChatRoomName(username, chatRoomName);
     } catch (e) {
-      // if participant is not currently invited and is trying to accept an invite, delete
-      // participant from channel so participant can be invited again.
-      await this.chatParticipantsService.deleteParticipantInChatByUsername(
-        username,
-        chatRoomName,
-      );
-      // And pass along the error we encountered.
       throw new ChatPermissionError(e.message);
     }
   }
