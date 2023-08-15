@@ -12,7 +12,4 @@ export class updateParticipantDto {
 
   @IsNumber()
   mutedUntil: number;
-
-  @IsNumber()
-  invitedUntil: number;
 }

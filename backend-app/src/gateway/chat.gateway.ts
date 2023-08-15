@@ -419,7 +419,7 @@ export class ChatGateway implements OnModuleInit {
     if (chatRoom.private === true) {
       throw new ChatJoinError(`Chat '${chatRoomName}' is private.`);
     }
-    if (participant && participant.invitedUntil === 0) {
+    if (participant) {
       throw new ChatJoinError(
         `User '${username}' is already in chat '${chatRoomName}'.`,
       );
@@ -476,7 +476,6 @@ export class ChatGateway implements OnModuleInit {
       banned: target.banned,
       owner: target.owner,
       mutedUntil: newMutedTimestamp,
-      invitedUntil: target.invitedUntil,
     };
     await this.chatParticipantsService.updateParticipantByID(
       target.id,
@@ -501,8 +500,7 @@ export class ChatGateway implements OnModuleInit {
       operator: !target.operator,
       banned: target.banned,
       owner: target.owner,
-      mutedUntil: target.mutedUntil,
-      invitedUntil: target.invitedUntil,
+      mutedUntil: target.mutedUntil
     });
   }
 
@@ -524,8 +522,7 @@ export class ChatGateway implements OnModuleInit {
         operator: target.operator,
         banned: true,
         owner: target.owner,
-        mutedUntil: target.mutedUntil,
-        invitedUntil: target.invitedUntil,
+        mutedUntil: target.mutedUntil
       });
     }
   }

@@ -20,7 +20,4 @@ export class createParticipantDto {
 
   @IsNumber()
   mutedUntil: bigint;
-
-  @IsNumber()
-  invitedUntil: bigint;
 }

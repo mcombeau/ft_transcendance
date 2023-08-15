@@ -127,8 +127,7 @@ export class ChatsService {
       owner: true,
       operator: true,
       banned: false,
-      mutedUntil: new Date().getTime(),
-      invitedUntil: 0,
+      mutedUntil: new Date().getTime()
     });
     return newSavedChat;
   }

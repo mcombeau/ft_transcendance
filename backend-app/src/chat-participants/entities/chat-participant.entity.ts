@@ -26,9 +26,6 @@ export class ChatParticipantEntity {
   
   @Column({ default: new Date().getTime(), type: 'bigint' })
   mutedUntil: number;
-
-  @Column({ default: new Date().getTime(), type: 'bigint' })
-  invitedUntil: number;
   
   @ManyToOne(() => ChatEntity, (chat) => chat.participants, {
     cascade: true,
