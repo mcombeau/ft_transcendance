@@ -10,6 +10,9 @@ import { useCookies } from "react-cookie";
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [newUsername, setNewUsername] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [email, setEmail] = useState("");
   const [cookies, setCookie, removeCookie] = useCookies(["cookie-name"]);
 
   const InstagramBackground =
@@ -41,6 +44,35 @@ function Login() {
     setPassword("");
   };
 
+  const signIn = (e) => {
+    console.log("I am heeeeere");
+    e.preventDefault();
+    if (newUsername === "" || newPassword === "" || email === "") return;
+    var request = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: newUsername,
+        password: newPassword,
+        email: email,
+      }),
+    };
+    fetch("http://localhost:3001/users", request).then(async (response) => {
+      const data = await response.json();
+      if (!response.ok) {
+        console.log("error user creation");
+        return;
+      }
+      console.log("Response: ", data);
+      console.log("New user ", newUsername, " ", newPassword, " ", email);
+    });
+    setNewUsername("");
+    setNewPassword("");
+    setEmail("");
+  };
+
   return (
     <MainContainer id="login">
       <div className="log">
@@ -61,6 +93,37 @@ function Login() {
             value={password}
             onChange={(e) => {
               setPassword(e.target.value);
+            }}
+          />
+          {/* </InputContainer> */}
+          <ButtonContainer>
+            <Button content="Login" />
+          </ButtonContainer>
+        </form>
+        <form onSubmit={signIn}>
+          {/* <InputContainer> */}
+          <input
+            type="text"
+            placeholder="Username"
+            value={newUsername}
+            onChange={(e) => {
+              setNewUsername(e.target.value);
+            }}
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+            }}
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={newPassword}
+            onChange={(e) => {
+              setNewPassword(e.target.value);
             }}
           />
           {/* </InputContainer> */}
