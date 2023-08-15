@@ -7,6 +7,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { ChatsService } from './chats.service';
 import { createChatDMDto, createChatDto } from './dtos/createChats.dto';
@@ -14,8 +15,10 @@ import { updateChatDto } from './dtos/updateChats.dto';
 import { ChatNotFoundException } from 'src/exceptions/not-found.exception';
 import { ApiBadRequestResponse, ApiCreatedResponse, ApiOkResponse, ApiTags, ApiUnprocessableEntityResponse } from '@nestjs/swagger';
 import { ChatEntity } from './entities/chat.entity';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('chats')
+@UseGuards(JwtAuthGuard)
 @ApiTags('chats')
 export class ChatsController {
   constructor(private chatService: ChatsService) {}
