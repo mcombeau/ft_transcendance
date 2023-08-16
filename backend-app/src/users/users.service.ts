@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PasswordService } from 'src/password/password.service';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { createUserParams } from 'src/users/utils/types';
 import { updateUserParams } from 'src/users/utils/types';
@@ -9,7 +10,9 @@ import { Repository } from 'typeorm';
 export class UsersService {
   constructor(
     @InjectRepository(UserEntity)
-    private userRepository: Repository<UserEntity>,
+      private userRepository: Repository<UserEntity>,
+    @Inject(forwardRef( () => PasswordService))
+      private passwordService: PasswordService,
   ) {}
 
   fetchUsers() {
@@ -17,6 +20,8 @@ export class UsersService {
   }
 
   async createUser(userDetails: createUserParams) {
+    const hashedPassword = await this.passwordService.hashPassword(userDetails.password);
+    userDetails.password = hashedPassword;
     const newUser = this.userRepository.create({
       ...userDetails,
       createdAt: new Date(),
@@ -25,11 +30,17 @@ export class UsersService {
   }
 
   fetchUserByID(id: number) {
-    return this.userRepository.findOne({ where: { id }, relations: ['chatRooms.chatRoom'] });
+    return this.userRepository.findOne({
+      where: { id },
+      relations: ['chatRooms.chatRoom'],
+    });
   }
 
   fetchUserByUsername(username: string) {
-    return this.userRepository.findOne({ where: { username: username }, relations: ['chatRooms.chatRoom'] });
+    return this.userRepository.findOne({
+      where: { username: username },
+      relations: ['chatRooms.chatRoom'],
+    });
   }
 
   updateUserByID(id: number, userDetails: updateUserParams) {

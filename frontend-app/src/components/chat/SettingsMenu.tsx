@@ -32,7 +32,6 @@ export const SettingsMenu = (
     var leave_button = (
       <button
         onClick={() => {
-          // TODO: change
           console.log("Leaving " + current_channel.name);
           socket.emit("leave chat", {
             channel_name: current_channel.name,
@@ -46,7 +45,6 @@ export const SettingsMenu = (
       </button>
     );
     if (checkStatus(current_channel, current_user) == Status.Owner) {
-      // TODO: change that
       leave_button = (
         <button
           onClick={() => {
@@ -57,20 +55,24 @@ export const SettingsMenu = (
           Delete channel
         </button>
       );
-      var add_participant = // TODO : integrate later ? or scrap ?
-        (
-          <form id="add_participant" onSubmit={addNewParticipant}>
+      var private_public = (
+        <div>
+          <label className="switch">
             <input
-              type="text"
-              value={newParticipant}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                e.preventDefault();
-                setNewParticipant(e.target.value);
+              type="checkbox"
+              checked={current_channel.private}
+              onChange={() => {
+                socket.emit("toggle private", {
+                  channel_name: current_channel.name,
+                  sender: current_user,
+                });
               }}
-            ></input>
-            <button>Add</button>
-          </form>
-        );
+            />
+            <span className="slider round"></span>
+          </label>
+          <p className="private switch">Set channel as private</p>
+        </div>
+      );
     }
     return (
       <div className="settings">
@@ -78,7 +80,8 @@ export const SettingsMenu = (
           Settings for {current_channel.name} (
           {current_channel.private ? "private" : "public"})
         </h3>
-        {leave_button}
+        {leave_button} <br></br>
+        {private_public}
         <h3>Channel members</h3>
         {ListParticipants(current_channel, navigate, current_user, socket)}
         <button

@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import { NavigateFunction } from "react-router-dom";
 import { Socket } from "socket.io-client";
-import { Message, Channel } from "./Chat";
+import { Message, Channel, Invite, typeInvite } from "./Chat";
 import { ContextMenuEl } from "./ContextMenu";
 
 export const Messages = (
@@ -12,7 +12,9 @@ export const Messages = (
   settings: boolean,
   contextMenu: boolean,
   setContextMenu: Dispatch<SetStateAction<boolean>>,
-  socket: Socket
+  socket: Socket,
+  invitesPannel: boolean,
+  invites: Invite[]
 ) => {
   const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
   const [contextMenuSender, setContextMenuSender] = useState("");
@@ -24,8 +26,15 @@ export const Messages = (
     ) {
       return;
     }
-    if (msg.channel != current_channel.name) return;
-    if (msg.sender == username) {
+    if (msg.channel !== current_channel.name) return;
+    if (msg.system) {
+      return (
+        <div id="announcement">
+          <li>{msg.msg}</li>
+        </div>
+      );
+    }
+    if (msg.sender === username) {
       return (
         <div id="rightmessage">
           <span
@@ -64,6 +73,36 @@ export const Messages = (
       </div>
     );
   };
+
+  const inviteStatus = (invite: Invite) => {
+    if (invite.type === typeInvite.Chat) {
+      var text = `${invite.sender} invites you to join the chat ${invite.target}`;
+    }
+    return (
+      // TODO: make actual type
+      <div id="messages invite">
+        <p>{text}</p>
+        <button id="accept">Accept</button>
+        <button id="refuse">Refuse</button>
+      </div>
+    );
+  };
+  if (invitesPannel) {
+    return (
+      <div id="messages">
+        {invites.map((invite: Invite) => inviteStatus(invite))}
+        {ContextMenuEl(
+          contextMenu,
+          contextMenuSender,
+          setContextMenu,
+          contextMenuPos,
+          socket,
+          current_channel,
+          username
+        )}
+      </div>
+    );
+  }
 
   return (
     <div id="messages">

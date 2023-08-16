@@ -3,26 +3,60 @@ import Button from "./Button";
 import Icon from "./Icon";
 import Input from "./Input";
 import "./login.css";
+import { FaInstagram } from "react-icons/fa";
 import { useState } from "react";
 import { useCookies } from "react-cookie";
 
 function Login() {
   const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [newUsername, setNewUsername] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [email, setEmail] = useState("");
   const [cookies, setCookie, removeCookie] = useCookies(["cookie-name"]);
 
   const InstagramBackground =
     "linear-gradient(to right, #A12AC4 0%, #ED586C 40%, #F0A853 100%)";
 
-  const createUser = (e) => {
+  const sendAuth = (e) => {
     e.preventDefault();
-    // Create new channel
-    if (username == "") return;
+    if (username === "" || password === "") return;
     var request = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username: username, email: "mail@mail.com" }),
+      body: JSON.stringify({ username: username, password: password }),
+    };
+    fetch("http://localhost:3001/auth/login", request).then(
+      async (response) => {
+        const data = await response.json();
+        if (!response.ok) {
+          console.log("error user login");
+          return;
+        }
+        setCookie("token", `Bearer ${data.access_token}`, { path: "/" });
+        setCookie("Username", username, { path: "/" });
+        console.log("Access Token " + data.access_token);
+      }
+    );
+    setUsername("");
+    setPassword("");
+  };
+
+  const signIn = (e) => {
+    e.preventDefault();
+    if (newUsername === "" || newPassword === "" || email === "") return;
+    var request = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: newUsername,
+        password: newPassword,
+        email: email,
+      }),
     };
     fetch("http://localhost:3001/users", request).then(async (response) => {
       const data = await response.json();
@@ -30,19 +64,21 @@ function Login() {
         console.log("error user creation");
         return;
       }
-      setCookie("Username", username, { path: "/" });
-      console.log("My username is " + username);
+      console.log("Response: ", data);
+      console.log("New user ", newUsername, " ", newPassword, " ", email);
     });
-    setUsername("");
+    setNewUsername("");
+    setNewPassword("");
+    setEmail("");
   };
 
   return (
-  <form onSubmit={createUser}>
     <MainContainer id="login">
       <div className="log">
         <WelcomeText>Welcome to the Game</WelcomeText>
-          <InputContainer>
-          <Input
+        <form onSubmit={sendAuth}>
+          {/* <InputContainer> */}
+          <input
             type="text"
             placeholder="Username"
             value={username}
@@ -50,22 +86,60 @@ function Login() {
               setUsername(e.target.value);
             }}
           />
-          <Input type="password" placeholder="Password" />
-          </InputContainer>
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+            }}
+          />
+          {/* </InputContainer> */}
+          <ButtonContainer>
+            <Button content="Login" />
+          </ButtonContainer>
+        </form>
+        <form onSubmit={signIn}>
+          {/* <InputContainer> */}
+          <input
+            type="text"
+            placeholder="Username"
+            value={newUsername}
+            onChange={(e) => {
+              setNewUsername(e.target.value);
+            }}
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+            }}
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={newPassword}
+            onChange={(e) => {
+              setNewPassword(e.target.value);
+            }}
+          />
+          {/* </InputContainer> */}
           <ButtonContainer>
             <Button content="Sign Up" />
           </ButtonContainer>
+        </form>
         <LoginWith>OR LOGIN WITH</LoginWith>
         <HorizontalRule />
         <IconsContainer>
           <Icon color={InstagramBackground}>
-            <a href="#"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/42_Logo.svg/1200px-42_Logo.svg.png" alt="School 42" width="45px" height="40px" /></a>
+            <FaInstagram />
           </Icon>
         </IconsContainer>
-        <ForgotPassword>Forgot Password?</ForgotPassword>
+        <ForgotPassword>Forgot Password ?</ForgotPassword>
       </div>
     </MainContainer>
-  </form>
   );
 }
 

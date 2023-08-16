@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 import { Socket } from "socket.io-client";
-import { Channel, Message } from "./Chat";
+import { Channel, Invite, Message } from "./Chat";
 
 export const SidePannel = (
   newchannel: string,
@@ -14,7 +14,9 @@ export const SidePannel = (
   setSettings: Dispatch<SetStateAction<boolean>>,
   setContextMenu: Dispatch<SetStateAction<boolean>>,
   channels: Channel[],
-  username: string
+  username: string,
+  invitesPannel: boolean,
+  setInvitesPannel: Dispatch<SetStateAction<boolean>>
 ) => {
   const createChannel = (e: any) => {
     e.preventDefault();
@@ -30,6 +32,32 @@ export const SidePannel = (
     });
   };
 
+  function getDMChannelAlias(channel: Channel, current_user: string) {
+    return channel.participants.find((p) => p.username != current_user)
+      .username;
+  }
+
+  const invitePannel = () => {
+    var classname = "channotCurrent";
+    if (invitesPannel) {
+      classname = "chanCurrent";
+    }
+    return (
+      <div id="channel-info">
+        <li
+          value={"INVITES"}
+          onClick={(e) => {
+            setCurrentChannel("");
+            setInvitesPannel(true);
+          }}
+          className={classname}
+        >
+          INVITES
+        </li>
+      </div>
+    );
+  };
+
   const channelInfo = (channel: Channel) => {
     var isCurrent = channel.name == current_channel;
     var unreadMessages: number = messages
@@ -39,6 +67,17 @@ export const SidePannel = (
       .filter((msg) => {
         return msg.read == false;
       }).length;
+    var channel_alias = channel.dm
+      ? `💬 ${getDMChannelAlias(channel, username)}`
+      : channel.name;
+    var classname = "channotCurrent";
+    if (isCurrent) {
+      classname = "chanCurrent";
+    }
+    if (channel.dm) {
+      console.log(channel.name, " is a dm");
+      classname += " dm";
+    }
     return (
       <div id="channel-info">
         <li
@@ -46,6 +85,7 @@ export const SidePannel = (
           onClick={(e) => {
             var target = (e.target as HTMLInputElement).getAttribute("value");
             setCurrentChannel(target);
+            setInvitesPannel(false);
             setMessages(
               messages.map((msg) => {
                 if (msg.channel == target) {
@@ -56,16 +96,17 @@ export const SidePannel = (
               })
             );
           }}
-          className={isCurrent ? "chanCurrent" : "channotCurrent"}
+          className={classname}
         >
           {unreadMessages > 0 && <p>{unreadMessages}</p>}
-          {channel.name}
+          {channel_alias}
           <button
             value={channel.name}
             onClick={(e) => {
               setCurrentChannel(
                 (e.target as HTMLInputElement).getAttribute("value")
               );
+              setInvitesPannel(false);
               setSettings(!settings);
               setContextMenu(false);
             }}
@@ -82,11 +123,6 @@ export const SidePannel = (
                   "value"
                 ),
               });
-              // setCurrentChannel(
-              //   (e.target as HTMLInputElement).getAttribute("value")
-              // );
-              // setSettings(!settings);
-              // setContextMenu(false);
             }}
           >
             Join
@@ -108,6 +144,7 @@ export const SidePannel = (
         <button>+</button>
       </form>
       <div id="channels">
+        {invitePannel()}
         {channels.map((channel: Channel) => channelInfo(channel))}
       </div>
     </div>

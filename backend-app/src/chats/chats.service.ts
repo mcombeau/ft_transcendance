@@ -6,11 +6,15 @@ import {
   createChatParams,
   createDMParams,
   updateChatParams,
+  participantUsernames,
 } from './utils/types';
 import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
 import { ChatParticipantsService } from 'src/chat-participants/chat-participants.service';
 import { ChatCreationError } from 'src/exceptions/bad-request.interceptor';
 import { UsersService } from 'src/users/users.service';
+import * as bcrypt from 'bcrypt';
+import { WsException } from '@nestjs/websockets';
+import { ChatFetchError } from 'src/exceptions/bad-request.exception';
 
 @Injectable()
 export class ChatsService {
@@ -25,18 +29,87 @@ export class ChatsService {
     private userService: UsersService,
   ) {}
 
+  private async hashPassword(password: string) {
+    const salt = await bcrypt.genSalt();
+    const hash = await bcrypt.hash(password, salt);
+    console.log('[Chat Service] Hashed password "', password, '"', hash);
+    return hash;
+  }
+
+  private async checkPassword(password: string, hash: string) {
+    const isMatch = await bcrypt.compare(password, hash);
+    console.log('[Chat Service] Password "', password, '" is match?', isMatch);
+    return isMatch;
+  }
+
+  public async checkPasswordForChatByName(password: string, chatName: string) {
+    const chatRoom = await this.fetchChatByName(chatName);
+    if (!chatRoom) {
+      return false;
+    }
+    return this.checkPassword(password, chatRoom.password);
+  }
+
+  public async checkPasswordForChatByID(password: string, chatRoomID: number) {
+    const chatRoom = await this.fetchChatByID(chatRoomID);
+    if (!chatRoom) {
+      return false;
+    }
+    return this.checkPassword(password, chatRoom.password);
+  }
+
   fetchChats() {
     return this.chatRepository.find({
       relations: ['participants.participant'],
     });
   }
 
+  fetchPublicChats() {
+    return this.chatRepository.find({
+      where: { private: false },
+      relations: ['participants.participant'],
+    });
+  }
+
+  fetchDMChats() {
+    return this.chatRepository.find({
+      where: { directMessage: true },
+      relations: ['participants.participant'],
+    });
+  }
+
+  async fetchParticipantUsernamesByChatName(chatRoomName: string) {
+    const chat = await this.fetchChatByName(chatRoomName);
+    if (!chat) {
+      throw new ChatFetchError(chatRoomName);
+    }
+    var participantUsernames: participantUsernames[] = [];
+    for (const e of chat.participants) {
+      participantUsernames.push({
+        username: e.participant.username,
+      });
+    }
+    return participantUsernames;
+  }
+
+  async fetchUserChatsByUsername(username: string) {
+    const user = await this.userService.fetchUserByUsername(username);
+    return this.chatParticipantService.fetchParticipantsByUserID(user.id);
+  }
+
   async createChat(chatDetails: createChatParams) {
+    if (chatDetails.name.startsWith('DM:')) {
+      throw new ChatCreationError(
+        `'${chatDetails.name}': Chat name cannot start with "DM:"`,
+      );
+    }
     const user = await this.userService.fetchUserByUsername(chatDetails.owner);
+    const passwordHash = await this.hashPassword(chatDetails.password);
     const newChat = this.chatRepository.create({
       name: chatDetails.name,
-      password: chatDetails.password,
+      password: passwordHash,
       private: chatDetails.private,
+      directMessage: false,
       createdAt: new Date(),
     });
     const newSavedChat = await this.chatRepository
@@ -54,19 +127,24 @@ export class ChatsService {
       owner: true,
       operator: true,
       banned: false,
-      mutedUntil: new Date().getTime(),
-      invitedUntil: 0
+      mutedUntil: new Date().getTime()
     });
     return newSavedChat;
   }
 
   async createChatDM(chatDetails: createDMParams) {
+    if (!chatDetails.name.startsWith('DM:')) {
+      throw new ChatCreationError(
+        `'${chatDetails.name}': DM chat must start with "DM:"`,
+      );
+    }
     const user1 = await this.userService.fetchUserByUsername(chatDetails.user1);
     const user2 = await this.userService.fetchUserByUsername(chatDetails.user2);
     const newChat = this.chatRepository.create({
       name: chatDetails.name,
       password: chatDetails.password,
       private: true,
+      directMessage: true,
       createdAt: new Date(),
     });
     const newSavedChat = await this.chatRepository
@@ -78,12 +156,12 @@ export class ChatsService {
       await this.chatParticipantService.createChatParticipant(
         user1.id,
         newSavedChat.id,
-        0
+        0,
       );
       await this.chatParticipantService.createChatParticipant(
         user2.id,
         newSavedChat.id,
-        0
+        0,
       );
     } catch (err: any) {
       this.deleteChatByID(newSavedChat.id);
@@ -103,6 +181,18 @@ export class ChatsService {
   fetchChatByName(name: string) {
     return this.chatRepository.findOne({
       where: { name },
+      relations: ['messages', 'participants.participant'],
+    });
+  }
+
+  fetchDMByUsernames(name1: string, name2: string) {
+    if (name1 < name2) {
+      var name = `DM: ${name1} / ${name2}`;
+    } else {
+      name = `DM: ${name2} / ${name1}`;
+    }
+    return this.chatRepository.findOne({
+      where: { name, directMessage: true },
       relations: ['messages', 'participants.participant'],
     });
   }
@@ -127,18 +217,22 @@ export class ChatsService {
     return this.chatParticipantService.createChatParticipant(
       user.id,
       chatRoom.id,
-      0
+      0,
     );
   }
 
-  async inviteParticipantToChatByUsername(chatRoomName: string, username: string, inviteExpiryDate: number) {
+  async inviteParticipantToChatByUsername(
+    chatRoomName: string,
+    username: string,
+    inviteExpiryDate: number,
+  ) {
     const user = await this.userService.fetchUserByUsername(username);
     const chatRoom = await this.fetchChatByName(chatRoomName);
 
     return this.chatParticipantService.createChatParticipant(
       user.id,
       chatRoom.id,
-      inviteExpiryDate
+      inviteExpiryDate,
     );
   }
 

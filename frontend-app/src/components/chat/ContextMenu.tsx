@@ -1,4 +1,4 @@
-import { ChangeStatus, isMuted, isUserMuted, Status } from "./Chat";
+import { ChangeStatus, isMuted, Status } from "./Chat";
 import { useRef } from "react";
 import { Socket } from "socket.io-client";
 import { Channel } from "./Chat";
@@ -6,7 +6,7 @@ import { checkStatus } from "./Chat";
 
 export const ContextMenuEl = (
   contextMenu: boolean,
-  contextMenuSender: string,
+  target_user: string,
   setContextMenu: any,
   contextMenuPos: any,
   socket: Socket,
@@ -14,18 +14,31 @@ export const ContextMenuEl = (
   current_user: string
 ) => {
   const menuRef = useRef<HTMLDivElement>(null);
+  if (!contextMenu) {
+    return <div></div>;
+  }
+  // TODO: refact li
   var options = (
     <ul>
       <li
         onClick={() => {
-          console.log("Blocked " + contextMenuSender);
+          console.log("Blocked " + target_user);
           setContextMenu(false);
         }}
       >
         Block
       </li>
-      {checkStatus(channel, current_user) === Status.Operator &&
-      checkStatus(channel, contextMenuSender) !== Status.Owner ? (
+      <li
+        onClick={() => {
+          console.log("DM " + target_user);
+          ChangeStatus("dm", socket, "", current_user, target_user);
+          setContextMenu(false);
+        }}
+      >
+        DM
+      </li>
+      {checkStatus(channel, current_user) !== Status.Operator && // TODO: double check logic
+      checkStatus(channel, target_user) !== Status.Owner ? (
         <div>
           <li
             onClick={() => {
@@ -34,23 +47,23 @@ export const ContextMenuEl = (
                 socket,
                 channel.name,
                 current_user,
-                contextMenuSender,
-                1 // TODO: parametrize later
+                target_user,
+                1
               );
               setContextMenu(false);
             }}
           >
-            {isMuted(channel, contextMenuSender) ? "Unmute" : "Mute"}
+            {isMuted(channel, target_user) ? "Unmute" : "Mute (1 min)"}
           </li>
           <li
             onClick={() => {
-              console.log("Kicked " + contextMenuSender);
+              console.log("Kicked " + target_user);
               ChangeStatus(
                 "kick",
                 socket,
                 channel.name,
                 current_user,
-                contextMenuSender
+                target_user
               );
               setContextMenu(false);
             }}
@@ -59,18 +72,42 @@ export const ContextMenuEl = (
           </li>
           <li
             onClick={() => {
-              console.log("Banned " + contextMenuSender);
+              console.log("Banned " + target_user);
               ChangeStatus(
                 "ban",
                 socket,
                 channel.name,
                 current_user,
-                contextMenuSender
+                target_user
               );
               setContextMenu(false);
             }}
           >
             Ban
+          </li>
+          <li
+            onClick={() => {
+              console.log("Invited " + target_user);
+              var channel_name = prompt(
+                "Which channel do you want to send an invitation for ?"
+              );
+              console.log("THERE");
+              console.log("channame", channel_name);
+              if (channel_name === null) {
+                console.log("Cant invite to null channel");
+                return;
+              }
+              ChangeStatus(
+                "invite",
+                socket,
+                channel_name,
+                current_user,
+                target_user
+              );
+              setContextMenu(false);
+            }}
+          >
+            Invite
           </li>
         </div>
       ) : (
@@ -80,18 +117,18 @@ export const ContextMenuEl = (
         <div>
           <li
             onClick={() => {
-              console.log("Made operator " + contextMenuSender);
+              console.log("Made operator " + target_user);
               ChangeStatus(
                 "operator",
                 socket,
                 channel.name,
                 current_user,
-                contextMenuSender
+                target_user
               );
               setContextMenu(false);
             }}
           >
-            {checkStatus(channel, contextMenuSender) === Status.Operator
+            {checkStatus(channel, target_user) === Status.Operator
               ? "Remove from admins"
               : "Make admin"}
           </li>
@@ -101,9 +138,6 @@ export const ContextMenuEl = (
       )}
     </ul>
   );
-  if (!contextMenu) {
-    return <div></div>;
-  }
 
   return (
     <div
@@ -114,7 +148,7 @@ export const ContextMenuEl = (
         left: contextMenuPos.x + 15,
       }}
     >
-      <p>{contextMenuSender}</p>
+      <p>{target_user}</p>
       {options}
       <button onClick={() => setContextMenu(false)}>✕</button>
     </div>

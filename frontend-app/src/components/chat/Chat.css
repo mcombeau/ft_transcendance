@@ -25,6 +25,44 @@
   text-align: left;
 }
 
+#announcement {
+  padding: 0.2rem;
+  margin: 0.2rem 0.2rem 0.2rem 1.2rem;
+  background: transparent;
+}
+
+#announcement > li {
+  padding: 0.2rem;
+  margin: 0.2rem 0.2rem 0.2rem 0.75rem;
+  background: transparent;
+  color: gray;
+  font-size: small;
+  font-style: italic;
+  text-align: left;
+}
+
+#messages#invite {
+  padding: 1rem 1.5rem;
+  margin: 0.75rem 0rem 0.75rem 0.75rem;
+  border-radius: 10px;
+  color: white;
+  outline: none;
+  background: lightblue;
+  overflow-wrap: break-word;
+  text-align: left;
+}
+
+#invite > li {
+  padding: 1rem 1.5rem;
+  margin: 0.75rem 0rem 0.75rem 0.75rem;
+  border-radius: 10px;
+  color: white;
+  outline: none;
+  background: lightblue;
+  overflow-wrap: break-word;
+  text-align: left;
+}
+
 li#mine {
   padding: 1rem 1.5rem;
   list-style: none;
@@ -96,6 +134,14 @@ li#mine {
   background-color: darkcyan;
   list-style: none;
 }
+
+/* #channel-info > li.chanCurrent.dm { */
+/*   background-color: skyblue; */
+/* } */
+
+/* #channel-info > li.dm { */
+/*   background-color: lightskyblue; */
+/* } */
 
 #channel-info > li > button {
   position: absolute;
@@ -361,4 +407,76 @@ li#mine {
   padding: 0.2rem;
   margin: 0.1rem;
   color: white;
+}
+
+/* Slider button */
+
+/* The switch - the box around the slider */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 30px;
+  height: 17px;
+  margin: 0.5rem;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 13px;
+  width: 13px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+input:checked + .slider {
+  background-color: #2196f3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196f3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(13px);
+  -ms-transform: translateX(13px);
+  transform: translateX(13px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 17px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.private.switch {
+  /* position: relative; */
+  display: inline-block;
+  width: 50%;
 }

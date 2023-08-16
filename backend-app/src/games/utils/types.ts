@@ -1,13 +1,13 @@
 export type createGameParams = {
-    winnerName: string;
-    loserName: string;
+    winnerID: number;
+    loserID: number;
     winnerScore: number;
     loserScore: number;
 };
 
 export type updateGameParams = {
-    winnerName: string;
-    loserName: string;
+    winnerID: number;
+    loserID: number;
     winnerScore: number;
     loserScore: number;
 };

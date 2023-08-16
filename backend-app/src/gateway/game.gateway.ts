@@ -23,17 +23,15 @@ export class GameGateway implements OnModuleInit {
     @Inject(forwardRef(() => ChatsService))
     private chatsService: ChatsService,
     @Inject(forwardRef(() => GamesService))
-    private gameService: GamesService
+    private gameService: GamesService,
   ) {}
   @WebSocketServer()
   server: Server;
 
   onModuleInit() {
     this.server.on('connection', (socket) => {
-      console.log(socket.id);
-      console.log('[Game Gateway] A user connected');
       socket.on('disconnect', () => {
-        console.log('[Game Gateway] A user disconnected');
+        console.log('a user disconnected');
       });
     });
   }

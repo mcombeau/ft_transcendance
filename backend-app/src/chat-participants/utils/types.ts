@@ -3,5 +3,4 @@ export type updateParticipantParams = {
   owner: boolean;
   banned: boolean;
   mutedUntil: number;
-  invitedUntil: number;
 };

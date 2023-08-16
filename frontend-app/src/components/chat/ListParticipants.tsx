@@ -173,6 +173,26 @@ export const ListParticipants = (
           </div>
         );
       })}
+      <h2>Invited</h2>
+      {channel.invited.map((participant) => {
+        return (
+          <div>
+            <li>{participant.username}</li>
+            {checkStatus(channel, current_user) !== Status.Normal ? (
+              <button
+                onClick={() => {
+                  console.log("Un-invite " + participant.username);
+                  // TODO: add socket handler
+                }}
+              >
+                Retract invite
+              </button>
+            ) : (
+              ""
+            )}
+          </div>
+        );
+      })}
     </ul>
   );
 };
