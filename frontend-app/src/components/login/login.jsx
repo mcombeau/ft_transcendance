@@ -130,6 +130,23 @@ function Login() {
             <Button content="Sign Up" />
           </ButtonContainer>
         </form>
+        <button
+          onClick={() => {
+            fetch("http://localhost:3001/auth/42login").then(
+              async (response) => {
+                const data = await response.json();
+                if (!response.ok) {
+                  console.log("error response load channels");
+                  return;
+                }
+                console.log("Logged in with 42 !!!");
+                console.log(data);
+              }
+            );
+          }}
+        >
+          Login with 42
+        </button>
         <LoginWith>OR LOGIN WITH</LoginWith>
         <HorizontalRule />
         <IconsContainer>
