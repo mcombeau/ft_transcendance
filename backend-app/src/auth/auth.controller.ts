@@ -3,6 +3,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
+import { school42AuthGuard } from './guards/school42-auth.guard';
 
 @Controller()
 export class AuthController {
@@ -18,6 +19,16 @@ export class AuthController {
   @Get('profile')
   getProfile(@Request() req: any) {
     return req.user;
+  }
+
+  @Get('auth/42login')
+  @UseGuards(school42AuthGuard)
+  async school42Auth(@Request() req) {}
+
+  @Get('auth/callback')
+  @UseGuards(school42AuthGuard)
+  school42AuthRedirect(@Request() req) {
+    return this.authService.school42Login(req);
   }
 }
 

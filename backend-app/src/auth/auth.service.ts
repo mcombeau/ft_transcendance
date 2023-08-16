@@ -31,4 +31,15 @@ export class AuthService {
       access_token: this.jwtService.sign(payload),
     };
   }
+
+  school42Login(req) {
+    if (!req.user) {
+      return 'No user from 42';
+    }
+
+    return {
+      message: 'User information from 42',
+      user: req.user,
+    };
+  }
 }

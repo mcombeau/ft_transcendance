@@ -8,10 +8,12 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { PasswordModule } from 'src/password/password.module';
 import { jwtConstants } from './constants';
 import { JwtStrategy } from './strategies/jwt.strategy';
-// import { AuthService } from './auth.service';
+import { ConfigModule } from '@nestjs/config';
+import { school42Strategy } from './strategies/school42.strategy';
 
 @Module({
   imports: [
+    ConfigModule.forRoot(),
 	UsersModule,
   forwardRef(() => PasswordModule),
 	PassportModule.register({ defaultStrategy: 'jwt' }),
@@ -21,7 +23,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
   }),
 ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
+  providers: [AuthService, LocalStrategy, JwtStrategy, school42Strategy],
   exports: [AuthService]
 })
 
