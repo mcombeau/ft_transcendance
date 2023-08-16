@@ -1,6 +1,6 @@
-body {
+.chat-container {
   margin: 0;
-  padding-bottom: 0;
+  padding-bottom: 3rem;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
     Arial, sans-serif;
 }
@@ -27,6 +27,7 @@ body {
 
 li#mine {
   padding: 1rem 1.5rem;
+  list-style: none;
   margin: 0.75rem 0rem 0.75rem 0.75rem;
   border-radius: 10px;
   color: white;
@@ -80,6 +81,7 @@ li#mine {
 }
 
 #channel-info > li {
+  padding: 26px 30px;
   margin: 0.5rem;
   border: thin;
   border-radius: 0.3rem;
@@ -87,10 +89,12 @@ li#mine {
   color: white;
   border-color: black;
   position: relative;
+  list-style: none;
 }
 
 #channel-info > li.chanCurrent {
   background-color: darkcyan;
+  list-style: none;
 }
 
 #channel-info > li > button {
