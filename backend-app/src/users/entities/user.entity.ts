@@ -12,8 +12,6 @@ export class UserEntity {
   @Column({ unique: true })
   username: string;
   @Column()
-  email: string;
-  @Column()
   createdAt: Date;
   @OneToMany(() => ChatMessageEntity, (chatMessage) => chatMessage.sender, {
     nullable: true,
@@ -38,9 +36,13 @@ export class UserEntity {
   })
   sentInvites: InviteEntity[];
 
-  @ApiProperty({ type: () => GameEntity, isArray: true })
-  @OneToMany(() => GameEntity, (game) => game.loserID, { nullable: true })
-  lostGames: GameEntity[];
+  @ApiProperty()
+  @Column({ nullable: true })
+  password: string;
+
+  @ApiProperty()
+  @Column()
+  email: string;
 
   @ApiProperty({ type: () => GameEntity, isArray: true })
   @OneToMany(() => GameEntity, (game) => game.winnerID, { nullable: true })

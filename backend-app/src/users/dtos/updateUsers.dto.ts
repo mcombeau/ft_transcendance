@@ -1,4 +1,10 @@
 export class updateUsersDto {
-    username: string;
-    email: string;
+  username: string;
+
+  @ApiProperty()
+  password: string;
+
+  @ApiProperty()
+  email: string;
 }
+

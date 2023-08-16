@@ -7,37 +7,47 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { ChatsService } from './chats.service';
 import { createChatDMDto, createChatDto } from './dtos/createChats.dto';
 import { updateChatDto } from './dtos/updateChats.dto';
 import { ChatNotFoundException } from 'src/exceptions/not-found.exception';
+import {
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiTags,
+  ApiUnprocessableEntityResponse,
+} from '@nestjs/swagger';
+import { ChatEntity } from './entities/chat.entity';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('chats')
+@UseGuards(JwtAuthGuard)
+@ApiTags('chats')
 export class ChatsController {
   constructor(private chatService: ChatsService) {}
 
   @Get(':name')
   async getChatByName(@Param('name') name: string) {
     const chat = await this.chatService.fetchChatByName(name);
-    if (!chat)
-      throw new ChatNotFoundException(name);
+    if (!chat) throw new ChatNotFoundException(name);
     return chat;
   }
 
   @Get(':name/usernames')
   async getChatUsersByChatName(@Param('name') name: string) {
-    const participants = await this.chatService.fetchParticipantUsernamesByChatName(name);
-    if (!participants)
-      throw new ChatNotFoundException(name);
+    const participants =
+      await this.chatService.fetchParticipantUsernamesByChatName(name);
+    if (!participants) throw new ChatNotFoundException(name);
     return participants;
   }
 
   @Get(':id')
   async getChatByID(@Param('id', ParseIntPipe) id: number) {
     const chat = await this.chatService.fetchChatByID(id);
-    if (!chat)
-      throw new ChatNotFoundException(id.toString());
+    if (!chat) throw new ChatNotFoundException(id.toString());
     return chat;
   }
 
@@ -45,8 +55,6 @@ export class ChatsController {
   getChats() {
     return this.chatService.fetchChats();
   }
-
-  
 
   @Post()
   createChat(@Body() chatDto: createChatDto) {

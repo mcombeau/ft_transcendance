@@ -27,6 +27,7 @@ function Navbar() {
             <NavbarLink to="/chat"> Chat</NavbarLink>
             <NavbarLink to="/play"> Play Game</NavbarLink>
             <NavbarLink to="/leaderboard"> Leaderboard</NavbarLink>
+            <NavbarLink to="/auth"> Authenticate</NavbarLink>
             <OpenLinksButton
               onClick={() => {
                 setExtendNavbar((curr) => !curr);
@@ -46,7 +47,10 @@ function Navbar() {
           <NavbarLinkExtended to="/login"> Login</NavbarLinkExtended>
           <NavbarLinkExtended to="/chat"> Chat</NavbarLinkExtended>
           <NavbarLinkExtended to="/play"> Play</NavbarLinkExtended>
-          <NavbarLinkExtended to="/leaderboard"> Leaderboard</NavbarLinkExtended>
+          <NavbarLinkExtended to="/leaderboard">
+            {" "}
+            Leaderboard
+          </NavbarLinkExtended>
         </NavbarExtendedContainer>
       )}
     </NavbarContainer>
@@ -54,3 +58,4 @@ function Navbar() {
 }
 
 export default Navbar;
+
