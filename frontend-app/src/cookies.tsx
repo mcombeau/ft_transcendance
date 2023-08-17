@@ -8,8 +8,11 @@ type AuthCookie = {
 };
 
 export function getAuthInfo(cookies: any): AuthCookie {
-  var token: AuthCookie = jwtDecode(cookies["token"]);
-  return token;
+  if (cookies["token"]) {
+    var token: AuthCookie = jwtDecode(cookies["token"]);
+    return token;
+  }
+  return null;
 }
 
 export function getUsername(cookies: any): string {
