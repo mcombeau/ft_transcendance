@@ -6,29 +6,38 @@ import { InviteEntity } from '../../invites/entities/Invite.entity';
 
 @Entity({ name: 'chats' })
 export class ChatEntity {
+
+  @ApiProperty()
   @PrimaryGeneratedColumn()
   id: number;
 
+  @ApiProperty()
   @Column({ unique: true })
   name: string;
 
+  @ApiProperty()
   @Column()
   password: string;
 
+  @ApiProperty()
   @Column()
   private: boolean;
 
+  @ApiProperty()
   @Column()
   directMessage: boolean;
 
+  @ApiProperty()
   @Column()
   createdAt: Date;
 
+  @ApiProperty({ type: () => ChatMessageEntity, isArray: true })
   @OneToMany(() => ChatMessageEntity, (chatMessage) => chatMessage.chatRoom, {
     nullable: true,
   })
   messages: ChatMessageEntity[];
 
+  @ApiProperty({ type: () => ChatParticipantEntity, isArray: true })
   @OneToMany(
     () => ChatParticipantEntity,
     (participant) => participant.chatRoom,

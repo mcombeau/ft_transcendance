@@ -1,10 +1,20 @@
-import { Controller, Get, Post, Request, Response, Res, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Request,
+  Response,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { school42AuthGuard } from './guards/school42-auth.guard';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('auth')
 @Controller()
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -24,16 +34,16 @@ export class AuthController {
   @Get('auth/42login')
   @UseGuards(school42AuthGuard)
   async school42Auth(@Request() req) {
-    console.log("[Auth Controller]: GET on auth/42login");
+    console.log('[Auth Controller]: GET on auth/42login');
   }
 
   @Get('auth/callback')
   @UseGuards(school42AuthGuard)
   school42AuthRedirect(
-    @Request() req: Request, 
-    @Res({ passthrough: true }) res: Response
+    @Request() req: Request,
+    @Res({ passthrough: true }) res: Response,
   ) {
-    console.log("[Auth Controller]: GET on auth/callback");
+    console.log('[Auth Controller]: GET on auth/callback');
     return this.authService.school42Login(req, res);
   }
 }
