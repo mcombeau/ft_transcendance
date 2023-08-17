@@ -461,7 +461,7 @@ export const Chat = () => {
     var request = {
       headers: {
         "Content-Type": "application/json",
-        Authorization: cookies["token"],
+        Authorization: `Bearer ${cookies["token"]}`,
       },
     };
     if (channels.length === 0) {

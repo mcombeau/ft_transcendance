@@ -35,7 +35,7 @@ function Login() {
           console.log("error user login");
           return;
         }
-        setCookie("token", `Bearer ${data.access_token}`, { path: "/" });
+        setCookie("token", data.access_token, { path: "/" });
         setCookie("Username", username, { path: "/" });
         console.log("Access Token " + data.access_token);
       }
@@ -131,7 +131,7 @@ function Login() {
           </ButtonContainer>
         </form>
         <form action="http://localhost:3001/auth/42login">
-        <button
+          <button
           // onClick={() => {
           //   fetch("http://localhost:3001/auth/42login", { mode: 'cors' }).then(
           //     async (response) => {
@@ -145,9 +145,9 @@ function Login() {
           //     }
           //   );
           // }}
-        >
-          Login with 42
-        </button>
+          >
+            Login with 42
+          </button>
         </form>
         <LoginWith>OR LOGIN WITH</LoginWith>
         <HorizontalRule />
