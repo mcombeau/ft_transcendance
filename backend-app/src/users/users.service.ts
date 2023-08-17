@@ -4,7 +4,7 @@ import { PasswordService } from 'src/password/password.service';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { createUserParams } from 'src/users/utils/types';
 import { updateUserParams } from 'src/users/utils/types';
-import { Repository } from 'typeorm';
+import { Repository, getRepository } from 'typeorm';
 
 @Injectable()
 export class UsersService {
@@ -48,6 +48,11 @@ export class UsersService {
       where: { login42: login42 },
       relations: ['chatRooms.chatRoom'],
     });
+  }
+
+  async getUserPasswordHash(userID: number) {
+    const user = await this.userRepository.findOne({where: {id: userID}, select: ['password']});
+    return user.password;
   }
 
   updateUserByID(id: number, userDetails: updateUserParams) {

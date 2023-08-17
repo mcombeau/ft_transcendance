@@ -15,12 +15,15 @@ export class AuthService {
   ) {}
 
   async validateUser(username: string, password: string): Promise<any> {
+    console.log("[Auth Service]: validate local user");
+    console.log("[Auth Service]: username", username, "password", password);
     const user = await this.usersService.fetchUserByUsername(username);
+    console.log("[Auth Service]: User", user);
     if (!user) {
         console.log("[Auth Service]: user not found.");
         return null;
     }
-    if (!(await this.passwordService.checkPassword(password, user.password))){
+    if (!(await this.passwordService.checkPassword(password, user))){
         console.log("[Auth Service]: passwords don't match!");
         return null;
     }
@@ -28,6 +31,7 @@ export class AuthService {
   }
 
   login(user: UserEntity) {
+    console.log("[Auth Service]: login user");
     const payload = { username: user.username, sub: user.id };
     return {
       access_token: this.jwtService.sign(payload),
