@@ -1,4 +1,5 @@
 import { OnModuleInit, Inject, forwardRef } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import {
   ConnectedSocket,
   MessageBody,
@@ -7,6 +8,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket as ioSocket } from 'socket.io';
+import { JwtStrategy } from 'src/auth/strategies/jwt.strategy';
 import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
 import { ChatParticipantsService } from 'src/chat-participants/chat-participants.service';
 import { ChatParticipantEntity } from 'src/chat-participants/entities/chat-participant.entity';
@@ -39,6 +41,8 @@ export class ChatGateway implements OnModuleInit {
     private userService: UsersService,
     @Inject(forwardRef(() => InvitesService))
     private inviteService: InvitesService,
+    @Inject(forwardRef(() => JwtStrategy))
+    private JwtStrategyService: JwtStrategy,
   ) {}
   @WebSocketServer()
   server: Server;
@@ -140,13 +144,16 @@ export class ChatGateway implements OnModuleInit {
   async onChatMessage(@MessageBody() msg: any) {
     console.log('[Chat Gateway]: Sending chat message');
     try {
+      if (this.JwtStrategyService.validate(msg.token)) {
+        throw new ChatPermissionError('User not authenticated');
+      }
       await this.registerChatMessage(
-        msg.channel,
-        msg.sender,
-        msg.msg,
-        msg.datestamp,
+        msg.msg.channel,
+        msg.msg.sender,
+        msg.msg.msg,
+        msg.msg.datestamp,
       );
-      this.server.emit('chat message', msg);
+      this.server.emit('chat message', msg.msg);
     } catch (e) {
       var err_msg =
         '[Chat Gateway]: Chat message registration error:' + e.message;
@@ -500,7 +507,7 @@ export class ChatGateway implements OnModuleInit {
       operator: !target.operator,
       banned: target.banned,
       owner: target.owner,
-      mutedUntil: target.mutedUntil
+      mutedUntil: target.mutedUntil,
     });
   }
 
@@ -522,7 +529,7 @@ export class ChatGateway implements OnModuleInit {
         operator: target.operator,
         banned: true,
         owner: target.owner,
-        mutedUntil: target.mutedUntil
+        mutedUntil: target.mutedUntil,
       });
     }
   }
@@ -559,7 +566,10 @@ export class ChatGateway implements OnModuleInit {
     });
   }
 
-  private async inviteUser(chatRoomName: string, username: string, targetUsername: string,
+  private async inviteUser(
+    chatRoomName: string,
+    username: string,
+    targetUsername: string,
   ) {
     const user = await this.getParticipant(chatRoomName, username);
     if (!user) {
@@ -608,7 +618,10 @@ export class ChatGateway implements OnModuleInit {
         invite.chatRoom.id,
         invite.expiresAt,
       );
-      await this.inviteService.deleteInvitesByInvitedUserChatRoomName(username, chatRoomName);
+      await this.inviteService.deleteInvitesByInvitedUserChatRoomName(
+        username,
+        chatRoomName,
+      );
     } catch (e) {
       throw new ChatPermissionError(e.message);
     }

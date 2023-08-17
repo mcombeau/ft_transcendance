@@ -7,6 +7,7 @@ import { UsersModule } from 'src/users/users.module';
 import { GamesModule } from 'src/games/games.module';
 import { ChatParticipantsModule } from 'src/chat-participants/chat-participants.module';
 import { InvitesModule } from 'src/invites/invites.module';
+import { JwtStrategy } from 'src/auth/strategies/jwt.strategy';
 
 @Module({
   imports: [
@@ -15,7 +16,8 @@ import { InvitesModule } from 'src/invites/invites.module';
     forwardRef(() => UsersModule),
     forwardRef(() => ChatParticipantsModule),
     forwardRef(() => GamesModule),
-    forwardRef(() => InvitesModule)
+    forwardRef(() => InvitesModule),
+    forwardRef(() => JwtStrategy),
   ],
   providers: [ChatGateway, GameGateway],
   exports: [ChatGateway, GameGateway],

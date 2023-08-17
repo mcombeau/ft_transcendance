@@ -37,7 +37,7 @@ export const SendForm = (
       system: false,
       invite: false,
     };
-    socket.emit("chat message", msg);
+    socket.emit("chat message", { msg: msg, token: cookies["token"] });
     // setMessages((prev) => [...prev, msg]);
     setValue("");
   };
