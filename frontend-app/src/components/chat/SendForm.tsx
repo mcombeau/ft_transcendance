@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import { Socket } from "socket.io-client";
+import { getUsername } from "../../cookies";
 import { Message, Channel, isMuted } from "./Chat";
 
 export const SendForm = (
@@ -17,7 +18,7 @@ export const SendForm = (
       !current_channel ||
       value === "" ||
       current_channel.name === "" ||
-      !cookies["Username"] ||
+      !getUsername(cookies) ||
       !current_channel.participants.some((p) => p.username === current_user) ||
       isMuted(current_channel, current_user)
     ) {
@@ -26,11 +27,11 @@ export const SendForm = (
       );
       return;
     }
-    setUsername(cookies["Username"]);
+    setUsername(getUsername(cookies));
     var msg: Message = {
       msg: value,
       datestamp: new Date(),
-      sender: cookies["Username"],
+      sender: getUsername(cookies),
       channel: current_channel.name,
       read: true,
       system: false,

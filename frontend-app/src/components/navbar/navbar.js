@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
+import { getUsername } from "../../cookies";
 
 import {
   NavbarContainer,
@@ -21,8 +22,8 @@ function Navbar() {
   const [username, setUsername] = useState("");
 
   useEffect(() => {
-    if (cookies["Username"] != undefined) {
-      setUsername(cookies["Username"]);
+    if (getUsername(cookies) != null) {
+      setUsername(getUsername(cookies));
     }
   }, [cookies]);
 

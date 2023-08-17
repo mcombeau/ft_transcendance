@@ -11,6 +11,7 @@ import SettingsMenu from "./SettingsMenu";
 import SidePannel from "./SidePannel";
 import SendForm from "./SendForm";
 import { Socket } from "socket.io-client";
+import { getAuthInfo, getUsername } from "../../cookies";
 
 export type Message = {
   datestamp: Date;
@@ -173,8 +174,7 @@ export const Chat = () => {
   }
 
   useEffect(() => {
-    setUsername(cookies["Username"]);
-    console.log(username);
+    setUsername(getUsername(cookies));
 
     socket.on("error", (error_msg: string) => {
       alert(error_msg);
