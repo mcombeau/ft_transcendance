@@ -17,12 +17,12 @@ export class AuthService {
   async validateUser(username: string, password: string): Promise<any> {
     const user = await this.usersService.fetchUserByUsername(username);
     if (!user) {
-        console.log("[Auth Service]: user not found.");
-        return null;
+      console.log('[Auth Service]: user not found.');
+      return null;
     }
-    if (!(await this.passwordService.checkPassword(password, user.password))){
-        console.log("[Auth Service]: passwords don't match!");
-        return null;
+    if (!(await this.passwordService.checkPassword(password, user.password))) {
+      console.log("[Auth Service]: passwords don't match!");
+      return null;
     }
     return user;
   }
@@ -35,12 +35,11 @@ export class AuthService {
   }
 
   school42Login(req: any, res: any) {
-    console.log("[Auth Service]: school42login");
+    console.log('[Auth Service]: school42login');
     const user: UserEntity = req.user;
     console.log(user);
     const access_token = this.login(user);
-    res.cookie("token", access_token.access_token);
-    res.cookie("Username", user.username);
-    res.redirect(302, "http://localhost:3000/profile");
+    res.cookie('token', access_token.access_token);
+    res.redirect(302, 'http://localhost:3000/profile');
   }
 }

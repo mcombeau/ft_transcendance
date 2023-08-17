@@ -36,7 +36,6 @@ function Login() {
           return;
         }
         setCookie("token", data.access_token, { path: "/" });
-        setCookie("Username", username, { path: "/" });
         console.log("Access Token " + data.access_token);
       }
     );
