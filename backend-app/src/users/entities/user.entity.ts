@@ -7,16 +7,26 @@ import { InviteEntity } from 'src/invites/entities/Invite.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity {
+
+  @ApiProperty()
   @PrimaryGeneratedColumn()
   id: number;
+
+  @ApiProperty()
   @Column({ unique: true })
   username: string;
+
+  @ApiProperty()
   @Column()
   createdAt: Date;
+
+  @ApiProperty({ type: () => ChatMessageEntity, isArray: true })
   @OneToMany(() => ChatMessageEntity, (chatMessage) => chatMessage.sender, {
     nullable: true,
   })
   messages: ChatMessageEntity[];
+
+  @ApiProperty({ type: () => ChatParticipantEntity, isArray: true })
   @OneToMany(
     () => ChatParticipantEntity,
     (participant) => participant.participant,

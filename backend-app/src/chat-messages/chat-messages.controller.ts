@@ -25,11 +25,16 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 // TODO: remove unecessary controller
 @UseGuards(JwtAuthGuard)
+@ApiTags('chat messages')
 @Controller('chat-messages')
 export class ChatMessagesController {
   constructor(private readonly chatMessageService: ChatMessagesService) {}
 
   @Get(':id')
+  @ApiOkResponse({
+    type: ChatMessageEntity,
+    description: 'Get chat message by ID.',
+  })
   async getMessageByID(@Param('id', ParseIntPipe) id: number) {
     const message = await this.chatMessageService.fetchMessage(id);
     if (!message) throw new ChatMessageNotFoundException(id.toString());
@@ -65,6 +70,11 @@ export class ChatMessagesController {
   }
 
   @Delete(':id')
+  @ApiOkResponse({ description: 'Record deleted by ID.' })
+  @ApiBadRequestResponse({ description: 'Bad request' })
+  @ApiUnprocessableEntityResponse({
+    description: 'Database error. (Unprocessable entity)',
+  })
   async deleteMessageByID(@Param('id', ParseIntPipe) id: number) {
     await this.chatMessageService.deleteMessage(id);
   }

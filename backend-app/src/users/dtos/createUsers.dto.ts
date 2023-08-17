@@ -8,6 +8,7 @@ import {
 } from 'class-validator';
 
 export class createUsersDto {
+  @ApiProperty()
   @IsNotEmpty()
   @IsAlphanumeric()
   username: string;
@@ -16,6 +17,7 @@ export class createUsersDto {
   @IsAlphanumeric()
   password: string;
 
+  @ApiProperty()
   @IsNotEmpty()
   @IsEmail()
   email: string;
