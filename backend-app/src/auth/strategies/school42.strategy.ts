@@ -36,32 +36,22 @@ export class school42Strategy extends PassportStrategy(Strategy, '42') {
     if (!profile) {
       return done(new BadRequestException(), null);
     }
-    const userInfo = userResponse.data;
-    const username = userInfo.login;
-    const email = userInfo.email;
-    const profilePicture = userInfo.image?.link;
 
-    console.log("[42Strategy]: data:", username, email);
-    var user = await this.userService.fetchUserByUsername(username);
+    const userInfo = {
+      username: userResponse.data.login,
+      login42: userResponse.data.login,
+      email: userResponse.data.email,
+      password: null,
+      // profilePicture = userInfo.image?.link
+    }
+
+    console.log("[42Strategy]: data:", userInfo);
+    var user = await this.userService.fetchUserBy42Login(userInfo.username);
     if (!user) {
       user = await this.userService.createUser({
-        username: username,
-        password:'pass',
-        email: email
+        ...userInfo
       });
-      // return (user);
     }
-    // Create jwt token?
-
-    // const { name, emails, photos } = profile;
-    // const user = {
-    //   email: emails[0].value,
-    //   firstName: name.givenName,
-    //   lastName: name.familyName,
-    //   picture: photos[0].value,
-    //   accessToken,
-    //   refreshToken,
-    // };
     done(null, user);
   }
 }

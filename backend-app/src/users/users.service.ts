@@ -43,6 +43,13 @@ export class UsersService {
     });
   }
 
+  fetchUserBy42Login(login42: string) {
+    return this.userRepository.findOne({
+      where: { login42: login42 },
+      relations: ['chatRooms.chatRoom'],
+    });
+  }
+
   updateUserByID(id: number, userDetails: updateUserParams) {
     return this.userRepository.update({ id }, { ...userDetails });
   }
