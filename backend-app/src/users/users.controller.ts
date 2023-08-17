@@ -25,12 +25,12 @@ import { updateUsersDto } from 'src/users/dtos/updateUsers.dto';
 import { UsersService } from 'src/users/users.service';
 import { UserEntity } from './entities/user.entity';
 
-@UseGuards(JwtAuthGuard)
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
   constructor(private userService: UsersService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Get('/username/:username')
   @ApiOkResponse({
     type: UserEntity,
@@ -42,6 +42,7 @@ export class UsersController {
     return user;
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   @ApiOkResponse({
     type: UserEntity,
@@ -53,6 +54,7 @@ export class UsersController {
     return user;
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   @ApiOkResponse({
     type: UserEntity,
@@ -74,6 +76,7 @@ export class UsersController {
     return this.userService.createUser(userDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   @ApiCreatedResponse({ type: UserEntity, description: 'Record updated.' })
   @ApiBadRequestResponse({ description: 'Bad request' })
@@ -87,6 +90,7 @@ export class UsersController {
     await this.userService.updateUserByID(id, updateUserDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   @ApiOkResponse({ description: 'Record deleted by ID.' })
   @ApiBadRequestResponse({ description: 'Bad request' })
