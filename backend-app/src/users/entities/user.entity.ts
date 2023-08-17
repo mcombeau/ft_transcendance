@@ -17,6 +17,18 @@ export class UserEntity {
   username: string;
 
   @ApiProperty()
+  @Column({ unique: true, nullable: true })
+  login42: string;
+
+  @ApiProperty()
+  @Column({ nullable: true, select: false })
+  password: string;
+
+  @ApiProperty()
+  @Column()
+  email: string;
+
+  @ApiProperty()
   @Column()
   createdAt: Date;
 
@@ -45,14 +57,6 @@ export class UserEntity {
     nullable: true,
   })
   sentInvites: InviteEntity[];
-
-  @ApiProperty()
-  @Column({ nullable: true })
-  password: string;
-
-  @ApiProperty()
-  @Column()
-  email: string;
 
   @ApiProperty({ type: () => GameEntity, isArray: true })
   @OneToMany(() => GameEntity, (game) => game.winnerID, { nullable: true })

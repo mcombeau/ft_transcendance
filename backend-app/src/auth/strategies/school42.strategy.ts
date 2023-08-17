@@ -7,6 +7,7 @@ import { Strategy, VerifyCallback } from 'passport-oauth2';
 import { BadRequestException, Inject, Injectable, forwardRef } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import axios from 'axios';
+import { UserEntity } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class school42Strategy extends PassportStrategy(Strategy, '42') {
@@ -36,32 +37,29 @@ export class school42Strategy extends PassportStrategy(Strategy, '42') {
     if (!profile) {
       return done(new BadRequestException(), null);
     }
-    const userInfo = userResponse.data;
-    const username = userInfo.login;
-    const email = userInfo.email;
-    const profilePicture = userInfo.image?.link;
 
-    console.log("[42Strategy]: data:", username, email);
-    var user = await this.userService.fetchUserByUsername(username);
-    if (!user) {
-      user = await this.userService.createUser({
-        username: username,
-        password:'pass',
-        email: email
-      });
-      // return (user);
+    const userInfo = {
+      username: userResponse.data.login,
+      login42: userResponse.data.login,
+      email: userResponse.data.email,
+      password: null,
+      // profilePicture = userInfo.image?.link
     }
-    // Create jwt token?
 
-    // const { name, emails, photos } = profile;
-    // const user = {
-    //   email: emails[0].value,
-    //   firstName: name.givenName,
-    //   lastName: name.familyName,
-    //   picture: photos[0].value,
-    //   accessToken,
-    //   refreshToken,
-    // };
+    var userWithLogin = await this.userService.fetchUserBy42Login(userInfo.username);
+    var userWithUsername = await this.userService.fetchUserByUsername(userInfo.username);
+    var user: UserEntity;
+    if (!userWithLogin && !userWithUsername) {
+      user = await this.userService.createUser({
+        ...userInfo
+      });
+    }
+    else if (userWithUsername) {
+      user = userWithUsername;
+    }
+    else if (!userWithUsername && userWithLogin) {
+      user = userWithLogin;
+    }
     done(null, user);
   }
 }

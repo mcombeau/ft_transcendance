@@ -4,6 +4,7 @@ import {
   IsEmail,
   IsEmpty,
   IsNotEmpty,
+  IsOptional,
   isAlphanumeric,
 } from 'class-validator';
 
@@ -12,6 +13,11 @@ export class createUsersDto {
   @IsNotEmpty()
   @IsAlphanumeric()
   username: string;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsAlphanumeric()
+  login42: string;
 
   @ApiProperty()
   @IsAlphanumeric()
