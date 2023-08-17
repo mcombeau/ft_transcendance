@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useCookies } from "react-cookie";
 
 import {
   NavbarContainer,
@@ -16,6 +17,14 @@ import LogoImg from "./../../ping.svg";
 
 function Navbar() {
   const [extendNavbar, setExtendNavbar] = useState(false);
+  const [cookies] = useCookies(["cookie-name"]);
+  const [username, setUsername] = useState("");
+
+  useEffect(() => {
+    if (cookies["Username"] != undefined) {
+      setUsername(cookies["Username"]);
+    }
+  }, [cookies]);
 
   return (
     <NavbarContainer extendNavbar={extendNavbar}>
@@ -27,7 +36,7 @@ function Navbar() {
             <NavbarLink to="/chat"> Chat</NavbarLink>
             <NavbarLink to="/play"> Play Game</NavbarLink>
             <NavbarLink to="/leaderboard"> Leaderboard</NavbarLink>
-            <NavbarLink to="/auth"> Authenticate</NavbarLink>
+            <NavbarLink to={`/user/${username}`}> {username}</NavbarLink>
             <OpenLinksButton
               onClick={() => {
                 setExtendNavbar((curr) => !curr);
@@ -51,6 +60,10 @@ function Navbar() {
             {" "}
             Leaderboard
           </NavbarLinkExtended>
+          <NavbarLinkExtended to={`/user/${username}`}>
+            {" "}
+            {username}
+          </NavbarLinkExtended>
         </NavbarExtendedContainer>
       )}
     </NavbarContainer>
@@ -58,4 +71,3 @@ function Navbar() {
 }
 
 export default Navbar;
-
