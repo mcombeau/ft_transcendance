@@ -17,9 +17,8 @@ import { JwtStrategy } from 'src/auth/strategies/jwt.strategy';
     forwardRef(() => ChatParticipantsModule),
     forwardRef(() => GamesModule),
     forwardRef(() => InvitesModule),
-    forwardRef(() => JwtStrategy),
   ],
-  providers: [ChatGateway, GameGateway],
+  providers: [ChatGateway, GameGateway, JwtStrategy],
   exports: [ChatGateway, GameGateway],
 })
 export class GatewayModule {}
