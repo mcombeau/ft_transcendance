@@ -1,22 +1,28 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { ChatsService } from 'src/chats/chats.service';
+import { UserEntity } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class PasswordService {
-  constructor() {}
+  constructor(
+    @Inject(forwardRef( () => UsersService))
+      private userService: UsersService
+  ) {}
 
   async hashPassword(password: string) {
+    if (!password || password === "") {
+      return password;
+    }
     const salt = await bcrypt.genSalt();
     const hash = await bcrypt.hash(password, salt);
-    console.log('[Password Service] Hashed password "', password, '"', hash);
     return hash;
   }
     
-  async checkPassword(password: string, hash: string) {
+  async checkPassword(password: string, user: UserEntity) {
+    const hash = await this.userService.getUserPasswordHash(user.id);
     const isMatch = await bcrypt.compare(password, hash);
-    console.log('[Password Service] Password "', password, '" is match?', isMatch);
     return isMatch;
   }
     

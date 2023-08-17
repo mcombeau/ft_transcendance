@@ -54,7 +54,7 @@ export class UsersController {
     return user;
   }
 
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Get()
   @ApiOkResponse({
     type: UserEntity,
@@ -90,7 +90,6 @@ export class UsersController {
     await this.userService.updateUserByID(id, updateUserDto);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   @ApiOkResponse({ description: 'Record deleted by ID.' })
   @ApiBadRequestResponse({ description: 'Bad request' })
