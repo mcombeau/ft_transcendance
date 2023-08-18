@@ -97,6 +97,23 @@ export function ChangeStatus(
   socket.emit(userStatus, info);
 }
 
+export function getChatRoomNameFromID(
+  chatRoomID: number,
+  channels: ChatRoom[]
+) {
+  return channels.find((chatRoom: ChatRoom) => {
+    chatRoomID === chatRoom.chatRoomID;
+  }).name;
+}
+
+export function getUserNameFromID(userID: number, channels: ChatRoom[]) {
+  return channels
+    .find((chatRoom: ChatRoom) => {
+      chatRoom.participants.some((p: User) => p.userID === userID);
+    })
+    .participants.find((p: User) => p.userID === userID).username;
+}
+
 export const Chat = () => {
   const socket = useContext(WebSocketContext);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -115,35 +132,7 @@ export const Chat = () => {
     return channels.find((e) => e.name === channel_name);
   }
 
-  function handleJoinChat(info: any) {
-    var user: User = {
-      username: info.username,
-      owner: false,
-      operator: false,
-      banned: false,
-      mutedUntil: new Date().getTime(),
-      invitedUntil: 0,
-    };
-
-    setChannels((prev) => {
-      const temp = [...prev];
-      return temp.map((chan) => {
-        if (chan.name === info.channel_name) {
-          if (
-            !chan.participants.some((p: User) => p.username === info.username)
-          ) {
-            chan.participants = [...chan.participants, user];
-
-            serviceAnnouncement(
-              `${info.username} joined the channel.`,
-              info.channel_name
-            );
-          }
-        }
-        return chan;
-      });
-    });
-  }
+  function handleJoinChat(info: any) {}
 
   function serviceAnnouncement(content: string, channel_name: string) {
     var message: Message = {
@@ -164,14 +153,26 @@ export const Chat = () => {
     socket.on("error", (error_msg: string) => {
       alert(error_msg);
     });
+
     socket.on("chat message", (info: ReceivedInfo) => {
-      msg.read = false;
-      setMessages((prev) => [...prev, msg]);
+      var message: Message = {
+        datestamp: info.messageInfo.sentAt,
+        msg: info.messageInfo.message,
+        senderID: info.userID,
+        chatRoomID: info.chatRoomID,
+        read: false,
+        system: false,
+      };
+      setMessages((prev) => [...prev, message]);
     });
 
     socket.on("delete chat", (info: ReceivedInfo) => {
-      setChannels((prev) => prev.filter((e) => e.name !== channelname));
-      setMessages((prev) => prev.filter((e) => e.channel !== channelname));
+      setChannels((prev) =>
+        prev.filter((e: ChatRoom) => e.chatRoomID !== info.chatRoomID)
+      );
+      setMessages((prev) =>
+        prev.filter((e: Message) => e.chatRoomID !== info.chatRoomID)
+      );
       setSettings(false);
       setContextMenu(false);
       setCurrentChannel("");
@@ -180,9 +181,9 @@ export const Chat = () => {
     socket.on("toggle private", (info: ReceivedInfo) => {
       setChannels((prev) => {
         const temp = [...prev];
-        return temp.map((chan) => {
-          if (chan.name === info.channel_name) {
-            chan.private = !chan.private;
+        return temp.map((chan: ChatRoom) => {
+          if (chan.chatRoomID === info.chatRoomID) {
+            chan.isPrivate = info.chatInfo.private;
           }
           return chan;
         });
@@ -220,23 +221,48 @@ export const Chat = () => {
     });
 
     socket.on("join chat", (info: ReceivedInfo) => {
-      handleJoinChat(info);
+      var user: User = {
+        userID: info.userID,
+        username: info.username,
+        isOwner: false,
+        isOperator: false,
+        isBanned: false,
+        mutedUntil: new Date().getTime(),
+        invitedUntil: 0,
+      };
+
+      setChannels((prev) => {
+        const temp = [...prev];
+        return temp.map((chan: ChatRoom) => {
+          if (chan.chatRoomID === info.chatRoomID) {
+            if (
+              !chan.participants.some((p: User) => p.userID === info.userID)
+            ) {
+              chan.participants = [...chan.participants, user];
+
+              serviceAnnouncement(
+                `${info.username} joined the channel.`,
+                getChatRoomNameFromID(info.chatRoomID, channels) // TODO: check getter is working
+              );
+            }
+          }
+          return chan;
+        });
+      });
     });
 
     socket.on("leave chat", (info: ReceivedInfo) => {
       setChannels((prev) => {
         const temp = [...prev];
-        return temp.map((chan) => {
-          if (chan.name === info.channel_name) {
-            if (
-              chan.participants.some((p: User) => p.username === info.username)
-            ) {
+        return temp.map((chan: ChatRoom) => {
+          if (chan.chatRoomID === info.chatRoomID) {
+            if (chan.participants.some((p: User) => p.userID === info.userID)) {
               chan.participants = chan.participants.filter(
-                (p) => p.username !== info.username
+                (p) => p.userID !== info.userID
               );
               serviceAnnouncement(
                 `${info.username} has left the channel`,
-                info.channel_name
+                getUserNameFromID(info.userID, channels) // TODO: check getter is working
               );
             }
           }
@@ -248,11 +274,11 @@ export const Chat = () => {
     socket.on("mute", (info: ReceivedInfo) => {
       setChannels((prev) => {
         const temp = [...prev];
-        return temp.map((chan) => {
-          if (chan.name === info.channel_name) {
+        return temp.map((chan: ChatRoom) => {
+          if (chan.chatRoomID === info.chatRoomID) {
             chan.participants.map((p) => {
-              if (p.username === info.target_user) {
-                p.mutedUntil = info.mute_date;
+              if (p.userID === info.targetID) {
+                p.mutedUntil = info.participantInfo.mutedUntil;
               }
               return p;
             });
@@ -261,10 +287,10 @@ export const Chat = () => {
         });
       });
       serviceAnnouncement(
-        `${info.target_user} has been muted until ${
-          new Date(info.mute_date).toString().split("GMT")[0]
+        `${getUserNameFromID(info.targetID, channels)} has been muted until ${
+          new Date(info.participantInfo.mutedUntil).toString().split("GMT")[0]
         }.`,
-        info.channel_name
+        getChatRoomNameFromID(info.chatRoomID, channels)
       );
     });
 
