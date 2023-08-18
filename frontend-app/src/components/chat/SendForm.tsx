@@ -1,15 +1,13 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import { Socket } from "socket.io-client";
 import { getUsername } from "../../cookies";
-import { Message, Channel, isMuted } from "./Chat";
+import {  ChatRoom, isMuted } from "./Chat";
 import { ReceivedInfo } from "./types";
 
 export const SendForm = (
-  current_channel: Channel,
+  current_channel: ChatRoom,
   cookies: any,
-  setUsername: Dispatch<SetStateAction<string>>,
   socket: Socket,
-  current_user: string
 ) => {
   const [value, setValue] = useState("");
 

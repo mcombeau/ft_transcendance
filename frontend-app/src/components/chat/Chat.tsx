@@ -120,7 +120,6 @@ export const Chat = () => {
   const [channels, setChannels] = useState<ChatRoom[]>([]);
   const [newchannel, setNewchannel] = useState("");
   const [current_channel, setCurrentChannel] = useState(""); // TODO: have screen if no channels
-  const [username, setUsername] = useState(""); // TODO: maybe change to id ?
   const [settings, setSettings] = useState(false);
   const [cookies] = useCookies(["cookie-name"]);
   const [contextMenu, setContextMenu] = useState(false);
@@ -145,8 +144,6 @@ export const Chat = () => {
   }
 
   useEffect(() => {
-    setUsername(getUsername(cookies));
-
     socket.on("error", (error_msg: string) => {
       alert(error_msg);
     });
@@ -622,11 +619,12 @@ export const Chat = () => {
     console.log(channels);
   }, [channels]);
 
+  // TODO: test
   useEffect(() => {
-    if (username === undefined) {
+    if (getUsername(cookies) === undefined) {
       alert("You have no username"); // TODO : remove = for debug purposes
     }
-  }, [username]);
+  }, [cookies]);
 
   return (
     <WebSocketProvider value={socket}>
@@ -643,7 +641,6 @@ export const Chat = () => {
           setSettings,
           setContextMenu,
           channels,
-          username,
           invitesPannel,
           setInvitesPannel,
           cookies
@@ -656,13 +653,11 @@ export const Chat = () => {
             setCurrentChannel,
             socket,
             navigate,
-            username,
             cookies
           )}
           {Messages(
             messages,
             getChannel(current_channel),
-            username,
             navigate,
             settings,
             contextMenu,
@@ -672,13 +667,7 @@ export const Chat = () => {
             invites,
             cookies
           )}
-          {SendForm(
-            getChannel(current_channel),
-            cookies,
-            setUsername,
-            socket,
-            username
-          )}
+          {SendForm(getChannel(current_channel), cookies, socket)}
         </div>
       </div>
     </WebSocketProvider>

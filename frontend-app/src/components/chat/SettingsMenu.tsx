@@ -11,7 +11,6 @@ export const SettingsMenu = (
   setCurrentChannel: Dispatch<SetStateAction<string>>,
   socket: Socket,
   navigate: NavigateFunction,
-  current_user: string,
   cookies: any
 ) => {
   const [newParticipant, setNewParticipant] = useState("");

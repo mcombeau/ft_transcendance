@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 import { Socket } from "socket.io-client";
-import { Channel, Invite, Message } from "./Chat";
+import { ChatRoom, Message } from "./Chat";
 
 export const SidePannel = (
   newchannel: string,
@@ -13,8 +13,7 @@ export const SidePannel = (
   settings: boolean,
   setSettings: Dispatch<SetStateAction<boolean>>,
   setContextMenu: Dispatch<SetStateAction<boolean>>,
-  channels: Channel[],
-  username: string,
+  channels: ChatRoom[],
   invitesPannel: boolean,
   setInvitesPannel: Dispatch<SetStateAction<boolean>>,
   cookies: any
@@ -34,7 +33,7 @@ export const SidePannel = (
     });
   };
 
-  function getDMChannelAlias(channel: Channel, current_user: string) {
+  function getDMChannelAlias(channel: ChatRoom, current_user: string) {
     return channel.participants.find((p) => p.username != current_user)
       .username;
   }
@@ -49,7 +48,7 @@ export const SidePannel = (
         <li
           value={"INVITES"}
           onClick={(e) => {
-            setCurrentChannel("");
+            setCurrentChatRoom("");
             setInvitesPannel(true);
           }}
           className={classname}
@@ -60,7 +59,7 @@ export const SidePannel = (
     );
   };
 
-  const channelInfo = (channel: Channel) => {
+  const channelInfo = (channel: ChatRoom) => {
     var isCurrent = channel.name == current_channel;
     var unreadMessages: number = messages
       .filter((msg) => {
@@ -148,7 +147,7 @@ export const SidePannel = (
       </form>
       <div id="channels">
         {invitePannel()}
-        {channels.map((channel: Channel) => channelInfo(channel))}
+        {channels.map((channel: ChatRoom) => channelInfo(channel))}
       </div>
     </div>
   );

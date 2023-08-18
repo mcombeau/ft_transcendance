@@ -1,13 +1,13 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import { NavigateFunction } from "react-router-dom";
 import { Socket } from "socket.io-client";
-import { Message, Channel, Invite, typeInvite } from "./Chat";
+import { getUserID } from "../../cookies";
+import { Message, ChatRoom, Invite, typeInvite, User } from "./Chat";
 import { ContextMenuEl } from "./ContextMenu";
 
 export const Messages = (
   messages: Message[],
-  current_channel: Channel,
-  username: string,
+  current_channel: ChatRoom,
   navigate: NavigateFunction,
   settings: boolean,
   contextMenu: boolean,
@@ -23,11 +23,13 @@ export const Messages = (
   const messageStatus = (msg: Message) => {
     if (
       !current_channel ||
-      !current_channel.participants.find((p) => p.username === username)
+      !current_channel.participants.find(
+        (p: User) => p.userID === getUserID(cookies)
+      )
     ) {
       return;
     }
-    if (msg.channel !== current_channel.name) return;
+    if (msg.chatRoomID !== current_channel.name) return;
     if (msg.system) {
       return (
         <div id="announcement">
