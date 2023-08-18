@@ -79,6 +79,7 @@ export class ChatGateway implements OnModuleInit {
   async onAddChat(@MessageBody() info: any) {
     console.log('[Chat Gateway]: Add chat', info);
     try {
+      var sender = await this.checkIdentity(info.token);
       await this.chatsService.createChat(info);
       this.server.emit('add chat', info);
     } catch (e) {
@@ -91,6 +92,7 @@ export class ChatGateway implements OnModuleInit {
   @SubscribeMessage('dm')
   async onDM(@MessageBody() info: any) {
     try {
+      var sender = await this.checkIdentity(info.token);
       // TODO: move that logic to the dm creation service
       if (info.current_user < info.target_user) {
         var name = `DM: ${info.current_user} / ${info.target_user}`;
@@ -117,9 +119,10 @@ export class ChatGateway implements OnModuleInit {
   async onDeleteChat(@MessageBody() info: any) {
     console.log('[Chat Gateway]: Delete chat', info);
     try {
-      const chat = await this.chatsService.fetchChatByName(info);
+      var sender = await this.checkIdentity(info.token);
+      const chat = await this.chatsService.fetchChatByName(info.channel_name);
       await this.chatsService.deleteChatByID(chat.id);
-      this.server.emit('delete chat', info);
+      this.server.emit('delete chat', info.channel_name);
     } catch (e) {
       var err_msg = '[Chat Gateway]: Chat deletion error:' + e.message;
       console.log(err_msg);
@@ -131,6 +134,7 @@ export class ChatGateway implements OnModuleInit {
   async onJoinChat(@MessageBody() info: any) {
     console.log('[Chat Gateway]: Join chat', info);
     try {
+      var sender = await this.checkIdentity(info.token);
       await this.addUserToChat(info.username, info.channel_name);
       this.server.emit('join chat', info);
     } catch (e) {
@@ -143,6 +147,7 @@ export class ChatGateway implements OnModuleInit {
   @SubscribeMessage('leave chat')
   async onLeaveChat(@MessageBody() info: any) {
     try {
+      var sender = await this.checkIdentity(info.token);
       await this.chatsService.removeParticipantFromChatByUsername(
         info.channel_name,
         info.username,
@@ -178,6 +183,7 @@ export class ChatGateway implements OnModuleInit {
   @SubscribeMessage('mute')
   async onMute(@MessageBody() info: any) {
     try {
+      var sender = await this.checkIdentity(info.token);
       info.mute_date = await this.toggleMute(
         info.channel_name,
         info.current_user,
@@ -196,6 +202,7 @@ export class ChatGateway implements OnModuleInit {
   async onTogglePrivate(@MessageBody() info: any) {
     console.log('[Chat Gateway]: Toggle private chat');
     try {
+      var sender = await this.checkIdentity(info.token);
       await this.toggleChatPrivacy(info.channel_name, info.sender);
       this.server.emit('toggle private', info);
     } catch (e) {
@@ -208,6 +215,7 @@ export class ChatGateway implements OnModuleInit {
   @SubscribeMessage('invite')
   async onInvite(@MessageBody() info: any) {
     try {
+      var sender = await this.checkIdentity(info.token);
       var inviteExpiry = await this.inviteUser(
         info.channel_name,
         info.current_user,
@@ -225,6 +233,7 @@ export class ChatGateway implements OnModuleInit {
   @SubscribeMessage('accept invite')
   async onAcceptInvite(@MessageBody() info: any) {
     try {
+      var sender = await this.checkIdentity(info.token);
       await this.acceptUserInvite(info.channel_name, info.target_user);
       info.invite_date = 0;
       this.server.emit('accept invite', info);
@@ -238,6 +247,7 @@ export class ChatGateway implements OnModuleInit {
   @SubscribeMessage('operator')
   async onMakeOperator(@MessageBody() info: any) {
     try {
+      var sender = await this.checkIdentity(info.token);
       await this.toggleOperator(
         info.channel_name,
         info.current_user,
@@ -252,6 +262,7 @@ export class ChatGateway implements OnModuleInit {
   @SubscribeMessage('ban')
   async onBan(@MessageBody() info: any) {
     try {
+      var sender = await this.checkIdentity(info.token);
       await this.banUser(
         info.channel_name,
         info.current_user,
@@ -268,6 +279,7 @@ export class ChatGateway implements OnModuleInit {
   @SubscribeMessage('kick')
   async onKick(@MessageBody() info: any) {
     try {
+      var sender = await this.checkIdentity(info.token);
       await this.kickUser(
         info.channel_name,
         info.current_user,

@@ -16,7 +16,8 @@ export const SidePannel = (
   channels: Channel[],
   username: string,
   invitesPannel: boolean,
-  setInvitesPannel: Dispatch<SetStateAction<boolean>>
+  setInvitesPannel: Dispatch<SetStateAction<boolean>>,
+  cookies: any
 ) => {
   const createChannel = (e: any) => {
     e.preventDefault();
@@ -29,6 +30,7 @@ export const SidePannel = (
       password: "pass",
       private: false,
       owner: username,
+      token: cookies["token"],
     });
   };
 
@@ -122,6 +124,7 @@ export const SidePannel = (
                 channel_name: (e.target as HTMLInputElement).getAttribute(
                   "value"
                 ),
+                token: cookies["token"],
               });
             }}
           >

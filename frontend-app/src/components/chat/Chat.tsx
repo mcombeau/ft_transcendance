@@ -92,6 +92,7 @@ export function ChangeStatus(
   channel_name: string,
   operator_name: string,
   target_name: string,
+  token: string,
   lenght_in_minutes: number = 0
 ) {
   const status_values = ["mute", "kick", "ban", "operator", "invite", "dm"];
@@ -102,6 +103,7 @@ export function ChangeStatus(
       current_user: operator_name,
       target_user: target_name,
       lenght_in_minutes: lenght_in_minutes,
+      token: token,
     });
     return;
   }
@@ -109,6 +111,7 @@ export function ChangeStatus(
     channel_name: channel_name,
     current_user: operator_name,
     target_user: target_name,
+    token: token,
   });
 }
 
@@ -612,7 +615,8 @@ export const Chat = () => {
           channels,
           username,
           invitesPannel,
-          setInvitesPannel
+          setInvitesPannel,
+          cookies
         )}
         <div className="chat">
           {SettingsMenu(
@@ -622,7 +626,8 @@ export const Chat = () => {
             setCurrentChannel,
             socket,
             navigate,
-            username
+            username,
+            cookies
           )}
           {Messages(
             messages,
@@ -634,7 +639,8 @@ export const Chat = () => {
             setContextMenu,
             socket,
             invitesPannel,
-            invites
+            invites,
+            cookies
           )}
           {SendForm(
             getChannel(current_channel),

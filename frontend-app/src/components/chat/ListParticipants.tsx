@@ -8,7 +8,8 @@ export const ListParticipants = (
   channel: Channel,
   navigate: NavigateFunction,
   current_user: string,
-  socket: Socket
+  socket: Socket,
+  cookies: any
 ) => {
   function displayUser(participant: User) {
     var name = participant.username;
@@ -53,6 +54,7 @@ export const ListParticipants = (
                         channel.name,
                         current_user,
                         participant.username,
+                        cookies["token"],
                         0
                       );
                     }}
@@ -80,6 +82,7 @@ export const ListParticipants = (
                           channel.name,
                           current_user,
                           participant.username,
+                          cookies["token"],
                           muteTime
                         );
                       }}
@@ -96,7 +99,8 @@ export const ListParticipants = (
                       socket,
                       channel.name,
                       current_user,
-                      participant.username
+                      participant.username,
+                      cookies["token"]
                     );
                   }}
                 >
@@ -110,7 +114,8 @@ export const ListParticipants = (
                       socket,
                       channel.name,
                       current_user,
-                      participant.username
+                      participant.username,
+                      cookies["token"]
                     );
                   }}
                 >
@@ -132,7 +137,8 @@ export const ListParticipants = (
                       socket,
                       channel.name,
                       current_user,
-                      participant.username
+                      participant.username,
+                      cookies["token"]
                     );
                   }}
                 >
@@ -161,7 +167,8 @@ export const ListParticipants = (
                     socket,
                     channel.name,
                     current_user,
-                    participant.username
+                    participant.username,
+                    cookies["token"]
                   );
                 }}
               >

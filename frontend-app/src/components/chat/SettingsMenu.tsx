@@ -11,7 +11,8 @@ export const SettingsMenu = (
   setCurrentChannel: Dispatch<SetStateAction<string>>,
   socket: Socket,
   navigate: NavigateFunction,
-  current_user: string
+  current_user: string,
+  cookies: any
 ) => {
   const [newParticipant, setNewParticipant] = useState("");
 
@@ -36,6 +37,7 @@ export const SettingsMenu = (
           socket.emit("leave chat", {
             channel_name: current_channel.name,
             username: current_user,
+            token: cookies["token"],
           });
           setSettings(false);
           setCurrentChannel("");
@@ -48,7 +50,10 @@ export const SettingsMenu = (
       leave_button = (
         <button
           onClick={() => {
-            socket.emit("delete chat", current_channel.name);
+            socket.emit("delete chat", {
+              channel_name: current_channel.name,
+              token: cookies["token"],
+            });
             console.log("Deleting " + current_channel.name);
           }}
         >
@@ -65,6 +70,7 @@ export const SettingsMenu = (
                 socket.emit("toggle private", {
                   channel_name: current_channel.name,
                   sender: current_user,
+                  token: cookies["token"],
                 });
               }}
             />

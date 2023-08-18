@@ -14,7 +14,8 @@ export const Messages = (
   setContextMenu: Dispatch<SetStateAction<boolean>>,
   socket: Socket,
   invitesPannel: boolean,
-  invites: Invite[]
+  invites: Invite[],
+  cookies: any
 ) => {
   const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
   const [contextMenuSender, setContextMenuSender] = useState("");
@@ -98,7 +99,8 @@ export const Messages = (
           contextMenuPos,
           socket,
           current_channel,
-          username
+          username,
+          cookies
         )}
       </div>
     );
@@ -114,7 +116,8 @@ export const Messages = (
         contextMenuPos,
         socket,
         current_channel,
-        username
+        username,
+        cookies
       )}
     </div>
   );

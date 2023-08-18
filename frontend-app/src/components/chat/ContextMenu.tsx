@@ -11,7 +11,8 @@ export const ContextMenuEl = (
   contextMenuPos: any,
   socket: Socket,
   channel: Channel,
-  current_user: string
+  current_user: string,
+  cookies: any
 ) => {
   const menuRef = useRef<HTMLDivElement>(null);
   if (!contextMenu) {
@@ -31,7 +32,14 @@ export const ContextMenuEl = (
       <li
         onClick={() => {
           console.log("DM " + target_user);
-          ChangeStatus("dm", socket, "", current_user, target_user);
+          ChangeStatus(
+            "dm",
+            socket,
+            "",
+            current_user,
+            target_user,
+            cookies["token"]
+          );
           setContextMenu(false);
         }}
       >
@@ -48,6 +56,7 @@ export const ContextMenuEl = (
                 channel.name,
                 current_user,
                 target_user,
+                cookies["token"],
                 1
               );
               setContextMenu(false);
@@ -63,7 +72,8 @@ export const ContextMenuEl = (
                 socket,
                 channel.name,
                 current_user,
-                target_user
+                target_user,
+                cookies["token"]
               );
               setContextMenu(false);
             }}
@@ -78,7 +88,8 @@ export const ContextMenuEl = (
                 socket,
                 channel.name,
                 current_user,
-                target_user
+                target_user,
+                cookies["token"]
               );
               setContextMenu(false);
             }}
@@ -102,7 +113,8 @@ export const ContextMenuEl = (
                 socket,
                 channel_name,
                 current_user,
-                target_user
+                target_user,
+                cookies["token"]
               );
               setContextMenu(false);
             }}
@@ -123,7 +135,8 @@ export const ContextMenuEl = (
                 socket,
                 channel.name,
                 current_user,
-                target_user
+                target_user,
+                cookies["token"]
               );
               setContextMenu(false);
             }}
