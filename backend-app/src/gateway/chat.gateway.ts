@@ -8,7 +8,8 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket as ioSocket } from 'socket.io';
-import { JwtStrategy } from 'src/auth/strategies/jwt.strategy';
+import { AuthService } from 'src/auth/auth.service';
+import { jwtConstants } from 'src/auth/constants';
 import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
 import { ChatParticipantsService } from 'src/chat-participants/chat-participants.service';
 import { ChatParticipantEntity } from 'src/chat-participants/entities/chat-participant.entity';
@@ -41,8 +42,8 @@ export class ChatGateway implements OnModuleInit {
     private userService: UsersService,
     @Inject(forwardRef(() => InvitesService))
     private inviteService: InvitesService,
-    @Inject(forwardRef(() => JwtStrategy))
-    private JwtStrategyService: JwtStrategy,
+    @Inject(forwardRef(() => AuthService))
+    private authService: AuthService,
   ) {}
   @WebSocketServer()
   server: Server;
@@ -144,7 +145,17 @@ export class ChatGateway implements OnModuleInit {
   async onChatMessage(@MessageBody() msg: any) {
     console.log('[Chat Gateway]: Sending chat message');
     try {
-      if (this.JwtStrategyService.validate(msg.token)) {
+      console.log('Token ', msg.token);
+      var isVerified = await this.authService
+        .validateToken(msg.token)
+        .catch(() => {
+          return false;
+        })
+        .finally(() => {
+          return true;
+        });
+      console.log('Verified ', isVerified);
+      if (!msg.token || !isVerified) {
         throw new ChatPermissionError('User not authenticated');
       }
       await this.registerChatMessage(

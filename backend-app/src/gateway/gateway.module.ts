@@ -7,7 +7,9 @@ import { UsersModule } from 'src/users/users.module';
 import { GamesModule } from 'src/games/games.module';
 import { ChatParticipantsModule } from 'src/chat-participants/chat-participants.module';
 import { InvitesModule } from 'src/invites/invites.module';
-import { JwtStrategy } from 'src/auth/strategies/jwt.strategy';
+import { AuthService } from 'src/auth/auth.service';
+import { PasswordService } from 'src/password/password.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -18,7 +20,13 @@ import { JwtStrategy } from 'src/auth/strategies/jwt.strategy';
     forwardRef(() => GamesModule),
     forwardRef(() => InvitesModule),
   ],
-  providers: [ChatGateway, GameGateway, JwtStrategy],
+  providers: [
+    ChatGateway,
+    GameGateway,
+    PasswordService,
+    AuthService,
+    JwtService,
+  ],
   exports: [ChatGateway, GameGateway],
 })
 export class GatewayModule {}
