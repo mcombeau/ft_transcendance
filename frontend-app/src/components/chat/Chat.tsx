@@ -297,21 +297,21 @@ export const Chat = () => {
     socket.on("ban", (info: ReceivedInfo) => {
       setChannels((prev) => {
         const temp = [...prev];
-        return temp.map((chan) => {
-          if (chan.name === info.channel_name) {
-            if (chan.banned.find((p) => p.username === info.target_user)) {
+        return temp.map((chan: ChatRoom) => {
+          if (chan.chatRoomID === info.chatRoomID) {
+            if (chan.banned.find((p) => p.userID === info.targetID)) {
               chan.banned = chan.banned.filter(
-                (p) => p.username !== info.target_user
+                (p) => p.userID !== info.targetID
               );
             } else if (
-              chan.participants.find((p) => p.username === info.target_user)
+              chan.participants.find((p) => p.userID === info.targetID)
             ) {
               var banned_user = chan.participants.find(
-                (p) => p.username === info.target_user
+                (p) => p.userID === info.targetID
               );
-              banned_user.banned = true;
+              banned_user.isBanned = true;
               chan.participants = chan.participants.filter(
-                (p) => p.username !== info.target_user
+                (p) => p.userID !== info.targetID
               );
               chan.banned = [...chan.banned, banned_user];
             }
@@ -320,8 +320,11 @@ export const Chat = () => {
         });
       });
       serviceAnnouncement(
-        `${info.target_user} has been banned from this channel.`,
-        info.channel_name
+        `${getUserNameFromID(
+          info.targetID,
+          channels
+        )} has been banned from this channel.`,
+        getChatRoomNameFromID(info.chatRoomID, channels)
       );
     });
 
