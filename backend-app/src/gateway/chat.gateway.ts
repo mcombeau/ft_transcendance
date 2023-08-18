@@ -17,7 +17,7 @@ import {
   ChatPermissionError,
   InviteCreationError,
 } from 'src/exceptions/bad-request.interceptor';
-import { InviteEntity } from 'src/invites/entities/Invite.entity';
+import { InviteEntity, inviteType } from 'src/invites/entities/Invite.entity';
 import { InvitesService } from 'src/invites/invites.service';
 import { UsersService } from 'src/users/users.service';
 import { UserChatInfo, updateParticipantParams } from 'src/chat-participants/utils/types';
@@ -616,7 +616,7 @@ export class ChatGateway implements OnModuleInit {
       );
     }
     const invite = await this.inviteService.createInvite({
-      type: 'chat',
+      type: inviteType.CHAT,
       senderID: info.userID,
       invitedUserID: info.targetID,
       chatRoomID: info.chatRoomID,
