@@ -117,6 +117,7 @@ export class ChatGateway implements OnModuleInit {
   async onDM(@MessageBody() info: ReceivedInfo) {
     try {
       info.userID = await this.checkIdentity(info.token);
+      // TODO: Deal with the username conundrum (maybe diff username depending on connected socket ?)
       var params = {
         name: '',
         password: '',

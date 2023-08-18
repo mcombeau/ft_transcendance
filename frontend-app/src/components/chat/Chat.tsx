@@ -455,16 +455,20 @@ export const Chat = () => {
 
     socket.on("dm", (info: ReceivedInfo) => {
       console.log(info);
+      // TODO : fix with gateway usernames
+      var userIsTarget = info.targetID === getUserID(cookies);
       var user1: User = {
-        username: info.user1,
+        userID: getUserID(cookies),
+        username: getUsername(cookies),
         isOwner: false,
         isOperator: false,
         isBanned: false,
         mutedUntil: new Date().getTime(),
-        invitedUntil: 0,
+        invitedUntil: 0, // TODO: replace all the 0 with null
       };
       var user2: User = {
-        username: info.user2,
+        userID: userIsTarget ? info.userID : info.targetID,
+        username: info.username,
         isOwner: false,
         isOperator: false,
         isBanned: false,
@@ -472,13 +476,14 @@ export const Chat = () => {
         invitedUntil: 0,
       };
       var channel: ChatRoom = {
-        name: info.name,
+        chatRoomID: info.chatRoomID,
+        name: `DM: ${user1.username}/${user2.username}`,
         participants: [user1, user2],
-        isBanned: [],
+        banned: [],
         invited: [],
-        private: true,
-        owner: "",
-        dm: true,
+        isPrivate: true,
+        ownerID: null,
+        isDM: true,
       };
       setChannels((prev) => [...prev, channel]);
     });
@@ -500,7 +505,7 @@ export const Chat = () => {
           return;
         }
         data.map((e: any) => {
-          var participant_list = e.participants.map((user: User) => {
+          var participant_list = e.participants.map((user: any) => {
             var newUser: User = {
               userID: user.user.id,
               username: user.user.username,
