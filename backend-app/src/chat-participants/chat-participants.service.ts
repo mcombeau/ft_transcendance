@@ -1,8 +1,6 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ChatsService } from 'src/chats/chats.service';
 import { ChatParticipantEntity } from 'src/chat-participants/entities/chat-participant.entity';
-import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
 import { updateParticipantParams, UserChatInfo } from './utils/types';
 
@@ -11,10 +9,6 @@ export class ChatParticipantsService {
   constructor(
     @InjectRepository(ChatParticipantEntity)
     private participantRepository: Repository<ChatParticipantEntity>,
-    @Inject(forwardRef(() => ChatsService))
-    private chatService: ChatsService,
-    @Inject(forwardRef(() => UsersService))
-    private userService: UsersService,
   ) {}
 
   fetchParticipants() {
@@ -47,7 +41,7 @@ export class ChatParticipantsService {
   fetchParticipantsByUserID(id: number) {
     return this.participantRepository.find({
       where: {
-        participant: { id: id },
+        user: { id: id },
       },
       relations: ['chatRoom', 'participant'],
     });
@@ -61,7 +55,7 @@ export class ChatParticipantsService {
   fetchParticipantByUserChatID(info: UserChatInfo) {
     return this.participantRepository.findOne({
       where: {
-        participant: { id: info.userID },
+        user: { id: info.userID },
         chatRoom: { id: info.chatRoomID },
       },
       relations: ['chatRoom', 'participant'],
@@ -87,7 +81,7 @@ export class ChatParticipantsService {
   async recordAlreadyExists(userID: number, chatRoomID: number) {
     const foundRecord = await this.participantRepository.find({
       where: {
-        participant: { id: userID },
+        user: { id: userID },
         chatRoom: { id: chatRoomID },
       },
     });
@@ -104,7 +98,7 @@ export class ChatParticipantsService {
   ) {
     const foundRecord = await this.participantRepository.find({
       where: {
-        participant: { id: userID },
+        user: { id: userID },
         chatRoom: { id: chatRoomID },
       },
     });
@@ -112,7 +106,7 @@ export class ChatParticipantsService {
       return foundRecord[0];
     }
     const newParticipant = this.participantRepository.create({
-      participant: { id: userID },
+      user: { id: userID },
       chatRoom: { id: chatRoomID },
     });
     return this.participantRepository.save(newParticipant);

@@ -60,7 +60,7 @@ export class ChatsService {
     var participantUsernames: participantUsernames[] = [];
     for (const e of chat.participants) {
       participantUsernames.push({
-        username: e.participant.username,
+        username: e.user.username,
       });
     }
     return participantUsernames;
@@ -73,7 +73,9 @@ export class ChatsService {
       );
     }
     const user = await this.userService.fetchUserByID(chatDetails.ownerID);
-    const passwordHash = await this.passwordService.hashPassword(chatDetails.password);
+    const passwordHash = await this.passwordService.hashPassword(
+      chatDetails.password,
+    );
     const newChat = this.chatRepository.create({
       name: chatDetails.name,
       password: passwordHash,
@@ -92,7 +94,7 @@ export class ChatsService {
         this.deleteChatByID(newSavedChat.id);
         throw new ChatCreationError(`'ownerID: ${user.id}': ${err.message}`);
       });
-    await this.chatParticipantService.updateParticipantByID(participant.id, {
+    await this.chatParticipantService.updateParticipantByID(user.id, {
       owner: true,
       operator: true,
       banned: false,
@@ -113,7 +115,7 @@ export class ChatsService {
     const name = user1.username + user2.username;
     const newChat = this.chatRepository.create({
       name: name,
-      password: "",
+      password: '',
       private: true,
       directMessage: true,
       createdAt: new Date(),

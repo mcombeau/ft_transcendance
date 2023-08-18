@@ -7,7 +7,6 @@ import { InviteEntity } from 'src/invites/entities/Invite.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity {
-
   @ApiProperty()
   @PrimaryGeneratedColumn()
   id: number;
@@ -39,11 +38,9 @@ export class UserEntity {
   messages: ChatMessageEntity[];
 
   @ApiProperty({ type: () => ChatParticipantEntity, isArray: true })
-  @OneToMany(
-    () => ChatParticipantEntity,
-    (participant) => participant.participant,
-    { nullable: true },
-  )
+  @OneToMany(() => ChatParticipantEntity, (participant) => participant.user, {
+    nullable: true,
+  })
   chatRooms: ChatParticipantEntity[];
 
   @ApiProperty({ type: () => InviteEntity, isArray: true })

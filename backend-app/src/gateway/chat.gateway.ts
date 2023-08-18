@@ -341,7 +341,7 @@ export class ChatGateway implements OnModuleInit {
     }
     if (!user.owner) {
       throw new ChatPermissionError(
-        `User '${user.participant.username}' is not owner of chat '${user.chatRoom.name}'.`,
+        `User '${user.user.username}' is not owner of chat '${user.chatRoom.name}'.`,
       );
     }
   }
@@ -354,7 +354,7 @@ export class ChatGateway implements OnModuleInit {
     }
     if (user.owner) {
       throw new ChatPermissionError(
-        `User '${user.participant.username}' is owner of chat '${user.chatRoom.name}'.`,
+        `User '${user.user.username}' is owner of chat '${user.chatRoom.name}'.`,
       );
     }
   }
@@ -367,7 +367,7 @@ export class ChatGateway implements OnModuleInit {
     }
     if (!user.operator && !user.owner) {
       throw new ChatPermissionError(
-        `User '${user.participant.username}' does not have operator privileges in chat '${user.chatRoom.name}'.`,
+        `User '${user.user.username}' does not have operator privileges in chat '${user.chatRoom.name}'.`,
       );
     }
   }
@@ -380,7 +380,7 @@ export class ChatGateway implements OnModuleInit {
     }
     if (user.operator || user.owner) {
       throw new ChatPermissionError(
-        `User '${user.participant.username}' is operator of chat '${user.chatRoom.name}'.`,
+        `User '${user.user.username}' is operator of chat '${user.chatRoom.name}'.`,
       );
     }
   }
@@ -393,7 +393,7 @@ export class ChatGateway implements OnModuleInit {
     }
     if (user.banned) {
       throw new ChatPermissionError(
-        `User '${user.participant.username}' is banned from chat '${user.chatRoom.name}'.`,
+        `User '${user.user.username}' is banned from chat '${user.chatRoom.name}'.`,
       );
     }
   }
@@ -406,7 +406,7 @@ export class ChatGateway implements OnModuleInit {
     }
     if (user.mutedUntil > new Date().getTime()) {
       throw new ChatPermissionError(
-        `User '${user.participant.username}' is muted in chat '${user.chatRoom.name}'.`,
+        `User '${user.user.username}' is muted in chat '${user.chatRoom.name}'.`,
       );
     }
   }
@@ -446,7 +446,7 @@ export class ChatGateway implements OnModuleInit {
   ) {
     if (user) {
       throw new ChatPermissionError(
-        `User '${user.participant.username}' has already accepted invite to chat '${user.chatRoom.name}'.`,
+        `User '${user.user.username}' has already accepted invite to chat '${user.chatRoom.name}'.`,
       );
     }
   }
@@ -625,7 +625,7 @@ export class ChatGateway implements OnModuleInit {
       });
     if (target) {
       throw new InviteCreationError(
-        `${target.participant.id} cannot be invited: already in chat room ${info.chatRoomID}`,
+        `${target.user.id} cannot be invited: already in chat room ${info.chatRoomID}`,
       );
     }
     const invite = await this.inviteService.createInvite({
