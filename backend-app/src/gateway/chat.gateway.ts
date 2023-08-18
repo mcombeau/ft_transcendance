@@ -6,7 +6,7 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { Server, Socket as ioSocket } from 'socket.io';
+import { Server } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
 import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
 import { ChatParticipantsService } from 'src/chat-participants/chat-participants.service';
@@ -24,11 +24,7 @@ import {
   UserChatInfo,
   updateParticipantParams,
 } from 'src/chat-participants/utils/types';
-import {
-  createChatParams,
-  createDMParams,
-  updateChatParams,
-} from 'src/chats/utils/types';
+import { createChatParams } from 'src/chats/utils/types';
 import { ChatNotFoundError } from 'src/exceptions/not-found.interceptor';
 
 // TODO [mcombeau]: Replace params with actual DTOs!!!!
@@ -260,6 +256,8 @@ export class ChatGateway implements OnModuleInit {
   async onAcceptInvite(@MessageBody() info: ReceivedInfo) {
     try {
       info.userID = await this.checkIdentity(info.token);
+      const user = await this.userService.fetchUserByID(info.targetID);
+      info.username = user.username;
       await this.acceptUserInvite({
         userID: info.userID,
         chatRoomID: info.chatRoomID,

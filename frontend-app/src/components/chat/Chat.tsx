@@ -11,7 +11,7 @@ import SettingsMenu from "./SettingsMenu";
 import SidePannel from "./SidePannel";
 import SendForm from "./SendForm";
 import { Socket } from "socket.io-client";
-import { getAuthInfo, getUserID, getUsername } from "../../cookies";
+import { getUserID, getUsername } from "../../cookies";
 import { ReceivedInfo } from "./types";
 
 export type Message = {
@@ -132,17 +132,14 @@ export const Chat = () => {
     return channels.find((e) => e.name === channel_name);
   }
 
-  function handleJoinChat(info: any) {}
-
-  function serviceAnnouncement(content: string, channel_name: string) {
+  function serviceAnnouncement(content: string, chatRoomID: number) {
     var message: Message = {
       msg: content,
       datestamp: new Date(),
-      sender: "",
-      channel: channel_name,
+      senderID: null,
+      chatRoomID: chatRoomID,
       read: true,
       system: true,
-      invite: false,
     };
     setMessages((prev) => [...prev, message]);
   }
@@ -217,7 +214,10 @@ export const Chat = () => {
         setCurrentChannel(info.chatInfo.name);
       }
       setNewchannel("");
-      serviceAnnouncement(`${user.username} created channel.`, chatRoom.name);
+      serviceAnnouncement(
+        `${user.username} created channel.`,
+        chatRoom.chatRoomID
+      );
     });
 
     socket.on("join chat", (info: ReceivedInfo) => {
@@ -242,7 +242,7 @@ export const Chat = () => {
 
               serviceAnnouncement(
                 `${info.username} joined the channel.`,
-                getChatRoomNameFromID(info.chatRoomID, channels) // TODO: check getter is working
+                info.chatRoomID
               );
             }
           }
@@ -262,7 +262,7 @@ export const Chat = () => {
               );
               serviceAnnouncement(
                 `${info.username} has left the channel`,
-                getUserNameFromID(info.userID, channels) // TODO: check getter is working
+                chan.chatRoomID
               );
             }
           }
@@ -290,7 +290,7 @@ export const Chat = () => {
         `${getUserNameFromID(info.targetID, channels)} has been muted until ${
           new Date(info.participantInfo.mutedUntil).toString().split("GMT")[0]
         }.`,
-        getChatRoomNameFromID(info.chatRoomID, channels)
+        info.chatRoomID
       );
     });
 
@@ -324,74 +324,72 @@ export const Chat = () => {
           info.targetID,
           channels
         )} has been banned from this channel.`,
-        getChatRoomNameFromID(info.chatRoomID, channels)
+        info.chatRoomID
       );
     });
 
     socket.on("invite", (info: ReceivedInfo) => {
-      console.log("Received invite info");
-      setChannels((prev) => {
-        const temp = [...prev];
-        return temp.map((chan) => {
-          if (chan.name === info.channel_name) {
-            var invited_user: User = {
-              username: info.target_user,
-              owner: false,
-              operator: false,
-              banned: false,
-              mutedUntil: new Date().getTime(),
-              invitedUntil: info.invite_date,
-            };
-            chan.participants = chan.participants.filter(
-              (p) => p.username !== info.target_user
-            );
-            chan.invited = [...chan.invited, invited_user];
-          }
-          return chan;
-        });
-      });
+      // TODO: check if we are sure we don't need that
+
+      // console.log("Received invite info");
+      // setChannels((prev) => {
+      //   const temp = [...prev];
+      //   return temp.map((chan: ChatRoom) => {
+      //     if (chan.chatRoomID === info.chatRoomID) {
+      //       var invited_user: User = {
+      //         userID: info.targetID,
+      //         username: info.username,
+      //         isOwner: false,
+      //         isOperator: false,
+      //         isBanned: false,
+      //         mutedUntil: new Date().getTime(),
+      //         invitedUntil: info.inviteDate,
+      //       };
+      //       chan.participants = chan.participants.filter(
+      //         (p: User) => p.userID !== info.targetID
+      //       );
+      //       chan.invited = [...chan.invited, invited_user];
+      //     }
+      //     return chan;
+      //   });
+      // });
       serviceAnnouncement(
-        `${info.target_user} has been invited to this channel.`,
-        info.channel_name
+        `${info.username} has been invited to this channel.`,
+        info.chatRoomID
       );
       var invite: Invite = {
-        id: 0,
-        target_user: info.target_user,
-        sender: info.sender,
+        targetID: info.targetID,
+        senderID: info.userID,
         type: typeInvite.Chat,
-        target: info.channel_name,
-        expirationDate: info.invite_date,
+        chatRoomID: info.chatRoomID,
+        expirationDate: info.inviteDate,
       };
       setInvites((prev) => [...prev, invite]);
     });
 
     socket.on("accept invite", (info: ReceivedInfo) => {
       var user: User = {
-        username: info.target_user,
-        owner: false,
-        operator: false,
-        banned: false,
+        userID: info.targetID,
+        username: info.username,
+        isOwner: false,
+        isOperator: false,
+        isBanned: false,
         mutedUntil: new Date().getTime(),
         invitedUntil: 0,
       };
 
       setChannels((prev) => {
         const temp = [...prev];
-        return temp.map((chan) => {
-          if (chan.name === info.channel_name) {
+        return temp.map((chan: ChatRoom) => {
+          if (chan.chatRoomID === info.chatRoomID) {
             if (
-              !chan.participants.some(
-                (p: User) => p.username === info.target_user
-              )
+              !chan.participants.some((p: User) => p.userID === info.targetID)
             ) {
               chan.participants = [...chan.participants, user];
 
               serviceAnnouncement(
                 `${info.username} joined the channel.`,
-                info.channel_name
-              );
-              chan.invited = chan.invited.filter(
-                (e) => e.username !== info.target_user
+                info.chatRoomID
               );
             }
           }
@@ -403,38 +401,47 @@ export const Chat = () => {
     socket.on("kick", (info: ReceivedInfo) => {
       setChannels((prev) => {
         const temp = [...prev];
-        return temp.map((chan) => {
-          if (chan.name === info.channel_name) {
+        return temp.map((chan: ChatRoom) => {
+          if (chan.chatRoomID === info.chatRoomID) {
             chan.participants = chan.participants.filter(
-              (p) => p.username !== info.target_user
+              (p: User) => p.userID !== info.targetID
             );
           }
           return chan;
         });
       });
       serviceAnnouncement(
-        `${info.target_user} has been kicked from this channel.`,
-        info.channel_name
+        `${getUserNameFromID(
+          info.targetID,
+          channels
+        )} has been kicked from this channel.`,
+        info.chatRoomID
       );
     });
 
     socket.on("operator", (info: ReceivedInfo) => {
       setChannels((prev) => {
         const temp = [...prev];
-        return temp.map((chan) => {
-          if (chan.name === info.channel_name) {
-            chan.participants.map((p) => {
-              if (p.username === info.target_user) {
-                p.operator = !p.operator;
-                if (p.operator) {
+        return temp.map((chan: ChatRoom) => {
+          if (chan.chatRoomID === info.chatRoomID) {
+            chan.participants.map((p: User) => {
+              if (p.userID === info.targetID) {
+                p.isOperator = info.participantInfo.operator;
+                if (p.isOperator) {
                   serviceAnnouncement(
-                    `${info.target_user} is now a channel admin.`,
-                    info.channel_name
+                    `${getUserNameFromID(
+                      info.targetID,
+                      channels
+                    )} is now a channel admin.`,
+                    info.chatRoomID
                   );
                 } else {
                   serviceAnnouncement(
-                    `${info.target_user} is not a channel admin anymore.`,
-                    info.channel_name
+                    `${getUserNameFromID(
+                      info.targetID,
+                      channels
+                    )} is not a channel admin anymore.`,
+                    info.chatRoomID
                   );
                 }
               }
@@ -450,24 +457,24 @@ export const Chat = () => {
       console.log(info);
       var user1: User = {
         username: info.user1,
-        owner: false,
-        operator: false,
-        banned: false,
+        isOwner: false,
+        isOperator: false,
+        isBanned: false,
         mutedUntil: new Date().getTime(),
         invitedUntil: 0,
       };
       var user2: User = {
         username: info.user2,
-        owner: false,
-        operator: false,
-        banned: false,
+        isOwner: false,
+        isOperator: false,
+        isBanned: false,
         mutedUntil: new Date().getTime(),
         invitedUntil: 0,
       };
       var channel: ChatRoom = {
         name: info.name,
         participants: [user1, user2],
-        banned: [],
+        isBanned: [],
         invited: [],
         private: true,
         owner: "",
@@ -493,13 +500,13 @@ export const Chat = () => {
           return;
         }
         data.map((e: any) => {
-          var participant_list = e.participants.map((user: any) => {
+          var participant_list = e.participants.map((user: User) => {
             var newUser: User = {
               userID: user.user.id,
               username: user.user.username,
               isOwner: user.owner,
-              isOperator: user.operator,
-              isBanned: user.banned,
+              isOperator: user.isOperator,
+              isBanned: user.isBanned,
               mutedUntil: user.mutedUntil,
               invitedUntil: user.invitedUntil,
             };
