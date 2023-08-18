@@ -145,7 +145,6 @@ export class ChatGateway implements OnModuleInit {
   async onChatMessage(@MessageBody() msg: any) {
     console.log('[Chat Gateway]: Sending chat message');
     try {
-      console.log('Token ', msg.token);
       var isVerified = await this.authService
         .validateToken(msg.token)
         .catch(() => {
@@ -154,7 +153,6 @@ export class ChatGateway implements OnModuleInit {
         .finally(() => {
           return true;
         });
-      console.log('Verified ', isVerified);
       if (!msg.token || !isVerified) {
         throw new ChatPermissionError('User not authenticated');
       }
