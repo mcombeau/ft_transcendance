@@ -67,6 +67,20 @@ export class UsersService {
     return userChatRooms;
   }
 
+  async fetchUserChatDMsByUserID(id: number) {
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: ['chatRooms.chatRoom'],
+    });
+    var userDMRooms: ChatEntity[] = [];
+    for (const e of user.chatRooms) {
+      if (e.chatRoom.directMessage === true) {
+        userDMRooms.push(e.chatRoom);
+      }
+    }
+    return userDMRooms;
+  }
+
   async getUserPasswordHash(userID: number) {
     const user = await this.userRepository.findOne({
       where: { id: userID },

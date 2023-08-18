@@ -156,14 +156,6 @@ export class ChatsService {
     });
   }
 
-  // TODO [mcombeau]: do this.
-  fetchDMByUserID(user1ID: number, user2ID: number) {
-    // return this.chatRepository.findOne({
-    //   where: { name, directMessage: true },
-    //   relations: ['messages', 'participants.participant'],
-    // });
-  }
-
   updateChatByID(id: number, chatDetails: updateChatParams) {
     const participant = chatDetails['participantID'];
     if (participant !== undefined) {

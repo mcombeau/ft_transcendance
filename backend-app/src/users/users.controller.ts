@@ -60,10 +60,21 @@ export class UsersController {
   @ApiOkResponse({
     type: ChatEntity,
     isArray: true,
-    description: 'Get user chats by user ID.',
+    description: 'Get user chats (including DMs) by user ID.',
   })
   async getUserChatsByUserID(@Param('id', ParseIntPipe) id: number) {
     return this.userService.fetchUserChatsByUserID(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id/DMs')
+  @ApiOkResponse({
+    type: ChatEntity,
+    isArray: true,
+    description: 'Get user DM chats (only DMs) by user ID.',
+  })
+  async getUserChatDMsByUserID(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.fetchUserChatDMsByUserID(id);
   }
 
   // @UseGuards(JwtAuthGuard)
