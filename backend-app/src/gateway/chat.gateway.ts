@@ -72,6 +72,7 @@ export class ChatGateway implements OnModuleInit {
     if (!token || !isVerified) {
       throw new ChatPermissionError('User not authenticated');
     }
+    return isVerified.username;
   }
 
   @SubscribeMessage('add chat')
@@ -158,7 +159,7 @@ export class ChatGateway implements OnModuleInit {
   async onChatMessage(@MessageBody() msg: any) {
     console.log('[Chat Gateway]: Sending chat message');
     try {
-      await this.checkIdentity(msg.token);
+      var sender = await this.checkIdentity(msg.token);
       await this.registerChatMessage(
         msg.msg.channel,
         msg.msg.sender,
