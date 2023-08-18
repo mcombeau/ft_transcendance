@@ -1,10 +1,11 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ChatEntity } from 'src/chats/entities/chat.entity';
 import { PasswordService } from 'src/password/password.service';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { createUserParams } from 'src/users/utils/types';
 import { updateUserParams } from 'src/users/utils/types';
-import { Repository } from 'typeorm';
+import { ChangeStreamCollModDocument, Repository } from 'typeorm';
 
 @Injectable()
 export class UsersService {
@@ -52,6 +53,18 @@ export class UsersService {
       relations: ['chatRooms.chatRoom'],
     });
     return user;
+  }
+
+  async fetchUserChatsByUserID(id: number) {
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: ['chatRooms.chatRoom'],
+    });
+    var userChatRooms: ChatEntity[] = [];
+    for (const e of user.chatRooms) {
+      userChatRooms.push(e.chatRoom);
+    }
+    return userChatRooms;
   }
 
   async getUserPasswordHash(userID: number) {

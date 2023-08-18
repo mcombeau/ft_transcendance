@@ -24,6 +24,7 @@ import { createUsersDto } from 'src/users/dtos/createUsers.dto';
 import { updateUsersDto } from 'src/users/dtos/updateUsers.dto';
 import { UsersService } from 'src/users/users.service';
 import { UserEntity } from './entities/user.entity';
+import { ChatEntity } from 'src/chats/entities/chat.entity';
 
 @ApiTags('users')
 @Controller('users')
@@ -52,6 +53,17 @@ export class UsersController {
     const user = await this.userService.fetchUserByID(id);
     if (!user) throw new UserNotFoundException(id.toString());
     return user;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id/chats')
+  @ApiOkResponse({
+    type: ChatEntity,
+    isArray: true,
+    description: 'Get user chats by user ID.',
+  })
+  async getUserChatsByUserID(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.fetchUserChatsByUserID(id);
   }
 
   // @UseGuards(JwtAuthGuard)
