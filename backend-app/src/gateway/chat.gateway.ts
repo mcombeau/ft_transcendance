@@ -20,13 +20,27 @@ import {
 import { InviteEntity } from 'src/invites/entities/Invite.entity';
 import { InvitesService } from 'src/invites/invites.service';
 import { UsersService } from 'src/users/users.service';
-import { UserChatInfo } from 'src/chat-participants/utils/types';
+import { UserChatInfo, updateParticipantParams } from 'src/chat-participants/utils/types';
+import { createChatParams, createDMParams, updateChatParams } from 'src/chats/utils/types';
+import { ChatNotFoundError } from 'src/exceptions/not-found.interceptor';
 
+// TODO [mcombeau]: Replace params with actual DTOs!!!!
 type UserTargetChat = {
   userID: number;
   targetID: number;
   chatRoomID: number;
 };
+
+type ReceivedInfo = {
+  token: string;
+  userID: number;
+  targetID: number;
+  chatRoomID: number;
+  messageInfo: createChatMessageParams;
+  chatInfo: createChatParams;
+  participantInfo: updateParticipantParams;
+  inviteDate: number;
+}
 
 @WebSocketGateway({
   cors: {
@@ -79,12 +93,12 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('add chat')
-  async onAddChat(@MessageBody() info: any) {
+  async onAddChat(@MessageBody() info: ReceivedInfo) {
     console.log('[Chat Gateway]: Add chat', info);
     try {
-      var sender = await this.checkIdentity(info.token);
-      await this.chatsService.createChat(info);
-      this.server.emit('add chat', info);
+      info.userID = await this.checkIdentity(info.token);
+      await this.chatsService.createChat(info.chatInfo);
+      this.server.emit('add chat', info.chatInfo);
     } catch (e) {
       var err_msg = '[Chat Gateway]: Chat creation error:' + e.message;
       console.log(err_msg);
@@ -93,24 +107,18 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('dm')
-  async onDM(@MessageBody() info: any) {
+  async onDM(@MessageBody() info: ReceivedInfo) {
     try {
-      var sender = await this.checkIdentity(info.token);
-      // TODO: move that logic to the dm creation service
-      if (info.current_user < info.target_user) {
-        var name = `DM: ${info.current_user} / ${info.target_user}`;
-      } else {
-        name = `DM: ${info.target_user} / ${info.current_user}`;
-      }
+      info.userID = await this.checkIdentity(info.token);
       var params = {
-        name: name,
+        name: '',
         password: '',
-        userID1: info.current_user,
-        userID2: info.target_user,
+        userID1: info.userID,
+        userID2: info.targetID,
       };
       await this.chatsService.createChatDM(params); // TODO : see what happens if already exists
-      console.log('Created dm !!!!!!!!!!!!');
-      this.server.emit('dm', params);
+      
+      this.server.emit('dm', info);
     } catch (e) {
       var err_msg = '[Chat Gateway]: DM creation error:' + e.message;
       console.log(err_msg);
@@ -119,13 +127,12 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('delete chat')
-  async onDeleteChat(@MessageBody() info: any) {
+  async onDeleteChat(@MessageBody() info: ReceivedInfo) {
     console.log('[Chat Gateway]: Delete chat', info);
     try {
-      var sender = await this.checkIdentity(info.token);
-      const chat = await this.chatsService.fetchChatByID(info.chatRoomID);
-      await this.chatsService.deleteChatByID(chat.id);
-      this.server.emit('delete chat', info.channel_name);
+      info.userID = await this.checkIdentity(info.token);
+      this.deleteChatRoom(info);
+      this.server.emit('delete chat', info);
     } catch (e) {
       var err_msg = '[Chat Gateway]: Chat deletion error:' + e.message;
       console.log(err_msg);
@@ -134,10 +141,10 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('join chat')
-  async onJoinChat(@MessageBody() info: any) {
+  async onJoinChat(@MessageBody() info: ReceivedInfo) {
     console.log('[Chat Gateway]: Join chat', info);
     try {
-      var sender = await this.checkIdentity(info.token);
+      info.userID = await this.checkIdentity(info.token);
       await this.addUserToChat({
         userID: info.userID,
         chatRoomID: info.chatRoomID,
@@ -151,13 +158,13 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('leave chat')
-  async onLeaveChat(@MessageBody() info: any) {
+  async onLeaveChat(@MessageBody() info: ReceivedInfo) {
     try {
-      var sender = await this.checkIdentity(info.token);
-      await this.chatsService.removeParticipantFromChatByUsername(
-        info.channel_name,
-        info.username,
-      );
+      info.userID = await this.checkIdentity(info.token);
+      await this.chatsService.removeParticipantFromChatByUsername({
+        userID: info.userID,
+        chatRoomID: info.chatRoomID,
+      });
       this.server.emit('leave chat', info);
     } catch (e) {
       var err_msg = '[Chat Gateway]: Chat leave error:' + e.message;
@@ -167,17 +174,12 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('chat message')
-  async onChatMessage(@MessageBody() msg: any) {
+  async onChatMessage(@MessageBody() info: ReceivedInfo) {
     console.log('[Chat Gateway]: Sending chat message');
     try {
-      var sender = await this.checkIdentity(msg.token);
-      await this.registerChatMessage(
-        msg.msg.channel,
-        msg.msg.sender,
-        msg.msg.msg,
-        msg.msg.datestamp,
-      );
-      this.server.emit('chat message', msg.msg);
+      info.userID = await this.checkIdentity(info.token);
+      await this.registerChatMessage(info.messageInfo);
+      this.server.emit('chat message', info);
     } catch (e) {
       var err_msg =
         '[Chat Gateway]: Chat message registration error:' + e.message;
@@ -187,14 +189,14 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('mute')
-  async onMute(@MessageBody() info: any) {
+  async onMute(@MessageBody() info: ReceivedInfo) {
     try {
-      var sender = await this.checkIdentity(info.token);
-      info.mute_date = await this.toggleMute(
-        info.channel_name,
-        info.current_user,
-        info.target_user,
-        info.lenght_in_minutes,
+      info.userID = await this.checkIdentity(info.token);
+      info.participantInfo.mutedUntil = await this.toggleMute(
+        info.chatRoomID,
+        info.userID,
+        info.targetID,
+        info.participantInfo.mutedUntil,
       );
       this.server.emit('mute', info);
     } catch (e) {
@@ -205,11 +207,11 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('toggle private')
-  async onTogglePrivate(@MessageBody() info: any) {
+  async onTogglePrivate(@MessageBody() info: ReceivedInfo) {
     console.log('[Chat Gateway]: Toggle private chat');
     try {
-      var sender = await this.checkIdentity(info.token);
-      await this.toggleChatPrivacy(info.channel_name, info.sender);
+      info.userID = await this.checkIdentity(info.token);
+      await this.toggleChatPrivacy({ userID: info.userID, chatRoomID: info.chatRoomID });
       this.server.emit('toggle private', info);
     } catch (e) {
       var err_msg = '[Chat Gateway]: Chat privacy toggle error:' + e.message;
@@ -219,14 +221,14 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('invite')
-  async onInvite(@MessageBody() info: any) {
+  async onInvite(@MessageBody() info: ReceivedInfo) {
     try {
-      var sender = await this.checkIdentity(info.token);
-      var inviteExpiry = await this.inviteUser(
-        info.channel_name,
-        info.current_user,
-        info.target_user,
-      );
+      info.userID = await this.checkIdentity(info.token);
+      var inviteExpiry = await this.inviteUser({
+        userID: info.userID,
+        targetID: info.targetID,
+        chatRoomID: info.chatRoomID
+      });
       info.inviteDate = inviteExpiry;
       this.server.emit('invite', info);
     } catch (e) {
@@ -237,11 +239,13 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('accept invite')
-  async onAcceptInvite(@MessageBody() info: any) {
+  async onAcceptInvite(@MessageBody() info: ReceivedInfo) {
     try {
-      var sender = await this.checkIdentity(info.token);
-      await this.acceptUserInvite(info.channel_name, info.target_user);
-      info.invite_date = 0;
+      info.userID = await this.checkIdentity(info.token);
+      await this.acceptUserInvite({
+        userID: info.userID,
+        chatRoomID: info.chatRoomID
+      });
       this.server.emit('accept invite', info);
     } catch (e) {
       var err_msg = '[Chat Gateway]: Chat accept invite error:' + e.message;
@@ -251,14 +255,14 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('operator')
-  async onMakeOperator(@MessageBody() info: any) {
+  async onMakeOperator(@MessageBody() info: ReceivedInfo) {
     try {
-      var sender = await this.checkIdentity(info.token);
-      await this.toggleOperator(
-        info.channel_name,
-        info.current_user,
-        info.target_user,
-      );
+      info.userID = await this.checkIdentity(info.token);
+      await this.toggleOperator({
+        userID: info.userID,
+        targetID: info.targetID,
+        chatRoomID: info.chatRoomID
+      });
       this.server.emit('operator', info);
     } catch (e) {
       console.log('[Chat Gateway]: Operator promotion error:', e.message);
@@ -266,14 +270,14 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('ban')
-  async onBan(@MessageBody() info: any) {
+  async onBan(@MessageBody() info: ReceivedInfo) {
     try {
-      var sender = await this.checkIdentity(info.token);
-      await this.banUser(
-        info.channel_name,
-        info.current_user,
-        info.target_user,
-      );
+      info.userID = await this.checkIdentity(info.token);
+      await this.banUser({
+        userID: info.userID,
+        targetID: info.targetID,
+        chatRoomID: info.chatRoomID
+      });
       this.server.emit('ban', info);
     } catch (e) {
       var err_msg = '[Chat Gateway]: User ban error:' + e.message;
@@ -283,14 +287,14 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('kick')
-  async onKick(@MessageBody() info: any) {
+  async onKick(@MessageBody() info: ReceivedInfo) {
     try {
-      var sender = await this.checkIdentity(info.token);
-      await this.kickUser(
-        info.channel_name,
-        info.current_user,
-        info.target_user,
-      );
+      info.userID = await this.checkIdentity(info.token);
+      await this.kickUser({
+        userID: info.userID,
+        targetID: info.targetID,
+        chatRoomID: info.chatRoomID
+      });
       this.server.emit('kick', info);
     } catch (e) {
       var err_msg = '[Chat Gateway]: User kick error:' + e.message;
@@ -309,10 +313,7 @@ export class ChatGateway implements OnModuleInit {
       );
     }
     const userParticipant =
-      await this.chatParticipantsService.fetchParticipantByUserChatIDs(
-        info.userID,
-        info.chatRoomID,
-      );
+      await this.chatParticipantsService.fetchParticipantByUserChatID(info);
     if (!userParticipant) {
       throw new ChatPermissionError(
         `User '${info.userID} is not in or invited to chat '${info.chatRoomID}`,
@@ -413,10 +414,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   private async checkUserInviteHasNotExpired(info: UserChatInfo) {
-    const invite = await this.inviteService.fetchInviteByInvitedUserChatRoomID(
-      info.userID,
-      info.chatRoomID,
-    );
+    const invite = await this.inviteService.fetchInviteByInvitedUserChatRoomID(info);
     if (!invite) {
       throw new ChatPermissionError(
         `User '${info.userID}' has not been invited to chat '${info.chatRoomID}'.`,
@@ -619,9 +617,9 @@ export class ChatGateway implements OnModuleInit {
     }
     const invite = await this.inviteService.createInvite({
       type: 'chat',
-      senderUserID: info.userID,
-      invitedUserID: info.targetID,
-      chatRoomID: info.chatRoomID,
+      inviteSender: info.userID,
+      invitedUser: info.targetID,
+      chatRoom: info.chatRoomID,
     });
     return invite.expiresAt;
   }
@@ -648,5 +646,16 @@ export class ChatGateway implements OnModuleInit {
     } catch (e) {
       throw new ChatPermissionError(e.message);
     }
+  }
+
+  private async deleteChatRoom(info: UserChatInfo) {
+    const chat = await this.chatsService.fetchChatByID(info.chatRoomID);
+    if (!chat) {
+      throw new ChatNotFoundError(`Chat room ${info.chatRoomID} cannot be deleted: does not exist.`);
+    }
+    const user = await this.getParticipant(info);
+
+    await this.checkUserIsOwner(user);
+    await this.chatsService.deleteChatByID(chat.id);
   }
 }

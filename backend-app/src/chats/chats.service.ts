@@ -140,9 +140,11 @@ export class ChatsService {
     }
     const user1 = await this.userService.fetchUserByID(chatDetails.userID1);
     const user2 = await this.userService.fetchUserByID(chatDetails.userID2);
+    // TODO [mcombeau]: Create an encoded name !
+    const name = user1.username + user2.username;
     const newChat = this.chatRepository.create({
-      name: chatDetails.name,
-      password: chatDetails.password,
+      name: name,
+      password: "",
       private: true,
       directMessage: true,
       createdAt: new Date(),

@@ -83,15 +83,6 @@ export class ChatParticipantsService {
   //   });
   // }
   //
-  async fetchParticipantByUserChatIDs(userID: number, chatRoomID: number) {
-    return this.participantRepository.findOne({
-      where: {
-        participant: { id: userID },
-        chatRoom: { id: chatRoomID },
-      },
-      relations: ['chatRoom', 'participant'],
-    });
-  }
 
   async recordAlreadyExists(userID: number, chatRoomID: number) {
     const foundRecord = await this.participantRepository.find({
