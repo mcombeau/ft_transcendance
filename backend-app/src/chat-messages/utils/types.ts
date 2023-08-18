@@ -1,5 +1,6 @@
 export type createChatMessageParams = {
-    message: string;
-    sender: number;
-    chatRoom: number;
+  message: string;
+  senderID: number;
+  chatRoomID: number;
+  sentAt: Date;
 };

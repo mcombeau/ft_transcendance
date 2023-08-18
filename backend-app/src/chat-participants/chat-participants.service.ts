@@ -134,11 +134,8 @@ export class ChatParticipantsService {
     return this.participantRepository.update({ id }, { ...participantDetails });
   }
 
-  async deleteParticipantInChatByUserID(userID: number, chatRoomID: number) {
-    const participant = await this.fetchParticipantByUserChatID(
-      userID,
-      chatRoomID,
-    );
+  async deleteParticipantInChatByUserID(info: UserChatInfo) {
+    const participant = await this.fetchParticipantByUserChatID(info);
     return this.deleteParticipantByID(participant.id);
   }
 

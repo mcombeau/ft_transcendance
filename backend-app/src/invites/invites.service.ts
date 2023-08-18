@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { inviteParams } from './utils/types';
 import { InviteEntity, inviteType } from './entities/Invite.entity';
 import { InviteCreationError } from 'src/exceptions/bad-request.interceptor';
+import { UserChatInfo } from 'src/chat-participants/utils/types';
 
 @Injectable()
 export class InvitesService {
@@ -55,24 +56,18 @@ export class InvitesService {
     });
   }
 
-  async fetchInviteByInvitedUserChatRoomID(
-    invitedUserID: number,
-    chatRoomID: number,
-  ) {
-    const chatRoom = await this.chatService.fetchChatByID(chatRoomID);
-    const user = await this.userService.fetchUserByID(invitedUserID);
+  async fetchInviteByInvitedUserChatRoomID(info: UserChatInfo) {
+    const chatRoom = await this.chatService.fetchChatByID(info.chatRoomID);
+    const user = await this.userService.fetchUserByID(info.userID);
     return this.inviteRepository.findOne({
       where: { invitedUser: user, chatRoom: chatRoom },
       relations: ['inviteSender', 'invitedUser', 'chatRoom'],
     });
   }
 
-  async fetchAllInvitesByInvitedUserChatRoomIDs(
-    invitedUserID: number,
-    chatRoomID: number,
-  ) {
-    const chatRoom = await this.chatService.fetchChatByID(chatRoomID);
-    const user = await this.userService.fetchUserByID(invitedUserID);
+  async fetchAllInvitesByInvitedUserChatRoomIDs(info: UserChatInfo) {
+    const chatRoom = await this.chatService.fetchChatByID(info.chatRoomID);
+    const user = await this.userService.fetchUserByID(info.userID);
     return this.inviteRepository.find({
       where: { invitedUser: user, chatRoom: chatRoom },
       relations: ['inviteSender', 'invitedUser', 'chatRoom'],
@@ -145,14 +140,8 @@ export class InvitesService {
     throw new InviteCreationError('friend invites not implemented yet.');
   }
 
-  async deleteInvitesByInvitedUserChatRoomName(
-    invitedUserID: number,
-    chatRoomID: number,
-  ) {
-    const invites = await this.fetchAllInvitesByInvitedUserChatRoomIDs(
-      invitedUserID,
-      chatRoomID,
-    );
+  async deleteInvitesByInvitedUserChatRoomID(info: UserChatInfo) {
+    const invites = await this.fetchAllInvitesByInvitedUserChatRoomIDs(info);
     for (const e of invites) {
       await this.deleteInviteByID(e.id);
     }

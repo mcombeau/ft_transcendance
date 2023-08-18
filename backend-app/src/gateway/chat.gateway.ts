@@ -1,4 +1,5 @@
 import { OnModuleInit, Inject, forwardRef } from '@nestjs/common';
+import { createChatMessageParams } from 'src/chat-messages/utils/types';
 import {
   MessageBody,
   SubscribeMessage,
@@ -20,6 +21,12 @@ import { InviteEntity } from 'src/invites/entities/Invite.entity';
 import { InvitesService } from 'src/invites/invites.service';
 import { UsersService } from 'src/users/users.service';
 import { UserChatInfo } from 'src/chat-participants/utils/types';
+
+type UserTargetChat = {
+  userID: number;
+  targetID: number;
+  chatRoomID: number;
+};
 
 @WebSocketGateway({
   cors: {
@@ -452,36 +459,37 @@ export class ChatGateway implements OnModuleInit {
         `User '${info.userID}' is banned from chat '${info.chatRoomID}'.`,
       );
     }
-    this.chatsService.addParticipantToChatByUsername(chatRoomName, username);
+    this.chatsService.addParticipantToChatByUserChatID(info);
   }
 
   private async registerChatMessage(
-    chatRoomName: string,
-    username: string,
-    message: string,
-    date: Date,
+    chatMessageDetails: createChatMessageParams,
   ) {
-    const user = await this.getParticipant(chatRoomName, username);
+    const user = await this.getParticipant({
+      userID: chatMessageDetails.senderID,
+      chatRoomID: chatMessageDetails.chatRoomID,
+    });
 
     await this.checkUserIsNotMuted(user);
     await this.checkUserIsNotBanned(user);
 
-    await this.chatMessagesService.createMessage(
-      message,
-      user.participant.username,
-      chatRoomName,
-      date,
-    );
+    await this.chatMessagesService.createMessage(chatMessageDetails);
   }
 
   private async toggleMute(
-    chatRoomName: string,
-    username: string,
-    targetUsername: string,
+    chatRoomID: number,
+    userID: number,
+    targetUserID: number,
     minutes: number,
   ) {
-    const user = await this.getParticipant(chatRoomName, username);
-    const target = await this.getParticipant(chatRoomName, targetUsername);
+    const user = await this.getParticipant({
+      userID: userID,
+      chatRoomID: chatRoomID,
+    });
+    const target = await this.getParticipant({
+      userID: targetUserID,
+      chatRoomID: chatRoomID,
+    });
 
     await this.checkUserHasOperatorPermissions(user);
     await this.checkUserIsNotOperator(target);
@@ -507,13 +515,15 @@ export class ChatGateway implements OnModuleInit {
     return participant_update.mutedUntil;
   }
 
-  private async toggleOperator(
-    chatRoomName: string,
-    username: string,
-    targetUsername: string,
-  ) {
-    const user = await this.getParticipant(chatRoomName, username);
-    const target = await this.getParticipant(chatRoomName, targetUsername);
+  private async toggleOperator(info: UserTargetChat) {
+    const user = await this.getParticipant({
+      chatRoomID: info.chatRoomID,
+      userID: info.userID,
+    });
+    const target = await this.getParticipant({
+      chatRoomID: info.chatRoomID,
+      userID: info.targetID,
+    });
 
     await this.checkUserIsOwner(user);
     await this.checkUserIsNotOwner(target);
@@ -527,13 +537,15 @@ export class ChatGateway implements OnModuleInit {
     });
   }
 
-  private async banUser(
-    chatRoomName: string,
-    username: string,
-    targetUsername: string,
-  ) {
-    const user = await this.getParticipant(chatRoomName, username);
-    const target = await this.getParticipant(chatRoomName, targetUsername);
+  private async banUser(info: UserTargetChat) {
+    const user = await this.getParticipant({
+      chatRoomID: info.chatRoomID,
+      userID: info.userID,
+    });
+    const target = await this.getParticipant({
+      chatRoomID: info.chatRoomID,
+      userID: info.targetID,
+    });
 
     await this.checkUserHasOperatorPermissions(user);
     await this.checkUserIsNotOwner(target);
@@ -550,27 +562,26 @@ export class ChatGateway implements OnModuleInit {
     }
   }
 
-  private async kickUser(
-    chatRoomName: string,
-    username: string,
-    targetUsername: string,
-  ) {
-    const user = await this.getParticipant(chatRoomName, username);
-    const target = await this.getParticipant(chatRoomName, targetUsername);
+  private async kickUser(info: UserTargetChat) {
+    const user = await this.getParticipant({
+      chatRoomID: info.chatRoomID,
+      userID: info.userID,
+    });
+    const target = await this.getParticipant({
+      chatRoomID: info.chatRoomID,
+      userID: info.targetID,
+    });
 
     await this.checkUserHasOperatorPermissions(user);
     await this.checkUserIsNotOwner(target);
     await this.checkUserIsNotBanned(target);
 
-    this.chatParticipantsService.deleteParticipantInChatByUsername(
-      target.participant.username,
-      chatRoomName,
-    );
+    this.chatParticipantsService.deleteParticipantByID(target.id);
   }
 
-  private async toggleChatPrivacy(chatRoomName: string, username: string) {
-    const user = await this.getParticipant(chatRoomName, username);
-    const chatRoom = await this.chatsService.fetchChatByName(chatRoomName);
+  private async toggleChatPrivacy(info: UserChatInfo) {
+    const user = await this.getParticipant(info);
+    const chatRoom = await this.chatsService.fetchChatByID(info.chatRoomID);
 
     await this.checkUserIsOwner(user);
 
@@ -582,48 +593,44 @@ export class ChatGateway implements OnModuleInit {
     });
   }
 
-  private async inviteUser(
-    chatRoomName: string,
-    username: string,
-    targetUsername: string,
-  ) {
-    const user = await this.getParticipant(chatRoomName, username);
+  private async inviteUser(info: UserTargetChat) {
+    const user = await this.getParticipant({
+      userID: info.userID,
+      chatRoomID: info.chatRoomID,
+    });
     if (!user) {
       throw new InviteCreationError(
-        `${user.participant.username} cannot invite: invite sender not in chat room.`,
+        `${info.userID} cannot invite: invite sender not in chat room.`,
       );
     }
 
     var target =
-      await this.chatParticipantsService.fetchParticipantByUserChatNames(
-        targetUsername,
-        chatRoomName,
-      );
+      await this.chatParticipantsService.fetchParticipantByUserChatID({
+        userID: info.targetID,
+        chatRoomID: info.chatRoomID,
+      });
     if (target) {
       throw new InviteCreationError(
-        `${target.participant.username} cannot be invited: already in chat room ${chatRoomName}`,
+        `${target.participant.id} cannot be invited: already in chat room ${info.chatRoomID}`,
       );
     }
     const invite = await this.inviteService.createInvite({
       type: 'chat',
-      senderUsername: username,
-      invitedUsername: targetUsername,
-      chatRoomName: chatRoomName,
+      senderUserID: info.userID,
+      invitedUserID: info.targetID,
+      chatRoomID: info.chatRoomID,
     });
     return invite.expiresAt;
   }
 
-  private async acceptUserInvite(chatRoomName: string, username: string) {
+  private async acceptUserInvite(info: UserChatInfo) {
     try {
       const invite =
-        await this.inviteService.fetchInviteByInvitedUserChatRoomNames(
-          username,
-          chatRoomName,
-        );
-      await this.checkUserInviteHasNotExpired(username, chatRoomName);
+        await this.inviteService.fetchInviteByInvitedUserChatRoomID(info);
+      await this.checkUserInviteHasNotExpired(info);
 
       // TODO: can a banned user be invited to chatroom?
-      const user = await this.getParticipant(chatRoomName, username);
+      const user = await this.getParticipant(info);
       if (user) {
         await this.checkUserHasNotAlreadyAcceptedInvite(user);
         await this.checkUserIsNotBanned(user);
@@ -634,10 +641,7 @@ export class ChatGateway implements OnModuleInit {
         invite.chatRoom.id,
         invite.expiresAt,
       );
-      await this.inviteService.deleteInvitesByInvitedUserChatRoomName(
-        username,
-        chatRoomName,
-      );
+      await this.inviteService.deleteInvitesByInvitedUserChatRoomID(info);
     } catch (e) {
       throw new ChatPermissionError(e.message);
     }

@@ -1,14 +1,14 @@
-import {
-  Inject,
-  Injectable,
-  forwardRef,
-} from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatMessageEntity } from 'src/chat-messages/entities/chat-message.entity';
 import { Repository } from 'typeorm';
 import { ChatsService } from 'src/chats/chats.service';
 import { UsersService } from 'src/users/users.service';
-import { ChatNotFoundError, UserNotFoundError } from 'src/exceptions/not-found.interceptor';
+import {
+  ChatNotFoundError,
+  UserNotFoundError,
+} from 'src/exceptions/not-found.interceptor';
+import { createChatMessageParams } from './utils/types';
 
 @Injectable()
 export class ChatMessagesService {
@@ -25,27 +25,20 @@ export class ChatMessagesService {
     });
   }
 
-  async createMessage(
-    message: string,
-    sender: string,
-    chatRoomName: string,
-    sentTime: Date,
-  ) {
-    const chat = await this.chatService.fetchChatByName(chatRoomName);
+  async createMessage(chatMessageDetails: createChatMessageParams) {
+    const chat = await this.chatService.fetchChatByID(
+      chatMessageDetails.chatRoomID,
+    );
     if (!chat)
-      throw new ChatNotFoundError(chatRoomName);
-    const user = await this.userService.fetchUserByUsername(sender);
+      throw new ChatNotFoundError(chatMessageDetails.chatRoomID.toString());
+    const user = await this.userService.fetchUserByID(
+      chatMessageDetails.senderID,
+    );
     if (!user) {
-      throw new UserNotFoundError(sender.toString());
+      throw new UserNotFoundError(chatMessageDetails.senderID.toString());
     }
-    const messageDetails = {
-      message: message,
-      sender: user,
-      chatRoom: chat,
-      sentAt: sentTime,
-    };
     const newMessage = this.chatMessagesRepository.create({
-      ...messageDetails,
+      ...chatMessageDetails,
     });
     return this.chatMessagesRepository.save(newMessage);
   }
