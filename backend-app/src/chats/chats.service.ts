@@ -13,8 +13,8 @@ import { ChatParticipantsService } from 'src/chat-participants/chat-participants
 import { ChatCreationError } from 'src/exceptions/bad-request.interceptor';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
-import { WsException } from '@nestjs/websockets';
 import { ChatFetchError } from 'src/exceptions/bad-request.exception';
+import { UserChatInfo } from 'src/chat-participants/utils/types';
 
 @Injectable()
 export class ChatsService {
@@ -42,13 +42,13 @@ export class ChatsService {
     return isMatch;
   }
 
-  public async checkPasswordForChatByName(password: string, chatName: string) {
-    const chatRoom = await this.fetchChatByName(chatName);
-    if (!chatRoom) {
-      return false;
-    }
-    return this.checkPassword(password, chatRoom.password);
-  }
+  // public async checkPasswordForChatByName(password: string, chatName: string) {
+  //   const chatRoom = await this.fetchChatByName(chatName);
+  //   if (!chatRoom) {
+  //     return false;
+  //   }
+  //   return this.checkPassword(password, chatRoom.password);
+  // }
 
   public async checkPasswordForChatByID(password: string, chatRoomID: number) {
     const chatRoom = await this.fetchChatByID(chatRoomID);
@@ -78,24 +78,24 @@ export class ChatsService {
     });
   }
 
-  async fetchParticipantUsernamesByChatName(chatRoomName: string) {
-    const chat = await this.fetchChatByName(chatRoomName);
-    if (!chat) {
-      throw new ChatFetchError(chatRoomName);
-    }
-    var participantUsernames: participantUsernames[] = [];
-    for (const e of chat.participants) {
-      participantUsernames.push({
-        username: e.participant.username,
-      });
-    }
-    return participantUsernames;
-  }
+  // async fetchParticipantUsernamesByChatName(chatRoomName: string) {
+  //   const chat = await this.fetchChatByName(chatRoomName);
+  //   if (!chat) {
+  //     throw new ChatFetchError(chatRoomName);
+  //   }
+  //   var participantUsernames: participantUsernames[] = [];
+  //   for (const e of chat.participants) {
+  //     participantUsernames.push({
+  //       username: e.participant.username,
+  //     });
+  //   }
+  //   return participantUsernames;
+  // }
 
-  async fetchUserChatsByUsername(username: string) {
-    const user = await this.userService.fetchUserByUsername(username);
-    return this.chatParticipantService.fetchParticipantsByUserID(user.id);
-  }
+  // async fetchUserChatsByUsername(username: string) {
+  //   const user = await this.userService.fetchUserByUsername(username);
+  //   return this.chatParticipantService.fetchParticipantsByUserID(user.id);
+  // }
 
   async createChat(chatDetails: createChatParams) {
     if (chatDetails.name.startsWith('DM:')) {
@@ -103,7 +103,7 @@ export class ChatsService {
         `'${chatDetails.name}': Chat name cannot start with "DM:"`,
       );
     }
-    const user = await this.userService.fetchUserByUsername(chatDetails.owner);
+    const user = await this.userService.fetchUserByID(chatDetails.ownerID);
     const passwordHash = await this.hashPassword(chatDetails.password);
     const newChat = this.chatRepository.create({
       name: chatDetails.name,
@@ -127,7 +127,7 @@ export class ChatsService {
       owner: true,
       operator: true,
       banned: false,
-      mutedUntil: new Date().getTime()
+      mutedUntil: new Date().getTime(),
     });
     return newSavedChat;
   }
@@ -138,8 +138,8 @@ export class ChatsService {
         `'${chatDetails.name}': DM chat must start with "DM:"`,
       );
     }
-    const user1 = await this.userService.fetchUserByUsername(chatDetails.user1);
-    const user2 = await this.userService.fetchUserByUsername(chatDetails.user2);
+    const user1 = await this.userService.fetchUserByID(chatDetails.userID1);
+    const user2 = await this.userService.fetchUserByID(chatDetails.userID2);
     const newChat = this.chatRepository.create({
       name: chatDetails.name,
       password: chatDetails.password,
@@ -178,24 +178,24 @@ export class ChatsService {
     });
   }
 
-  fetchChatByName(name: string) {
-    return this.chatRepository.findOne({
-      where: { name },
-      relations: ['messages', 'participants.participant'],
-    });
-  }
+  // fetchChatByName(name: string) {
+  //   return this.chatRepository.findOne({
+  //     where: { name },
+  //     relations: ['messages', 'participants.participant'],
+  //   });
+  // }
 
-  fetchDMByUsernames(name1: string, name2: string) {
-    if (name1 < name2) {
-      var name = `DM: ${name1} / ${name2}`;
-    } else {
-      name = `DM: ${name2} / ${name1}`;
-    }
-    return this.chatRepository.findOne({
-      where: { name, directMessage: true },
-      relations: ['messages', 'participants.participant'],
-    });
-  }
+  // fetchDMByUsernames(name1: string, name2: string) {
+  //   if (name1 < name2) {
+  //     var name = `DM: ${name1} / ${name2}`;
+  //   } else {
+  //     name = `DM: ${name2} / ${name1}`;
+  //   }
+  //   return this.chatRepository.findOne({
+  //     where: { name, directMessage: true },
+  //     relations: ['messages', 'participants.participant'],
+  //   });
+  // }
 
   updateChatByID(id: number, chatDetails: updateChatParams) {
     const participant = chatDetails['participantID'];
@@ -210,28 +210,32 @@ export class ChatsService {
     this.chatParticipantService.createChatParticipant(userID, id, 0);
   }
 
-  async addParticipantToChatByUsername(chatRoomName: string, username: string) {
-    const user = await this.userService.fetchUserByUsername(username);
-    const chatRoom = await this.fetchChatByName(chatRoomName);
+  // async addParticipantToChatByUsername(chatRoomName: string, username: string) {
+  //   const user = await this.userService.fetchUserByUsername(username);
+  //   const chatRoom = await this.fetchChatByName(chatRoomName);
 
+  //   return this.chatParticipantService.createChatParticipant(
+  //     user.id,
+  //     chatRoom.id,
+  //     0,
+  //   );
+  // }
+
+  async addParticipantToChatByUserChatID(info: UserChatInfo) {
     return this.chatParticipantService.createChatParticipant(
-      user.id,
-      chatRoom.id,
+      info.userID,
+      info.chatRoomID,
       0,
     );
   }
 
-  async inviteParticipantToChatByUsername(
-    chatRoomName: string,
-    username: string,
+  async inviteParticipantToChatByID(
+    info: UserChatInfo,
     inviteExpiryDate: number,
   ) {
-    const user = await this.userService.fetchUserByUsername(username);
-    const chatRoom = await this.fetchChatByName(chatRoomName);
-
     return this.chatParticipantService.createChatParticipant(
-      user.id,
-      chatRoom.id,
+      info.userID,
+      info.chatRoomID,
       inviteExpiryDate,
     );
   }
@@ -240,12 +244,10 @@ export class ChatsService {
     this.chatParticipantService.deleteParticipantInChatByUserID(userID, id);
   }
 
-  async removeParticipantFromChatByUsername(name: string, username: string) {
-    const participant = await this.userService.fetchUserByUsername(username);
-    const channelID = await this.fetchChatByName(name);
+  async removeParticipantFromChatByUsername(info: UserChatInfo) {
     this.chatParticipantService.deleteParticipantInChatByUserID(
-      participant.id,
-      channelID.id,
+      info.userID,
+      info.chatRoomID,
     );
   }
 

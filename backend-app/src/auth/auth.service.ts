@@ -33,7 +33,7 @@ export class AuthService {
 
   login(user: UserEntity) {
     console.log('[Auth Service]: login user');
-    const payload = { username: user.username, sub: user.id };
+    const payload = { username: user.username, userID: user.id };
     return {
       access_token: this.jwtService.sign(payload),
     };

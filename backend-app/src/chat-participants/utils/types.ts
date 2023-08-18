@@ -4,3 +4,8 @@ export type updateParticipantParams = {
   banned: boolean;
   mutedUntil: number;
 };
+
+export type UserChatInfo = {
+  chatRoomID: number;
+  userID: number;
+};

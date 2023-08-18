@@ -1,7 +1,5 @@
 import { OnModuleInit, Inject, forwardRef } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import {
-  ConnectedSocket,
   MessageBody,
   SubscribeMessage,
   WebSocketGateway,
@@ -9,21 +7,19 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket as ioSocket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
-import { jwtConstants } from 'src/auth/constants';
 import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
 import { ChatParticipantsService } from 'src/chat-participants/chat-participants.service';
 import { ChatParticipantEntity } from 'src/chat-participants/entities/chat-participant.entity';
 import { ChatsService } from 'src/chats/chats.service';
 import {
-  ChatCreationError,
   ChatJoinError,
-  ChatMuteError,
   ChatPermissionError,
   InviteCreationError,
 } from 'src/exceptions/bad-request.interceptor';
 import { InviteEntity } from 'src/invites/entities/Invite.entity';
 import { InvitesService } from 'src/invites/invites.service';
 import { UsersService } from 'src/users/users.service';
+import { UserChatInfo } from 'src/chat-participants/utils/types';
 
 @WebSocketGateway({
   cors: {
@@ -72,7 +68,7 @@ export class ChatGateway implements OnModuleInit {
     if (!token || !isVerified) {
       throw new ChatPermissionError('User not authenticated');
     }
-    return isVerified.username;
+    return isVerified.userID;
   }
 
   @SubscribeMessage('add chat')
@@ -295,19 +291,21 @@ export class ChatGateway implements OnModuleInit {
 
   // --------------------  PERMISSION CHECKS
 
-  private async getParticipant(chatRoomName: string, username: string) {
-    const chatRoom = await this.chatsService.fetchChatByName(chatRoomName);
+  private async getParticipant(info: UserChatInfo) {
+    const chatRoom = await this.chatsService.fetchChatByID(info.chatRoomID);
     if (!chatRoom) {
-      throw new ChatPermissionError(`Chat '${chatRoomName} does not exist.`);
+      throw new ChatPermissionError(
+        `Chat number '${info.chatRoomID} does not exist.`,
+      );
     }
     const userParticipant =
-      await this.chatParticipantsService.fetchParticipantByUserChatNames(
-        username,
-        chatRoomName,
+      await this.chatParticipantsService.fetchParticipantByUserChatIDs(
+        info.userID,
+        info.chatRoomID,
       );
     if (!userParticipant) {
       throw new ChatPermissionError(
-        `User '${username} is not in or invited to chat '${chatRoomName}`,
+        `User '${info.userID} is not in or invited to chat '${info.chatRoomID}`,
       );
     }
     return userParticipant;
@@ -404,24 +402,20 @@ export class ChatGateway implements OnModuleInit {
     }
   }
 
-  private async checkUserInviteHasNotExpired(
-    username: string,
-    chatRoomName: string,
-  ) {
-    const invite =
-      await this.inviteService.fetchInviteByInvitedUserChatRoomNames(
-        username,
-        chatRoomName,
-      );
+  private async checkUserInviteHasNotExpired(info: UserChatInfo) {
+    const invite = await this.inviteService.fetchInviteByInvitedUserChatRoomID(
+      info.userID,
+      info.chatRoomID,
+    );
     if (!invite) {
       throw new ChatPermissionError(
-        `User '${username}' has not been invited to chat '${chatRoomName}'.`,
+        `User '${info.userID}' has not been invited to chat '${info.chatRoomID}'.`,
       );
     }
     if (invite.expiresAt < new Date().getTime()) {
       this.inviteService.deleteInviteByID(invite.id);
       throw new ChatPermissionError(
-        `User '${username}' invite to chat '${chatRoomName}' has expired.`,
+        `User '${info.userID}' invite to chat '${info.chatRoomID}' has expired.`,
       );
     }
   }
@@ -438,27 +432,24 @@ export class ChatGateway implements OnModuleInit {
 
   // -------------------- HANDLERS
 
-  private async addUserToChat(username: string, chatRoomName: string) {
-    const chatRoom = await this.chatsService.fetchChatByName(chatRoomName);
+  private async addUserToChat(info: UserChatInfo) {
+    const chatRoom = await this.chatsService.fetchChatByID(info.chatRoomID);
     const participant =
-      await this.chatParticipantsService.fetchParticipantByUserChatNames(
-        username,
-        chatRoomName,
-      );
+      await this.chatParticipantsService.fetchParticipantByUserChatID(info);
     if (!chatRoom) {
-      throw new ChatJoinError(`Chat '${chatRoomName}' does not exist.`);
+      throw new ChatJoinError(`Chat '${info.chatRoomID}' does not exist.`);
     }
     if (chatRoom.private === true) {
-      throw new ChatJoinError(`Chat '${chatRoomName}' is private.`);
+      throw new ChatJoinError(`Chat '${info.chatRoomID}' is private.`);
     }
     if (participant) {
       throw new ChatJoinError(
-        `User '${username}' is already in chat '${chatRoomName}'.`,
+        `User '${info.userID}' is already in chat '${info.chatRoomID}'.`,
       );
     }
     if (participant && participant.banned) {
       throw new ChatJoinError(
-        `User '${username}' is banned from chat '${chatRoomName}'.`,
+        `User '${info.userID}' is banned from chat '${info.chatRoomID}'.`,
       );
     }
     this.chatsService.addParticipantToChatByUsername(chatRoomName, username);

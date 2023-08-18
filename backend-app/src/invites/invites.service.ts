@@ -6,8 +6,6 @@ import { Repository } from 'typeorm';
 import { inviteParams } from './utils/types';
 import { InviteEntity, inviteType } from './entities/Invite.entity';
 import { InviteCreationError } from 'src/exceptions/bad-request.interceptor';
-import { UserEntity } from 'src/users/entities/user.entity';
-import { ChatEntity } from 'src/chats/entities/chat.entity';
 
 @Injectable()
 export class InvitesService {
@@ -33,50 +31,56 @@ export class InvitesService {
     });
   }
 
-  async fetchInvitesByInvitedUsername(username: string) {
-    const user = await this.userService.fetchUserByUsername(username);
+  async fetchInvitesByInvitedID(userID: number) {
+    const user = await this.userService.fetchUserByID(userID);
     return this.inviteRepository.find({
       where: { invitedUser: user },
       relations: ['inviteSender', 'invitedUser', 'chatRoom'],
     });
   }
 
-  async fetchInvitesBySenderUsername(username: string) {
-    const user = await this.userService.fetchUserByUsername(username);
+  async fetchInvitesBySenderID(userID: number) {
+    const user = await this.userService.fetchUserByID(userID);
     return this.inviteRepository.find({
       where: { inviteSender: user },
       relations: ['inviteSender', 'invitedUser', 'chatRoom'],
     });
   }
 
-  async fetchInvitesByChatRoomName(chatRoomName: string) {
-    const chatRoom = await this.chatService.fetchChatByName(chatRoomName);
+  async fetchInvitesByChatRoomID(chatRoomID: number) {
+    const chatRoom = await this.chatService.fetchChatByID(chatRoomID);
     return this.inviteRepository.find({
       where: { chatRoom: chatRoom },
       relations: ['inviteSender', 'invitedUser', 'chatRoom'],
     });
   }
 
-  async fetchInviteByInvitedUserChatRoomNames(invitedUsername: string, chatRoomName: string) {
-    const chatRoom = await this.chatService.fetchChatByName(chatRoomName);
-    const user = await this.userService.fetchUserByUsername(invitedUsername);
+  async fetchInviteByInvitedUserChatRoomID(
+    invitedUserID: number,
+    chatRoomID: number,
+  ) {
+    const chatRoom = await this.chatService.fetchChatByID(chatRoomID);
+    const user = await this.userService.fetchUserByID(invitedUserID);
     return this.inviteRepository.findOne({
       where: { invitedUser: user, chatRoom: chatRoom },
       relations: ['inviteSender', 'invitedUser', 'chatRoom'],
-    })
+    });
   }
 
-  async fetchAllInvitesByInvitedUserChatRoomNames(invitedUsername: string, chatRoomName: string) {
-    const chatRoom = await this.chatService.fetchChatByName(chatRoomName);
-    const user = await this.userService.fetchUserByUsername(invitedUsername);
+  async fetchAllInvitesByInvitedUserChatRoomIDs(
+    invitedUserID: number,
+    chatRoomID: number,
+  ) {
+    const chatRoom = await this.chatService.fetchChatByID(chatRoomID);
+    const user = await this.userService.fetchUserByID(invitedUserID);
     return this.inviteRepository.find({
       where: { invitedUser: user, chatRoom: chatRoom },
       relations: ['inviteSender', 'invitedUser', 'chatRoom'],
-    })
+    });
   }
 
   async createInvite(inviteDetails: inviteParams): Promise<InviteEntity> {
-    switch(inviteDetails.type) {
+    switch (inviteDetails.type) {
       case inviteType.CHAT:
         return this.createChatInvite(inviteDetails);
       // case inviteType.GAME:
@@ -89,32 +93,38 @@ export class InvitesService {
   }
 
   private async createChatInvite(inviteDetails: inviteParams) {
-    const sender = await this.userService.fetchUserByUsername(inviteDetails.senderUsername);
-    const invitedUser = await this.userService.fetchUserByUsername(inviteDetails.invitedUsername);
-    const chatRoom = await this.chatService.fetchChatByName(inviteDetails.chatRoomName);
-    
+    const sender = await this.userService.fetchUserByID(
+      inviteDetails.senderUserID,
+    );
+    const invitedUser = await this.userService.fetchUserByID(
+      inviteDetails.invitedUserID,
+    );
+    const chatRoom = await this.chatService.fetchChatByID(
+      inviteDetails.chatRoomID,
+    );
+
     if (!sender || !invitedUser || !chatRoom) {
       throw new InviteCreationError('invalid parameters for invite creation.');
     }
-    
+
     var inviteExpiry = new Date(
       Date.now() + 1 * (60 * 60 * 1000), // time + 1 hour
     ).getTime();
 
     var invite = await this.inviteRepository.findOne({
-      where:
-        {
-          inviteSender: sender,
-          invitedUser: invitedUser,
-          chatRoom: chatRoom,
-        }
+      where: {
+        inviteSender: sender,
+        invitedUser: invitedUser,
+        chatRoom: chatRoom,
+      },
     });
     if (invite) {
       // invite already exists, updating invite expiry.
-      await this.inviteRepository.update(invite.id, { expiresAt: inviteExpiry});
-      return this.fetchInviteByID(invite.id);;
-    }
-    else {
+      await this.inviteRepository.update(invite.id, {
+        expiresAt: inviteExpiry,
+      });
+      return this.fetchInviteByID(invite.id);
+    } else {
       return this.inviteRepository.save({
         type: inviteType.CHAT,
         expiresAt: inviteExpiry,
@@ -135,8 +145,14 @@ export class InvitesService {
     throw new InviteCreationError('friend invites not implemented yet.');
   }
 
-  async deleteInvitesByInvitedUserChatRoomName(invitedUsername: string, chatRoomName: string) {
-    const invites = await this.fetchAllInvitesByInvitedUserChatRoomNames(invitedUsername, chatRoomName);
+  async deleteInvitesByInvitedUserChatRoomName(
+    invitedUserID: number,
+    chatRoomID: number,
+  ) {
+    const invites = await this.fetchAllInvitesByInvitedUserChatRoomIDs(
+      invitedUserID,
+      chatRoomID,
+    );
     for (const e of invites) {
       await this.deleteInviteByID(e.id);
     }

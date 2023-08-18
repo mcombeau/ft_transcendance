@@ -4,7 +4,7 @@ import { ChatsService } from 'src/chats/chats.service';
 import { ChatParticipantEntity } from 'src/chat-participants/entities/chat-participant.entity';
 import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
-import { updateParticipantParams } from './utils/types';
+import { updateParticipantParams, UserChatInfo } from './utils/types';
 
 @Injectable()
 export class ChatParticipantsService {
@@ -39,10 +39,10 @@ export class ChatParticipantsService {
     });
   }
 
-  async fetchParticipantsByChatname(channel_name: string) {
-    var chat = await this.chatService.fetchChatByName(channel_name);
-    return this.fetchParticipantsByChatID(chat.id);
-  }
+  // async fetchParticipantsByChatname(channel_name: string) {
+  //   var chat = await this.chatService.fetchChatByName(channel_name);
+  //   return this.fetchParticipantsByChatID(chat.id);
+  // }
 
   fetchParticipantsByUserID(id: number) {
     return this.participantRepository.find({
@@ -53,31 +53,41 @@ export class ChatParticipantsService {
     });
   }
 
-  async fetchParticipantsByUsername(username: string) {
-    var user = await this.userService.fetchUserByUsername(username);
-    return this.fetchParticipantsByUserID(user.id);
-  }
+  // async fetchParticipantsByUsername(username: string) {
+  //   var user = await this.userService.fetchUserByUsername(username);
+  //   return this.fetchParticipantsByUserID(user.id);
+  // }
 
-  fetchParticipantByUserChatID(userID: number, chatRoomID: number) {
+  fetchParticipantByUserChatID(info: UserChatInfo) {
     return this.participantRepository.findOne({
       where: {
-        participant: { id: userID },
-        chatRoom: { id: chatRoomID },
+        participant: { id: info.userID },
+        chatRoom: { id: info.chatRoomID },
       },
       relations: ['chatRoom', 'participant'],
     });
   }
 
-  async fetchParticipantByUserChatNames(
-    username: string,
-    channel_name: string,
-  ) {
-    var channel = await this.chatService.fetchChatByName(channel_name);
-    var user = await this.userService.fetchUserByUsername(username);
+  // async fetchParticipantByUserChatNames(
+  //   username: string,
+  //   channel_name: string,
+  // ) {
+  //   var channel = await this.chatService.fetchChatByName(channel_name);
+  //   var user = await this.userService.fetchUserByUsername(username);
+  //   return this.participantRepository.findOne({
+  //     where: {
+  //       participant: { id: user.id },
+  //       chatRoom: { id: channel.id },
+  //     },
+  //     relations: ['chatRoom', 'participant'],
+  //   });
+  // }
+  //
+  async fetchParticipantByUserChatIDs(userID: number, chatRoomID: number) {
     return this.participantRepository.findOne({
       where: {
-        participant: { id: user.id },
-        chatRoom: { id: channel.id },
+        participant: { id: userID },
+        chatRoom: { id: chatRoomID },
       },
       relations: ['chatRoom', 'participant'],
     });
@@ -112,7 +122,7 @@ export class ChatParticipantsService {
     }
     const newParticipant = this.participantRepository.create({
       participant: { id: userID },
-      chatRoom: { id: chatRoomID }
+      chatRoom: { id: chatRoomID },
     });
     return this.participantRepository.save(newParticipant);
   }
@@ -132,66 +142,17 @@ export class ChatParticipantsService {
     return this.deleteParticipantByID(participant.id);
   }
 
-  async deleteParticipantInChatByUsername(username: string, chat_name: string) {
-    const chat = await this.chatService.fetchChatByName(chat_name);
-    const user = await this.userService.fetchUserByUsername(username);
-    const participant = await this.fetchParticipantByUserChatID(
-      user.id,
-      chat.id,
-    );
-    return this.deleteParticipantByID(participant.id);
-  }
+  // async deleteParticipantInChatByUsername(username: string, chat_name: string) {
+  //   const chat = await this.chatService.fetchChatByName(chat_name);
+  //   const user = await this.userService.fetchUserByUsername(username);
+  //   const participant = await this.fetchParticipantByUserChatID(
+  //     user.id,
+  //     chat.id,
+  //   );
+  //   return this.deleteParticipantByID(participant.id);
+  // }
 
   async deleteParticipantByID(id: number) {
     return this.participantRepository.delete({ id });
-  }
-
-  async userIsOwner(channel_name: string, username: string) {
-    const channel = await this.chatService.fetchChatByName(channel_name);
-    const user = await this.userService.fetchUserByUsername(username);
-
-    const participant = await this.fetchParticipantByUserChatID(
-      user.id,
-      channel.id,
-    );
-
-    return participant.owner;
-  }
-
-  async userIsOperator(channel_name: string, username: string) {
-    const channel = await this.chatService.fetchChatByName(channel_name);
-    const user = await this.userService.fetchUserByUsername(username);
-
-    const participant = await this.fetchParticipantByUserChatID(
-      user.id,
-      channel.id,
-    );
-
-    return participant.operator;
-  }
-
-  async userIsBanned(channel_name: string, username: string) {
-    const channel = await this.chatService.fetchChatByName(channel_name);
-    const user = await this.userService.fetchUserByUsername(username);
-
-    const participant = await this.fetchParticipantByUserChatID(
-      user.id,
-      channel.id,
-    );
-
-    return participant.banned;
-  }
-
-  async userIsMuted(channel_name: string, username: string) {
-    const channel = await this.chatService.fetchChatByName(channel_name);
-    const user = await this.userService.fetchUserByUsername(username);
-
-    const participant = await this.fetchParticipantByUserChatID(
-      user.id,
-      channel.id,
-    );
-
-    var isMuted = participant.mutedUntil > new Date().getTime();
-    return isMuted;
   }
 }
