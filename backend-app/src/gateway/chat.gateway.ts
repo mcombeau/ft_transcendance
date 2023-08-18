@@ -41,6 +41,7 @@ type UserTargetChat = {
 type ReceivedInfo = {
   token: string;
   userID: number;
+  username: string;
   targetID: number;
   chatRoomID: number;
   messageInfo: createChatMessageParams;
@@ -105,7 +106,9 @@ export class ChatGateway implements OnModuleInit {
     try {
       info.userID = await this.checkIdentity(info.token);
       const chat = await this.chatsService.createChat(info.chatInfo);
+      const owner = await this.userService.fetchUserByID(info.userID);
       info.chatRoomID = chat.id;
+      info.username = owner.username;
       this.server.emit('add chat', info.chatInfo);
     } catch (e) {
       var err_msg = '[Chat Gateway]: Chat creation error:' + e.message;
@@ -125,7 +128,9 @@ export class ChatGateway implements OnModuleInit {
         userID2: info.targetID,
       };
       const chat = await this.chatsService.createChatDM(params); // TODO : see what happens if already exists
+      const user2 = await this.userService.fetchUserByID(info.targetID);
       info.chatRoomID = chat.id;
+      info.username = user2.username;
       this.server.emit('dm', info);
     } catch (e) {
       var err_msg = '[Chat Gateway]: DM creation error:' + e.message;
@@ -153,10 +158,12 @@ export class ChatGateway implements OnModuleInit {
     console.log('[Chat Gateway]: Join chat', info);
     try {
       info.userID = await this.checkIdentity(info.token);
+      const user = await this.userService.fetchUserByID(info.userID);
       await this.addUserToChat({
         userID: info.userID,
         chatRoomID: info.chatRoomID,
       });
+      info.username = user.username;
       this.server.emit('join chat', info);
     } catch (e) {
       var err_msg = '[Chat Gateway]: Chat join error:' + e.message;
