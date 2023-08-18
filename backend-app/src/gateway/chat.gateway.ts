@@ -60,6 +60,19 @@ export class ChatGateway implements OnModuleInit {
   }
 
   // -------------------- EVENTS
+  async checkIdentity(token: string) {
+    var isVerified = await this.authService
+      .validateToken(token)
+      .catch(() => {
+        return false;
+      })
+      .finally(() => {
+        return true;
+      });
+    if (!token || !isVerified) {
+      throw new ChatPermissionError('User not authenticated');
+    }
+  }
 
   @SubscribeMessage('add chat')
   async onAddChat(@MessageBody() info: any) {
@@ -145,17 +158,7 @@ export class ChatGateway implements OnModuleInit {
   async onChatMessage(@MessageBody() msg: any) {
     console.log('[Chat Gateway]: Sending chat message');
     try {
-      var isVerified = await this.authService
-        .validateToken(msg.token)
-        .catch(() => {
-          return false;
-        })
-        .finally(() => {
-          return true;
-        });
-      if (!msg.token || !isVerified) {
-        throw new ChatPermissionError('User not authenticated');
-      }
+      await this.checkIdentity(msg.token);
       await this.registerChatMessage(
         msg.msg.channel,
         msg.msg.sender,
