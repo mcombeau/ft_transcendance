@@ -23,7 +23,7 @@ export function getUsername(cookies: any): string {
     return null;
   }
 }
-export function getUserID(cookies: any): string {
+export function getUserID(cookies: any): number {
   var authInfo: AuthCookie = getAuthInfo(cookies);
   if (authInfo) {
     return getAuthInfo(cookies)["userID"];

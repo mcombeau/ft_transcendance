@@ -12,12 +12,7 @@ import SidePannel from "./SidePannel";
 import SendForm from "./SendForm";
 import { Socket } from "socket.io-client";
 import { getAuthInfo, getUserID, getUsername } from "../../cookies";
-import {
-  ReceivedInfo,
-  createChatParams,
-  createChatMessageParams,
-  updateParticipantParams,
-} from "./types";
+import { ReceivedInfo } from "./types";
 
 export type Message = {
   datestamp: Date;
@@ -73,8 +68,8 @@ export function checkStatus(channel: ChatRoom, username: string): Status {
   if (!channel) return Status.Normal;
   var user = channel.participants.find((p) => p.username === username); //TODO: maybe add some error management
   if (!user) return Status.Normal;
-  if (user.owner) return Status.Owner;
-  if (user.operator) return Status.Operator;
+  if (user.isOwner) return Status.Owner;
+  if (user.isOperator) return Status.Operator;
   return Status.Normal;
 }
 
@@ -169,12 +164,12 @@ export const Chat = () => {
     socket.on("error", (error_msg: string) => {
       alert(error_msg);
     });
-    socket.on("chat message", (msg: Message) => {
+    socket.on("chat message", (info: ReceivedInfo) => {
       msg.read = false;
       setMessages((prev) => [...prev, msg]);
     });
 
-    socket.on("delete chat", (channelname: string) => {
+    socket.on("delete chat", (info: ReceivedInfo) => {
       setChannels((prev) => prev.filter((e) => e.name !== channelname));
       setMessages((prev) => prev.filter((e) => e.channel !== channelname));
       setSettings(false);
@@ -182,7 +177,7 @@ export const Chat = () => {
       setCurrentChannel("");
     });
 
-    socket.on("toggle private", (info: any) => {
+    socket.on("toggle private", (info: ReceivedInfo) => {
       setChannels((prev) => {
         const temp = [...prev];
         return temp.map((chan) => {
@@ -194,37 +189,41 @@ export const Chat = () => {
       });
     });
 
-    socket.on("add chat", (info: any) => {
+    socket.on("add chat", (info: ReceivedInfo) => {
       console.log("Added new chat");
       console.log(info);
       var user: User = {
-        username: info.owner,
-        owner: true,
-        operator: true,
-        banned: false,
+        userID: info.userID,
+        username: info.username,
+        isOwner: true,
+        isOperator: true,
+        isBanned: false,
         mutedUntil: new Date().getTime(),
         invitedUntil: 0,
       };
-      var channel: ChatRoom = {
-        name: info.name,
+      var chatRoom: ChatRoom = {
+        chatRoomID: info.chatRoomID,
+        name: info.chatInfo.name,
         participants: [user],
         banned: [],
         invited: [],
-        private: info.private,
-        owner: info.owner,
-        dm: false,
+        isPrivate: info.chatInfo.private,
+        ownerID: info.userID,
+        isDM: false,
       };
-      setChannels((prev) => [...prev, channel]);
-      if (info.owner === username) setCurrentChannel(info.name);
+      setChannels((prev) => [...prev, chatRoom]);
+      if (info.userID === getUserID(cookies)) {
+        setCurrentChannel(info.chatInfo.name);
+      }
       setNewchannel("");
-      serviceAnnouncement(`${info.owner} created channel.`, info.name);
+      serviceAnnouncement(`${user.username} created channel.`, chatRoom.name);
     });
 
-    socket.on("join chat", (info: any) => {
+    socket.on("join chat", (info: ReceivedInfo) => {
       handleJoinChat(info);
     });
 
-    socket.on("leave chat", (info: any) => {
+    socket.on("leave chat", (info: ReceivedInfo) => {
       setChannels((prev) => {
         const temp = [...prev];
         return temp.map((chan) => {
@@ -246,7 +245,7 @@ export const Chat = () => {
       });
     });
 
-    socket.on("mute", (info: any) => {
+    socket.on("mute", (info: ReceivedInfo) => {
       setChannels((prev) => {
         const temp = [...prev];
         return temp.map((chan) => {
@@ -269,7 +268,7 @@ export const Chat = () => {
       );
     });
 
-    socket.on("ban", (info: any) => {
+    socket.on("ban", (info: ReceivedInfo) => {
       setChannels((prev) => {
         const temp = [...prev];
         return temp.map((chan) => {
@@ -300,7 +299,7 @@ export const Chat = () => {
       );
     });
 
-    socket.on("invite", (info: any) => {
+    socket.on("invite", (info: ReceivedInfo) => {
       console.log("Received invite info");
       setChannels((prev) => {
         const temp = [...prev];
@@ -337,7 +336,7 @@ export const Chat = () => {
       setInvites((prev) => [...prev, invite]);
     });
 
-    socket.on("accept invite", (info: any) => {
+    socket.on("accept invite", (info: ReceivedInfo) => {
       var user: User = {
         username: info.target_user,
         owner: false,
@@ -372,7 +371,7 @@ export const Chat = () => {
       });
     });
 
-    socket.on("kick", (info: any) => {
+    socket.on("kick", (info: ReceivedInfo) => {
       setChannels((prev) => {
         const temp = [...prev];
         return temp.map((chan) => {
@@ -390,7 +389,7 @@ export const Chat = () => {
       );
     });
 
-    socket.on("operator", (info: any) => {
+    socket.on("operator", (info: ReceivedInfo) => {
       setChannels((prev) => {
         const temp = [...prev];
         return temp.map((chan) => {
@@ -418,7 +417,7 @@ export const Chat = () => {
       });
     });
 
-    socket.on("dm", (info: any) => {
+    socket.on("dm", (info: ReceivedInfo) => {
       console.log(info);
       var user1: User = {
         username: info.user1,
