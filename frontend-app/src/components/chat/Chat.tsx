@@ -11,35 +11,42 @@ import SettingsMenu from "./SettingsMenu";
 import SidePannel from "./SidePannel";
 import SendForm from "./SendForm";
 import { Socket } from "socket.io-client";
-import { getAuthInfo, getUsername } from "../../cookies";
+import { getAuthInfo, getUserID, getUsername } from "../../cookies";
+import {
+  ReceivedInfo,
+  createChatParams,
+  createChatMessageParams,
+  updateParticipantParams,
+} from "./types";
 
 export type Message = {
   datestamp: Date;
   msg: string;
-  sender: string;
-  channel: string;
+  senderID: number;
+  chatRoomID: number;
   read: boolean;
   system: boolean;
-  invite: boolean;
 };
 
 export type User = {
+  userID: number;
   username: string;
-  owner: boolean;
-  operator: boolean;
-  banned: boolean;
+  isOwner: boolean;
+  isOperator: boolean;
+  isBanned: boolean;
   mutedUntil: number;
   invitedUntil: number;
 };
 
-export type Channel = {
+export type ChatRoom = {
+  chatRoomID: number;
   name: string;
-  owner: string;
+  ownerID: number;
   participants: User[];
   invited: User[];
   banned: User[];
-  private: boolean;
-  dm: boolean;
+  isPrivate: boolean;
+  isDM: boolean;
 };
 
 export enum typeInvite {
@@ -49,11 +56,10 @@ export enum typeInvite {
 }
 
 export type Invite = {
-  id: number;
-  target_user: string;
-  sender: string;
+  targetID: number;
+  senderID: number;
   type: typeInvite;
-  target: string;
+  chatRoomID: number;
   expirationDate: number;
 };
 
@@ -63,7 +69,7 @@ export enum Status {
   Owner,
 }
 
-export function checkStatus(channel: Channel, username: string): Status {
+export function checkStatus(channel: ChatRoom, username: string): Status {
   if (!channel) return Status.Normal;
   var user = channel.participants.find((p) => p.username === username); //TODO: maybe add some error management
   if (!user) return Status.Normal;
@@ -77,7 +83,7 @@ export function isUserMuted(user: User): boolean {
   return true;
 }
 
-export function isMuted(channel: Channel, username: string): boolean {
+export function isMuted(channel: ChatRoom, username: string): boolean {
   var user = channel.participants.find((p) => p.username === username); // TODO: understand how this can be undefined
   if (!user) return false;
   if (user.mutedUntil < new Date().getTime()) {
@@ -87,41 +93,22 @@ export function isMuted(channel: Channel, username: string): boolean {
 }
 
 export function ChangeStatus(
-  status: string,
-  socket: Socket,
-  channel_name: string,
-  operator_name: string,
-  target_name: string,
-  token: string,
-  lenght_in_minutes: number = 0
+  info: ReceivedInfo,
+  userStatus: string,
+  socket: Socket
 ) {
   const status_values = ["mute", "kick", "ban", "operator", "invite", "dm"];
-  if (!status_values.includes(status)) return;
-  if (status === "mute") {
-    socket.emit(status, {
-      channel_name: channel_name,
-      current_user: operator_name,
-      target_user: target_name,
-      lenght_in_minutes: lenght_in_minutes,
-      token: token,
-    });
-    return;
-  }
-  socket.emit(status, {
-    channel_name: channel_name,
-    current_user: operator_name,
-    target_user: target_name,
-    token: token,
-  });
+  if (!status_values.includes(userStatus)) return;
+  socket.emit(userStatus, info);
 }
 
 export const Chat = () => {
   const socket = useContext(WebSocketContext);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [channels, setChannels] = useState<Channel[]>([]);
+  const [channels, setChannels] = useState<ChatRoom[]>([]);
   const [newchannel, setNewchannel] = useState("");
   const [current_channel, setCurrentChannel] = useState(""); // TODO: have screen if no channels
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState(""); // TODO: maybe change to id ?
   const [settings, setSettings] = useState(false);
   const [cookies] = useCookies(["cookie-name"]);
   const [contextMenu, setContextMenu] = useState(false);
@@ -129,7 +116,7 @@ export const Chat = () => {
   const [invites, setInvites] = useState([]);
   let navigate = useNavigate();
 
-  function getChannel(channel_name: string): Channel {
+  function getChannel(channel_name: string): ChatRoom {
     return channels.find((e) => e.name === channel_name);
   }
 
@@ -218,7 +205,7 @@ export const Chat = () => {
         mutedUntil: new Date().getTime(),
         invitedUntil: 0,
       };
-      var channel: Channel = {
+      var channel: ChatRoom = {
         name: info.name,
         participants: [user],
         banned: [],
@@ -449,7 +436,7 @@ export const Chat = () => {
         mutedUntil: new Date().getTime(),
         invitedUntil: 0,
       };
-      var channel: Channel = {
+      var channel: ChatRoom = {
         name: info.name,
         participants: [user1, user2],
         banned: [],
@@ -468,7 +455,10 @@ export const Chat = () => {
       },
     };
     if (channels.length === 0) {
-      fetch("http://localhost:3001/chats", request).then(async (response) => {
+      fetch(
+        `http://localhost:3001/users/${getUserID(cookies)}/chats`,
+        request
+      ).then(async (response) => {
         const data = await response.json();
         if (!response.ok) {
           console.log("error response load channels");
@@ -477,29 +467,31 @@ export const Chat = () => {
         data.map((e: any) => {
           var participant_list = e.participants.map((user: any) => {
             var newUser: User = {
-              username: user.participant.username,
-              owner: user.owner,
-              operator: user.operator,
-              banned: user.banned,
+              userID: user.user.id,
+              username: user.user.username,
+              isOwner: user.owner,
+              isOperator: user.operator,
+              isBanned: user.banned,
               mutedUntil: user.mutedUntil,
               invitedUntil: user.invitedUntil,
             };
             return newUser;
           });
-          var chan: Channel = {
+          var chan: ChatRoom = {
+            chatRoomID: e.id,
             name: e.name,
-            private: e.private,
-            owner: e.directMessage
-              ? ""
-              : participant_list.find((u: any) => u.owner).username,
+            isPrivate: e.private,
+            ownerID: e.directMessage
+              ? null
+              : participant_list.find((u: User) => u.isOwner).userID,
             participants: participant_list.filter(
-              (user: any) => !user.banned && user.invitedUntil == 0
+              (user: User) => !user.isBanned && user.invitedUntil == 0
             ),
-            banned: participant_list.filter((user: any) => user.banned),
+            banned: participant_list.filter((user: User) => user.isBanned),
             invited: participant_list.filter(
-              (user: any) => user.invitedUntil != 0
+              (user: User) => user.invitedUntil != 0
             ),
-            dm: e.directMessage,
+            isDM: e.directMessage,
           };
           setChannels((prev) => [...prev, chan]);
           return e;
@@ -508,33 +500,32 @@ export const Chat = () => {
     }
 
     if (invites.length === 0) {
-      fetch(`http://localhost:3001/invites/received/${username}`).then(
-        async (response) => {
-          const data = await response.json();
-          if (!response.ok) {
-            console.log("error response load channels");
-            return;
-          }
-          data.map((e: any) => {
-            var type: typeInvite = typeInvite.Chat;
-            if (e.type === "game") {
-              type = typeInvite.Game;
-            } else if (e.type === "friend") {
-              type = typeInvite.Friend;
-            }
-            var invite: Invite = {
-              id: e.id,
-              target_user: e.invitedUser,
-              sender: e.inviteSender,
-              type: type,
-              target: e.chatRoom.name,
-              expirationDate: e.expiresAt,
-            };
-
-            setInvites((prev) => [...prev, invite]);
-          });
+      fetch(
+        `http://localhost:3001/invites/received/${getUserID(cookies)}`
+      ).then(async (response) => {
+        const data = await response.json();
+        if (!response.ok) {
+          console.log("error response load channels");
+          return;
         }
-      );
+        data.map((e: any) => {
+          var type: typeInvite = typeInvite.Chat;
+          if (e.type === "game") {
+            type = typeInvite.Game;
+          } else if (e.type === "friend") {
+            type = typeInvite.Friend;
+          }
+          var invite: Invite = {
+            targetID: e.invitedUser,
+            senderID: e.inviteSender,
+            type: type,
+            chatRoomID: e.chatRoom.id,
+            expirationDate: e.expiresAt,
+          };
+
+          setInvites((prev) => [...prev, invite]);
+        });
+      });
     }
 
     if (messages.length === 0) {
@@ -549,11 +540,10 @@ export const Chat = () => {
             var msg: Message = {
               datestamp: e.sentAt,
               msg: e.message,
-              sender: e.sender.username,
-              channel: e.chatRoom.name,
+              senderID: e.sender.id,
+              chatRoomID: e.chatRoom.id,
               read: true,
               system: false,
-              invite: false,
             };
             setMessages((prev) => [...prev, msg]);
             return e;

@@ -23,3 +23,11 @@ export function getUsername(cookies: any): string {
     return null;
   }
 }
+export function getUserID(cookies: any): string {
+  var authInfo: AuthCookie = getAuthInfo(cookies);
+  if (authInfo) {
+    return getAuthInfo(cookies)["userID"];
+  } else {
+    return null;
+  }
+}

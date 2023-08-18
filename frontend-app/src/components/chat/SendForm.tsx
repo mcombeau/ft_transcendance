@@ -2,6 +2,7 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { Socket } from "socket.io-client";
 import { getUsername } from "../../cookies";
 import { Message, Channel, isMuted } from "./Chat";
+import { ReceivedInfo } from "./types";
 
 export const SendForm = (
   current_channel: Channel,
@@ -28,17 +29,16 @@ export const SendForm = (
       return;
     }
     setUsername(getUsername(cookies));
-    var msg: Message = {
-      msg: value,
-      datestamp: new Date(),
-      sender: getUsername(cookies),
-      channel: current_channel.name,
-      read: true,
-      system: false,
-      invite: false,
+    var info: ReceivedInfo = {
+      token: cookies["token"],
+      messageInfo: {
+        message: value,
+        sentAt: new Date(),
+      },
+	  chatRoomID: // TODO : finish,
+
     };
-    socket.emit("chat message", { msg: msg, token: cookies["token"] });
-    // setMessages((prev) => [...prev, msg]);
+    socket.emit("chat message", info);
     setValue("");
   };
 
