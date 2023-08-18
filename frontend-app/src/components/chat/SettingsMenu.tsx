@@ -89,7 +89,13 @@ export const SettingsMenu = (
         {leave_button} <br></br>
         {private_public}
         <h3>Channel members</h3>
-        {ListParticipants(current_channel, navigate, current_user, socket)}
+        {ListParticipants(
+          current_channel,
+          navigate,
+          current_user,
+          socket,
+          cookies
+        )}
         <button
           className="closesettings"
           onClick={() => {

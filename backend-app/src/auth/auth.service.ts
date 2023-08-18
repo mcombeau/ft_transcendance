@@ -41,7 +41,6 @@ export class AuthService {
 
   // Dont know if this should be elsewhere
   async validateToken(token: string) {
-    console.log('HERE');
     var jwt = require('jsonwebtoken');
     return await jwt.verify(token, jwtConstants.secret);
   }
