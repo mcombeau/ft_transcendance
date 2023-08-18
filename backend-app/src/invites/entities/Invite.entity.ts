@@ -1,31 +1,22 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  OneToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { ChatEntity } from '../../chats/entities/chat.entity';
 import { UserEntity } from '../../users/entities/user.entity';
 import { ApiProperty } from '@nestjs/swagger';
-import { GameEntity } from 'src/games/entities/game.entity';
 
 export enum inviteType {
   CHAT = 'chat',
   GAME = 'game',
-  FRIEND = 'friend'
+  FRIEND = 'friend',
 }
 
 @Entity({ name: 'invites' })
 export class InviteEntity {
-
   @ApiProperty()
   @PrimaryGeneratedColumn()
   id: number;
-  
+
   @ApiProperty()
-  @Column({ type: "enum", enum: inviteType, default: inviteType.CHAT })
+  @Column({ type: 'enum', enum: inviteType, default: inviteType.CHAT })
   type: inviteType;
 
   @ApiProperty()
@@ -37,9 +28,11 @@ export class InviteEntity {
   inviteSender: UserEntity;
 
   @ApiProperty({ type: () => UserEntity, isArray: true })
-  @ManyToOne(() => UserEntity, (user) => user.receivedInvites, { cascade: true })
+  @ManyToOne(() => UserEntity, (user) => user.receivedInvites, {
+    cascade: true,
+  })
   invitedUser: UserEntity;
-  
+
   @ApiProperty({ type: () => ChatEntity })
   @ManyToOne(() => ChatEntity, (chat) => chat.invitedUsers, {
     cascade: true,
@@ -53,5 +46,4 @@ export class InviteEntity {
   //   onDelete: 'CASCADE',
   // })
   // gameRoom: GameEntity;
-
 }

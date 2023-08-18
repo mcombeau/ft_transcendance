@@ -105,8 +105,8 @@ export class ChatGateway implements OnModuleInit {
       var params = {
         name: name,
         password: '',
-        user1: info.current_user,
-        user2: info.target_user,
+        userID1: info.current_user,
+        userID2: info.target_user,
       };
       await this.chatsService.createChatDM(params); // TODO : see what happens if already exists
       console.log('Created dm !!!!!!!!!!!!');
@@ -123,7 +123,7 @@ export class ChatGateway implements OnModuleInit {
     console.log('[Chat Gateway]: Delete chat', info);
     try {
       var sender = await this.checkIdentity(info.token);
-      const chat = await this.chatsService.fetchChatByName(info.channel_name);
+      const chat = await this.chatsService.fetchChatByID(info.chatRoomID);
       await this.chatsService.deleteChatByID(chat.id);
       this.server.emit('delete chat', info.channel_name);
     } catch (e) {
@@ -138,7 +138,10 @@ export class ChatGateway implements OnModuleInit {
     console.log('[Chat Gateway]: Join chat', info);
     try {
       var sender = await this.checkIdentity(info.token);
-      await this.addUserToChat(info.username, info.channel_name);
+      await this.addUserToChat({
+        userID: info.userID,
+        chatRoomID: info.chatRoomID,
+      });
       this.server.emit('join chat', info);
     } catch (e) {
       var err_msg = '[Chat Gateway]: Chat join error:' + e.message;

@@ -1,6 +1,6 @@
 export type inviteParams = {
   type: string;
-  senderUserID: number;
-  invitedUserID: number;
-  chatRoomID: number;
+  inviteSender: number;
+  invitedUser: number;
+  chatRoom: number;
 };
