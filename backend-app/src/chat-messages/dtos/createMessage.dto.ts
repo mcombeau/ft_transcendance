@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsAlphanumeric, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsAlphanumeric, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 
 export class createMessageDto {
   
@@ -10,11 +10,15 @@ export class createMessageDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsAlphanumeric()
-  sender: string;
+  @IsNumber()
+  senderID: number;
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsAlphanumeric()
-  chatRoom: string;
+  @IsNumber()
+  chatRoomID: number;
+
+  @ApiProperty()
+  @IsOptional()
+  sentAt: Date;
 }

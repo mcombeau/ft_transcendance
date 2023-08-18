@@ -617,9 +617,9 @@ export class ChatGateway implements OnModuleInit {
     }
     const invite = await this.inviteService.createInvite({
       type: 'chat',
-      inviteSender: info.userID,
-      invitedUser: info.targetID,
-      chatRoom: info.chatRoomID,
+      senderID: info.userID,
+      invitedUserID: info.targetID,
+      chatRoomID: info.chatRoomID,
     });
     return invite.expiresAt;
   }

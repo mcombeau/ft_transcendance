@@ -39,20 +39,20 @@ export class UsersService {
     });
   }
 
-  // fetchUserByUsername(username: string) {
-  //   return this.userRepository.findOne({
-  //     where: { username: username },
-  //     relations: ['chatRooms.chatRoom'],
-  //   });
-  // }
+  fetchUserByUsername(username: string) {
+    return this.userRepository.findOne({
+      where: { username: username },
+      relations: ['chatRooms.chatRoom'],
+    });
+  }
 
-  // async fetchUserBy42Login(login: string) {
-  //   const user = await this.userRepository.findOne({
-  //     where: { login42: login },
-  //     relations: ['chatRooms.chatRoom'],
-  //   });
-  //   return user;
-  // }
+  async fetchUserBy42Login(login: string) {
+    const user = await this.userRepository.findOne({
+      where: { login42: login },
+      relations: ['chatRooms.chatRoom'],
+    });
+    return user;
+  }
 
   async getUserPasswordHash(userID: number) {
     const user = await this.userRepository.findOne({

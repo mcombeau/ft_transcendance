@@ -24,8 +24,8 @@ export class createChatDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsAlphanumeric()
-  owner: string;
+  @IsNumber()
+  ownerID: number;
 }
 
 export class createChatDMDto {
@@ -51,12 +51,12 @@ export class createChatDMDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsAlphanumeric()
-  user1: string;
+  @IsNumber()
+  userID1: number;
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsAlphanumeric()
-  user2: string;
+  @IsNumber()
+  userID2: number;
 }
 

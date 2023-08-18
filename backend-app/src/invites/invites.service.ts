@@ -89,7 +89,7 @@ export class InvitesService {
 
   private async createChatInvite(inviteDetails: inviteParams) {
     const sender = await this.userService.fetchUserByID(
-      inviteDetails.senderUserID,
+      inviteDetails.senderID,
     );
     const invitedUser = await this.userService.fetchUserByID(
       inviteDetails.invitedUserID,

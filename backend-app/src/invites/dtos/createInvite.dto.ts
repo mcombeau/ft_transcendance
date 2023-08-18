@@ -9,16 +9,16 @@ export class createInviteDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsAlphanumeric()
-  senderUsername: string;
+  @IsNumber()
+  senderID: number;
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsAlphanumeric()
-  invitedUsername: string;
+  @IsNumber()
+  invitedUserID: number;
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsAlphanumeric()
-  chatRoomName: string;
+  @IsNumber()
+  chatRoomID: number;
 }

@@ -62,10 +62,7 @@ export class ChatMessagesController {
   })
   createChatMessage(@Body() messageDto: createMessageDto) {
     return this.chatMessageService.createMessage(
-      messageDto.message,
-      messageDto.sender,
-      messageDto.chatRoom,
-      new Date(),
+      messageDto
     );
   }
 

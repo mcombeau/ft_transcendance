@@ -15,6 +15,7 @@ import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { ChatFetchError } from 'src/exceptions/bad-request.exception';
 import { UserChatInfo } from 'src/chat-participants/utils/types';
+import { PasswordService } from 'src/password/password.service';
 
 @Injectable()
 export class ChatsService {
@@ -27,36 +28,9 @@ export class ChatsService {
     private chatParticipantService: ChatParticipantsService,
     @Inject(forwardRef(() => UsersService))
     private userService: UsersService,
+    @Inject(forwardRef(() => PasswordService))
+    private passwordService: PasswordService,
   ) {}
-
-  private async hashPassword(password: string) {
-    const salt = await bcrypt.genSalt();
-    const hash = await bcrypt.hash(password, salt);
-    console.log('[Chat Service] Hashed password "', password, '"', hash);
-    return hash;
-  }
-
-  private async checkPassword(password: string, hash: string) {
-    const isMatch = await bcrypt.compare(password, hash);
-    console.log('[Chat Service] Password "', password, '" is match?', isMatch);
-    return isMatch;
-  }
-
-  // public async checkPasswordForChatByName(password: string, chatName: string) {
-  //   const chatRoom = await this.fetchChatByName(chatName);
-  //   if (!chatRoom) {
-  //     return false;
-  //   }
-  //   return this.checkPassword(password, chatRoom.password);
-  // }
-
-  public async checkPasswordForChatByID(password: string, chatRoomID: number) {
-    const chatRoom = await this.fetchChatByID(chatRoomID);
-    if (!chatRoom) {
-      return false;
-    }
-    return this.checkPassword(password, chatRoom.password);
-  }
 
   fetchChats() {
     return this.chatRepository.find({
@@ -78,24 +52,19 @@ export class ChatsService {
     });
   }
 
-  // async fetchParticipantUsernamesByChatName(chatRoomName: string) {
-  //   const chat = await this.fetchChatByName(chatRoomName);
-  //   if (!chat) {
-  //     throw new ChatFetchError(chatRoomName);
-  //   }
-  //   var participantUsernames: participantUsernames[] = [];
-  //   for (const e of chat.participants) {
-  //     participantUsernames.push({
-  //       username: e.participant.username,
-  //     });
-  //   }
-  //   return participantUsernames;
-  // }
-
-  // async fetchUserChatsByUsername(username: string) {
-  //   const user = await this.userService.fetchUserByUsername(username);
-  //   return this.chatParticipantService.fetchParticipantsByUserID(user.id);
-  // }
+  async fetchParticipantUsernamesByChatName(chatRoomName: string) {
+    const chat = await this.fetchChatByName(chatRoomName);
+    if (!chat) {
+      throw new ChatFetchError(chatRoomName);
+    }
+    var participantUsernames: participantUsernames[] = [];
+    for (const e of chat.participants) {
+      participantUsernames.push({
+        username: e.participant.username,
+      });
+    }
+    return participantUsernames;
+  }
 
   async createChat(chatDetails: createChatParams) {
     if (chatDetails.name.startsWith('DM:')) {
@@ -104,7 +73,7 @@ export class ChatsService {
       );
     }
     const user = await this.userService.fetchUserByID(chatDetails.ownerID);
-    const passwordHash = await this.hashPassword(chatDetails.password);
+    const passwordHash = await this.passwordService.hashPassword(chatDetails.password);
     const newChat = this.chatRepository.create({
       name: chatDetails.name,
       password: passwordHash,
@@ -180,24 +149,20 @@ export class ChatsService {
     });
   }
 
-  // fetchChatByName(name: string) {
-  //   return this.chatRepository.findOne({
-  //     where: { name },
-  //     relations: ['messages', 'participants.participant'],
-  //   });
-  // }
+  fetchChatByName(name: string) {
+    return this.chatRepository.findOne({
+      where: { name },
+      relations: ['messages', 'participants.participant'],
+    });
+  }
 
-  // fetchDMByUsernames(name1: string, name2: string) {
-  //   if (name1 < name2) {
-  //     var name = `DM: ${name1} / ${name2}`;
-  //   } else {
-  //     name = `DM: ${name2} / ${name1}`;
-  //   }
-  //   return this.chatRepository.findOne({
-  //     where: { name, directMessage: true },
-  //     relations: ['messages', 'participants.participant'],
-  //   });
-  // }
+  // TODO [mcombeau]: do this.
+  fetchDMByUserID(user1ID: number, user2ID: number) {
+    // return this.chatRepository.findOne({
+    //   where: { name, directMessage: true },
+    //   relations: ['messages', 'participants.participant'],
+    // });
+  }
 
   updateChatByID(id: number, chatDetails: updateChatParams) {
     const participant = chatDetails['participantID'];
@@ -211,17 +176,6 @@ export class ChatsService {
   addParticipantToChatByID(id: number, userID: number) {
     this.chatParticipantService.createChatParticipant(userID, id, 0);
   }
-
-  // async addParticipantToChatByUsername(chatRoomName: string, username: string) {
-  //   const user = await this.userService.fetchUserByUsername(username);
-  //   const chatRoom = await this.fetchChatByName(chatRoomName);
-
-  //   return this.chatParticipantService.createChatParticipant(
-  //     user.id,
-  //     chatRoom.id,
-  //     0,
-  //   );
-  // }
 
   async addParticipantToChatByUserChatID(info: UserChatInfo) {
     return this.chatParticipantService.createChatParticipant(
@@ -242,15 +196,12 @@ export class ChatsService {
     );
   }
 
-  removeParticipantFromChatByID(id: number, userID: number) {
-    this.chatParticipantService.deleteParticipantInChatByUserID(userID, id);
+  removeParticipantFromChatByID(info: UserChatInfo) {
+    this.chatParticipantService.deleteParticipantInChatByUserID(info);
   }
 
   async removeParticipantFromChatByUsername(info: UserChatInfo) {
-    this.chatParticipantService.deleteParticipantInChatByUserID(
-      info.userID,
-      info.chatRoomID,
-    );
+    this.chatParticipantService.deleteParticipantInChatByUserID(info);
   }
 
   async deleteChatByID(id: number) {

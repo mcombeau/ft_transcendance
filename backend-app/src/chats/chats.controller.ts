@@ -37,6 +37,8 @@ export class ChatsController {
     return chat;
   }
 
+  // TODO [mcombeau]: Getter for Chatrooms user is in.
+
   @Get(':name/usernames')
   // TODO [mcombeau]: figure out exported type for @apiokresponse
   async getChatUsersByChatName(@Param('name') name: string) {
