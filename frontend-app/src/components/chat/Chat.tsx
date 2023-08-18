@@ -119,7 +119,7 @@ export const Chat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [channels, setChannels] = useState<ChatRoom[]>([]);
   const [newchannel, setNewchannel] = useState("");
-  const [current_channel, setCurrentChannel] = useState(""); // TODO: have screen if no channels
+  const [currentChatRoomID, setCurrentChatRoomID] = useState(null); // TODO: have screen if no channels
   const [settings, setSettings] = useState(false);
   const [cookies] = useCookies(["cookie-name"]);
   const [contextMenu, setContextMenu] = useState(false);
@@ -127,8 +127,8 @@ export const Chat = () => {
   const [invites, setInvites] = useState([]);
   let navigate = useNavigate();
 
-  function getChannel(channel_name: string): ChatRoom {
-    return channels.find((e) => e.name === channel_name);
+  function getChannel(chatRoomID: number): ChatRoom {
+    return channels.find((e) => e.chatRoomID === chatRoomID);
   }
 
   function serviceAnnouncement(content: string, chatRoomID: number) {
@@ -169,7 +169,7 @@ export const Chat = () => {
       );
       setSettings(false);
       setContextMenu(false);
-      setCurrentChannel("");
+      setCurrentChatRoomID("");
     });
 
     socket.on("toggle private", (info: ReceivedInfo) => {
@@ -208,7 +208,7 @@ export const Chat = () => {
       };
       setChannels((prev) => [...prev, chatRoom]);
       if (info.userID === getUserID(cookies)) {
-        setCurrentChannel(info.chatInfo.name);
+        setCurrentChatRoomID(info.chatInfo.name);
       }
       setNewchannel("");
       serviceAnnouncement(
@@ -632,8 +632,8 @@ export const Chat = () => {
         {SidePannel(
           newchannel,
           setNewchannel,
-          current_channel,
-          setCurrentChannel,
+          currentChatRoomID,
+          setCurrentChatRoomID,
           socket,
           messages,
           setMessages,
@@ -649,15 +649,15 @@ export const Chat = () => {
           {SettingsMenu(
             settings,
             setSettings,
-            getChannel(current_channel),
-            setCurrentChannel,
+            getChannel(currentChatRoomID),
+            setCurrentChatRoomID,
             socket,
             navigate,
             cookies
           )}
           {Messages(
             messages,
-            getChannel(current_channel),
+            getChannel(currentChatRoomID),
             navigate,
             settings,
             contextMenu,
@@ -667,7 +667,7 @@ export const Chat = () => {
             invites,
             cookies
           )}
-          {SendForm(getChannel(current_channel), cookies, socket)}
+          {SendForm(getChannel(currentChatRoomID), cookies, socket)}
         </div>
       </div>
     </WebSocketProvider>
