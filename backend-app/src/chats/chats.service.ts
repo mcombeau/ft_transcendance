@@ -78,7 +78,7 @@ export class ChatsService {
     const newChat = this.chatRepository.create({
       name: chatDetails.name,
       password: passwordHash,
-      private: chatDetails.private,
+      private: chatDetails.private ? chatDetails.private : false,
       directMessage: false,
       createdAt: new Date(),
     });

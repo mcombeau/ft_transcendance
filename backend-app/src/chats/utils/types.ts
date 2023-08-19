@@ -2,9 +2,9 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export type createChatParams = {
   name: string;
-  password?: string;
-  private: boolean;
   ownerID: number;
+  password?: string;
+  private?: boolean;
 };
 
 export type createDMParams = {

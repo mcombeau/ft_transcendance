@@ -9,26 +9,28 @@ export class createChatDto {
   name: string;
 
   @ApiProperty()
+  @IsNotEmpty()
+  @IsInt()
+  @IsPositive()
+  ownerID: number;
+
+  @ApiProperty()
   @IsOptional()
   @IsAlphanumeric()
   @Length(3, 20)
   password?: string;
 
   @ApiProperty()
+  @IsOptional()
   @IsNotEmpty()
   @IsBoolean()
-  private: boolean;
+  private?: boolean;
 
   @ApiProperty()
+  @IsOptional()
   @IsNotEmpty()
   @IsBoolean()
-  directMessage: boolean;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsInt()
-  @IsPositive()
-  ownerID: number;
+  directMessage?: boolean;
 }
 
 export class createChatDMDto {
