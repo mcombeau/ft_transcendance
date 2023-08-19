@@ -4,17 +4,17 @@ import { IsBoolean, IsNotEmpty, IsNumber } from 'class-validator';
 export class updateParticipantDto {
   @ApiProperty()
   @IsBoolean()
-  owner: boolean;
+  owner?: boolean;
 
   @ApiProperty()
   @IsBoolean()
-  operator: boolean;
+  operator?: boolean;
 
   @ApiProperty()
   @IsBoolean()
-  banned: boolean;
+  banned?: boolean;
 
   @ApiProperty()
   @IsNumber()
-  mutedUntil: number;
+  mutedUntil?: number;
 }

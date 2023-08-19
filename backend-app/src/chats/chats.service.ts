@@ -12,7 +12,6 @@ import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
 import { ChatParticipantsService } from 'src/chat-participants/chat-participants.service';
 import { ChatCreationError } from 'src/exceptions/bad-request.interceptor';
 import { UsersService } from 'src/users/users.service';
-import * as bcrypt from 'bcrypt';
 import { ChatFetchError } from 'src/exceptions/bad-request.exception';
 import { UserChatInfo } from 'src/chat-participants/utils/types';
 import { PasswordService } from 'src/password/password.service';
@@ -89,8 +88,10 @@ export class ChatsService {
         throw new ChatCreationError(`'${chatDetails.name}': ${err.message}`);
       });
     const participant = await this.chatParticipantService
-      .createChatParticipant(user.id, newSavedChat.id, 0)
-      .catch((err: any) => {
+      .createChatParticipant({
+        userID: user.id,
+        chatRoomID: newSavedChat.id
+      }).catch((err: any) => {
         this.deleteChatByID(newSavedChat.id);
         throw new ChatCreationError(`'ownerID: ${user.id}': ${err.message}`);
       });
@@ -143,16 +144,14 @@ export class ChatsService {
         throw new ChatCreationError(`'${newChat.name}': ${err.message}`);
       });
     try {
-      await this.chatParticipantService.createChatParticipant(
-        user1.id,
-        newSavedChat.id,
-        0,
-      );
-      await this.chatParticipantService.createChatParticipant(
-        user2.id,
-        newSavedChat.id,
-        0,
-      );
+      await this.chatParticipantService.createChatParticipant({
+        userID: user1.id,
+        chatRoomID: newSavedChat.id
+      });
+      await this.chatParticipantService.createChatParticipant({
+        userID: user2.id,
+        chatRoomID: newSavedChat.id
+      });
     } catch (err: any) {
       this.deleteChatByID(newSavedChat.id);
       throw new ChatCreationError(`${err.message}`);
@@ -178,33 +177,27 @@ export class ChatsService {
   updateChatByID(id: number, chatDetails: updateChatParams) {
     const participant = chatDetails['participantID'];
     if (participant !== undefined) {
-      this.chatParticipantService.createChatParticipant(participant, id, 0);
+      this.chatParticipantService.createChatParticipant({
+        userID: participant,
+        chatRoomID: id
+      });
     }
     delete chatDetails['participantID'];
     return this.chatRepository.update({ id }, { ...chatDetails });
   }
 
   addParticipantToChatByID(id: number, userID: number) {
-    this.chatParticipantService.createChatParticipant(userID, id, 0);
+    this.chatParticipantService.createChatParticipant({
+      userID: userID,
+      chatRoomID: id
+    });
   }
 
   async addParticipantToChatByUserChatID(info: UserChatInfo) {
-    return this.chatParticipantService.createChatParticipant(
-      info.userID,
-      info.chatRoomID,
-      0,
-    );
-  }
-
-  async inviteParticipantToChatByID(
-    info: UserChatInfo,
-    inviteExpiryDate: number,
-  ) {
-    return this.chatParticipantService.createChatParticipant(
-      info.userID,
-      info.chatRoomID,
-      inviteExpiryDate,
-    );
+    return this.chatParticipantService.createChatParticipant({
+        userID: info.userID,
+        chatRoomID: info.chatRoomID
+      });
   }
 
   removeParticipantFromChatByID(info: UserChatInfo) {

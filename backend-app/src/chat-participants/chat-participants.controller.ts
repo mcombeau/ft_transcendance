@@ -46,11 +46,7 @@ export class ChatParticipantsController {
   @ApiBadRequestResponse({ description: 'Bad request.' })
   @ApiUnprocessableEntityResponse({ description: 'Database error. (Unprocessable entity)' })
   createParticipant(@Body() participantDto: createParticipantDto) {
-    return this.participantService.createChatParticipant(
-      participantDto.userID,
-      participantDto.chatRoomID,
-      0,
-    );
+    return this.participantService.createChatParticipant(participantDto);
   }
 
   @Patch(':id')

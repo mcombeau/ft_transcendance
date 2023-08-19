@@ -1,15 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsBoolean, IsInt, IsNotEmpty, IsNumber, IsPositive } from 'class-validator';
 
 export class createParticipantDto {
   @ApiProperty()
   @IsNotEmpty()
-  @IsNumber()
+  @IsInt()
+  @IsPositive()
   userID: number;
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsNumber()
+  @IsInt()
+  @IsPositive()
   chatRoomID: number;
 
   @ApiProperty()
@@ -26,5 +28,5 @@ export class createParticipantDto {
 
   @ApiProperty()
   @IsNumber()
-  mutedUntil: bigint;
+  mutedUntil: number;
 }

@@ -1,8 +1,8 @@
-import { Inject, Injectable, forwardRef } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatParticipantEntity } from 'src/chat-participants/entities/chat-participant.entity';
 import { Repository } from 'typeorm';
-import { updateParticipantParams, UserChatInfo } from './utils/types';
+import { createParticipantParams, updateParticipantParams, UserChatInfo } from './utils/types';
 
 @Injectable()
 export class ChatParticipantsService {
@@ -33,11 +33,6 @@ export class ChatParticipantsService {
     });
   }
 
-  // async fetchParticipantsByChatname(channel_name: string) {
-  //   var chat = await this.chatService.fetchChatByName(channel_name);
-  //   return this.fetchParticipantsByChatID(chat.id);
-  // }
-
   fetchParticipantsByUserID(id: number) {
     return this.participantRepository.find({
       where: {
@@ -47,11 +42,6 @@ export class ChatParticipantsService {
     });
   }
 
-  // async fetchParticipantsByUsername(username: string) {
-  //   var user = await this.userService.fetchUserByUsername(username);
-  //   return this.fetchParticipantsByUserID(user.id);
-  // }
-
   fetchParticipantByUserChatID(info: UserChatInfo) {
     return this.participantRepository.findOne({
       where: {
@@ -60,23 +50,7 @@ export class ChatParticipantsService {
       },
       relations: ['chatRoom', 'user'],
     });
-  }
-
-  // async fetchParticipantByUserChatNames(
-  //   username: string,
-  //   channel_name: string,
-  // ) {
-  //   var channel = await this.chatService.fetchChatByName(channel_name);
-  //   var user = await this.userService.fetchUserByUsername(username);
-  //   return this.participantRepository.findOne({
-  //     where: {
-  //       participant: { id: user.id },
-  //       chatRoom: { id: channel.id },
-  //     },
-  //     relations: ['chatRoom', 'participant'],
-  //   });
-  // }
-  //
+  }  
 
   async recordAlreadyExists(userID: number, chatRoomID: number) {
     const foundRecord = await this.participantRepository.find({
@@ -91,23 +65,23 @@ export class ChatParticipantsService {
     return false;
   }
 
-  async createChatParticipant(
-    userID: number,
-    chatRoomID: number,
-    inviteExpiryDate: number,
-  ) {
+  async createChatParticipant(participantDetails: createParticipantParams) {
     const foundRecord = await this.participantRepository.find({
       where: {
-        user: { id: userID },
-        chatRoom: { id: chatRoomID },
+        user: { id: participantDetails.userID },
+        chatRoom: { id: participantDetails.chatRoomID },
       },
     });
     if (foundRecord.length > 0) {
       return foundRecord[0];
     }
     const newParticipant = this.participantRepository.create({
-      user: { id: userID },
-      chatRoom: { id: chatRoomID },
+      user: { id: participantDetails.userID },
+      chatRoom: { id: participantDetails.chatRoomID },
+      owner: participantDetails.owner ? participantDetails.owner : false,
+      operator: participantDetails.operator ? participantDetails.operator : false,
+      banned: participantDetails.banned ? participantDetails.banned : false,
+      mutedUntil: participantDetails.mutedUntil ? participantDetails.mutedUntil : 0,
     });
     return this.participantRepository.save(newParticipant);
   }
@@ -123,16 +97,6 @@ export class ChatParticipantsService {
     const participant = await this.fetchParticipantByUserChatID(info);
     return this.deleteParticipantByID(participant.id);
   }
-
-  // async deleteParticipantInChatByUsername(username: string, chat_name: string) {
-  //   const chat = await this.chatService.fetchChatByName(chat_name);
-  //   const user = await this.userService.fetchUserByUsername(username);
-  //   const participant = await this.fetchParticipantByUserChatID(
-  //     user.id,
-  //     chat.id,
-  //   );
-  //   return this.deleteParticipantByID(participant.id);
-  // }
 
   async deleteParticipantByID(id: number) {
     return this.participantRepository.delete({ id });

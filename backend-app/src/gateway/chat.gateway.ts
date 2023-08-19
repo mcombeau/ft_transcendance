@@ -652,11 +652,10 @@ export class ChatGateway implements OnModuleInit {
         await this.checkUserIsNotBanned(user);
       }
 
-      await this.chatParticipantsService.createChatParticipant(
-        invite.invitedUser.id,
-        invite.chatRoom.id,
-        invite.expiresAt,
-      );
+      await this.chatParticipantsService.createChatParticipant({
+        userID: invite.invitedUser.id,
+        chatRoomID: invite.chatRoom.id
+      });
       await this.inviteService.deleteInvitesByInvitedUserChatRoomID(info);
     } catch (e) {
       throw new ChatPermissionError(e.message);
