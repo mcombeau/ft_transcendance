@@ -22,27 +22,12 @@ import { InvitesService } from 'src/invites/invites.service';
 import { UsersService } from 'src/users/users.service';
 import { UserChatInfo } from 'src/chat-participants/utils/types';
 import { ChatNotFoundError } from 'src/exceptions/not-found.interceptor';
-import { createMessageDto } from 'src/chat-messages/dtos/createMessage.dto';
-import { createChatDto } from 'src/chats/dtos/createChats.dto';
-import { updateParticipantDto } from 'src/chat-participants/dtos/updateChatParticipant.dto';
+import { ReceivedInfoDto } from './dtos/chatGateway.dto';
 
-// TODO [mcombeau]: Replace params with actual DTOs!!!!
 type UserTargetChat = {
   userID: number;
   targetID: number;
   chatRoomID: number;
-};
-
-type ReceivedInfo = {
-  token: string;
-  userID?: number;
-  username?: string;
-  targetID?: number;
-  chatRoomID?: number;
-  messageInfo?: createMessageDto;
-  chatInfo?: createChatDto;
-  participantInfo?: updateParticipantDto;
-  inviteDate?: number;
 };
 
 @WebSocketGateway({
@@ -96,7 +81,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('add chat')
-  async onAddChat(@MessageBody() info: ReceivedInfo) {
+  async onAddChat(@MessageBody() info: ReceivedInfoDto) {
     console.log('[Chat Gateway]: Add chat', info);
     try {
       info.userID = await this.checkIdentity(info.token);
@@ -113,7 +98,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('dm')
-  async onDM(@MessageBody() info: ReceivedInfo) {
+  async onDM(@MessageBody() info: ReceivedInfoDto) {
     try {
       info.userID = await this.checkIdentity(info.token);
 
@@ -133,7 +118,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('delete chat')
-  async onDeleteChat(@MessageBody() info: ReceivedInfo) {
+  async onDeleteChat(@MessageBody() info: ReceivedInfoDto) {
     console.log('[Chat Gateway]: Delete chat', info);
     try {
       info.userID = await this.checkIdentity(info.token);
@@ -147,7 +132,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('join chat')
-  async onJoinChat(@MessageBody() info: ReceivedInfo) {
+  async onJoinChat(@MessageBody() info: ReceivedInfoDto) {
     console.log('[Chat Gateway]: Join chat', info);
     try {
       info.userID = await this.checkIdentity(info.token);
@@ -166,7 +151,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('leave chat')
-  async onLeaveChat(@MessageBody() info: ReceivedInfo) {
+  async onLeaveChat(@MessageBody() info: ReceivedInfoDto) {
     try {
       info.userID = await this.checkIdentity(info.token);
       await this.chatsService.removeParticipantFromChatByUsername({
@@ -182,7 +167,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('chat message')
-  async onChatMessage(@MessageBody() info: ReceivedInfo) {
+  async onChatMessage(@MessageBody() info: ReceivedInfoDto) {
     console.log('[Chat Gateway]: Sending chat message');
     try {
       info.userID = await this.checkIdentity(info.token);
@@ -197,7 +182,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('mute')
-  async onMute(@MessageBody() info: ReceivedInfo) {
+  async onMute(@MessageBody() info: ReceivedInfoDto) {
     try {
       info.userID = await this.checkIdentity(info.token);
       info.participantInfo.mutedUntil = await this.toggleMute(
@@ -215,7 +200,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('toggle private')
-  async onTogglePrivate(@MessageBody() info: ReceivedInfo) {
+  async onTogglePrivate(@MessageBody() info: ReceivedInfoDto) {
     console.log('[Chat Gateway]: Toggle private chat');
     try {
       info.userID = await this.checkIdentity(info.token);
@@ -232,7 +217,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('invite')
-  async onInvite(@MessageBody() info: ReceivedInfo) {
+  async onInvite(@MessageBody() info: ReceivedInfoDto) {
     try {
       info.userID = await this.checkIdentity(info.token);
       var inviteExpiry = await this.inviteUser({
@@ -250,7 +235,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('accept invite')
-  async onAcceptInvite(@MessageBody() info: ReceivedInfo) {
+  async onAcceptInvite(@MessageBody() info: ReceivedInfoDto) {
     try {
       info.userID = await this.checkIdentity(info.token);
       const user = await this.userService.fetchUserByID(info.targetID);
@@ -268,7 +253,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('operator')
-  async onMakeOperator(@MessageBody() info: ReceivedInfo) {
+  async onMakeOperator(@MessageBody() info: ReceivedInfoDto) {
     try {
       info.userID = await this.checkIdentity(info.token);
       await this.toggleOperator({
@@ -283,7 +268,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('ban')
-  async onBan(@MessageBody() info: ReceivedInfo) {
+  async onBan(@MessageBody() info: ReceivedInfoDto) {
     try {
       info.userID = await this.checkIdentity(info.token);
       await this.banUser({
@@ -300,7 +285,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('kick')
-  async onKick(@MessageBody() info: ReceivedInfo) {
+  async onKick(@MessageBody() info: ReceivedInfoDto) {
     try {
       info.userID = await this.checkIdentity(info.token);
       await this.kickUser({
