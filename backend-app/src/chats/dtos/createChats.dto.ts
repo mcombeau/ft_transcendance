@@ -11,7 +11,7 @@ export class createChatDto {
   @ApiProperty()
   @IsOptional()
   @IsAlphanumeric()
-  @Length(10, 20)
+  @Length(3, 20)
   password?: string;
 
   @ApiProperty()
