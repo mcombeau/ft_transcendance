@@ -20,12 +20,11 @@ import {
 import { InviteEntity, inviteType } from 'src/invites/entities/Invite.entity';
 import { InvitesService } from 'src/invites/invites.service';
 import { UsersService } from 'src/users/users.service';
-import {
-  UserChatInfo,
-  updateParticipantParams,
-} from 'src/chat-participants/utils/types';
-import { createChatParams } from 'src/chats/utils/types';
+import { UserChatInfo } from 'src/chat-participants/utils/types';
 import { ChatNotFoundError } from 'src/exceptions/not-found.interceptor';
+import { createMessageDto } from 'src/chat-messages/dtos/createMessage.dto';
+import { createChatDto } from 'src/chats/dtos/createChats.dto';
+import { updateParticipantDto } from 'src/chat-participants/dtos/updateChatParticipant.dto';
 
 // TODO [mcombeau]: Replace params with actual DTOs!!!!
 type UserTargetChat = {
@@ -36,14 +35,14 @@ type UserTargetChat = {
 
 type ReceivedInfo = {
   token: string;
-  userID: number;
-  username: string;
-  targetID: number;
-  chatRoomID: number;
-  messageInfo: createChatMessageParams;
-  chatInfo: createChatParams;
-  participantInfo: updateParticipantParams;
-  inviteDate: number;
+  userID?: number;
+  username?: string;
+  targetID?: number;
+  chatRoomID?: number;
+  messageInfo?: createMessageDto;
+  chatInfo?: createChatDto;
+  participantInfo?: updateParticipantDto;
+  inviteDate?: number;
 };
 
 @WebSocketGateway({
@@ -101,10 +100,10 @@ export class ChatGateway implements OnModuleInit {
     console.log('[Chat Gateway]: Add chat', info);
     try {
       info.userID = await this.checkIdentity(info.token);
-      const chat = await this.chatsService.createChat(info.chatInfo);
       const owner = await this.userService.fetchUserByID(info.userID);
-      info.chatRoomID = chat.id;
       info.username = owner.username;
+      const chat = await this.chatsService.createChat(info.chatInfo);
+      info.chatRoomID = chat.id;
       this.server.emit('add chat', info.chatInfo);
     } catch (e) {
       var err_msg = '[Chat Gateway]: Chat creation error:' + e.message;
@@ -141,7 +140,7 @@ export class ChatGateway implements OnModuleInit {
     console.log('[Chat Gateway]: Delete chat', info);
     try {
       info.userID = await this.checkIdentity(info.token);
-      this.deleteChatRoom(info);
+      this.deleteChatRoom({ userID: info.userID, chatRoomID: info.chatRoomID });
       this.server.emit('delete chat', info);
     } catch (e) {
       var err_msg = '[Chat Gateway]: Chat deletion error:' + e.message;
