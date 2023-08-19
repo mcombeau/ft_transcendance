@@ -1,12 +1,12 @@
 export type createUserParams = {
     username: string;
-    login42: string;
-    password: string;
+    login42?: string;
+    password?: string;
     email: string;
 };
 
 export type updateUserParams = {
-    username: string;
-    password: string;
-    email: string;
+    username?: string;
+    password?: string;
+    email?: string;
 };
