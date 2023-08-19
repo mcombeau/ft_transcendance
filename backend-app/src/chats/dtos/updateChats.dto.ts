@@ -1,15 +1,27 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { IsAlphanumeric, IsBoolean, IsInt, IsOptional, IsPositive, Length } from "class-validator";
 
 export class updateChatDto {
     @ApiProperty()
-    name: string;
+    @IsOptional()
+    @IsAlphanumeric()
+    @Length(3, 20)
+    name?: string;
 
     @ApiProperty()
-    password: string;
+    @IsOptional()
+    @IsAlphanumeric()
+    @Length(10, 20)
+    password?: string;
 
     @ApiProperty()
-    private: boolean;
+    @IsOptional()
+    @IsBoolean()
+    private?: boolean;
 
     @ApiProperty()
-    participantID: number;
+    @IsOptional()
+    @IsInt()
+    @IsPositive()
+    participantID?: number;
 }
