@@ -140,7 +140,7 @@ export class ChatsService {
     const newSavedChat = await this.chatRepository
       .save(newChat)
       .catch((err: any) => {
-        throw new ChatCreationError(`'${name}': ${err.message}`);
+        throw new ChatCreationError(`'${newChat.name}': ${err.message}`);
       });
     try {
       await this.chatParticipantService.createChatParticipant(
