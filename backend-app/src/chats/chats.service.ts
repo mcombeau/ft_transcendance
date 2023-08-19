@@ -103,18 +103,35 @@ export class ChatsService {
     return newSavedChat;
   }
 
-  async createChatDM(chatDetails: createDMParams) {
-    if (!chatDetails.name.startsWith('DM:')) {
-      throw new ChatCreationError(
-        `'${chatDetails.name}': DM chat must start with "DM:"`,
-      );
+  private generateDMName(usernames: string[]) {
+    usernames.sort( (a, b) => a.localeCompare(b) );
+    return "DM: " + usernames[0] + " " + usernames[1];
+  }
+
+  private async checkDMDoesNotExist(chatDetails: createDMParams) {
+    const chatDMs = await this.fetchDMChats();
+    for (const e of chatDMs) {
+      var count = 0;
+      for (const f of e.participants) {
+        if (f.user.id === chatDetails.userID1
+            || f.user.id === chatDetails.userID2) {
+          count++;
+        }
+        if (count === 2) {
+          throw new ChatCreationError(`DM between users ${chatDetails.userID1} and ${chatDetails.userID2}`);
+        }
+      }
     }
+  }
+
+  async createChatDM(chatDetails: createDMParams) {
     const user1 = await this.userService.fetchUserByID(chatDetails.userID1);
     const user2 = await this.userService.fetchUserByID(chatDetails.userID2);
-    // TODO [mcombeau]: Create an encoded name !
-    const name = user1.username + user2.username;
+
+    await this.checkDMDoesNotExist(chatDetails);
+
     const newChat = this.chatRepository.create({
-      name: name,
+      name: this.generateDMName( [user1.username, user2.username] ),
       password: '',
       private: true,
       directMessage: true,
@@ -123,7 +140,7 @@ export class ChatsService {
     const newSavedChat = await this.chatRepository
       .save(newChat)
       .catch((err: any) => {
-        throw new ChatCreationError(`'${chatDetails.name}': ${err.message}`);
+        throw new ChatCreationError(`'${name}': ${err.message}`);
       });
     try {
       await this.chatParticipantService.createChatParticipant(

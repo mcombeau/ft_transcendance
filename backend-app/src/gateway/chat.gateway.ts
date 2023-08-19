@@ -116,14 +116,11 @@ export class ChatGateway implements OnModuleInit {
   async onDM(@MessageBody() info: ReceivedInfo) {
     try {
       info.userID = await this.checkIdentity(info.token);
-      // TODO: Deal with the username conundrum (maybe diff username depending on connected socket ?)
-      var params = {
-        name: '',
-        password: '',
+
+      const chat = await this.chatsService.createChatDM({
         userID1: info.userID,
-        userID2: info.targetID,
-      };
-      const chat = await this.chatsService.createChatDM(params); // TODO : see what happens if already exists
+        userID2: info.targetID
+      });
       const user2 = await this.userService.fetchUserByID(info.targetID);
       info.chatRoomID = chat.id;
       info.username = user2.username;

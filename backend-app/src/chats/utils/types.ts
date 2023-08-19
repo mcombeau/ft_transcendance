@@ -8,8 +8,6 @@ export type createChatParams = {
 };
 
 export type createDMParams = {
-  name: string;
-  password: string;
   userID1: number;
   userID2: number;
 };
