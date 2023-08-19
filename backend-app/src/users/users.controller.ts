@@ -9,7 +9,6 @@ import {
   Post,
   UseGuards,
   UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -94,7 +93,6 @@ export class UsersController {
   @ApiUnprocessableEntityResponse({
     description: 'Database error. (Unprocessable entity)',
   })
-  @UsePipes(new ValidationPipe())
   createUser(@Body() userDto: createUsersDto) {
     return this.userService.createUser(userDto);
   }

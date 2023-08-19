@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
 import { GamesService } from './games.service';
 import { createGameDto } from './dtos/createGame.dto';
 import { updateGameDto } from './dtos/updateGame.dto';
@@ -30,7 +30,6 @@ export class GamesController {
     @ApiUnprocessableEntityResponse({
         description: 'Database error. (Unprocessable entity)',
     })
-    @UsePipes(new ValidationPipe())
     createGame(@Body() gameDto: createGameDto) {
         console.log('A game has been posted');
         console.log(gameDto);
