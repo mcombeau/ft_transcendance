@@ -13,14 +13,14 @@ export class ChatParticipantsService {
 
   fetchParticipants() {
     return this.participantRepository.find({
-      relations: ['chatRoom', 'participant'],
+      relations: ['chatRoom', 'user'],
     });
   }
 
   fetchParticipantByID(id: number) {
     return this.participantRepository.findOne({
       where: { id },
-      relations: ['chatRoom', 'participant'],
+      relations: ['chatRoom', 'user'],
     });
   }
 
@@ -29,7 +29,7 @@ export class ChatParticipantsService {
       where: {
         chatRoom: { id: id },
       },
-      relations: ['chatRoom', 'participant'],
+      relations: ['chatRoom', 'user'],
     });
   }
 
@@ -43,7 +43,7 @@ export class ChatParticipantsService {
       where: {
         user: { id: id },
       },
-      relations: ['chatRoom', 'participant'],
+      relations: ['chatRoom', 'user'],
     });
   }
 
@@ -58,7 +58,7 @@ export class ChatParticipantsService {
         user: { id: info.userID },
         chatRoom: { id: info.chatRoomID },
       },
-      relations: ['chatRoom', 'participant'],
+      relations: ['chatRoom', 'user'],
     });
   }
 

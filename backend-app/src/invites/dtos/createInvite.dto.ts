@@ -5,11 +5,11 @@ import { inviteType } from '../entities/Invite.entity';
 export class createInviteDto {
   @ApiProperty()
   @IsNotEmpty()
-  @IsAlphanumeric()
-  type: string;
+  // @IsAlphanumeric()
+  // type: string;
   // TODO [mcombeau]: Replace this
-  // @IsEnum(inviteType)
-  // type: inviteType;
+  @IsEnum(inviteType)
+  type: inviteType;
 
   @ApiProperty()
   @IsNotEmpty()

@@ -34,21 +34,21 @@ export class ChatsService {
 
   fetchChats() {
     return this.chatRepository.find({
-      relations: ['participants.participant'],
+      relations: ['participants.user'],
     });
   }
 
   fetchPublicChats() {
     return this.chatRepository.find({
       where: { private: false },
-      relations: ['participants.participant'],
+      relations: ['participants.user'],
     });
   }
 
   fetchDMChats() {
     return this.chatRepository.find({
       where: { directMessage: true },
-      relations: ['participants.participant'],
+      relations: ['participants.user'],
     });
   }
 
@@ -164,14 +164,14 @@ export class ChatsService {
   fetchChatByID(id: number) {
     return this.chatRepository.findOne({
       where: { id },
-      relations: ['messages', 'participants.participant'],
+      relations: ['messages', 'participants.user'],
     });
   }
 
   fetchChatByName(name: string) {
     return this.chatRepository.findOne({
       where: { name },
-      relations: ['messages', 'participants.participant'],
+      relations: ['messages', 'participants.user'],
     });
   }
 

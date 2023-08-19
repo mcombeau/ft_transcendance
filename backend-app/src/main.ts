@@ -5,6 +5,7 @@ import { TypeormExceptionFilter } from './exceptions/typeorm-exception.filter';
 import { BadRequestInterceptor } from './exceptions/bad-request.interceptor';
 import * as cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -23,6 +24,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(new NotFoundInterceptor());
   app.useGlobalInterceptors(new BadRequestInterceptor());
   app.use(cookieParser());
+  app.useGlobalPipes(new ValidationPipe());
   await app.listen(3001);
 }
 
