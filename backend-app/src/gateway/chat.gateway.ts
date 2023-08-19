@@ -505,17 +505,11 @@ export class ChatGateway implements OnModuleInit {
         Date.now() + minutes * (60 * 1000),
       ).getTime();
     }
-    var participant_update = {
-      operator: target.operator,
-      banned: target.banned,
-      owner: target.owner,
-      mutedUntil: newMutedTimestamp,
-    };
     await this.chatParticipantsService.updateParticipantByID(
       target.id,
-      participant_update,
+      { mutedUntil: newMutedTimestamp }
     );
-    return participant_update.mutedUntil;
+    return newMutedTimestamp;
   }
 
   private async toggleOperator(info: UserTargetChat) {
@@ -532,12 +526,10 @@ export class ChatGateway implements OnModuleInit {
     await this.checkUserIsNotOwner(target);
     await this.checkUserIsNotBanned(target);
 
-    this.chatParticipantsService.updateParticipantByID(target.id, {
-      operator: !target.operator,
-      banned: target.banned,
-      owner: target.owner,
-      mutedUntil: target.mutedUntil,
-    });
+    this.chatParticipantsService.updateParticipantByID(
+      target.id,
+      { operator: !target.operator}
+    );
   }
 
   private async banUser(info: UserTargetChat) {
@@ -556,12 +548,10 @@ export class ChatGateway implements OnModuleInit {
     if (target.banned) {
       this.chatParticipantsService.deleteParticipantByID(target.id);
     } else {
-      this.chatParticipantsService.updateParticipantByID(target.id, {
-        operator: target.operator,
-        banned: true,
-        owner: target.owner,
-        mutedUntil: target.mutedUntil,
-      });
+      this.chatParticipantsService.updateParticipantByID(
+        target.id,
+        { banned: true }
+      );
     }
   }
 
@@ -588,12 +578,10 @@ export class ChatGateway implements OnModuleInit {
 
     await this.checkUserIsOwner(user);
 
-    this.chatsService.updateChatByID(chatRoom.id, {
-      name: chatRoom.name,
-      private: !chatRoom.private,
-      password: chatRoom.password,
-      participantID: undefined,
-    });
+    this.chatsService.updateChatByID(
+      chatRoom.id,
+      { private: !chatRoom.private }
+    );
   }
 
   private async inviteUser(info: UserTargetChat) {

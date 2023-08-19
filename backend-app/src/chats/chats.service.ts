@@ -90,17 +90,15 @@ export class ChatsService {
     const participant = await this.chatParticipantService
       .createChatParticipant({
         userID: user.id,
-        chatRoomID: newSavedChat.id
+        chatRoomID: newSavedChat.id,
+        owner: true,
+        operator: true,
+        banned: false,
+        mutedUntil: new Date().getTime()
       }).catch((err: any) => {
         this.deleteChatByID(newSavedChat.id);
         throw new ChatCreationError(`'ownerID: ${user.id}': ${err.message}`);
       });
-    await this.chatParticipantService.updateParticipantByID(user.id, {
-      owner: true,
-      operator: true,
-      banned: false,
-      mutedUntil: new Date().getTime(),
-    });
     return newSavedChat;
   }
 
