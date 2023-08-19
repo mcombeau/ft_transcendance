@@ -30,6 +30,8 @@ type UserTargetChat = {
   chatRoomID: number;
 };
 
+// TODO [mcombeau]: Make WSExceptionFilter to translate HTTP exceptions 
+//                  to Websocket exceptions
 @WebSocketGateway({
   cors: {
     origin: ['http://localhost:3000', 'http://localhost'],
