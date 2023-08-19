@@ -1,15 +1,17 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsNumber } from "class-validator";
+import { IsInt, IsNotEmpty, IsNumber, IsPositive } from "class-validator";
 
 export class createGameDto {
     @ApiProperty()
     @IsNotEmpty()
-    @IsNumber()
+    @IsInt()
+    @IsPositive()
     winnerID: number;
 
     @ApiProperty()
     @IsNotEmpty()
-    @IsNumber()
+    @IsInt()
+    @IsPositive()
     loserID: number;
 
     @ApiProperty()
