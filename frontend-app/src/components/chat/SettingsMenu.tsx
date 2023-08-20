@@ -1,59 +1,47 @@
-import { Status, Channel, checkStatus } from "./Chat";
+import { Status, ChatRoom, ReceivedInfo } from "./types";
+import { checkStatus } from "./Chat";
 import { Socket } from "socket.io-client";
-import { ChangeEvent, Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { ListParticipants } from "./ListParticipants";
 import { NavigateFunction } from "react-router-dom";
+import { getUserID } from "../../cookies";
 
 export const SettingsMenu = (
   settings: boolean,
   setSettings: Dispatch<SetStateAction<boolean>>,
-  current_channel: Channel,
-  setCurrentChannel: Dispatch<SetStateAction<string>>,
+  currentChatRoom: ChatRoom,
+  setCurrentChatRoomID: Dispatch<SetStateAction<number>>,
   socket: Socket,
   navigate: NavigateFunction,
   cookies: any
 ) => {
-  const [newParticipant, setNewParticipant] = useState("");
-
-  const addNewParticipant = (e: any) => {
-    e.preventDefault();
-    console.log(newParticipant);
-    setNewParticipant("");
-  };
-  if (
-    !settings ||
-    !current_channel ||
-    !current_channel.participants.find((p) => p.username === current_user)
-  ) {
-    return;
-  }
-
-  if (settings && current_channel) {
+  if (settings && currentChatRoom) {
     var leave_button = (
       <button
         onClick={() => {
-          console.log("Leaving " + current_channel.name);
-          socket.emit("leave chat", {
-            channel_name: current_channel.name,
-            username: current_user,
+          console.log("Leaving " + currentChatRoom.name);
+          var info: ReceivedInfo = {
             token: cookies["token"],
-          });
+            chatRoomID: currentChatRoom.chatRoomID,
+          };
+          socket.emit("leave chat", info);
           setSettings(false);
-          setCurrentChannel("");
+          setCurrentChatRoomID(null);
         }}
       >
         Leave channel
       </button>
     );
-    if (checkStatus(current_channel, current_user) == Status.Owner) {
+    if (checkStatus(currentChatRoom, getUserID(cookies)) == Status.Owner) {
       leave_button = (
         <button
           onClick={() => {
-            socket.emit("delete chat", {
-              channel_name: current_channel.name,
+            var info: ReceivedInfo = {
+              chatRoomID: currentChatRoom.chatRoomID,
               token: cookies["token"],
-            });
-            console.log("Deleting " + current_channel.name);
+            };
+            socket.emit("delete chat", info);
+            console.log("Deleting " + currentChatRoom.name);
           }}
         >
           Delete channel
@@ -64,13 +52,13 @@ export const SettingsMenu = (
           <label className="switch">
             <input
               type="checkbox"
-              checked={current_channel.private}
+              checked={currentChatRoom.isPrivate}
               onChange={() => {
-                socket.emit("toggle private", {
-                  channel_name: current_channel.name,
-                  sender: current_user,
+                var info: ReceivedInfo = {
+                  chatRoomID: currentChatRoom.chatRoomID,
                   token: cookies["token"],
-                });
+                };
+                socket.emit("toggle private", info);
               }}
             />
             <span className="slider round"></span>
@@ -82,19 +70,13 @@ export const SettingsMenu = (
     return (
       <div className="settings">
         <h3>
-          Settings for {current_channel.name} (
-          {current_channel.private ? "private" : "public"})
+          Settings for {currentChatRoom.name} (
+          {currentChatRoom.isPrivate ? "private" : "public"})
         </h3>
         {leave_button} <br></br>
         {private_public}
         <h3>Channel members</h3>
-        {ListParticipants(
-          current_channel,
-          navigate,
-          current_user,
-          socket,
-          cookies
-        )}
+        {ListParticipants(currentChatRoom, navigate, socket, cookies)}
         <button
           className="closesettings"
           onClick={() => {

@@ -30,7 +30,7 @@ type UserTargetChat = {
   chatRoomID: number;
 };
 
-// TODO [mcombeau]: Make WSExceptionFilter to translate HTTP exceptions 
+// TODO [mcombeau]: Make WSExceptionFilter to translate HTTP exceptions
 //                  to Websocket exceptions
 @WebSocketGateway({
   cors: {
@@ -106,7 +106,7 @@ export class ChatGateway implements OnModuleInit {
 
       const chat = await this.chatsService.createChatDM({
         userID1: info.userID,
-        userID2: info.targetID
+        userID2: info.targetID,
       });
       const user2 = await this.userService.fetchUserByID(info.targetID);
       info.chatRoomID = chat.id;
@@ -479,6 +479,7 @@ export class ChatGateway implements OnModuleInit {
     await this.chatMessagesService.createMessage(chatMessageDetails);
   }
 
+  // TODO: deal with unmute (maybe if muteduntil <= 0 unmute ?)
   private async toggleMute(
     chatRoomID: number,
     userID: number,
@@ -505,10 +506,9 @@ export class ChatGateway implements OnModuleInit {
         Date.now() + minutes * (60 * 1000),
       ).getTime();
     }
-    await this.chatParticipantsService.updateParticipantByID(
-      target.id,
-      { mutedUntil: newMutedTimestamp }
-    );
+    await this.chatParticipantsService.updateParticipantByID(target.id, {
+      mutedUntil: newMutedTimestamp,
+    });
     return newMutedTimestamp;
   }
 
@@ -526,10 +526,9 @@ export class ChatGateway implements OnModuleInit {
     await this.checkUserIsNotOwner(target);
     await this.checkUserIsNotBanned(target);
 
-    this.chatParticipantsService.updateParticipantByID(
-      target.id,
-      { operator: !target.operator}
-    );
+    this.chatParticipantsService.updateParticipantByID(target.id, {
+      operator: !target.operator,
+    });
   }
 
   private async banUser(info: UserTargetChat) {
@@ -548,10 +547,9 @@ export class ChatGateway implements OnModuleInit {
     if (target.banned) {
       this.chatParticipantsService.deleteParticipantByID(target.id);
     } else {
-      this.chatParticipantsService.updateParticipantByID(
-        target.id,
-        { banned: true }
-      );
+      this.chatParticipantsService.updateParticipantByID(target.id, {
+        banned: true,
+      });
     }
   }
 
@@ -578,10 +576,9 @@ export class ChatGateway implements OnModuleInit {
 
     await this.checkUserIsOwner(user);
 
-    this.chatsService.updateChatByID(
-      chatRoom.id,
-      { private: !chatRoom.private }
-    );
+    this.chatsService.updateChatByID(chatRoom.id, {
+      private: !chatRoom.private,
+    });
   }
 
   private async inviteUser(info: UserTargetChat) {
@@ -629,7 +626,7 @@ export class ChatGateway implements OnModuleInit {
 
       await this.chatParticipantsService.createChatParticipant({
         userID: invite.invitedUser.id,
-        chatRoomID: invite.chatRoom.id
+        chatRoomID: invite.chatRoom.id,
       });
       await this.inviteService.deleteInvitesByInvitedUserChatRoomID(info);
     } catch (e) {

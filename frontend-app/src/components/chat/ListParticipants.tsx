@@ -1,22 +1,22 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { ChatRoom, ReceivedInfo, Status, User } from "./types";
 import { NavigateFunction } from "react-router-dom";
 import { Socket } from "socket.io-client";
-import { ChangeStatus, Channel, isUserMuted, Status, User } from "./Chat";
+import { ChangeStatus, isUserMuted } from "./Chat";
 import { checkStatus } from "./Chat";
+import { getUserID } from "../../cookies";
 
 export const ListParticipants = (
-  channel: Channel,
+  channel: ChatRoom,
   navigate: NavigateFunction,
-  current_user: string,
   socket: Socket,
   cookies: any
 ) => {
   function displayUser(participant: User) {
     var name = participant.username;
     var style = {};
-    if (participant.owner) {
+    if (participant.isOwner) {
       style = { textDecoration: "underline" };
-    } else if (participant.operator) {
+    } else if (participant.isOperator) {
       name += " ★";
     }
     if (isUserMuted(participant)) {
@@ -36,27 +36,27 @@ export const ListParticipants = (
   }
   return (
     <ul className="participant_list">
-      {channel.participants.map((participant) => {
+      {channel.participants.map((participant: User) => {
         return (
           <div>
             {displayUser(participant)}
-            {checkStatus(channel, current_user) != Status.Normal &&
-            checkStatus(channel, participant.username) != Status.Owner &&
-            current_user != participant.username ? (
+            {checkStatus(channel, getUserID(cookies)) != Status.Normal &&
+            checkStatus(channel, participant.userID) != Status.Owner &&
+            getUserID(cookies) != participant.userID ? (
               <div>
                 {isUserMuted(participant) ? (
                   <button
                     onClick={() => {
                       console.log("Muted");
-                      ChangeStatus(
-                        "mute",
-                        socket,
-                        channel.name,
-                        current_user,
-                        participant.username,
-                        cookies["token"],
-                        0
-                      );
+                      var info: ReceivedInfo = {
+                        token: cookies["token"],
+                        chatRoomID: channel.chatRoomID,
+                        targetID: participant.userID,
+                        participantInfo: {
+                          mutedUntil: 0,
+                        },
+                      };
+                      ChangeStatus(info, "mute", socket);
                     }}
                   >
                     Unmute
@@ -76,15 +76,15 @@ export const ListParticipants = (
                         )["value"];
                         muteTime = parseInt(muteTime);
                         console.log("Muted for ", muteTime);
-                        ChangeStatus(
-                          "mute",
-                          socket,
-                          channel.name,
-                          current_user,
-                          participant.username,
-                          cookies["token"],
-                          muteTime
-                        );
+                        var info: ReceivedInfo = {
+                          token: cookies["token"],
+                          chatRoomID: channel.chatRoomID,
+                          targetID: participant.userID,
+                          participantInfo: {
+                            mutedUntil: muteTime,
+                          },
+                        };
+                        ChangeStatus(info, "mute", socket);
                       }}
                     >
                       Mute
@@ -94,14 +94,12 @@ export const ListParticipants = (
                 <button
                   onClick={() => {
                     console.log("Kicked");
-                    ChangeStatus(
-                      "kick",
-                      socket,
-                      channel.name,
-                      current_user,
-                      participant.username,
-                      cookies["token"]
-                    );
+                    var info: ReceivedInfo = {
+                      token: cookies["token"],
+                      chatRoomID: channel.chatRoomID,
+                      targetID: participant.userID,
+                    };
+                    ChangeStatus(info, "kick", socket);
                   }}
                 >
                   Kick
@@ -109,14 +107,12 @@ export const ListParticipants = (
                 <button
                   onClick={() => {
                     console.log("Banned " + participant);
-                    ChangeStatus(
-                      "ban",
-                      socket,
-                      channel.name,
-                      current_user,
-                      participant.username,
-                      cookies["token"]
-                    );
+                    var info: ReceivedInfo = {
+                      token: cookies["token"],
+                      chatRoomID: channel.chatRoomID,
+                      targetID: participant.userID,
+                    };
+                    ChangeStatus(info, "ban", socket);
                   }}
                 >
                   Ban
@@ -125,24 +121,22 @@ export const ListParticipants = (
             ) : (
               <div></div>
             )}
-            {checkStatus(channel, current_user) === Status.Owner &&
-            checkStatus(channel, participant.username) !== Status.Owner &&
-            current_user !== participant.username ? (
+            {checkStatus(channel, getUserID(cookies)) === Status.Owner &&
+            checkStatus(channel, participant.userID) !== Status.Owner &&
+            getUserID(cookies) !== participant.userID ? (
               <div>
                 <button
                   onClick={() => {
-                    console.log("Made admin " + participant);
-                    ChangeStatus(
-                      "operator",
-                      socket,
-                      channel.name,
-                      current_user,
-                      participant.username,
-                      cookies["token"]
-                    );
+                    console.log("Made operator " + participant);
+                    var info: ReceivedInfo = {
+                      token: cookies["token"],
+                      chatRoomID: channel.chatRoomID,
+                      targetID: participant.userID,
+                    };
+                    ChangeStatus(info, "operator", socket);
                   }}
                 >
-                  {checkStatus(channel, participant.username) == Status.Operator
+                  {checkStatus(channel, participant.userID) == Status.Operator
                     ? "Remove from admins"
                     : "Make admin"}
                 </button>
@@ -158,18 +152,16 @@ export const ListParticipants = (
         return (
           <div>
             <li>{participant.username}</li>
-            {checkStatus(channel, current_user) !== Status.Normal ? (
+            {checkStatus(channel, getUserID(cookies)) !== Status.Normal ? (
               <button
                 onClick={() => {
                   console.log("unban " + participant.username);
-                  ChangeStatus(
-                    "ban",
-                    socket,
-                    channel.name,
-                    current_user,
-                    participant.username,
-                    cookies["token"]
-                  );
+                  var info: ReceivedInfo = {
+                    token: cookies["token"],
+                    chatRoomID: channel.chatRoomID,
+                    targetID: participant.userID,
+                  };
+                  ChangeStatus(info, "ban", socket);
                 }}
               >
                 Unban
@@ -185,18 +177,6 @@ export const ListParticipants = (
         return (
           <div>
             <li>{participant.username}</li>
-            {checkStatus(channel, current_user) !== Status.Normal ? (
-              <button
-                onClick={() => {
-                  console.log("Un-invite " + participant.username);
-                  // TODO: add socket handler
-                }}
-              >
-                Retract invite
-              </button>
-            ) : (
-              ""
-            )}
           </div>
         );
       })}
