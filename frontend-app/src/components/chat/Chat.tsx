@@ -460,6 +460,8 @@ export const Chat = () => {
       },
     };
     if (channels.length === 0) {
+      // Fetching Chats
+      // TODO: fetch public chats also
       fetch(
         `http://localhost:3001/users/${getUserID(cookies)}/chats`,
         request
@@ -469,8 +471,6 @@ export const Chat = () => {
           console.log("error response load channels");
           return;
         }
-        console.log("CHATS");
-        console.log(data);
         data.map((e: any) => {
           var participant_list = e.participants.map((user: any) => {
             console.log(user);
@@ -545,6 +545,8 @@ export const Chat = () => {
             return;
           }
           data.map((e: any) => {
+            console.log("MESSAGE");
+            console.log(e);
             var msg: Message = {
               datestamp: e.sentAt,
               msg: e.message,

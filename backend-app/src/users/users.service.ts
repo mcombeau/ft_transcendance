@@ -1,6 +1,8 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { NotFoundError } from 'rxjs';
 import { ChatEntity } from 'src/chats/entities/chat.entity';
+import { UserNotFoundError } from 'src/exceptions/not-found.interceptor';
 import { PasswordService } from 'src/password/password.service';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { createUserParams } from 'src/users/utils/types';
@@ -57,14 +59,19 @@ export class UsersService {
 
   async fetchUserChatsByUserID(id: number) {
     // TODO: maybe transmit less user info
-    const user = await this.userRepository.findOne({
-      where: { id },
-      relations: [
-        'chatRooms.chatRoom',
-        'chatRooms.chatRoom.participants',
-        'chatRooms.chatRoom.participants.user',
-      ],
-    });
+    const user = await this.userRepository
+      .findOne({
+        where: { id },
+        relations: [
+          'chatRooms.chatRoom',
+          'chatRooms.chatRoom.participants',
+          'chatRooms.chatRoom.participants.user',
+        ],
+      })
+      .catch((e) => {
+        console.log('[User Service]: ', e);
+        throw new UserNotFoundError();
+      });
 
     var userChatRooms: ChatEntity[] = [];
     for (const e of user.chatRooms) {

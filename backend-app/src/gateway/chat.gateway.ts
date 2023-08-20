@@ -92,7 +92,7 @@ export class ChatGateway implements OnModuleInit {
       info.username = owner.username;
       const chat = await this.chatsService.createChat(info.chatInfo);
       info.chatRoomID = chat.id;
-      this.server.emit('add chat', info.chatInfo);
+      this.server.emit('add chat', info);
     } catch (e) {
       var err_msg = '[Chat Gateway]: Chat creation error:' + e.message;
       console.log(err_msg);

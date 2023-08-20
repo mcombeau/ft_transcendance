@@ -7,12 +7,10 @@ import {
   ParseIntPipe,
   Post,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import { ChatMessagesService } from './chat-messages.service';
 import { createMessageDto } from './dtos/createMessage.dto';
 import { ChatMessageNotFoundException } from 'src/exceptions/not-found.exception';
-import { NotFoundInterceptor } from 'src/exceptions/not-found.interceptor';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
@@ -61,9 +59,7 @@ export class ChatMessagesController {
     description: 'Database error. (Unprocessable entity)',
   })
   createChatMessage(@Body() messageDto: createMessageDto) {
-    return this.chatMessageService.createMessage(
-      messageDto
-    );
+    return this.chatMessageService.createMessage(messageDto);
   }
 
   @Delete(':id')
