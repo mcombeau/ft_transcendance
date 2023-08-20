@@ -58,12 +58,14 @@ export class UsersService {
   async fetchUserChatsByUserID(id: number) {
     const user = await this.userRepository.findOne({
       where: { id },
-      relations: ['chatRooms.chatRoom'],
+      relations: ['chatRooms.chatRoom', 'chatRooms.chatRoom.participants'],
     });
+
     var userChatRooms: ChatEntity[] = [];
     for (const e of user.chatRooms) {
       userChatRooms.push(e.chatRoom);
     }
+    console.log(userChatRooms);
     return userChatRooms;
   }
 

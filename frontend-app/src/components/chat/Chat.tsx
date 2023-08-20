@@ -60,7 +60,7 @@ export function getChatRoomNameFromID(
   channels: ChatRoom[]
 ) {
   return channels.find((chatRoom: ChatRoom) => {
-    chatRoomID === chatRoom.chatRoomID;
+    return chatRoomID === chatRoom.chatRoomID;
   }).name;
 }
 export function getChatRoomIDFromName(
@@ -68,7 +68,7 @@ export function getChatRoomIDFromName(
   channels: ChatRoom[]
 ) {
   return channels.find((chatRoom: ChatRoom) => {
-    chatRoom.name === chatRoomName;
+    return chatRoom.name === chatRoomName;
   }).chatRoomID;
 }
 
@@ -469,16 +469,19 @@ export const Chat = () => {
           console.log("error response load channels");
           return;
         }
+        console.log("CHATS");
+        console.log(data);
         data.map((e: any) => {
           var participant_list = e.participants.map((user: any) => {
+            console.log(user);
             var newUser: User = {
-              userID: user.user.id,
-              username: user.user.username,
+              userID: user.id,
+              username: user.username,
               isOwner: user.owner,
-              isOperator: user.isOperator,
-              isBanned: user.isBanned,
+              isOperator: user.operator,
+              isBanned: user.banned,
               mutedUntil: user.mutedUntil,
-              invitedUntil: user.invitedUntil,
+              invitedUntil: null,
             };
             return newUser;
           });
@@ -510,7 +513,7 @@ export const Chat = () => {
       ).then(async (response) => {
         const data = await response.json();
         if (!response.ok) {
-          console.log("error response load channels");
+          console.log("error response load invites");
           return;
         }
         data.map((e: any) => {
