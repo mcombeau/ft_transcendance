@@ -475,8 +475,8 @@ export const Chat = () => {
           var participant_list = e.participants.map((user: any) => {
             console.log(user);
             var newUser: User = {
-              userID: user.id,
-              username: user.username,
+              userID: user.user.id,
+              username: user.user.username,
               isOwner: user.owner,
               isOperator: user.operator,
               isBanned: user.banned,
@@ -493,11 +493,11 @@ export const Chat = () => {
               ? null
               : participant_list.find((u: User) => u.isOwner).userID,
             participants: participant_list.filter(
-              (user: User) => !user.isBanned && user.invitedUntil == 0
+              (user: User) => !user.isBanned && user.invitedUntil === null
             ),
             banned: participant_list.filter((user: User) => user.isBanned),
             invited: participant_list.filter(
-              (user: User) => user.invitedUntil != 0
+              (user: User) => user.invitedUntil !== null
             ),
             isDM: e.directMessage,
           };
