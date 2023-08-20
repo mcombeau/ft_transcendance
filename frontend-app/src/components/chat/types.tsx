@@ -32,6 +32,7 @@ export type Message = {
   datestamp: Date;
   msg: string;
   senderID: number;
+  senderUsername: string;
   chatRoomID: number;
   read: boolean;
   system: boolean;

@@ -63,6 +63,14 @@ export function getChatRoomNameFromID(
     chatRoomID === chatRoom.chatRoomID;
   }).name;
 }
+export function getChatRoomIDFromName(
+  chatRoomName: string,
+  channels: ChatRoom[]
+) {
+  return channels.find((chatRoom: ChatRoom) => {
+    chatRoom.name === chatRoomName;
+  }).chatRoomID;
+}
 
 export function getUserNameFromID(userID: number, channels: ChatRoom[]) {
   return channels
@@ -97,6 +105,7 @@ export const Chat = () => {
       chatRoomID: chatRoomID,
       read: true,
       system: true,
+      senderUsername: null,
     };
     setMessages((prev) => [...prev, message]);
   }
@@ -114,6 +123,7 @@ export const Chat = () => {
         chatRoomID: info.chatRoomID,
         read: false,
         system: false,
+        senderUsername: info.username,
       };
       setMessages((prev) => [...prev, message]);
     });
@@ -539,6 +549,7 @@ export const Chat = () => {
               chatRoomID: e.chatRoom.id,
               read: true,
               system: false,
+              senderUsername: e.sender.username,
             };
             setMessages((prev) => [...prev, msg]);
             return e;
@@ -623,7 +634,8 @@ export const Chat = () => {
             socket,
             invitesPannel,
             invites,
-            cookies
+            cookies,
+            channels
           )}
           {SendForm(getChannel(currentChatRoomID), cookies, socket)}
         </div>

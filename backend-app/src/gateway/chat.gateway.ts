@@ -32,6 +32,7 @@ type UserTargetChat = {
 
 // TODO [mcombeau]: Make WSExceptionFilter to translate HTTP exceptions
 //                  to Websocket exceptions
+// TODO: link users and sockets so that we don't send to everyone
 @WebSocketGateway({
   cors: {
     origin: ['http://localhost:3000', 'http://localhost'],
@@ -173,6 +174,8 @@ export class ChatGateway implements OnModuleInit {
     console.log('[Chat Gateway]: Sending chat message');
     try {
       info.userID = await this.checkIdentity(info.token);
+      var user = await this.userService.fetchUserByID(info.userID);
+      info.username = user.username;
       await this.registerChatMessage(info.messageInfo);
       this.server.emit('chat message', info);
     } catch (e) {

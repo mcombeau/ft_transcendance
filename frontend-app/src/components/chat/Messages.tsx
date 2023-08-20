@@ -2,19 +2,12 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { NavigateFunction } from "react-router-dom";
 import { Socket } from "socket.io-client";
 import { getUserID } from "../../cookies";
-import {
-  Message,
-  ChatRoom,
-  Invite,
-  typeInvite,
-  User,
-  getUserNameFromID,
-} from "./Chat";
+import { Message, ChatRoom, Invite, typeInvite, User } from "./types";
 import { ContextMenuEl } from "./ContextMenu";
 
 export const Messages = (
   messages: Message[],
-  current_channel: ChatRoom,
+  currentChatRoom: ChatRoom,
   navigate: NavigateFunction,
   settings: boolean,
   contextMenu: boolean,
@@ -22,21 +15,25 @@ export const Messages = (
   socket: Socket,
   invitesPannel: boolean,
   invites: Invite[],
-  cookies: any
+  cookies: any,
+  channels: ChatRoom[]
 ) => {
   const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
-  const [contextMenuSender, setContextMenuSender] = useState("");
+  const [contextMenuTarget, setContextMenuTarget] = useState({
+    id: null,
+    username: null,
+  });
 
   const messageStatus = (msg: Message) => {
     if (
-      !current_channel ||
-      !current_channel.participants.find(
+      !currentChatRoom ||
+      !currentChatRoom.participants.find(
         (p: User) => p.userID === getUserID(cookies)
       )
     ) {
       return;
     }
-    if (msg.chatRoomID !== current_channel.chatRoomID) return;
+    if (msg.chatRoomID !== currentChatRoom.chatRoomID) return;
     if (msg.system) {
       return (
         <div id="announcement">
@@ -50,10 +47,10 @@ export const Messages = (
           <span
             id="sender"
             onClick={() => {
-              navigate("/user/" + getUserNameFromID(senderID, channels));
+              navigate("/user/" + msg.senderUsername);
             }}
           >
-            {msg.sender}
+            {msg.senderUsername}
           </span>
           <span id="date">{msg.datestamp.toString().split("G")[0]}</span>
           <li id="mine">{msg.msg}</li>
@@ -65,18 +62,21 @@ export const Messages = (
         <span
           id="sender"
           onClick={() => {
-            navigate("/user/" + msg.sender);
+            navigate("/user/" + msg.senderUsername);
           }}
           onContextMenu={(e) => {
             e.preventDefault();
-            if (current_channel.name !== "" && settings === false) {
+            if (currentChatRoom.name !== "" && settings === false) {
               setContextMenu(true);
               setContextMenuPos({ x: e.pageX, y: e.pageY });
-              setContextMenuSender(msg.sender);
+              setContextMenuTarget({
+                id: msg.senderID,
+                username: msg.senderUsername,
+              });
             }
           }}
         >
-          {msg.sender}
+          {msg.senderUsername}
         </span>
         <span id="date">{msg.datestamp.toString().split("G")[0]}</span>
         <li id="othermsg">{msg.msg}</li>
@@ -84,49 +84,51 @@ export const Messages = (
     );
   };
 
-  const inviteStatus = (invite: Invite) => {
-    if (invite.type === typeInvite.Chat) {
-      var text = `${invite.sender} invites you to join the chat ${invite.target}`;
-    }
-    return (
-      // TODO: make actual type
-      <div id="messages invite">
-        <p>{text}</p>
-        <button id="accept">Accept</button>
-        <button id="refuse">Refuse</button>
-      </div>
-    );
-  };
-  if (invitesPannel) {
-    return (
-      <div id="messages">
-        {invites.map((invite: Invite) => inviteStatus(invite))}
-        {ContextMenuEl(
-          contextMenu,
-          contextMenuSender,
-          setContextMenu,
-          contextMenuPos,
-          socket,
-          current_channel,
-          username,
-          cookies
-        )}
-      </div>
-    );
-  }
+  // TODO: invites pannel
+
+  // const inviteStatus = (invite: Invite) => {
+  //   if (invite.type === typeInvite.Chat) {
+  //     var text = `${invite.sender} invites you to join the chat ${invite.target}`;
+  //   }
+  //   return (
+  //     // TODO: make actual type
+  //     <div id="messages invite">
+  //       <p>{text}</p>
+  //       <button id="accept">Accept</button>
+  //       <button id="refuse">Refuse</button>
+  //     </div>
+  //   );
+  // };
+  // if (invitesPannel) {
+  //   return (
+  //     <div id="messages">
+  //       {invites.map((invite: Invite) => inviteStatus(invite))}
+  //       {ContextMenuEl(
+  //         contextMenu,
+  //         contextMenuSender,
+  //         setContextMenu,
+  //         contextMenuPos,
+  //         socket,
+  //         currentChatRoom,
+  //         username,
+  //         cookies
+  //       )}
+  //     </div>
+  //   );
+  // }
 
   return (
     <div id="messages">
       {messages.map((msg: Message) => messageStatus(msg))}
       {ContextMenuEl(
         contextMenu,
-        contextMenuSender,
+        contextMenuTarget,
         setContextMenu,
         contextMenuPos,
         socket,
-        current_channel,
-        username,
-        cookies
+        currentChatRoom,
+        cookies,
+        channels
       )}
     </div>
   );

@@ -1,18 +1,20 @@
-import { ChangeStatus, isMuted, Status } from "./Chat";
-import { useRef } from "react";
+import { Status, ChatRoom } from "./types";
+import { ChangeStatus, getChatRoomIDFromName } from "./Chat";
+import { Dispatch, SetStateAction, useRef } from "react";
 import { Socket } from "socket.io-client";
-import { Channel } from "./Chat";
 import { checkStatus } from "./Chat";
+import { ReceivedInfo } from "./types";
+import { getUserID } from "../../cookies";
 
 export const ContextMenuEl = (
   contextMenu: boolean,
-  target_user: string,
-  setContextMenu: any,
-  contextMenuPos: any,
+  target: { id: number; username: string },
+  setContextMenu: Dispatch<SetStateAction<boolean>>,
+  contextMenuPos: { x: number; y: number },
   socket: Socket,
-  channel: Channel,
-  current_user: string,
-  cookies: any
+  channel: ChatRoom,
+  cookies: any,
+  channels: ChatRoom[]
 ) => {
   const menuRef = useRef<HTMLDivElement>(null);
   if (!contextMenu) {
@@ -23,7 +25,7 @@ export const ContextMenuEl = (
     <ul>
       <li
         onClick={() => {
-          console.log("Blocked " + target_user);
+          console.log("Blocked " + target.username);
           setContextMenu(false);
         }}
       >
@@ -31,50 +33,46 @@ export const ContextMenuEl = (
       </li>
       <li
         onClick={() => {
-          console.log("DM " + target_user);
-          ChangeStatus(
-            "dm",
-            socket,
-            "",
-            current_user,
-            target_user,
-            cookies["token"]
-          );
+          console.log("DM " + target.username);
+          var info: ReceivedInfo = {
+            token: cookies["token"],
+            chatRoomID: channel.chatRoomID,
+            targetID: target.id,
+          };
+          ChangeStatus(info, "dm", socket);
           setContextMenu(false);
         }}
       >
         DM
       </li>
-      {checkStatus(channel, current_user) !== Status.Operator && // TODO: double check logic
-      checkStatus(channel, target_user) !== Status.Owner ? (
+      {checkStatus(channel, getUserID(cookies)) !== Status.Operator && // TODO: double check logic
+      checkStatus(channel, target.id) !== Status.Owner ? (
         <div>
           <li
             onClick={() => {
-              ChangeStatus(
-                "mute",
-                socket,
-                channel.name,
-                current_user,
-                target_user,
-                cookies["token"],
-                1
-              );
+              var info: ReceivedInfo = {
+                token: cookies["token"],
+                chatRoomID: channel.chatRoomID,
+                targetID: target.id,
+                participantInfo: {
+                  mutedUntil: 1,
+                },
+              };
+              ChangeStatus(info, "mute", socket);
               setContextMenu(false);
             }}
           >
-            {isMuted(channel, target_user) ? "Unmute" : "Mute (1 min)"}
+            {"Mute (1 min)"}
           </li>
           <li
             onClick={() => {
-              console.log("Kicked " + target_user);
-              ChangeStatus(
-                "kick",
-                socket,
-                channel.name,
-                current_user,
-                target_user,
-                cookies["token"]
-              );
+              console.log("Kicked " + target.username);
+              var info: ReceivedInfo = {
+                token: cookies["token"],
+                chatRoomID: channel.chatRoomID,
+                targetID: target.id,
+              };
+              ChangeStatus(info, "kick", socket);
               setContextMenu(false);
             }}
           >
@@ -82,15 +80,13 @@ export const ContextMenuEl = (
           </li>
           <li
             onClick={() => {
-              console.log("Banned " + target_user);
-              ChangeStatus(
-                "ban",
-                socket,
-                channel.name,
-                current_user,
-                target_user,
-                cookies["token"]
-              );
+              console.log("Banned " + target.username);
+              var info: ReceivedInfo = {
+                token: cookies["token"],
+                chatRoomID: channel.chatRoomID,
+                targetID: target.id,
+              };
+              ChangeStatus(info, "ban", socket);
               setContextMenu(false);
             }}
           >
@@ -98,7 +94,7 @@ export const ContextMenuEl = (
           </li>
           <li
             onClick={() => {
-              console.log("Invited " + target_user);
+              console.log("Invited " + target.username);
               var channel_name = prompt(
                 "Which channel do you want to send an invitation for ?"
               );
@@ -108,14 +104,12 @@ export const ContextMenuEl = (
                 console.log("Cant invite to null channel");
                 return;
               }
-              ChangeStatus(
-                "invite",
-                socket,
-                channel_name,
-                current_user,
-                target_user,
-                cookies["token"]
-              );
+              var info: ReceivedInfo = {
+                token: cookies["token"],
+                chatRoomID: getChatRoomIDFromName(channel_name, channels),
+                targetID: target.id,
+              };
+              ChangeStatus(info, "invite", socket);
               setContextMenu(false);
             }}
           >
@@ -125,23 +119,21 @@ export const ContextMenuEl = (
       ) : (
         <div></div>
       )}
-      {checkStatus(channel, current_user) === Status.Owner ? ( // TODO: check if admin and switch button
+      {checkStatus(channel, getUserID(cookies)) === Status.Owner ? ( // TODO: check if admin and switch button
         <div>
           <li
             onClick={() => {
-              console.log("Made operator " + target_user);
-              ChangeStatus(
-                "operator",
-                socket,
-                channel.name,
-                current_user,
-                target_user,
-                cookies["token"]
-              );
+              console.log("Made operator " + target.username);
+              var info: ReceivedInfo = {
+                token: cookies["token"],
+                chatRoomID: channel.chatRoomID,
+                targetID: target.id,
+              };
+              ChangeStatus(info, "operator", socket);
               setContextMenu(false);
             }}
           >
-            {checkStatus(channel, target_user) === Status.Operator
+            {checkStatus(channel, target.id) === Status.Operator
               ? "Remove from admins"
               : "Make admin"}
           </li>
@@ -161,7 +153,7 @@ export const ContextMenuEl = (
         left: contextMenuPos.x + 15,
       }}
     >
-      <p>{target_user}</p>
+      <p>{target.username}</p>
       {options}
       <button onClick={() => setContextMenu(false)}>✕</button>
     </div>
