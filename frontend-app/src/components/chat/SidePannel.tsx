@@ -1,12 +1,13 @@
 import { Dispatch, SetStateAction } from "react";
 import { Socket } from "socket.io-client";
-import { ChatRoom, Message } from "./Chat";
+import { getUserID } from "../../cookies";
+import { ReceivedInfo, Message, ChatRoom } from "./types";
 
 export const SidePannel = (
   newchannel: string,
   setNewchannel: Dispatch<SetStateAction<string>>,
-  current_channel: string,
-  setCurrentChannel: Dispatch<SetStateAction<string>>,
+  currentChatRoomID: number,
+  setCurrentChatRoomID: Dispatch<SetStateAction<number>>,
   socket: Socket,
   messages: Message[],
   setMessages: Dispatch<SetStateAction<Message[]>>,
@@ -19,22 +20,23 @@ export const SidePannel = (
   cookies: any
 ) => {
   const createChannel = (e: any) => {
+    console.log(e); // TODO: maybe change any
     e.preventDefault();
-    // Create new channel
     if (newchannel == "") return;
     console.log("Emit new chan");
-    socket.emit("add chat", {
-      // TODO : investigate duplicate chats
-      name: newchannel,
-      password: "pass",
-      private: false,
-      owner: username,
+    var info: ReceivedInfo = {
+      chatInfo: {
+        name: newchannel,
+        password: "",
+        private: false,
+      },
       token: cookies["token"],
-    });
+    };
+    socket.emit("add chat", info);
   };
 
-  function getDMChannelAlias(channel: ChatRoom, current_user: string) {
-    return channel.participants.find((p) => p.username != current_user)
+  function getDMChannelAlias(channel: ChatRoom) {
+    return channel.participants.find((p) => p.userID != getUserID(cookies))
       .username;
   }
 
@@ -47,8 +49,8 @@ export const SidePannel = (
       <div id="channel-info">
         <li
           value={"INVITES"}
-          onClick={(e) => {
-            setCurrentChatRoom("");
+          onClick={() => {
+            setCurrentChatRoomID(null);
             setInvitesPannel(true);
           }}
           className={classname}
@@ -60,36 +62,38 @@ export const SidePannel = (
   };
 
   const channelInfo = (channel: ChatRoom) => {
-    var isCurrent = channel.name == current_channel;
+    var isCurrent = channel.chatRoomID == currentChatRoomID;
     var unreadMessages: number = messages
-      .filter((msg) => {
-        return msg.channel == channel.name;
+      .filter((msg: Message) => {
+        return msg.chatRoomID == channel.chatRoomID;
       })
-      .filter((msg) => {
+      .filter((msg: Message) => {
         return msg.read == false;
       }).length;
-    var channel_alias = channel.dm
-      ? `💬 ${getDMChannelAlias(channel, username)}`
+    var channel_alias = channel.isDM // TODO: change with actual name (get from back)
+      ? `💬 ${getDMChannelAlias(channel)}`
       : channel.name;
     var classname = "channotCurrent";
     if (isCurrent) {
       classname = "chanCurrent";
     }
-    if (channel.dm) {
+    if (channel.isDM) {
       console.log(channel.name, " is a dm");
       classname += " dm";
     }
     return (
       <div id="channel-info">
         <li
-          value={channel.name}
+          value={channel.chatRoomID}
           onClick={(e) => {
-            var target = (e.target as HTMLInputElement).getAttribute("value");
-            setCurrentChannel(target);
+            var targetChannel = parseInt(
+              (e.target as HTMLInputElement).getAttribute("value")
+            );
+            setCurrentChatRoomID(targetChannel);
             setInvitesPannel(false);
             setMessages(
-              messages.map((msg) => {
-                if (msg.channel == target) {
+              messages.map((msg: Message) => {
+                if (msg.chatRoomID === targetChannel) {
                   return { ...msg, read: true };
                 } else {
                   return { ...msg };
@@ -104,8 +108,8 @@ export const SidePannel = (
           <button
             value={channel.name}
             onClick={(e) => {
-              setCurrentChannel(
-                (e.target as HTMLInputElement).getAttribute("value")
+              setCurrentChatRoomID(
+                parseInt((e.target as HTMLInputElement).getAttribute("value"))
               );
               setInvitesPannel(false);
               setSettings(!settings);
@@ -116,15 +120,15 @@ export const SidePannel = (
           </button>
           <button
             className="joinchan"
-            value={channel.name}
+            value={channel.chatRoomID}
             onClick={(e) => {
-              socket.emit("join chat", {
-                username: username,
-                channel_name: (e.target as HTMLInputElement).getAttribute(
-                  "value"
+              var info: ReceivedInfo = {
+                chatRoomID: parseInt(
+                  (e.target as HTMLInputElement).getAttribute("value")
                 ),
                 token: cookies["token"],
-              });
+              };
+              socket.emit("join chat", info);
             }}
           >
             Join

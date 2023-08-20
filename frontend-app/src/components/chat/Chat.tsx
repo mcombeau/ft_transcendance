@@ -12,11 +12,19 @@ import SidePannel from "./SidePannel";
 import SendForm from "./SendForm";
 import { Socket } from "socket.io-client";
 import { getUserID, getUsername } from "../../cookies";
-import { Status, Message, User, ChatRoom, Invite, ReceivedInfo } from "./types";
+import {
+  Status,
+  Message,
+  User,
+  ChatRoom,
+  Invite,
+  ReceivedInfo,
+  typeInvite,
+} from "./types";
 
-export function checkStatus(channel: ChatRoom, username: string): Status {
+export function checkStatus(channel: ChatRoom, userID: number): Status {
   if (!channel) return Status.Normal;
-  var user = channel.participants.find((p) => p.username === username); //TODO: maybe add some error management
+  var user = channel.participants.find((p) => p.userID === userID); //TODO: maybe add some error management
   if (!user) return Status.Normal;
   if (user.isOwner) return Status.Owner;
   if (user.isOperator) return Status.Operator;
@@ -28,8 +36,8 @@ export function isUserMuted(user: User): boolean {
   return true;
 }
 
-export function isMuted(channel: ChatRoom, username: string): boolean {
-  var user = channel.participants.find((p) => p.username === username); // TODO: understand how this can be undefined
+export function isMuted(channel: ChatRoom, userID: number): boolean {
+  var user = channel.participants.find((p) => p.userID === userID); // TODO: understand how this can be undefined
   if (!user) return false;
   if (user.mutedUntil < new Date().getTime()) {
     return false;

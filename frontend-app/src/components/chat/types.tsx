@@ -1,6 +1,6 @@
 export type ReceivedInfo = {
   token: string;
-  username: string;
+  username?: string;
   userID?: number;
   targetID?: number;
   chatRoomID?: number;

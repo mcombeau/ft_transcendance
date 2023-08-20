@@ -2,7 +2,14 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { NavigateFunction } from "react-router-dom";
 import { Socket } from "socket.io-client";
 import { getUserID } from "../../cookies";
-import { Message, ChatRoom, Invite, typeInvite, User } from "./Chat";
+import {
+  Message,
+  ChatRoom,
+  Invite,
+  typeInvite,
+  User,
+  getUserNameFromID,
+} from "./Chat";
 import { ContextMenuEl } from "./ContextMenu";
 
 export const Messages = (
@@ -29,7 +36,7 @@ export const Messages = (
     ) {
       return;
     }
-    if (msg.chatRoomID !== current_channel.name) return;
+    if (msg.chatRoomID !== current_channel.chatRoomID) return;
     if (msg.system) {
       return (
         <div id="announcement">
@@ -37,13 +44,13 @@ export const Messages = (
         </div>
       );
     }
-    if (msg.sender === username) {
+    if (msg.senderID === getUserID(cookies)) {
       return (
         <div id="rightmessage">
           <span
             id="sender"
             onClick={() => {
-              navigate("/user/" + msg.sender);
+              navigate("/user/" + getUserNameFromID(senderID, channels));
             }}
           >
             {msg.sender}
