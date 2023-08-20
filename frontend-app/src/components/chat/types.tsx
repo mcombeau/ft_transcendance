@@ -27,3 +27,53 @@ export type updateParticipantParams = {
   banned?: boolean;
   mutedUntil?: number;
 };
+
+export type Message = {
+  datestamp: Date;
+  msg: string;
+  senderID: number;
+  chatRoomID: number;
+  read: boolean;
+  system: boolean;
+};
+
+export type User = {
+  userID: number;
+  username: string;
+  isOwner: boolean;
+  isOperator: boolean;
+  isBanned: boolean;
+  mutedUntil: number;
+  invitedUntil: number;
+};
+
+export type ChatRoom = {
+  chatRoomID: number;
+  name: string;
+  ownerID: number;
+  participants: User[];
+  invited: User[];
+  banned: User[];
+  isPrivate: boolean;
+  isDM: boolean;
+};
+
+export enum typeInvite {
+  Chat,
+  Game,
+  Friend,
+}
+
+export type Invite = {
+  targetID: number;
+  senderID: number;
+  type: typeInvite;
+  chatRoomID: number;
+  expirationDate: number;
+};
+
+export enum Status {
+  Normal,
+  Operator,
+  Owner,
+}
