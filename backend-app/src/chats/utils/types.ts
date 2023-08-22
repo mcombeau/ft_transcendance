@@ -2,9 +2,9 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export type createChatParams = {
   name: string;
-  ownerID: number;
+  ownerID?: number;
   password?: string;
-  private?: boolean;
+  isPrivate?: boolean;
 };
 
 export type createDMParams = {
@@ -15,7 +15,7 @@ export type createDMParams = {
 export type updateChatParams = {
   name?: string;
   password?: string;
-  private?: boolean;
+  isPrivate?: boolean;
   participantID?: number;
 };
 

@@ -28,7 +28,7 @@ export const SidePannel = (
       chatInfo: {
         name: newchannel,
         password: "",
-        private: false,
+        isPrivate: false,
       },
       token: cookies["token"],
     };

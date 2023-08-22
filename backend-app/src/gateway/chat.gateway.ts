@@ -221,10 +221,18 @@ export class ChatGateway implements OnModuleInit {
       info.username = (
         await this.userService.fetchUserByID(info.userID)
       ).username;
-      info.chatInfo.private = await this.toggleChatPrivacy({
-        userID: info.userID,
-        chatRoomID: info.chatRoomID,
-      });
+      var chat = await this.chatsService.fetchChatByID(info.chatRoomID);
+      info = {
+        ...info,
+        chatInfo: {
+          isPrivate: await this.toggleChatPrivacy({
+            userID: info.userID,
+            chatRoomID: info.chatRoomID,
+          }),
+          name: chat.name,
+        },
+      };
+
       this.server.emit('toggle private', info);
     } catch (e) {
       var err_msg = '[Chat Gateway]: Chat privacy toggle error:' + e.message;
@@ -476,7 +484,7 @@ export class ChatGateway implements OnModuleInit {
     if (!chatRoom) {
       throw new ChatJoinError(`Chat '${info.chatRoomID}' does not exist.`);
     }
-    if (chatRoom.private === true) {
+    if (chatRoom.isPrivate === true) {
       throw new ChatJoinError(`Chat '${info.chatRoomID}' is private.`);
     }
     if (participant) {
@@ -602,12 +610,21 @@ export class ChatGateway implements OnModuleInit {
     const user = await this.getParticipant(info);
     const chatRoom = await this.chatsService.fetchChatByID(info.chatRoomID);
 
+    console.log('gateway toggle info', info);
+    console.log('gateway toggle room', chatRoom);
     await this.checkUserIsOwner(user);
 
-    this.chatsService.updateChatByID(chatRoom.id, {
-      private: !chatRoom.private,
+    await this.chatsService.updateChatByID(chatRoom.id, {
+      isPrivate: !chatRoom.isPrivate,
     });
-    return (await this.chatsService.fetchChatByID(info.chatRoomID)).private;
+    console.log('HERE');
+    var updatedChatRoom = await this.chatsService.fetchChatByID(
+      info.chatRoomID,
+    );
+    console.log('HERE', updatedChatRoom);
+    var isPrivate = updatedChatRoom.isPrivate;
+    console.log('HERE', isPrivate);
+    return isPrivate;
   }
 
   private async inviteUser(info: UserTargetChat) {

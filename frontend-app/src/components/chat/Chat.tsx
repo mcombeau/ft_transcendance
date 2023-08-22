@@ -133,11 +133,12 @@ export const Chat = () => {
     });
 
     socket.on("toggle private", (info: ReceivedInfo) => {
+      console.log("TOGGLE PRIVATE");
       setChannels((prev) => {
         const temp = [...prev];
         return temp.map((chan: ChatRoom) => {
           if (chan.chatRoomID === info.chatRoomID) {
-            chan.isPrivate = info.chatInfo.private;
+            chan.isPrivate = info.chatInfo.isPrivate;
           }
           return chan;
         });
@@ -162,7 +163,7 @@ export const Chat = () => {
         participants: [user],
         banned: [],
         invited: [],
-        isPrivate: info.chatInfo.private,
+        isPrivate: info.chatInfo.isPrivate,
         ownerID: info.userID,
         isDM: false,
       };

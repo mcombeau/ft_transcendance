@@ -6,7 +6,6 @@ import { InviteEntity } from '../../invites/entities/Invite.entity';
 
 @Entity({ name: 'chats' })
 export class ChatEntity {
-
   @ApiProperty()
   @PrimaryGeneratedColumn()
   id: number;
@@ -21,7 +20,7 @@ export class ChatEntity {
 
   @ApiProperty()
   @Column()
-  private: boolean;
+  isPrivate: boolean;
 
   @ApiProperty()
   @Column()

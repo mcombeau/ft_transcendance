@@ -47,6 +47,7 @@ export const SettingsMenu = (
           Delete channel
         </button>
       );
+      // TODO: fix this button
       var private_public = (
         <div>
           <label className="switch">

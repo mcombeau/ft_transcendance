@@ -39,7 +39,7 @@ export class ChatsService {
 
   fetchPublicChats() {
     return this.chatRepository.find({
-      where: { private: false },
+      where: { isPrivate: false },
       relations: ['participants.user'],
     });
   }
@@ -78,7 +78,7 @@ export class ChatsService {
     const newChat = this.chatRepository.create({
       name: chatDetails.name,
       password: passwordHash,
-      private: chatDetails.private ? chatDetails.private : false,
+      isPrivate: chatDetails.isPrivate ? chatDetails.isPrivate : false,
       directMessage: false,
       createdAt: new Date(),
     });
@@ -94,8 +94,9 @@ export class ChatsService {
         owner: true,
         operator: true,
         banned: false,
-        mutedUntil: new Date().getTime()
-      }).catch((err: any) => {
+        mutedUntil: new Date().getTime(),
+      })
+      .catch((err: any) => {
         this.deleteChatByID(newSavedChat.id);
         throw new ChatCreationError(`'ownerID: ${user.id}': ${err.message}`);
       });
@@ -103,8 +104,8 @@ export class ChatsService {
   }
 
   private generateDMName(usernames: string[]) {
-    usernames.sort( (a, b) => a.localeCompare(b) );
-    return "DM: " + usernames[0] + " " + usernames[1];
+    usernames.sort((a, b) => a.localeCompare(b));
+    return 'DM: ' + usernames[0] + ' ' + usernames[1];
   }
 
   private async checkDMDoesNotExist(chatDetails: createDMParams) {
@@ -112,12 +113,16 @@ export class ChatsService {
     for (const e of chatDMs) {
       var count = 0;
       for (const f of e.participants) {
-        if (f.user.id === chatDetails.userID1
-            || f.user.id === chatDetails.userID2) {
+        if (
+          f.user.id === chatDetails.userID1 ||
+          f.user.id === chatDetails.userID2
+        ) {
           count++;
         }
         if (count === 2) {
-          throw new ChatCreationError(`DM between users ${chatDetails.userID1} and ${chatDetails.userID2}`);
+          throw new ChatCreationError(
+            `DM between users ${chatDetails.userID1} and ${chatDetails.userID2}`,
+          );
         }
       }
     }
@@ -130,9 +135,9 @@ export class ChatsService {
     await this.checkDMDoesNotExist(chatDetails);
 
     const newChat = this.chatRepository.create({
-      name: this.generateDMName( [user1.username, user2.username] ),
+      name: this.generateDMName([user1.username, user2.username]),
       password: '',
-      private: true,
+      isPrivate: true,
       directMessage: true,
       createdAt: new Date(),
     });
@@ -144,11 +149,11 @@ export class ChatsService {
     try {
       await this.chatParticipantService.createChatParticipant({
         userID: user1.id,
-        chatRoomID: newSavedChat.id
+        chatRoomID: newSavedChat.id,
       });
       await this.chatParticipantService.createChatParticipant({
         userID: user2.id,
-        chatRoomID: newSavedChat.id
+        chatRoomID: newSavedChat.id,
       });
     } catch (err: any) {
       this.deleteChatByID(newSavedChat.id);
@@ -172,30 +177,35 @@ export class ChatsService {
     });
   }
 
-  updateChatByID(id: number, chatDetails: updateChatParams) {
+  async updateChatByID(id: number, chatDetails: updateChatParams) {
     const participant = chatDetails['participantID'];
     if (participant !== undefined) {
       this.chatParticipantService.createChatParticipant({
         userID: participant,
-        chatRoomID: id
+        chatRoomID: id,
       });
     }
     delete chatDetails['participantID'];
-    return this.chatRepository.update({ id }, { ...chatDetails });
+    var update = await this.chatRepository.update(
+      { id },
+      { isPrivate: chatDetails.isPrivate },
+    );
+    var updated_chat = await this.fetchChatByID(id);
+    return update;
   }
 
   addParticipantToChatByID(id: number, userID: number) {
     this.chatParticipantService.createChatParticipant({
       userID: userID,
-      chatRoomID: id
+      chatRoomID: id,
     });
   }
 
   async addParticipantToChatByUserChatID(info: UserChatInfo) {
     return this.chatParticipantService.createChatParticipant({
-        userID: info.userID,
-        chatRoomID: info.chatRoomID
-      });
+      userID: info.userID,
+      chatRoomID: info.chatRoomID,
+    });
   }
 
   removeParticipantFromChatByID(info: UserChatInfo) {
