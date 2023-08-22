@@ -196,6 +196,9 @@ export class ChatGateway implements OnModuleInit {
   async onMute(@MessageBody() info: ReceivedInfoDto) {
     try {
       info.userID = await this.checkIdentity(info.token);
+      info.username = (
+        await this.userService.fetchUserByID(info.targetID)
+      ).username;
       info.participantInfo.mutedUntil = await this.toggleMute(
         info.chatRoomID,
         info.userID,
@@ -215,6 +218,9 @@ export class ChatGateway implements OnModuleInit {
     console.log('[Chat Gateway]: Toggle private chat');
     try {
       info.userID = await this.checkIdentity(info.token);
+      info.username = (
+        await this.userService.fetchUserByID(info.userID)
+      ).username;
       await this.toggleChatPrivacy({
         userID: info.userID,
         chatRoomID: info.chatRoomID,
@@ -231,6 +237,9 @@ export class ChatGateway implements OnModuleInit {
   async onInvite(@MessageBody() info: ReceivedInfoDto) {
     try {
       info.userID = await this.checkIdentity(info.token);
+      info.username = (
+        await this.userService.fetchUserByID(info.targetID)
+      ).username;
       var inviteExpiry = await this.inviteUser({
         userID: info.userID,
         targetID: info.targetID,
@@ -267,6 +276,9 @@ export class ChatGateway implements OnModuleInit {
   async onMakeOperator(@MessageBody() info: ReceivedInfoDto) {
     try {
       info.userID = await this.checkIdentity(info.token);
+      info.username = (
+        await this.userService.fetchUserByID(info.targetID)
+      ).username;
       await this.toggleOperator({
         userID: info.userID,
         targetID: info.targetID,
@@ -282,6 +294,9 @@ export class ChatGateway implements OnModuleInit {
   async onBan(@MessageBody() info: ReceivedInfoDto) {
     try {
       info.userID = await this.checkIdentity(info.token);
+      info.username = (
+        await this.userService.fetchUserByID(info.targetID)
+      ).username;
       await this.banUser({
         userID: info.userID,
         targetID: info.targetID,
@@ -299,6 +314,9 @@ export class ChatGateway implements OnModuleInit {
   async onKick(@MessageBody() info: ReceivedInfoDto) {
     try {
       info.userID = await this.checkIdentity(info.token);
+      info.username = (
+        await this.userService.fetchUserByID(info.targetID)
+      ).username;
       await this.kickUser({
         userID: info.userID,
         targetID: info.targetID,

@@ -72,14 +72,6 @@ export function getChatRoomIDFromName(
   }).chatRoomID;
 }
 
-export function getUserNameFromID(userID: number, channels: ChatRoom[]) {
-  return channels
-    .find((chatRoom: ChatRoom) => {
-      chatRoom.participants.some((p: User) => p.userID === userID);
-    })
-    .participants.find((p: User) => p.userID === userID).username;
-}
-
 export const Chat = () => {
   const socket = useContext(WebSocketContext);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -252,7 +244,7 @@ export const Chat = () => {
         });
       });
       serviceAnnouncement(
-        `${getUserNameFromID(info.targetID, channels)} has been muted until ${
+        `${info.username} has been muted until ${
           new Date(info.participantInfo.mutedUntil).toString().split("GMT")[0]
         }.`,
         info.chatRoomID
@@ -285,10 +277,7 @@ export const Chat = () => {
         });
       });
       serviceAnnouncement(
-        `${getUserNameFromID(
-          info.targetID,
-          channels
-        )} has been banned from this channel.`,
+        `${info.username} has been banned from this channel.`,
         info.chatRoomID
       );
     });
@@ -376,10 +365,7 @@ export const Chat = () => {
         });
       });
       serviceAnnouncement(
-        `${getUserNameFromID(
-          info.targetID,
-          channels
-        )} has been kicked from this channel.`,
+        `${info.username} has been kicked from this channel.`,
         info.chatRoomID
       );
     });
@@ -394,18 +380,12 @@ export const Chat = () => {
                 p.isOperator = info.participantInfo.operator;
                 if (p.isOperator) {
                   serviceAnnouncement(
-                    `${getUserNameFromID(
-                      info.targetID,
-                      channels
-                    )} is now a channel admin.`,
+                    `${info.username} is now a channel admin.`,
                     info.chatRoomID
                   );
                 } else {
                   serviceAnnouncement(
-                    `${getUserNameFromID(
-                      info.targetID,
-                      channels
-                    )} is not a channel admin anymore.`,
+                    `${info.username} is not a channel admin anymore.`,
                     info.chatRoomID
                   );
                 }
