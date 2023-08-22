@@ -88,6 +88,7 @@ export class ChatGateway implements OnModuleInit {
     console.log('[Chat Gateway]: Add chat', info);
     try {
       info.userID = await this.checkIdentity(info.token);
+      info.chatInfo.ownerID = info.userID;
       const owner = await this.userService.fetchUserByID(info.userID);
       info.username = owner.username;
       const chat = await this.chatsService.createChat(info.chatInfo);

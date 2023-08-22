@@ -461,9 +461,9 @@ export const Chat = () => {
     };
     if (channels.length === 0) {
       // Fetching Chats
-      // TODO: fetch public chats also
       fetch(
-        `http://localhost:3001/users/${getUserID(cookies)}/chats`,
+        //`http://localhost:3001/users/${getUserID(cookies)}/chats`, TODO: change eventually
+        `http://localhost:3001/chats`,
         request
       ).then(async (response) => {
         const data = await response.json();
