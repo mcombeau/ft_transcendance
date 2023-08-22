@@ -19,10 +19,12 @@ export class ChatMessagesService {
     @Inject(forwardRef(() => UsersService)) private userService: UsersService,
   ) {}
 
-  fetchMessages() {
-    return this.chatMessagesRepository.find({
+  async fetchMessages() {
+    var msg = await this.chatMessagesRepository.find({
       relations: ['chatRoom', 'sender'],
     });
+    console.log('In chatmessage service: ', msg);
+    return msg;
   }
 
   async createMessage(chatMessageDetails: createChatMessageParams) {
@@ -38,8 +40,12 @@ export class ChatMessagesService {
       throw new UserNotFoundError(chatMessageDetails.senderID.toString());
     }
     const newMessage = this.chatMessagesRepository.create({
-      ...chatMessageDetails,
+      sender: user,
+      message: chatMessageDetails.message,
+      chatRoom: chat,
+      sentAt: new Date(),
     });
+    console.log('new message', newMessage);
     return this.chatMessagesRepository.save(newMessage);
   }
 

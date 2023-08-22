@@ -173,8 +173,13 @@ export class ChatGateway implements OnModuleInit {
   async onChatMessage(@MessageBody() info: ReceivedInfoDto) {
     console.log('[Chat Gateway]: Sending chat message');
     try {
-      info.userID = await this.checkIdentity(info.token);
+      var userID = await this.checkIdentity(info.token);
+      info.userID = userID;
+      info.messageInfo.senderID = userID;
+      info.messageInfo.chatRoomID = info.chatRoomID;
+      console.log('SENDERID: ', info.userID);
       var user = await this.userService.fetchUserByID(info.userID);
+      console.log('SENDER: ', user);
       info.username = user.username;
       await this.registerChatMessage(info.messageInfo);
       this.server.emit('chat message', info);
@@ -471,6 +476,7 @@ export class ChatGateway implements OnModuleInit {
   private async registerChatMessage(
     chatMessageDetails: createChatMessageParams,
   ) {
+    console.log('Message details: ', chatMessageDetails);
     const user = await this.getParticipant({
       userID: chatMessageDetails.senderID,
       chatRoomID: chatMessageDetails.chatRoomID,
