@@ -221,7 +221,7 @@ export class ChatGateway implements OnModuleInit {
       info.username = (
         await this.userService.fetchUserByID(info.userID)
       ).username;
-      await this.toggleChatPrivacy({
+      info.chatInfo.private = await this.toggleChatPrivacy({
         userID: info.userID,
         chatRoomID: info.chatRoomID,
       });
@@ -607,6 +607,7 @@ export class ChatGateway implements OnModuleInit {
     this.chatsService.updateChatByID(chatRoom.id, {
       private: !chatRoom.private,
     });
+    return (await this.chatsService.fetchChatByID(info.chatRoomID)).private;
   }
 
   private async inviteUser(info: UserTargetChat) {
