@@ -19,6 +19,7 @@ import {
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { GameEntity } from './entities/game.entity';
+import { updateGameDto } from './dtos/updateGame.dto';
 
 @ApiTags('games')
 @Controller('games')

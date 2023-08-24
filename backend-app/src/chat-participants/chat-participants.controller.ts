@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { ChatParticipantsService } from './chat-participants.service';
 import { createParticipantDto } from './dtos/createChatParticipant.dto';
+import { updateParticipantDto } from './dtos/updateChatParticipant.dto';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,

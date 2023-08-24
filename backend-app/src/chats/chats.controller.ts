@@ -21,6 +21,7 @@ import {
 } from '@nestjs/swagger';
 import { ChatEntity } from './entities/chat.entity';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { updateChatDto } from './dtos/updateChats.dto';
 
 @Controller('chats')
 @UseGuards(JwtAuthGuard)
