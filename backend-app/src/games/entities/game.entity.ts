@@ -3,7 +3,6 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'games' })
 export class GameEntity {
-
   @ApiProperty()
   @PrimaryGeneratedColumn()
   id: number;
@@ -28,4 +27,3 @@ export class GameEntity {
   @Column()
   createdAt: Date;
 }
-

@@ -56,7 +56,7 @@ export class ChatsService {
     if (!chat) {
       throw new ChatFetchError(chatRoomName);
     }
-    var participantUsernames: participantUsernames[] = [];
+    const participantUsernames: participantUsernames[] = [];
     for (const e of chat.participants) {
       participantUsernames.push({
         username: e.user.username,
@@ -71,7 +71,6 @@ export class ChatsService {
         `'${chatDetails.name}': Chat name cannot start with "DM:"`,
       );
     }
-    const user = await this.userService.fetchUserByID(chatDetails.ownerID);
     const passwordHash = await this.passwordService.hashPassword(
       chatDetails.password,
     );
@@ -87,19 +86,6 @@ export class ChatsService {
       .catch((err: any) => {
         throw new ChatCreationError(`'${chatDetails.name}': ${err.message}`);
       });
-    const participant = await this.chatParticipantService
-      .createChatParticipant({
-        userID: user.id,
-        chatRoomID: newSavedChat.id,
-        owner: true,
-        operator: true,
-        banned: false,
-        mutedUntil: new Date().getTime(),
-      })
-      .catch((err: any) => {
-        this.deleteChatByID(newSavedChat.id);
-        throw new ChatCreationError(`'ownerID: ${user.id}': ${err.message}`);
-      });
     return newSavedChat;
   }
 
@@ -111,7 +97,7 @@ export class ChatsService {
   private async checkDMDoesNotExist(chatDetails: createDMParams) {
     const chatDMs = await this.fetchDMChats();
     for (const e of chatDMs) {
-      var count = 0;
+      let count = 0;
       for (const f of e.participants) {
         if (
           f.user.id === chatDetails.userID1 ||
@@ -186,11 +172,10 @@ export class ChatsService {
       });
     }
     delete chatDetails['participantID'];
-    var update = await this.chatRepository.update(
+    const update = await this.chatRepository.update(
       { id },
       { isPrivate: chatDetails.isPrivate },
     );
-    var updated_chat = await this.fetchChatByID(id);
     return update;
   }
 

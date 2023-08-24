@@ -19,7 +19,6 @@ import {
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { ChatParticipantEntity } from './entities/chat-participant.entity';
-import { updateParticipantDto } from './dtos/updateChatParticipant.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard)
@@ -29,30 +28,47 @@ export class ChatParticipantsController {
   constructor(private participantService: ChatParticipantsService) {}
 
   @Get(':id')
-  @ApiOkResponse({ type: ChatParticipantEntity, description: 'Get chat participant by ID.' })
+  @ApiOkResponse({
+    type: ChatParticipantEntity,
+    description: 'Get chat participant by ID.',
+  })
   @ApiBadRequestResponse({ description: 'Bad request.' })
   getParticipantByID(@Param('id', ParseIntPipe) id: number) {
     return this.participantService.fetchParticipantByID(id);
   }
 
   @Get()
-  @ApiOkResponse({ type: ChatParticipantEntity, isArray: true, description: 'Get all chat participants.' })
+  @ApiOkResponse({
+    type: ChatParticipantEntity,
+    isArray: true,
+    description: 'Get all chat participants.',
+  })
   getAllParticipants() {
     return this.participantService.fetchParticipants();
   }
 
   @Post()
-  @ApiCreatedResponse({ type: ChatParticipantEntity, description: 'Record created.' })
+  @ApiCreatedResponse({
+    type: ChatParticipantEntity,
+    description: 'Record created.',
+  })
   @ApiBadRequestResponse({ description: 'Bad request.' })
-  @ApiUnprocessableEntityResponse({ description: 'Database error. (Unprocessable entity)' })
+  @ApiUnprocessableEntityResponse({
+    description: 'Database error. (Unprocessable entity)',
+  })
   createParticipant(@Body() participantDto: createParticipantDto) {
     return this.participantService.createChatParticipant(participantDto);
   }
 
   @Patch(':id')
-  @ApiCreatedResponse({ type: ChatParticipantEntity, description: 'Record updated.' })
+  @ApiCreatedResponse({
+    type: ChatParticipantEntity,
+    description: 'Record updated.',
+  })
   @ApiBadRequestResponse({ description: 'Bad request' })
-  @ApiUnprocessableEntityResponse({ description: 'Database error. (Unprocessable entity)' })
+  @ApiUnprocessableEntityResponse({
+    description: 'Database error. (Unprocessable entity)',
+  })
   async updateParticipantByID(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateParticipantDto: updateParticipantDto,
@@ -66,7 +82,9 @@ export class ChatParticipantsController {
   @Delete(':id')
   @ApiOkResponse({ description: 'Record deleted by ID.' })
   @ApiBadRequestResponse({ description: 'Bad request' })
-  @ApiUnprocessableEntityResponse({ description: 'Database error. (Unprocessable entity)' })
+  @ApiUnprocessableEntityResponse({
+    description: 'Database error. (Unprocessable entity)',
+  })
   deleteParticipantByID(@Param('id', ParseIntPipe) id: number) {
     return this.participantService.deleteParticipantByID(id);
   }

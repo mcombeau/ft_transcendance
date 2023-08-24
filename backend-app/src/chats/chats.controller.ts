@@ -11,7 +11,6 @@ import {
 } from '@nestjs/common';
 import { ChatsService } from './chats.service';
 import { createChatDMDto, createChatDto } from './dtos/createChats.dto';
-import { updateChatDto } from './dtos/updateChats.dto';
 import { ChatNotFoundException } from 'src/exceptions/not-found.exception';
 import {
   ApiBadRequestResponse,
@@ -55,7 +54,11 @@ export class ChatsController {
   }
 
   @Get()
-  @ApiOkResponse({ type: ChatEntity, isArray: true, description: 'Get all chats.' })
+  @ApiOkResponse({
+    type: ChatEntity,
+    isArray: true,
+    description: 'Get all chats.',
+  })
   getChats() {
     return this.chatService.fetchChats();
   }
@@ -63,7 +66,9 @@ export class ChatsController {
   @Post()
   @ApiCreatedResponse({ type: ChatEntity, description: 'Record created.' })
   @ApiBadRequestResponse({ description: 'Bad request.' })
-  @ApiUnprocessableEntityResponse({ description: 'Database error. (Unprocessable entity)' })
+  @ApiUnprocessableEntityResponse({
+    description: 'Database error. (Unprocessable entity)',
+  })
   createChat(@Body() chatDto: createChatDto) {
     return this.chatService.createChat(chatDto);
   }
@@ -71,15 +76,19 @@ export class ChatsController {
   @Post('dm')
   @ApiCreatedResponse({ type: ChatEntity, description: 'Record created.' })
   @ApiBadRequestResponse({ description: 'Bad request.' })
-  @ApiUnprocessableEntityResponse({ description: 'Database error. (Unprocessable entity)' })
+  @ApiUnprocessableEntityResponse({
+    description: 'Database error. (Unprocessable entity)',
+  })
   createDM(@Body() chatDto: createChatDMDto) {
     return this.chatService.createChatDM(chatDto);
   }
 
   @Patch(':id')
-  @ApiCreatedResponse({ type: ChatEntity, description: 'Record updated.'})
+  @ApiCreatedResponse({ type: ChatEntity, description: 'Record updated.' })
   @ApiBadRequestResponse({ description: 'Bad request' })
-  @ApiUnprocessableEntityResponse({ description: 'Database error. (Unprocessable entity)' })
+  @ApiUnprocessableEntityResponse({
+    description: 'Database error. (Unprocessable entity)',
+  })
   async updateChatByID(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateChatDto: updateChatDto,

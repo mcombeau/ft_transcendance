@@ -10,12 +10,10 @@ import { UsersModule } from 'src/users/users.module';
   imports: [
     TypeOrmModule.forFeature([ChatMessageEntity]),
     forwardRef(() => ChatsModule),
-    forwardRef(() => UsersModule)
+    forwardRef(() => UsersModule),
   ],
   controllers: [ChatMessagesController],
   providers: [ChatMessagesService],
-  exports: [ChatMessagesService]
+  exports: [ChatMessagesService],
 })
-export class ChatMessagesModule {
-
-}
+export class ChatMessagesModule {}

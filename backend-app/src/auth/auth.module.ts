@@ -14,17 +14,16 @@ import { school42Strategy } from './strategies/school42.strategy';
 @Module({
   imports: [
     ConfigModule.forRoot(),
-	UsersModule,
-  forwardRef(() => PasswordModule),
-	PassportModule.register({ defaultStrategy: 'jwt' }),
-  JwtModule.register({
-    secret: jwtConstants.secret, // Replace with your own secret key for signing the token
-    signOptions: { expiresIn: '1h' }, // Token expires in 1 hour
-  }),
-],
+    UsersModule,
+    forwardRef(() => PasswordModule),
+    PassportModule.register({ defaultStrategy: 'jwt' }),
+    JwtModule.register({
+      secret: jwtConstants.secret, // Replace with your own secret key for signing the token
+      signOptions: { expiresIn: '1h' }, // Token expires in 1 hour
+    }),
+  ],
   controllers: [AuthController],
   providers: [AuthService, LocalStrategy, JwtStrategy, school42Strategy],
-  exports: [AuthService]
+  exports: [AuthService],
 })
-
 export class AuthModule {}

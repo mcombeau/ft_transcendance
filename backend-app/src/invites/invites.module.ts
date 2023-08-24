@@ -10,11 +10,10 @@ import { InvitesService } from './invites.service';
   imports: [
     TypeOrmModule.forFeature([InviteEntity]),
     forwardRef(() => ChatsModule),
-    forwardRef(() => UsersModule)
+    forwardRef(() => UsersModule),
   ],
   controllers: [InvitesController],
   providers: [InvitesService],
-  exports: [InvitesService]
+  exports: [InvitesService],
 })
-export class InvitesModule {
-}
+export class InvitesModule {}

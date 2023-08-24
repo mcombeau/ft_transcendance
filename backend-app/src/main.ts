@@ -24,11 +24,13 @@ async function bootstrap() {
   app.useGlobalInterceptors(new NotFoundInterceptor());
   app.useGlobalInterceptors(new BadRequestInterceptor());
   app.use(cookieParser());
-  app.useGlobalPipes(new ValidationPipe( {
-    whitelist: true, // Strips validated object of any properties that don't use decorators
-    // TODO [mcombeau]: ENABLE THE BELOW OPTION when testing is over
-    // disableErrorMessages: true, // Avoids leaking info about why the request was rejected to the user
-  } ));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true, // Strips validated object of any properties that don't use decorators
+      // TODO [mcombeau]: ENABLE THE BELOW OPTION when testing is over
+      // disableErrorMessages: true, // Avoids leaking info about why the request was rejected to the user
+    }),
+  );
   await app.listen(3001);
 }
 
