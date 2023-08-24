@@ -158,6 +158,9 @@ export class ChatGateway implements OnModuleInit {
   async onLeaveChat(@MessageBody() info: ReceivedInfoDto) {
     try {
       info.userID = await this.checkIdentity(info.token);
+      info.username = (
+        await this.userService.fetchUserByID(info.userID)
+      ).username;
       await this.chatsService.removeParticipantFromChatByUsername({
         userID: info.userID,
         chatRoomID: info.chatRoomID,
