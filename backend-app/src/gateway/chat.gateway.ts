@@ -163,7 +163,7 @@ export class ChatGateway implements OnModuleInit {
       info.username = (
         await this.userService.fetchUserByID(info.userID)
       ).username;
-      await this.chatsService.removeParticipantFromChatByUsername({
+      await this.leaveChatRoom({
         userID: info.userID,
         chatRoomID: info.chatRoomID,
       });
@@ -706,5 +706,22 @@ export class ChatGateway implements OnModuleInit {
 
     await this.checkUserIsOwner(user);
     await this.chatsService.deleteChatByID(chat.id);
+  }
+
+  private async leaveChatRoom(info: UserChatInfo) {
+    const chat = await this.chatsService.fetchChatByID(info.chatRoomID);
+    if (!chat) {
+      throw new ChatNotFoundError(
+        `Cannot leave chat room ${info.chatRoomID}: does not exist.`,
+      );
+    }
+    await this.chatsService.removeParticipantFromChatByUsername({
+      userID: info.userID,
+      chatRoomID: info.chatRoomID,
+    });
+    const chat = await this.chatsService.fetchChatByID(info.chatRoomID);
+    if (chat.participants.length === 0) {
+      await this.chatsService.deleteChatByID(chat.id);
+    }
   }
 }
