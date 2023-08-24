@@ -103,7 +103,7 @@ export const SidePannel = (
           }}
           className={classname}
         >
-          {unreadMessages > 0 && <p>{unreadMessages}</p>}
+          {/*unreadMessages > 0 && <p>{unreadMessages}</p>*/}
           {channel_alias}
           <button
             value={channel.chatRoomID}
