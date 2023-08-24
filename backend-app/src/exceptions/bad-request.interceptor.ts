@@ -37,4 +37,3 @@ export class BadRequestInterceptor implements NestInterceptor {
     );
   }
 }
-

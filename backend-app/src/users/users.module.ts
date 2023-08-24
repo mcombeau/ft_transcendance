@@ -12,8 +12,6 @@ import { PasswordModule } from 'src/password/password.module';
   ],
   controllers: [UsersController],
   providers: [UsersService],
-  exports: [UsersService]
+  exports: [UsersService],
 })
-export class UsersModule {
-  
-}
+export class UsersModule {}

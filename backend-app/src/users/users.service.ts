@@ -1,13 +1,12 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { NotFoundError } from 'rxjs';
 import { ChatEntity } from 'src/chats/entities/chat.entity';
 import { UserNotFoundError } from 'src/exceptions/not-found.interceptor';
 import { PasswordService } from 'src/password/password.service';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { createUserParams } from 'src/users/utils/types';
 import { updateUserParams } from 'src/users/utils/types';
-import { ChangeStreamCollModDocument, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UsersService {
@@ -73,7 +72,7 @@ export class UsersService {
         throw new UserNotFoundError();
       });
 
-    var userChatRooms: ChatEntity[] = [];
+    const userChatRooms: ChatEntity[] = [];
     for (const e of user.chatRooms) {
       userChatRooms.push(e.chatRoom);
     }
@@ -86,7 +85,7 @@ export class UsersService {
       where: { id },
       relations: ['chatRooms.chatRoom'],
     });
-    var userDMRooms: ChatEntity[] = [];
+    const userDMRooms: ChatEntity[] = [];
     for (const e of user.chatRooms) {
       if (e.chatRoom.directMessage === true) {
         userDMRooms.push(e.chatRoom);

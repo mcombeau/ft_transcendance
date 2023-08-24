@@ -8,6 +8,6 @@ import { GameEntity } from 'src/games/entities/game.entity';
   imports: [TypeOrmModule.forFeature([GameEntity])],
   controllers: [GamesController],
   providers: [GamesService],
-  exports: [GamesService]
+  exports: [GamesService],
 })
 export class GamesModule {}

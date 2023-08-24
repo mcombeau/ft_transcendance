@@ -1,5 +1,3 @@
-import { ApiProperty } from '@nestjs/swagger';
-
 export type createChatParams = {
   name: string;
   ownerID?: number;

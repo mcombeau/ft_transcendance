@@ -64,4 +64,3 @@ export class ReceivedInfoDto {
   @IsNumber()
   inviteDate?: number;
 }
-

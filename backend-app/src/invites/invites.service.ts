@@ -88,9 +88,7 @@ export class InvitesService {
   }
 
   private async createChatInvite(inviteDetails: inviteParams) {
-    const sender = await this.userService.fetchUserByID(
-      inviteDetails.senderID,
-    );
+    const sender = await this.userService.fetchUserByID(inviteDetails.senderID);
     const invitedUser = await this.userService.fetchUserByID(
       inviteDetails.invitedUserID,
     );
@@ -102,11 +100,11 @@ export class InvitesService {
       throw new InviteCreationError('invalid parameters for invite creation.');
     }
 
-    var inviteExpiry = new Date(
+    const inviteExpiry = new Date(
       Date.now() + 1 * (60 * 60 * 1000), // time + 1 hour
     ).getTime();
 
-    var invite = await this.inviteRepository.findOne({
+    const invite = await this.inviteRepository.findOne({
       where: {
         inviteSender: sender,
         invitedUser: invitedUser,

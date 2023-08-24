@@ -1,4 +1,4 @@
-import { Module, ParseIntPipe } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -36,7 +36,7 @@ import { InvitesModule } from './invites/invites.module';
         ChatParticipantEntity,
         FriendEntity,
         GameEntity,
-        InviteEntity
+        InviteEntity,
       ],
       synchronize: true,
     }),
@@ -48,7 +48,7 @@ import { InvitesModule } from './invites/invites.module';
     AuthModule,
     ChatMessagesModule,
     ChatParticipantsModule,
-    InvitesModule
+    InvitesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

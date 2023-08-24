@@ -2,7 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatParticipantEntity } from 'src/chat-participants/entities/chat-participant.entity';
 import { Repository } from 'typeorm';
-import { createParticipantParams, updateParticipantParams, UserChatInfo } from './utils/types';
+import {
+  createParticipantParams,
+  updateParticipantParams,
+  UserChatInfo,
+} from './utils/types';
 
 @Injectable()
 export class ChatParticipantsService {
@@ -50,7 +54,7 @@ export class ChatParticipantsService {
       },
       relations: ['chatRoom', 'user'],
     });
-  }  
+  }
 
   async recordAlreadyExists(userID: number, chatRoomID: number) {
     const foundRecord = await this.participantRepository.find({
@@ -79,9 +83,13 @@ export class ChatParticipantsService {
       user: { id: participantDetails.userID },
       chatRoom: { id: participantDetails.chatRoomID },
       owner: participantDetails.owner ? participantDetails.owner : false,
-      operator: participantDetails.operator ? participantDetails.operator : false,
+      operator: participantDetails.operator
+        ? participantDetails.operator
+        : false,
       banned: participantDetails.banned ? participantDetails.banned : false,
-      mutedUntil: participantDetails.mutedUntil ? participantDetails.mutedUntil : 0,
+      mutedUntil: participantDetails.mutedUntil
+        ? participantDetails.mutedUntil
+        : 0,
     });
     return this.participantRepository.save(newParticipant);
   }

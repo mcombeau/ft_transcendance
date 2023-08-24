@@ -1,11 +1,4 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  OneToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { ChatEntity } from '../../chats/entities/chat.entity';
 import { UserEntity } from '../../users/entities/user.entity';
 import { ApiProperty } from '@nestjs/swagger';

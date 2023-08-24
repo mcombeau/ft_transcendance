@@ -6,32 +6,32 @@ import { createGameParams, updateGameParams } from './utils/types';
 
 @Injectable()
 export class GamesService {
-    constructor(
-        @InjectRepository(GameEntity)
-        private gameRepository: Repository<GameEntity>,
-    ) {}
+  constructor(
+    @InjectRepository(GameEntity)
+    private gameRepository: Repository<GameEntity>,
+  ) {}
 
-    fetchGames() {
-        return this.gameRepository.find();
-    }
+  fetchGames() {
+    return this.gameRepository.find();
+  }
 
-    async createGame(gameDetails: createGameParams) {
-        const newGame = this.gameRepository.create({
-            ...gameDetails,
-            createdAt: new Date(),
-        });
-        return this.gameRepository.save(newGame);
-    }
+  async createGame(gameDetails: createGameParams) {
+    const newGame = this.gameRepository.create({
+      ...gameDetails,
+      createdAt: new Date(),
+    });
+    return this.gameRepository.save(newGame);
+  }
 
-    fetchGameByID(id: number) {
-        return this.gameRepository.findOne({ where: { id }});
-    }
+  fetchGameByID(id: number) {
+    return this.gameRepository.findOne({ where: { id } });
+  }
 
-    updateGameByID(id: number, gameDetails: updateGameParams) {
-        return this.gameRepository.update( { id },  { ...gameDetails });
-    }
+  updateGameByID(id: number, gameDetails: updateGameParams) {
+    return this.gameRepository.update({ id }, { ...gameDetails });
+  }
 
-    deleteGameByID(id: number) {
-        return this.gameRepository.delete({ id });
-    }
+  deleteGameByID(id: number) {
+    return this.gameRepository.delete({ id });
+  }
 }

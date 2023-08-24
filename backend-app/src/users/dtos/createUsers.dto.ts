@@ -35,4 +35,3 @@ export class createUsersDto {
   @IsEmail()
   email: string;
 }
-

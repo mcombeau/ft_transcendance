@@ -69,7 +69,7 @@ export class ChatGateway implements OnModuleInit {
 
   // -------------------- EVENTS
   async checkIdentity(token: string) {
-    var isVerified = await this.authService
+    const isVerified = await this.authService
       .validateToken(token)
       .catch(() => {
         return false;
@@ -95,7 +95,7 @@ export class ChatGateway implements OnModuleInit {
       info.chatRoomID = chat.id;
       this.server.emit('add chat', info);
     } catch (e) {
-      var err_msg = '[Chat Gateway]: Chat creation error:' + e.message;
+      const err_msg = '[Chat Gateway]: Chat creation error:' + e.message;
       console.log(err_msg);
       this.server.emit('error', err_msg);
     }
@@ -115,7 +115,7 @@ export class ChatGateway implements OnModuleInit {
       info.username = user2.username;
       this.server.emit('dm', info);
     } catch (e) {
-      var err_msg = '[Chat Gateway]: DM creation error:' + e.message;
+      const err_msg = '[Chat Gateway]: DM creation error:' + e.message;
       console.log(err_msg);
       this.server.emit('error', err_msg);
     }
@@ -129,7 +129,7 @@ export class ChatGateway implements OnModuleInit {
       this.deleteChatRoom({ userID: info.userID, chatRoomID: info.chatRoomID });
       this.server.emit('delete chat', info);
     } catch (e) {
-      var err_msg = '[Chat Gateway]: Chat deletion error:' + e.message;
+      const err_msg = '[Chat Gateway]: Chat deletion error:' + e.message;
       console.log(err_msg);
       this.server.emit('error', err_msg);
     }
@@ -148,7 +148,7 @@ export class ChatGateway implements OnModuleInit {
       info.username = user.username;
       this.server.emit('join chat', info);
     } catch (e) {
-      var err_msg = '[Chat Gateway]: Chat join error:' + e.message;
+      const err_msg = '[Chat Gateway]: Chat join error:' + e.message;
       console.log(err_msg);
       this.server.emit('error', err_msg);
     }
@@ -164,7 +164,7 @@ export class ChatGateway implements OnModuleInit {
       });
       this.server.emit('leave chat', info);
     } catch (e) {
-      var err_msg = '[Chat Gateway]: Chat leave error:' + e.message;
+      const err_msg = '[Chat Gateway]: Chat leave error:' + e.message;
       console.log(err_msg);
       this.server.emit(err_msg);
     }
@@ -174,18 +174,18 @@ export class ChatGateway implements OnModuleInit {
   async onChatMessage(@MessageBody() info: ReceivedInfoDto) {
     console.log('[Chat Gateway]: Sending chat message');
     try {
-      var userID = await this.checkIdentity(info.token);
+      const userID = await this.checkIdentity(info.token);
       info.userID = userID;
       info.messageInfo.senderID = userID;
       info.messageInfo.chatRoomID = info.chatRoomID;
       console.log('SENDERID: ', info.userID);
-      var user = await this.userService.fetchUserByID(info.userID);
+      const user = await this.userService.fetchUserByID(info.userID);
       console.log('SENDER: ', user);
       info.username = user.username;
       await this.registerChatMessage(info.messageInfo);
       this.server.emit('chat message', info);
     } catch (e) {
-      var err_msg =
+      const err_msg =
         '[Chat Gateway]: Chat message registration error:' + e.message;
       console.log(err_msg);
       this.server.emit(err_msg);
@@ -207,7 +207,7 @@ export class ChatGateway implements OnModuleInit {
       );
       this.server.emit('mute', info);
     } catch (e) {
-      var err_msg = '[Chat Gateway]: User mute error:' + e.message;
+      const err_msg = '[Chat Gateway]: User mute error:' + e.message;
       console.log(err_msg);
       this.server.emit(err_msg);
     }
@@ -221,7 +221,7 @@ export class ChatGateway implements OnModuleInit {
       info.username = (
         await this.userService.fetchUserByID(info.userID)
       ).username;
-      var chat = await this.chatsService.fetchChatByID(info.chatRoomID);
+      const chat = await this.chatsService.fetchChatByID(info.chatRoomID);
       info = {
         ...info,
         chatInfo: {
@@ -235,7 +235,7 @@ export class ChatGateway implements OnModuleInit {
 
       this.server.emit('toggle private', info);
     } catch (e) {
-      var err_msg = '[Chat Gateway]: Chat privacy toggle error:' + e.message;
+      const err_msg = '[Chat Gateway]: Chat privacy toggle error:' + e.message;
       console.log(err_msg);
       this.server.emit(err_msg);
     }
@@ -248,7 +248,7 @@ export class ChatGateway implements OnModuleInit {
       info.username = (
         await this.userService.fetchUserByID(info.targetID)
       ).username;
-      var inviteExpiry = await this.inviteUser({
+      const inviteExpiry = await this.inviteUser({
         userID: info.userID,
         targetID: info.targetID,
         chatRoomID: info.chatRoomID,
@@ -256,7 +256,7 @@ export class ChatGateway implements OnModuleInit {
       info.inviteDate = inviteExpiry;
       this.server.emit('invite', info);
     } catch (e) {
-      var err_msg = '[Chat Gateway]: Chat invite error:' + e.message;
+      const err_msg = '[Chat Gateway]: Chat invite error:' + e.message;
       console.log(err_msg);
       this.server.emit(err_msg);
     }
@@ -274,7 +274,7 @@ export class ChatGateway implements OnModuleInit {
       });
       this.server.emit('accept invite', info);
     } catch (e) {
-      var err_msg = '[Chat Gateway]: Chat accept invite error:' + e.message;
+      const err_msg = '[Chat Gateway]: Chat accept invite error:' + e.message;
       console.log(err_msg);
       this.server.emit(err_msg);
     }
@@ -284,14 +284,14 @@ export class ChatGateway implements OnModuleInit {
   async onMakeOperator(@MessageBody() info: ReceivedInfoDto) {
     try {
       info.userID = await this.checkIdentity(info.token);
-      var user = await this.userService.fetchUserByID(info.targetID);
+      const user = await this.userService.fetchUserByID(info.targetID);
       info.username = user.username;
       await this.toggleOperator({
         userID: info.userID,
         targetID: info.targetID,
         chatRoomID: info.chatRoomID,
       });
-      var participant = await this.getParticipant({
+      const participant = await this.getParticipant({
         userID: info.targetID,
         chatRoomID: info.chatRoomID,
       });
@@ -321,7 +321,7 @@ export class ChatGateway implements OnModuleInit {
       });
       this.server.emit('ban', info);
     } catch (e) {
-      var err_msg = '[Chat Gateway]: User ban error:' + e.message;
+      const err_msg = '[Chat Gateway]: User ban error:' + e.message;
       console.log(err_msg);
       this.server.emit(err_msg);
     }
@@ -341,7 +341,7 @@ export class ChatGateway implements OnModuleInit {
       });
       this.server.emit('kick', info);
     } catch (e) {
-      var err_msg = '[Chat Gateway]: User kick error:' + e.message;
+      const err_msg = '[Chat Gateway]: User kick error:' + e.message;
       console.log(err_msg);
       this.server.emit(err_msg);
     }
@@ -544,8 +544,9 @@ export class ChatGateway implements OnModuleInit {
     await this.checkUserIsNotOperator(target);
     await this.checkUserIsNotBanned(target);
 
+    let newMutedTimestamp = 0;
     if (user.mutedUntil > new Date().getTime()) {
-      var newMutedTimestamp = new Date().getTime();
+      newMutedTimestamp = new Date().getTime();
     } else {
       newMutedTimestamp = new Date(
         Date.now() + minutes * (60 * 1000),
@@ -573,10 +574,6 @@ export class ChatGateway implements OnModuleInit {
 
     this.chatParticipantsService.updateParticipantByID(target.id, {
       operator: !target.operator,
-    });
-    const post_user = await this.getParticipant({
-      chatRoomID: info.chatRoomID,
-      userID: info.targetID,
     });
   }
 
@@ -631,11 +628,11 @@ export class ChatGateway implements OnModuleInit {
       isPrivate: !chatRoom.isPrivate,
     });
     console.log('HERE');
-    var updatedChatRoom = await this.chatsService.fetchChatByID(
+    const updatedChatRoom = await this.chatsService.fetchChatByID(
       info.chatRoomID,
     );
     console.log('HERE', updatedChatRoom);
-    var isPrivate = updatedChatRoom.isPrivate;
+    const isPrivate = updatedChatRoom.isPrivate;
     console.log('HERE', isPrivate);
     return isPrivate;
   }
@@ -651,7 +648,7 @@ export class ChatGateway implements OnModuleInit {
       );
     }
 
-    var target =
+    const target =
       await this.chatParticipantsService.fetchParticipantByUserChatID({
         userID: info.targetID,
         chatRoomID: info.chatRoomID,

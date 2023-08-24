@@ -20,7 +20,7 @@ export class ChatMessagesService {
   ) {}
 
   async fetchMessages() {
-    var msg = await this.chatMessagesRepository.find({
+    const msg = await this.chatMessagesRepository.find({
       relations: ['chatRoom', 'sender'],
     });
     console.log('In chatmessage service: ', msg);
