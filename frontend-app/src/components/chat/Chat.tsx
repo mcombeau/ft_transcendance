@@ -379,6 +379,7 @@ export const Chat = () => {
             chan.participants.map((p: User) => {
               if (p.userID === info.targetID) {
                 p.isOperator = info.participantInfo.operator;
+                console.log("isoperator", p.isOperator);
                 if (p.isOperator) {
                   serviceAnnouncement(
                     `${info.username} is now a channel admin.`,

@@ -284,14 +284,23 @@ export class ChatGateway implements OnModuleInit {
   async onMakeOperator(@MessageBody() info: ReceivedInfoDto) {
     try {
       info.userID = await this.checkIdentity(info.token);
-      info.username = (
-        await this.userService.fetchUserByID(info.targetID)
-      ).username;
+      var user = await this.userService.fetchUserByID(info.targetID);
+      info.username = user.username;
       await this.toggleOperator({
         userID: info.userID,
         targetID: info.targetID,
         chatRoomID: info.chatRoomID,
       });
+      var participant = await this.getParticipant({
+        userID: info.targetID,
+        chatRoomID: info.chatRoomID,
+      });
+      info = {
+        ...info,
+        participantInfo: {
+          operator: participant.operator,
+        },
+      };
       this.server.emit('operator', info);
     } catch (e) {
       console.log('[Chat Gateway]: Operator promotion error:', e.message);
@@ -564,6 +573,10 @@ export class ChatGateway implements OnModuleInit {
 
     this.chatParticipantsService.updateParticipantByID(target.id, {
       operator: !target.operator,
+    });
+    const post_user = await this.getParticipant({
+      chatRoomID: info.chatRoomID,
+      userID: info.targetID,
     });
   }
 
