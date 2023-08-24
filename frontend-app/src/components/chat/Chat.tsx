@@ -478,7 +478,7 @@ export const Chat = () => {
           var chan: ChatRoom = {
             chatRoomID: e.id,
             name: e.name,
-            isPrivate: e.private,
+            isPrivate: e.isPrivate,
             ownerID: e.directMessage
               ? null
               : participant_list.find((u: User) => u.isOwner).userID,

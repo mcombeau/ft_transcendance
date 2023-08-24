@@ -1,6 +1,5 @@
 Cest cassé:
 
-- dm send user2 username
 - not leave dm
 	- front
 	- back
