@@ -32,6 +32,8 @@ export const SettingsMenu = (
         Leave channel
       </button>
     );
+    // if (settings && currentChatRoom && currentChatRoom.isDM)
+    //   var leave_button = <br></br>;
     if (checkStatus(currentChatRoom, getUserID(cookies)) == Status.Owner) {
       leave_button = (
         <button

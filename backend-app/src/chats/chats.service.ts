@@ -66,6 +66,7 @@ export class ChatsService {
   }
 
   async createChat(chatDetails: createChatParams) {
+    const user = await this.userService.fetchUserByID(chatDetails.ownerID);
     if (chatDetails.name.startsWith('DM:')) {
       throw new ChatCreationError(
         `'${chatDetails.name}': Chat name cannot start with "DM:"`,
@@ -74,6 +75,7 @@ export class ChatsService {
     const passwordHash = await this.passwordService.hashPassword(
       chatDetails.password,
     );
+    console.log('Chat details', chatDetails);
     const newChat = this.chatRepository.create({
       name: chatDetails.name,
       password: passwordHash,
@@ -86,6 +88,22 @@ export class ChatsService {
       .catch((err: any) => {
         throw new ChatCreationError(`'${chatDetails.name}': ${err.message}`);
       });
+
+    await this.chatParticipantService
+      .createChatParticipant({
+        userID: user.id,
+        chatRoomID: newSavedChat.id,
+        owner: true,
+        operator: true,
+        banned: false,
+        mutedUntil: new Date().getTime(),
+      })
+      .catch((err: any) => {
+        this.deleteChatByID(newSavedChat.id);
+        throw new ChatCreationError(`'ownerID: ${user.id}': ${err.message}`);
+      });
+
+    console.log('New saved chat', newSavedChat);
     return newSavedChat;
   }
 
