@@ -709,7 +709,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   private async leaveChatRoom(info: UserChatInfo) {
-    const chat = await this.chatsService.fetchChatByID(info.chatRoomID);
+    let chat = await this.chatsService.fetchChatByID(info.chatRoomID);
     if (!chat) {
       throw new ChatNotFoundError(
         `Cannot leave chat room ${info.chatRoomID}: does not exist.`,
@@ -719,7 +719,7 @@ export class ChatGateway implements OnModuleInit {
       userID: info.userID,
       chatRoomID: info.chatRoomID,
     });
-    const chat = await this.chatsService.fetchChatByID(info.chatRoomID);
+    chat = await this.chatsService.fetchChatByID(info.chatRoomID);
     if (chat.participants.length === 0) {
       await this.chatsService.deleteChatByID(chat.id);
     }
