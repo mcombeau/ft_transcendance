@@ -1,19 +1,16 @@
 Cest cassé:
-- la page profile -> fetch
-- fetch chat publics + les siens
+
 - dm send user2 username
+- not leave dm
+	- front
+	- back
+- refacto chats/users -> recoit que relevant
+	- fetch chat publics + les siens
 - invitations
 
 username protect everything = maybe override sender ?
 
 - set current channel at channel creation
-
-- fix user is undefined
-- join is not written in backend
-- see who receives what
-- fix messages disappearing for some unnamed reason
-- fix read
-
 
 - deal with dms duplicate
 - invites

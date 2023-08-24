@@ -412,25 +412,23 @@ export const Chat = () => {
 
     socket.on("dm", (info: ReceivedInfo) => {
       console.log(info);
-      // TODO : fix with gateway usernames
-      var userIsTarget = info.targetID === getUserID(cookies);
       var user1: User = {
-        userID: getUserID(cookies),
-        username: getUsername(cookies),
-        isOwner: false,
-        isOperator: false,
-        isBanned: false,
-        mutedUntil: new Date().getTime(),
-        invitedUntil: 0, // TODO: replace all the 0 with null
-      };
-      var user2: User = {
-        userID: userIsTarget ? info.userID : info.targetID,
+        userID: info.userID,
         username: info.username,
         isOwner: false,
         isOperator: false,
         isBanned: false,
         mutedUntil: new Date().getTime(),
-        invitedUntil: 0,
+        invitedUntil: null,
+      };
+      var user2: User = {
+        userID: info.targetID,
+        username: info.username2,
+        isOwner: false,
+        isOperator: false,
+        isBanned: false,
+        mutedUntil: new Date().getTime(),
+        invitedUntil: null,
       };
       var channel: ChatRoom = {
         chatRoomID: info.chatRoomID,

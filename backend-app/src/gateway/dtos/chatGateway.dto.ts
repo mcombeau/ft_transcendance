@@ -31,6 +31,11 @@ export class ReceivedInfoDto {
 
   @ApiProperty()
   @IsOptional()
+  @IsAlphanumeric()
+  username2?: string;
+
+  @ApiProperty()
+  @IsOptional()
   @IsInt()
   @IsPositive()
   targetID?: number;

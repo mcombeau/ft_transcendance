@@ -47,7 +47,7 @@ export const Messages = (
           <span
             id="sender"
             onClick={() => {
-              navigate("/user/" + msg.senderUsername);
+              navigate("/user/" + msg.senderUsername); // TODO: create front profile page and go there
             }}
           >
             {msg.senderUsername}

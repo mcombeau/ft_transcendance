@@ -110,9 +110,11 @@ export class ChatGateway implements OnModuleInit {
         userID1: info.userID,
         userID2: info.targetID,
       });
+      const user1 = await this.userService.fetchUserByID(info.userID);
       const user2 = await this.userService.fetchUserByID(info.targetID);
       info.chatRoomID = chat.id;
-      info.username = user2.username;
+      info.username = user1.username;
+      info.username2 = user2.username;
       this.server.emit('dm', info);
     } catch (e) {
       const err_msg = '[Chat Gateway]: DM creation error:' + e.message;
