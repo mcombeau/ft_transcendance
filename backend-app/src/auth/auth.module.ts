@@ -19,7 +19,7 @@ import { school42Strategy } from './strategies/school42.strategy';
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
       secret: jwtConstants.secret, // Replace with your own secret key for signing the token
-      signOptions: { expiresIn: '1h' }, // Token expires in 1 hour
+      signOptions: { expiresIn: '24h' }, // Token expires in 1 hour
     }),
   ],
   controllers: [AuthController],
