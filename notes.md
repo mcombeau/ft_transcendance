@@ -1,8 +1,5 @@
 Cest cassé:
 
-- not leave dm
-	- front
-	- back
 - refacto chats/users -> recoit que relevant
 	- fetch chat publics + les siens
 - invitations
