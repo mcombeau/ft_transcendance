@@ -103,16 +103,16 @@ export const SidePannel = (
           }}
           className={classname}
         >
-          {unreadMessages > 0 && <p>{unreadMessages}</p>}
+          {/*unreadMessages > 0 && <p>{unreadMessages}</p>*/}
           {channel_alias}
           <button
-            value={channel.name}
+            value={channel.chatRoomID}
             onClick={(e) => {
+              setSettings(!settings);
               setCurrentChatRoomID(
                 parseInt((e.target as HTMLInputElement).getAttribute("value"))
               );
               setInvitesPannel(false);
-              setSettings(!settings);
               setContextMenu(false);
             }}
           >
