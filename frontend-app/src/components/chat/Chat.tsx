@@ -22,6 +22,16 @@ import {
   typeInvite,
 } from "./types";
 
+export function isInChannel(
+  userID: number,
+  chatRoomID: number,
+  chatRooms: ChatRoom[]
+): boolean {
+  return chatRooms
+    .find((chatRoom) => chatRoom.chatRoomID === chatRoomID)
+    .participants.some((user) => user.userID === userID);
+}
+
 export function checkStatus(channel: ChatRoom, userID: number): Status {
   if (!channel) return Status.Normal;
   var user = channel.participants.find((p) => p.userID === userID); //TODO: maybe add some error management
