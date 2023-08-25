@@ -75,6 +75,16 @@ export class ChatsController {
     return this.chatService.fetchChats();
   }
 
+  @Get('public')
+  @ApiOkResponse({
+    type: ChatEntity,
+    isArray: true,
+    description: 'Get public chats.',
+  })
+  getPublicChats() {
+    return this.chatService.fetchPublicChats();
+  }
+
   @Post()
   @ApiCreatedResponse({ type: ChatEntity, description: 'Record created.' })
   @ApiBadRequestResponse({ description: 'Bad request.' })

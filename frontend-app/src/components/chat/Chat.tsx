@@ -453,6 +453,7 @@ export const Chat = () => {
       // Fetching Chats
       fetch(
         //`http://localhost:3001/users/${getUserID(cookies)}/chats`, TODO: change eventually
+        //`http://localhost:3001/chats/public`, TODO: change eventually
         `http://localhost:3001/chats`,
         request
       ).then(async (response) => {

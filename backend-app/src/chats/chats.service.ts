@@ -42,14 +42,12 @@ export class ChatsService {
   fetchPublicChats() {
     return this.chatRepository.find({
       where: { isPrivate: false },
-      relations: ['participants.user'],
     });
   }
 
   fetchDMChats() {
     return this.chatRepository.find({
       where: { directMessage: true },
-      relations: ['participants.user'],
     });
   }
 
