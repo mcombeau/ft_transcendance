@@ -474,12 +474,12 @@ export const Chat = () => {
             }
             var participants = participant_data.map((user: any) => {
               var newUser: User = {
-                userID: user.user.id,
-                username: user.user.username,
-                isOwner: user.owner,
-                isOperator: user.operator,
-                isBanned: user.banned,
-                mutedUntil: user.mutedUntil,
+                userID: user.id,
+                username: user.username,
+                isOwner: user.isOwner,
+                isOperator: user.isOperator,
+                isBanned: user.isBanned,
+                mutedUntil: user.isMutedUntil,
                 invitedUntil: null,
               };
               return newUser;

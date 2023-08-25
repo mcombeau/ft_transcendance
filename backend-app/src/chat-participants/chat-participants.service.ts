@@ -7,6 +7,7 @@ import {
   updateParticipantParams,
   UserChatInfo,
 } from './utils/types';
+import { sendParticipantDto } from './dtos/createChatParticipant.dto';
 
 @Injectable()
 export class ChatParticipantsService {
@@ -14,6 +15,25 @@ export class ChatParticipantsService {
     @InjectRepository(ChatParticipantEntity)
     private participantRepository: Repository<ChatParticipantEntity>,
   ) {}
+
+  private formatParticipantForSending(participant: ChatParticipantEntity) {
+    const sendParticipant: sendParticipantDto = {
+      userID: participant.user.id,
+      username: participant.user.username,
+      chatRoomID: participant.chatRoom.id,
+      isOwner: participant.owner,
+      isOperator: participant.operator,
+      IsBanned: participant.banned,
+      isMutedUntil: participant.mutedUntil,
+    };
+    return sendParticipant;
+  }
+
+  private formatParticipantArrayForSending(
+    participants: ChatParticipantEntity[],
+  ) {
+    return participants.map(this.formatParticipantForSending);
+  }
 
   fetchParticipants() {
     return this.participantRepository.find({
@@ -28,13 +48,14 @@ export class ChatParticipantsService {
     });
   }
 
-  fetchParticipantsByChatID(id: number) {
-    return this.participantRepository.find({
+  async fetchParticipantsByChatID(id: number) {
+    const participant = await this.participantRepository.find({
       where: {
         chatRoom: { id: id },
       },
       relations: ['chatRoom', 'user'],
     });
+    return this.formatParticipantArrayForSending(participant);
   }
 
   fetchParticipantsByUserID(id: number) {

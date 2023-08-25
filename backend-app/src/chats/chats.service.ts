@@ -16,6 +16,7 @@ import { ChatFetchError } from 'src/exceptions/bad-request.exception';
 import { UserChatInfo } from 'src/chat-participants/utils/types';
 import { PasswordService } from 'src/password/password.service';
 import { ChatParticipantEntity } from 'src/chat-participants/entities/chat-participant.entity';
+import { sendParticipantDto } from 'src/chat-participants/dtos/createChatParticipant.dto';
 
 @Injectable()
 export class ChatsService {
@@ -30,6 +31,8 @@ export class ChatsService {
     private userService: UsersService,
     @Inject(forwardRef(() => PasswordService))
     private passwordService: PasswordService,
+    @Inject(forwardRef(() => ChatParticipantsService))
+    private participantService: ChatParticipantsService,
   ) {}
 
   fetchChats() {
@@ -173,14 +176,10 @@ export class ChatsService {
     });
   }
 
-  async fetchChatParticipantsByID(
-    id: number,
-  ): Promise<ChatParticipantEntity[]> {
-    const chat = await this.chatRepository.findOne({
-      where: { id },
-      relations: ['messages', 'participants.user'],
-    });
-    return chat.participants;
+  async fetchChatParticipantsByID(id: number): Promise<sendParticipantDto[]> {
+    const participants =
+      await this.participantService.fetchParticipantsByChatID(id);
+    return participants;
   }
 
   fetchChatByName(name: string) {

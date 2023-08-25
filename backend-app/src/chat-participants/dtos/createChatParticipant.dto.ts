@@ -36,3 +36,26 @@ export class createParticipantDto {
   @IsNumber()
   mutedUntil: number;
 }
+
+export class sendParticipantDto {
+  @ApiProperty()
+  userID: number;
+
+  @ApiProperty()
+  username: string;
+
+  @ApiProperty()
+  chatRoomID: number;
+
+  @ApiProperty()
+  isOwner: boolean;
+
+  @ApiProperty()
+  isOperator: boolean;
+
+  @ApiProperty()
+  IsBanned: boolean;
+
+  @ApiProperty()
+  isMutedUntil: number;
+}
