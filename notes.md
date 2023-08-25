@@ -1,5 +1,3 @@
-Cest cassé:
-
 - refacto chats/users -> recoit que relevant
 	- fetch chat publics + les siens
 - invitations
@@ -30,3 +28,5 @@ username protect everything = maybe override sender ?
 - pretty navbar login/logout/profile
 
 - mot de passe update
+
+- change police chat

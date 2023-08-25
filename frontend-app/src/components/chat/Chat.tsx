@@ -82,6 +82,50 @@ export function getChatRoomIDFromName(
   }).chatRoomID;
 }
 
+export async function formatChatData(chatRoom: any, request: any) {
+  var participant_list = await fetch(
+    `http://localhost:3001/chats/${chatRoom.id}/participants`,
+    request
+  ).then(async (response) => {
+    const participant_data = await response.json();
+    if (!response.ok) {
+      console.log("error response load participants");
+      return null;
+    }
+    var participants = participant_data.map((user: any) => {
+      var newUser: User = {
+        userID: user.id,
+        username: user.username,
+        isOwner: user.isOwner,
+        isOperator: user.isOperator,
+        isBanned: user.isBanned,
+        mutedUntil: user.isMutedUntil,
+        invitedUntil: null,
+      };
+      return newUser;
+    });
+    return participants;
+  });
+  if (participant_list === null) return;
+  var chan: ChatRoom = {
+    chatRoomID: chatRoom.id,
+    name: chatRoom.name,
+    isPrivate: chatRoom.isPrivate,
+    ownerID: chatRoom.directMessage
+      ? null
+      : participant_list.find((u: User) => u.isOwner).userID,
+    participants: participant_list.filter(
+      (user: User) => !user.isBanned && user.invitedUntil === null
+    ),
+    banned: participant_list.filter((user: User) => user.isBanned),
+    invited: participant_list.filter(
+      (user: User) => user.invitedUntil !== null
+    ),
+    isDM: chatRoom.directMessage,
+  };
+  return chan;
+}
+
 export const Chat = () => {
   const socket = useContext(WebSocketContext);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -464,46 +508,7 @@ export const Chat = () => {
         }
 
         chat_data.map(async (chatRoom: any) => {
-          var participant_list = await fetch(
-            `http://localhost:3001/chats/${chatRoom.id}/participants`,
-            request
-          ).then(async (response) => {
-            const participant_data = await response.json();
-            if (!response.ok) {
-              console.log("error response load participants");
-              return null;
-            }
-            var participants = participant_data.map((user: any) => {
-              var newUser: User = {
-                userID: user.id,
-                username: user.username,
-                isOwner: user.isOwner,
-                isOperator: user.isOperator,
-                isBanned: user.isBanned,
-                mutedUntil: user.isMutedUntil,
-                invitedUntil: null,
-              };
-              return newUser;
-            });
-            return participants;
-          });
-          if (participant_list === null) return;
-          var chan: ChatRoom = {
-            chatRoomID: chatRoom.id,
-            name: chatRoom.name,
-            isPrivate: chatRoom.isPrivate,
-            ownerID: chatRoom.directMessage
-              ? null
-              : participant_list.find((u: User) => u.isOwner).userID,
-            participants: participant_list.filter(
-              (user: User) => !user.isBanned && user.invitedUntil === null
-            ),
-            banned: participant_list.filter((user: User) => user.isBanned),
-            invited: participant_list.filter(
-              (user: User) => user.invitedUntil !== null
-            ),
-            isDM: chatRoom.directMessage,
-          };
+          var chan = await formatChatData(chatRoom, request);
           setChannels((prev) => [...prev, chan]);
           return chatRoom;
         });
