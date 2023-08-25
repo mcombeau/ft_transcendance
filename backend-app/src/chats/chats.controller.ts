@@ -22,7 +22,7 @@ import {
 import { ChatEntity } from './entities/chat.entity';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { updateChatDto } from './dtos/updateChats.dto';
-import { ChatParticipantEntity } from 'src/chat-participants/entities/chat-participant.entity';
+import { sendParticipantDto } from 'src/chat-participants/dtos/sendChatParticipant.dto';
 
 @Controller('chats')
 @UseGuards(JwtAuthGuard)
@@ -40,7 +40,7 @@ export class ChatsController {
 
   @Get(':id/participants')
   @ApiOkResponse({
-    type: ChatParticipantEntity,
+    type: sendParticipantDto,
     isArray: true,
     description: 'Get chat participants by chat id.',
   })

@@ -11,15 +11,15 @@ export class ChatParticipantEntity {
 
   @ApiProperty()
   @Column({ default: false })
-  owner: boolean;
+  isOwner: boolean;
 
   @ApiProperty()
   @Column({ default: false })
-  operator: boolean;
+  isOperator: boolean;
 
   @ApiProperty()
   @Column({ default: false })
-  banned: boolean;
+  isBanned: boolean;
 
   @ApiProperty()
   @Column({ default: new Date().getTime(), type: 'bigint' })

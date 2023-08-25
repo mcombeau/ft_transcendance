@@ -4,15 +4,15 @@ import { IsBoolean, IsNumber } from 'class-validator';
 export class updateParticipantDto {
   @ApiProperty()
   @IsBoolean()
-  owner?: boolean;
+  isOwner?: boolean;
 
   @ApiProperty()
   @IsBoolean()
-  operator?: boolean;
+  isOperator?: boolean;
 
   @ApiProperty()
   @IsBoolean()
-  banned?: boolean;
+  isBanned?: boolean;
 
   @ApiProperty()
   @IsNumber()

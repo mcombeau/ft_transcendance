@@ -87,7 +87,7 @@ export class UsersService {
     });
     const userDMRooms: ChatEntity[] = [];
     for (const e of user.chatRooms) {
-      if (e.chatRoom.directMessage === true) {
+      if (e.chatRoom.isDirectMessage === true) {
         userDMRooms.push(e.chatRoom);
       }
     }

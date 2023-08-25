@@ -100,7 +100,7 @@ export async function formatChatData(chatRoom: any, request: any) {
         isOwner: user.isOwner,
         isOperator: user.isOperator,
         isBanned: user.isBanned,
-        mutedUntil: user.isMutedUntil,
+        mutedUntil: user.mutedUntil,
         invitedUntil: null,
       };
       return newUser;
@@ -109,11 +109,13 @@ export async function formatChatData(chatRoom: any, request: any) {
     return participants;
   });
   if (participant_list === null) return;
+  console.log("CHAT ROOM DATA", chatRoom);
+  console.log("PARTICIPANT LIST", participant_list);
   var chan: ChatRoom = {
     chatRoomID: chatRoom.id,
     name: chatRoom.name,
     isPrivate: chatRoom.isPrivate,
-    ownerID: chatRoom.directMessage
+    ownerID: chatRoom.isDirectMessage
       ? null
       : participant_list.find((u: User) => u.isOwner).userID,
     participants: participant_list.filter(
@@ -123,7 +125,7 @@ export async function formatChatData(chatRoom: any, request: any) {
     invited: participant_list.filter(
       (user: User) => user.invitedUntil !== null
     ),
-    isDM: chatRoom.directMessage,
+    isDM: chatRoom.isDirectMessage,
   };
   return chan;
 }

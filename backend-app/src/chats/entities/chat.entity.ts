@@ -24,19 +24,19 @@ export class ChatEntity {
 
   @ApiProperty()
   @Column()
-  directMessage: boolean;
+  isDirectMessage: boolean;
 
   @ApiProperty()
   @Column()
   createdAt: Date;
 
-  @ApiProperty({ type: () => ChatMessageEntity, isArray: true })
+  // @ApiProperty({ type: () => ChatMessageEntity, isArray: true })
   @OneToMany(() => ChatMessageEntity, (chatMessage) => chatMessage.chatRoom, {
     nullable: true,
   })
   messages: ChatMessageEntity[];
 
-  @ApiProperty({ type: () => ChatParticipantEntity, isArray: true })
+  // @ApiProperty({ type: () => ChatParticipantEntity, isArray: true })
   @OneToMany(
     () => ChatParticipantEntity,
     (participant) => participant.chatRoom,
@@ -46,7 +46,7 @@ export class ChatEntity {
   )
   participants: ChatParticipantEntity[];
 
-  @ApiProperty({ type: () => InviteEntity, isArray: true })
+  // @ApiProperty({ type: () => InviteEntity, isArray: true })
   @OneToMany(() => InviteEntity, (invite) => invite.chatRoom, {
     nullable: true,
   })

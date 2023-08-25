@@ -7,7 +7,7 @@ import {
   updateParticipantParams,
   UserChatInfo,
 } from './utils/types';
-import { sendParticipantDto } from './dtos/createChatParticipant.dto';
+import { sendParticipantDto } from './dtos/sendChatParticipant.dto';
 
 @Injectable()
 export class ChatParticipantsService {
@@ -21,10 +21,10 @@ export class ChatParticipantsService {
       userID: participant.user.id,
       username: participant.user.username,
       chatRoomID: participant.chatRoom.id,
-      isOwner: participant.owner,
-      isOperator: participant.operator,
-      isBanned: participant.banned,
-      isMutedUntil: participant.mutedUntil,
+      isOwner: participant.isOwner,
+      isOperator: participant.isOperator,
+      isBanned: participant.isBanned,
+      mutedUntil: participant.mutedUntil,
     };
     return sendParticipant;
   }
@@ -103,11 +103,13 @@ export class ChatParticipantsService {
     const newParticipant = this.participantRepository.create({
       user: { id: participantDetails.userID },
       chatRoom: { id: participantDetails.chatRoomID },
-      owner: participantDetails.owner ? participantDetails.owner : false,
-      operator: participantDetails.operator
-        ? participantDetails.operator
+      isOwner: participantDetails.isOwner ? participantDetails.isOwner : false,
+      isOperator: participantDetails.isOperator
+        ? participantDetails.isOperator
         : false,
-      banned: participantDetails.banned ? participantDetails.banned : false,
+      isBanned: participantDetails.isBanned
+        ? participantDetails.isBanned
+        : false,
       mutedUntil: participantDetails.mutedUntil
         ? participantDetails.mutedUntil
         : 0,

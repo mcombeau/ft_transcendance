@@ -15,8 +15,7 @@ import { UsersService } from 'src/users/users.service';
 import { ChatFetchError } from 'src/exceptions/bad-request.exception';
 import { UserChatInfo } from 'src/chat-participants/utils/types';
 import { PasswordService } from 'src/password/password.service';
-import { ChatParticipantEntity } from 'src/chat-participants/entities/chat-participant.entity';
-import { sendParticipantDto } from 'src/chat-participants/dtos/createChatParticipant.dto';
+import { sendParticipantDto } from 'src/chat-participants/dtos/sendChatParticipant.dto';
 
 @Injectable()
 export class ChatsService {
@@ -47,7 +46,7 @@ export class ChatsService {
 
   fetchDMChats() {
     return this.chatRepository.find({
-      where: { directMessage: true },
+      where: { isDirectMessage: true },
     });
   }
 
@@ -80,7 +79,7 @@ export class ChatsService {
       name: chatDetails.name,
       password: passwordHash,
       isPrivate: chatDetails.isPrivate ? chatDetails.isPrivate : false,
-      directMessage: false,
+      isDirectMessage: false,
       createdAt: new Date(),
     });
     const newSavedChat = await this.chatRepository
@@ -93,9 +92,9 @@ export class ChatsService {
       .createChatParticipant({
         userID: user.id,
         chatRoomID: newSavedChat.id,
-        owner: true,
-        operator: true,
-        banned: false,
+        isOwner: true,
+        isOperator: true,
+        isBanned: false,
         mutedUntil: new Date().getTime(),
       })
       .catch((err: any) => {
@@ -142,7 +141,7 @@ export class ChatsService {
       name: this.generateDMName([user1.username, user2.username]),
       password: '',
       isPrivate: true,
-      directMessage: true,
+      isDirectMessage: true,
       createdAt: new Date(),
     });
     const newSavedChat = await this.chatRepository

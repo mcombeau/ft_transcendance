@@ -39,7 +39,7 @@ export class createChatDto {
   @IsOptional()
   @IsNotEmpty()
   @IsBoolean()
-  directMessage?: boolean;
+  isDirectMessage?: boolean;
 }
 
 export class createChatDMDto {

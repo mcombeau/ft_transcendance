@@ -303,7 +303,7 @@ export class ChatGateway implements OnModuleInit {
       info = {
         ...info,
         participantInfo: {
-          operator: participant.operator,
+          isOperator: participant.isOperator,
         },
       };
       this.server.emit('operator', info);
@@ -377,7 +377,7 @@ export class ChatGateway implements OnModuleInit {
         `Unexpected error during owner permission check: participant does not exist.`,
       );
     }
-    if (!user.owner) {
+    if (!user.isOwner) {
       throw new ChatPermissionError(
         `User '${user.user.username}' is not owner of chat '${user.chatRoom.name}'.`,
       );
@@ -390,7 +390,7 @@ export class ChatGateway implements OnModuleInit {
         `Unexpected error during owner permission check: participant does not exist.`,
       );
     }
-    if (user.owner) {
+    if (user.isOwner) {
       throw new ChatPermissionError(
         `User '${user.user.username}' is owner of chat '${user.chatRoom.name}'.`,
       );
@@ -403,7 +403,7 @@ export class ChatGateway implements OnModuleInit {
         `Unexpected error during operator permission check: participant does not exist.`,
       );
     }
-    if (!user.operator && !user.owner) {
+    if (!user.isOperator && !user.isOwner) {
       throw new ChatPermissionError(
         `User '${user.user.username}' does not have operator privileges in chat '${user.chatRoom.name}'.`,
       );
@@ -416,7 +416,7 @@ export class ChatGateway implements OnModuleInit {
         `Unexpected error during operator permission check: participant does not exist.`,
       );
     }
-    if (user.operator || user.owner) {
+    if (user.isOperator || user.isOwner) {
       throw new ChatPermissionError(
         `User '${user.user.username}' is operator of chat '${user.chatRoom.name}'.`,
       );
@@ -429,7 +429,7 @@ export class ChatGateway implements OnModuleInit {
         `Unexpected error during operator permission check: participant does not exist.`,
       );
     }
-    if (user.banned) {
+    if (user.isBanned) {
       throw new ChatPermissionError(
         `User '${user.user.username}' is banned from chat '${user.chatRoom.name}'.`,
       );
@@ -506,7 +506,7 @@ export class ChatGateway implements OnModuleInit {
         `User '${info.userID}' is already in chat '${info.chatRoomID}'.`,
       );
     }
-    if (participant && participant.banned) {
+    if (participant && participant.isBanned) {
       throw new ChatJoinError(
         `User '${info.userID}' is banned from chat '${info.chatRoomID}'.`,
       );
@@ -578,7 +578,7 @@ export class ChatGateway implements OnModuleInit {
     await this.checkUserIsNotBanned(target);
 
     this.chatParticipantsService.updateParticipantByID(target.id, {
-      operator: !target.operator,
+      isOperator: !target.isOperator,
     });
   }
 
@@ -595,11 +595,11 @@ export class ChatGateway implements OnModuleInit {
     await this.checkUserHasOperatorPermissions(user);
     await this.checkUserIsNotOwner(target);
 
-    if (target.banned) {
+    if (target.isBanned) {
       this.chatParticipantsService.deleteParticipantByID(target.id);
     } else {
       this.chatParticipantsService.updateParticipantByID(target.id, {
-        banned: true,
+        isBanned: true,
       });
     }
   }
