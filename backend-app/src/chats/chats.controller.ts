@@ -23,6 +23,7 @@ import { ChatEntity } from './entities/chat.entity';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { updateChatDto } from './dtos/updateChats.dto';
 import { sendParticipantDto } from 'src/chat-participants/dtos/sendChatParticipant.dto';
+import { UpdateResult, DeleteResult } from 'typeorm';
 
 @Controller('chats')
 @UseGuards(JwtAuthGuard)
@@ -32,7 +33,7 @@ export class ChatsController {
 
   @Get(':name')
   @ApiOkResponse({ type: ChatEntity, description: 'Get chat by name.' })
-  async getChatByName(@Param('name') name: string) {
+  async getChatByName(@Param('name') name: string): Promise<ChatEntity> {
     const chat = await this.chatService.fetchChatByName(name);
     if (!chat) throw new ChatNotFoundException(name);
     return chat;
@@ -44,22 +45,17 @@ export class ChatsController {
     isArray: true,
     description: 'Get chat participants by chat id.',
   })
-  async getChatParticipantsByChatRoomID(@Param('id', ParseIntPipe) id: number) {
+  async getChatParticipantsByChatRoomID(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<sendParticipantDto[]> {
     return this.chatService.fetchChatParticipantsByID(id);
-  }
-
-  @Get(':name/usernames')
-  // TODO [mcombeau]: figure out exported type for @apiokresponse
-  async getChatUsersByChatName(@Param('name') name: string) {
-    const participants =
-      await this.chatService.fetchParticipantUsernamesByChatName(name);
-    if (!participants) throw new ChatNotFoundException(name);
-    return participants;
   }
 
   @Get(':id')
   @ApiOkResponse({ type: ChatEntity, description: 'Get chat by ID.' })
-  async getChatByID(@Param('id', ParseIntPipe) id: number) {
+  async getChatByID(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<ChatEntity> {
     const chat = await this.chatService.fetchChatByID(id);
     if (!chat) throw new ChatNotFoundException(id.toString());
     return chat;
@@ -71,7 +67,7 @@ export class ChatsController {
     isArray: true,
     description: 'Get all chats.',
   })
-  getChats() {
+  getChats(): Promise<ChatEntity[]> {
     return this.chatService.fetchChats();
   }
 
@@ -81,7 +77,7 @@ export class ChatsController {
     isArray: true,
     description: 'Get public chats.',
   })
-  getPublicChats() {
+  getPublicChats(): Promise<ChatEntity[]> {
     return this.chatService.fetchPublicChats();
   }
 
@@ -91,7 +87,7 @@ export class ChatsController {
   @ApiUnprocessableEntityResponse({
     description: 'Database error. (Unprocessable entity)',
   })
-  createChat(@Body() chatDto: createChatDto) {
+  createChat(@Body() chatDto: createChatDto): Promise<ChatEntity> {
     return this.chatService.createChat(chatDto);
   }
 
@@ -101,7 +97,7 @@ export class ChatsController {
   @ApiUnprocessableEntityResponse({
     description: 'Database error. (Unprocessable entity)',
   })
-  createDM(@Body() chatDto: createChatDMDto) {
+  createDM(@Body() chatDto: createChatDMDto): Promise<ChatEntity> {
     return this.chatService.createChatDM(chatDto);
   }
 
@@ -114,8 +110,8 @@ export class ChatsController {
   async updateChatByID(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateChatDto: updateChatDto,
-  ) {
-    await this.chatService.updateChatByID(id, updateChatDto);
+  ): Promise<UpdateResult> {
+    return this.chatService.updateChatByID(id, updateChatDto);
   }
 
   @Delete(':id')
@@ -124,7 +120,9 @@ export class ChatsController {
   @ApiUnprocessableEntityResponse({
     description: 'Database error. (Unprocessable entity)',
   })
-  async deleteChatByID(@Param('id', ParseIntPipe) id: number) {
-    await this.chatService.deleteChatByID(id);
+  async deleteChatByID(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<DeleteResult> {
+    return this.chatService.deleteChatByID(id);
   }
 }

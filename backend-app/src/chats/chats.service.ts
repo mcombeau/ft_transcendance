@@ -1,7 +1,7 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatEntity } from 'src/chats/entities/chat.entity';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult, DeleteResult } from 'typeorm';
 import {
   createChatParams,
   createDMParams,
@@ -12,10 +12,10 @@ import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
 import { ChatParticipantsService } from 'src/chat-participants/chat-participants.service';
 import { ChatCreationError } from 'src/exceptions/bad-request.interceptor';
 import { UsersService } from 'src/users/users.service';
-import { ChatFetchError } from 'src/exceptions/bad-request.exception';
 import { UserChatInfo } from 'src/chat-participants/utils/types';
 import { PasswordService } from 'src/password/password.service';
 import { sendParticipantDto } from 'src/chat-participants/dtos/sendChatParticipant.dto';
+import { ChatParticipantEntity } from 'src/chat-participants/entities/chat-participant.entity';
 
 @Injectable()
 export class ChatsService {
@@ -34,37 +34,43 @@ export class ChatsService {
     private participantService: ChatParticipantsService,
   ) {}
 
-  fetchChats() {
+  fetchChats(): Promise<ChatEntity[]> {
     return this.chatRepository.find();
   }
 
-  fetchPublicChats() {
+  fetchPublicChats(): Promise<ChatEntity[]> {
     return this.chatRepository.find({
       where: { isPrivate: false },
     });
   }
 
-  fetchDMChats() {
+  fetchDMChats(): Promise<ChatEntity[]> {
     return this.chatRepository.find({
       where: { isDirectMessage: true },
     });
   }
 
-  async fetchParticipantUsernamesByChatName(chatRoomName: string) {
-    const chat = await this.fetchChatByName(chatRoomName);
-    if (!chat) {
-      throw new ChatFetchError(chatRoomName);
-    }
-    const participantUsernames: participantUsernames[] = [];
-    for (const e of chat.participants) {
-      participantUsernames.push({
-        username: e.user.username,
-      });
-    }
-    return participantUsernames;
+  fetchChatByID(id: number): Promise<ChatEntity> {
+    return this.chatRepository.findOne({
+      where: { id },
+      relations: ['messages', 'participants.user'],
+    });
   }
 
-  async createChat(chatDetails: createChatParams) {
+  fetchChatByName(name: string): Promise<ChatEntity> {
+    return this.chatRepository.findOne({
+      where: { name },
+      relations: ['messages', 'participants.user'],
+    });
+  }
+
+  async fetchChatParticipantsByID(id: number): Promise<sendParticipantDto[]> {
+    const participants =
+      await this.participantService.fetchParticipantsByChatID(id);
+    return participants;
+  }
+
+  async createChat(chatDetails: createChatParams): Promise<ChatEntity> {
     const user = await this.userService.fetchUserByID(chatDetails.ownerID);
     if (chatDetails.name.startsWith('DM:')) {
       throw new ChatCreationError(
@@ -106,7 +112,7 @@ export class ChatsService {
     return newSavedChat;
   }
 
-  private generateDMName(usernames: string[]) {
+  private generateDMName(usernames: string[]): string {
     usernames.sort((a, b) => a.localeCompare(b));
     return 'DM: ' + usernames[0] + ' ' + usernames[1];
   }
@@ -131,7 +137,7 @@ export class ChatsService {
     }
   }
 
-  async createChatDM(chatDetails: createDMParams) {
+  async createChatDM(chatDetails: createDMParams): Promise<ChatEntity> {
     const user1 = await this.userService.fetchUserByID(chatDetails.userID1);
     const user2 = await this.userService.fetchUserByID(chatDetails.userID2);
 
@@ -166,27 +172,10 @@ export class ChatsService {
     return newSavedChat;
   }
 
-  fetchChatByID(id: number) {
-    return this.chatRepository.findOne({
-      where: { id },
-      relations: ['messages', 'participants.user'],
-    });
-  }
-
-  async fetchChatParticipantsByID(id: number): Promise<sendParticipantDto[]> {
-    const participants =
-      await this.participantService.fetchParticipantsByChatID(id);
-    return participants;
-  }
-
-  fetchChatByName(name: string) {
-    return this.chatRepository.findOne({
-      where: { name },
-      relations: ['messages', 'participants.user'],
-    });
-  }
-
-  async updateChatByID(id: number, chatDetails: updateChatParams) {
+  async updateChatByID(
+    id: number,
+    chatDetails: updateChatParams,
+  ): Promise<UpdateResult> {
     const participant = chatDetails['participantID'];
     if (participant !== undefined) {
       this.chatParticipantService.createChatParticipant({
@@ -202,29 +191,22 @@ export class ChatsService {
     return update;
   }
 
-  addParticipantToChatByID(id: number, userID: number) {
-    this.chatParticipantService.createChatParticipant({
-      userID: userID,
-      chatRoomID: id,
-    });
-  }
-
-  async addParticipantToChatByUserChatID(info: UserChatInfo) {
+  async addParticipantToChatByUserChatID(
+    info: UserChatInfo,
+  ): Promise<ChatParticipantEntity> {
     return this.chatParticipantService.createChatParticipant({
       userID: info.userID,
       chatRoomID: info.chatRoomID,
     });
   }
 
-  removeParticipantFromChatByID(info: UserChatInfo) {
-    this.chatParticipantService.deleteParticipantInChatByUserID(info);
+  async removeParticipantFromChatByUsername(
+    info: UserChatInfo,
+  ): Promise<DeleteResult> {
+    return this.chatParticipantService.deleteParticipantInChatByUserID(info);
   }
 
-  async removeParticipantFromChatByUsername(info: UserChatInfo) {
-    this.chatParticipantService.deleteParticipantInChatByUserID(info);
-  }
-
-  async deleteChatByID(id: number) {
+  async deleteChatByID(id: number): Promise<DeleteResult> {
     await this.chatMessageService.deleteMessagesByChatID(id);
     console.log('Delete channel ' + id);
     return this.chatRepository.delete({ id });
