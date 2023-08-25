@@ -92,7 +92,6 @@ export async function formatChatData(chatRoom: any, request: any) {
       console.log("error response load participants");
       return null;
     }
-	console.log("RECEIVED PARTICIPANT DATA", participant_data);
     var participants = participant_data.map((user: any) => {
       var newUser: User = {
         userID: user.userID,
@@ -105,7 +104,6 @@ export async function formatChatData(chatRoom: any, request: any) {
       };
       return newUser;
     });
-	  console.log("SAVED PARTICIPANT INFO", participants);
     return participants;
   });
   if (participant_list === null) return;
