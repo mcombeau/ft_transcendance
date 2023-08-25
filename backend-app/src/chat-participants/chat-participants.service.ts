@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatParticipantEntity } from 'src/chat-participants/entities/chat-participant.entity';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import {
   createParticipantParams,
   updateParticipantParams,
@@ -16,7 +16,9 @@ export class ChatParticipantsService {
     private participantRepository: Repository<ChatParticipantEntity>,
   ) {}
 
-  private formatParticipantForSending(participant: ChatParticipantEntity) {
+  private formatParticipantForSending(
+    participant: ChatParticipantEntity,
+  ): sendParticipantDto {
     const sendParticipant: sendParticipantDto = {
       userID: participant.user.id,
       username: participant.user.username,
@@ -31,18 +33,18 @@ export class ChatParticipantsService {
 
   private formatParticipantArrayForSending(
     participants: ChatParticipantEntity[],
-  ) {
+  ): sendParticipantDto[] {
     return participants.map(this.formatParticipantForSending);
   }
 
-  async fetchParticipants() {
+  async fetchParticipants(): Promise<sendParticipantDto[]> {
     const participants = await this.participantRepository.find({
       relations: ['chatRoom', 'user'],
     });
     return this.formatParticipantArrayForSending(participants);
   }
 
-  async fetchParticipantByID(id: number) {
+  async fetchParticipantByID(id: number): Promise<sendParticipantDto> {
     const participant = await this.participantRepository.findOne({
       where: { id },
       relations: ['chatRoom', 'user'],
@@ -50,7 +52,7 @@ export class ChatParticipantsService {
     return this.formatParticipantForSending(participant);
   }
 
-  async fetchParticipantsByChatID(id: number) {
+  async fetchParticipantsByChatID(id: number): Promise<sendParticipantDto[]> {
     const participants = await this.participantRepository.find({
       where: { chatRoom: { id: id } },
       relations: ['chatRoom', 'user'],
@@ -58,7 +60,7 @@ export class ChatParticipantsService {
     return this.formatParticipantArrayForSending(participants);
   }
 
-  async fetchParticipantsByUserID(id: number) {
+  async fetchParticipantsByUserID(id: number): Promise<sendParticipantDto[]> {
     const participants = await this.participantRepository.find({
       where: { user: { id: id } },
       relations: ['chatRoom', 'user'],
@@ -66,12 +68,16 @@ export class ChatParticipantsService {
     return this.formatParticipantArrayForSending(participants);
   }
 
-  async fetchParticipantByUserChatID(info: UserChatInfo) {
+  async fetchParticipantByUserChatID(
+    info: UserChatInfo,
+  ): Promise<sendParticipantDto> {
     const participant = await this.fetchParticipantEntityByUserChatID(info);
     return this.formatParticipantForSending(participant);
   }
 
-  async fetchParticipantEntityByUserChatID(info: UserChatInfo) {
+  async fetchParticipantEntityByUserChatID(
+    info: UserChatInfo,
+  ): Promise<ChatParticipantEntity> {
     return this.participantRepository.findOne({
       where: {
         user: { id: info.userID },
@@ -81,7 +87,9 @@ export class ChatParticipantsService {
     });
   }
 
-  async createChatParticipant(participantDetails: createParticipantParams) {
+  async createChatParticipant(
+    participantDetails: createParticipantParams,
+  ): Promise<ChatParticipantEntity> {
     const foundRecord = await this.participantRepository.find({
       where: {
         user: { id: participantDetails.userID },
@@ -111,16 +119,18 @@ export class ChatParticipantsService {
   async updateParticipantByID(
     id: number,
     participantDetails: updateParticipantParams,
-  ) {
+  ): Promise<UpdateResult> {
     return this.participantRepository.update({ id }, { ...participantDetails });
   }
 
-  async deleteParticipantInChatByUserID(info: UserChatInfo) {
+  async deleteParticipantInChatByUserID(
+    info: UserChatInfo,
+  ): Promise<DeleteResult> {
     const participant = await this.fetchParticipantEntityByUserChatID(info);
     return this.deleteParticipantByID(participant.id);
   }
 
-  async deleteParticipantByID(id: number) {
+  async deleteParticipantByID(id: number): Promise<DeleteResult> {
     return this.participantRepository.delete({ id });
   }
 }

@@ -21,6 +21,8 @@ import {
 } from '@nestjs/swagger';
 import { ChatParticipantEntity } from './entities/chat-participant.entity';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { sendParticipantDto } from './dtos/sendChatParticipant.dto';
+import { DeleteResult, UpdateResult } from 'typeorm';
 
 @UseGuards(JwtAuthGuard)
 @ApiTags('chat participants')
@@ -34,7 +36,9 @@ export class ChatParticipantsController {
     description: 'Get chat participant by ID.',
   })
   @ApiBadRequestResponse({ description: 'Bad request.' })
-  getParticipantByID(@Param('id', ParseIntPipe) id: number) {
+  getParticipantByID(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<sendParticipantDto> {
     return this.participantService.fetchParticipantByID(id);
   }
 
@@ -44,7 +48,7 @@ export class ChatParticipantsController {
     isArray: true,
     description: 'Get all chat participants.',
   })
-  getAllParticipants() {
+  getAllParticipants(): Promise<sendParticipantDto[]> {
     return this.participantService.fetchParticipants();
   }
 
@@ -57,7 +61,9 @@ export class ChatParticipantsController {
   @ApiUnprocessableEntityResponse({
     description: 'Database error. (Unprocessable entity)',
   })
-  createParticipant(@Body() participantDto: createParticipantDto) {
+  createParticipant(
+    @Body() participantDto: createParticipantDto,
+  ): Promise<ChatParticipantEntity> {
     return this.participantService.createChatParticipant(participantDto);
   }
 
@@ -73,8 +79,8 @@ export class ChatParticipantsController {
   async updateParticipantByID(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateParticipantDto: updateParticipantDto,
-  ) {
-    await this.participantService.updateParticipantByID(
+  ): Promise<UpdateResult> {
+    return this.participantService.updateParticipantByID(
       id,
       updateParticipantDto,
     );
@@ -86,7 +92,9 @@ export class ChatParticipantsController {
   @ApiUnprocessableEntityResponse({
     description: 'Database error. (Unprocessable entity)',
   })
-  deleteParticipantByID(@Param('id', ParseIntPipe) id: number) {
+  deleteParticipantByID(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<DeleteResult> {
     return this.participantService.deleteParticipantByID(id);
   }
 }
