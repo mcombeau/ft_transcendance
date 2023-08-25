@@ -362,7 +362,9 @@ export class ChatGateway implements OnModuleInit {
       );
     }
     const userParticipant =
-      await this.chatParticipantsService.fetchParticipantByUserChatID(info);
+      await this.chatParticipantsService.fetchParticipantEntityByUserChatID(
+        info,
+      );
     if (!userParticipant) {
       throw new ChatPermissionError(
         `User '${info.userID} is not in or invited to chat '${info.chatRoomID}`,
@@ -649,7 +651,7 @@ export class ChatGateway implements OnModuleInit {
     }
 
     const target =
-      await this.chatParticipantsService.fetchParticipantByUserChatID({
+      await this.chatParticipantsService.fetchParticipantEntityByUserChatID({
         userID: info.targetID,
         chatRoomID: info.chatRoomID,
       });

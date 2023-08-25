@@ -35,39 +35,43 @@ export class ChatParticipantsService {
     return participants.map(this.formatParticipantForSending);
   }
 
-  fetchParticipants() {
-    return this.participantRepository.find({
+  async fetchParticipants() {
+    const participants = await this.participantRepository.find({
       relations: ['chatRoom', 'user'],
     });
+    return this.formatParticipantArrayForSending(participants);
   }
 
-  fetchParticipantByID(id: number) {
-    return this.participantRepository.findOne({
+  async fetchParticipantByID(id: number) {
+    const participant = await this.participantRepository.findOne({
       where: { id },
       relations: ['chatRoom', 'user'],
     });
+    return this.formatParticipantForSending(participant);
   }
 
   async fetchParticipantsByChatID(id: number) {
-    const participant = await this.participantRepository.find({
-      where: {
-        chatRoom: { id: id },
-      },
+    const participants = await this.participantRepository.find({
+      where: { chatRoom: { id: id } },
       relations: ['chatRoom', 'user'],
     });
-    return this.formatParticipantArrayForSending(participant);
+    return this.formatParticipantArrayForSending(participants);
   }
 
-  fetchParticipantsByUserID(id: number) {
-    return this.participantRepository.find({
-      where: {
-        user: { id: id },
-      },
+  async fetchParticipantsByUserID(id: number) {
+    const participants = await this.participantRepository.find({
+      where: { user: { id: id } },
       relations: ['chatRoom', 'user'],
     });
+    return this.formatParticipantArrayForSending(participants);
   }
 
-  fetchParticipantByUserChatID(info: UserChatInfo) {
+  async fetchParticipantByUserChatID(info: UserChatInfo) {
+    const participant = await this.fetchParticipantEntityByUserChatID(info);
+    return this.formatParticipantForSending(participant);
+  }
+
+  async fetchParticipantEntityByUserChatID(info: UserChatInfo) {
     return this.participantRepository.findOne({
       where: {
         user: { id: info.userID },
@@ -75,19 +79,6 @@ export class ChatParticipantsService {
       },
       relations: ['chatRoom', 'user'],
     });
-  }
-
-  async recordAlreadyExists(userID: number, chatRoomID: number) {
-    const foundRecord = await this.participantRepository.find({
-      where: {
-        user: { id: userID },
-        chatRoom: { id: chatRoomID },
-      },
-    });
-    if (foundRecord !== undefined) {
-      return true;
-    }
-    return false;
   }
 
   async createChatParticipant(participantDetails: createParticipantParams) {
@@ -125,7 +116,7 @@ export class ChatParticipantsService {
   }
 
   async deleteParticipantInChatByUserID(info: UserChatInfo) {
-    const participant = await this.fetchParticipantByUserChatID(info);
+    const participant = await this.fetchParticipantEntityByUserChatID(info);
     return this.deleteParticipantByID(participant.id);
   }
 
