@@ -54,7 +54,7 @@ export class sendParticipantDto {
   isOperator: boolean;
 
   @ApiProperty()
-  IsBanned: boolean;
+  isBanned: boolean;
 
   @ApiProperty()
   isMutedUntil: number;

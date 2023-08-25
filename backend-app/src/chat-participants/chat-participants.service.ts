@@ -23,7 +23,7 @@ export class ChatParticipantsService {
       chatRoomID: participant.chatRoom.id,
       isOwner: participant.owner,
       isOperator: participant.operator,
-      IsBanned: participant.banned,
+      isBanned: participant.banned,
       isMutedUntil: participant.mutedUntil,
     };
     return sendParticipant;
