@@ -625,20 +625,15 @@ export class ChatGateway implements OnModuleInit {
     const user = await this.getParticipant(info);
     const chatRoom = await this.chatsService.fetchChatByID(info.chatRoomID);
 
-    console.log('gateway toggle info', info);
-    console.log('gateway toggle room', chatRoom);
     await this.checkUserIsOwner(user);
 
     await this.chatsService.updateChatByID(chatRoom.id, {
       isPrivate: !chatRoom.isPrivate,
     });
-    console.log('HERE');
     const updatedChatRoom = await this.chatsService.fetchChatByID(
       info.chatRoomID,
     );
-    console.log('HERE', updatedChatRoom);
     const isPrivate = updatedChatRoom.isPrivate;
-    console.log('HERE', isPrivate);
     return isPrivate;
   }
 
