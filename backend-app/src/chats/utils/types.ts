@@ -16,7 +16,3 @@ export type updateChatParams = {
   isPrivate?: boolean;
   participantID?: number;
 };
-
-export type participantUsernames = {
-  username: string;
-};

@@ -6,7 +6,6 @@ import {
   createChatParams,
   createDMParams,
   updateChatParams,
-  participantUsernames,
 } from './utils/types';
 import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
 import { ChatParticipantsService } from 'src/chat-participants/chat-participants.service';
