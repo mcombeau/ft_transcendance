@@ -456,30 +456,42 @@ export const Chat = () => {
         `http://localhost:3001/chats`,
         request
       ).then(async (response) => {
-        const data = await response.json();
+        const chat_data = await response.json();
         if (!response.ok) {
           console.log("error response load channels");
           return;
         }
-        data.map((e: any) => {
-          var participant_list = e.participants.map((user: any) => {
-            console.log(user);
-            var newUser: User = {
-              userID: user.user.id,
-              username: user.user.username,
-              isOwner: user.owner,
-              isOperator: user.operator,
-              isBanned: user.banned,
-              mutedUntil: user.mutedUntil,
-              invitedUntil: null,
-            };
-            return newUser;
+
+        chat_data.map(async (chatRoom: any) => {
+          var participant_list = await fetch(
+            `http://localhost:3001/chats/${chatRoom.id}/participants`,
+            request
+          ).then(async (response) => {
+            const participant_data = await response.json();
+            if (!response.ok) {
+              console.log("error response load participants");
+              return null;
+            }
+            var participants = participant_data.map((user: any) => {
+              var newUser: User = {
+                userID: user.user.id,
+                username: user.user.username,
+                isOwner: user.owner,
+                isOperator: user.operator,
+                isBanned: user.banned,
+                mutedUntil: user.mutedUntil,
+                invitedUntil: null,
+              };
+              return newUser;
+            });
+            return participants;
           });
+          if (participant_list === null) return;
           var chan: ChatRoom = {
-            chatRoomID: e.id,
-            name: e.name,
-            isPrivate: e.isPrivate,
-            ownerID: e.directMessage
+            chatRoomID: chatRoom.id,
+            name: chatRoom.name,
+            isPrivate: chatRoom.isPrivate,
+            ownerID: chatRoom.directMessage
               ? null
               : participant_list.find((u: User) => u.isOwner).userID,
             participants: participant_list.filter(
@@ -489,10 +501,10 @@ export const Chat = () => {
             invited: participant_list.filter(
               (user: User) => user.invitedUntil !== null
             ),
-            isDM: e.directMessage,
+            isDM: chatRoom.directMessage,
           };
           setChannels((prev) => [...prev, chan]);
-          return e;
+          return chatRoom;
         });
       });
     }

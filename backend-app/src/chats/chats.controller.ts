@@ -22,6 +22,7 @@ import {
 import { ChatEntity } from './entities/chat.entity';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { updateChatDto } from './dtos/updateChats.dto';
+import { ChatParticipantEntity } from 'src/chat-participants/entities/chat-participant.entity';
 
 @Controller('chats')
 @UseGuards(JwtAuthGuard)
@@ -35,6 +36,16 @@ export class ChatsController {
     const chat = await this.chatService.fetchChatByName(name);
     if (!chat) throw new ChatNotFoundException(name);
     return chat;
+  }
+
+  @Get(':id/participants')
+  @ApiOkResponse({
+    type: ChatParticipantEntity,
+    isArray: true,
+    description: 'Get chat participants by chat id.',
+  })
+  async getChatParticipantsByChatRoomID(@Param('id', ParseIntPipe) id: number) {
+    return this.chatService.fetchChatParticipantsByID(id);
   }
 
   @Get(':name/usernames')

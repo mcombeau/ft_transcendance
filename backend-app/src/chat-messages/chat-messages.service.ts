@@ -23,7 +23,6 @@ export class ChatMessagesService {
     const msg = await this.chatMessagesRepository.find({
       relations: ['chatRoom', 'sender'],
     });
-    console.log('In chatmessage service: ', msg);
     return msg;
   }
 
