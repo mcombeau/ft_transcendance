@@ -140,9 +140,9 @@ export class ChatGateway implements OnModuleInit {
   // TODO: Validate chat join by checking password if there is one.
   @SubscribeMessage('join chat')
   async onJoinChat(@MessageBody() info: ReceivedInfoDto): Promise<void> {
-    console.log('[Chat Gateway]: Join chat', info);
     try {
       info.userID = await this.checkIdentity(info.token);
+      console.log('[Chat Gateway]: Join chat', info);
       const user = await this.userService.fetchUserByID(info.userID);
       await this.addUserToChat({
         userID: info.userID,
@@ -512,15 +512,18 @@ export class ChatGateway implements OnModuleInit {
 
   private async addUserToChat(info: UserChatInfo): Promise<void> {
     const chatRoom = await this.chatsService.fetchChatByID(info.chatRoomID);
-    const participant =
-      await this.chatParticipantsService.fetchParticipantByUserChatID(info);
     if (!chatRoom) {
       throw new ChatJoinError(`Chat '${info.chatRoomID}' does not exist.`);
     }
     if (chatRoom.isPrivate === true) {
       throw new ChatJoinError(`Chat '${info.chatRoomID}' is private.`);
     }
+    const participant =
+      await this.chatParticipantsService.fetchParticipantEntityByUserChatID(
+        info,
+      );
     if (participant) {
+      console.log('[Chat Gateway]: participant', participant);
       throw new ChatJoinError(
         `User '${info.userID}' is already in chat '${info.chatRoomID}'.`,
       );
