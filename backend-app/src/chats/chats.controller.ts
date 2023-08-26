@@ -31,14 +31,6 @@ import { UpdateResult, DeleteResult } from 'typeorm';
 export class ChatsController {
   constructor(private chatService: ChatsService) {}
 
-  @Get(':name')
-  @ApiOkResponse({ type: ChatEntity, description: 'Get chat by name.' })
-  async getChatByName(@Param('name') name: string): Promise<ChatEntity> {
-    const chat = await this.chatService.fetchChatByName(name);
-    if (!chat) throw new ChatNotFoundException(name);
-    return chat;
-  }
-
   @Get(':id/participants')
   @ApiOkResponse({
     type: sendParticipantDto,

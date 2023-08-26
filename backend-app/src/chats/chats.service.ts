@@ -53,14 +53,6 @@ export class ChatsService {
   fetchChatByID(id: number): Promise<ChatEntity> {
     return this.chatRepository.findOne({
       where: { id },
-      relations: ['messages', 'participants.user'],
-    });
-  }
-
-  fetchChatByName(name: string): Promise<ChatEntity> {
-    return this.chatRepository.findOne({
-      where: { name },
-      relations: ['messages', 'participants.user'],
     });
   }
 
