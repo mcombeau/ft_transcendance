@@ -15,7 +15,10 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(username: string, password: string): Promise<any> {
+  async validateUser(
+    username: string,
+    password: string,
+  ): Promise<null | UserEntity> {
     console.log('[Auth Service]: validate local user');
     console.log('[Auth Service]: username', username, 'password', password);
     const user = await this.usersService.fetchUserByUsername(username);
@@ -31,7 +34,7 @@ export class AuthService {
     return user;
   }
 
-  login(user: UserEntity) {
+  login(user: UserEntity): any {
     console.log('[Auth Service]: login user');
     const payload = { username: user.username, userID: user.id };
     return {
@@ -40,12 +43,12 @@ export class AuthService {
   }
 
   // Dont know if this should be elsewhere
-  async validateToken(token: string) {
-    var jwt = require('jsonwebtoken');
+  async validateToken(token: string): Promise<any> {
+    const jwt = require('jsonwebtoken');
     return await jwt.verify(token, jwtConstants.secret);
   }
 
-  school42Login(req: any, res: any) {
+  school42Login(req: any, res: any): void {
     console.log('[Auth Service]: school42login');
     const user: UserEntity = req.user;
     console.log(user);

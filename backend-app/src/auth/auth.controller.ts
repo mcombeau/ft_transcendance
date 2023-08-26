@@ -20,19 +20,19 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('auth/login')
-  async login(@Request() req: any) {
+  async login(@Request() req: any): Promise<any> {
     return this.authService.login(req.user);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('profile')
-  getProfile(@Request() req: any) {
+  getProfile(@Request() req: any): any {
     return req.user;
   }
 
   @Get('auth/42login')
   @UseGuards(school42AuthGuard)
-  async school42Auth(@Request() req) {
+  async school42Auth(): Promise<void> {
     console.log('[Auth Controller]: GET on auth/42login');
   }
 
@@ -41,7 +41,7 @@ export class AuthController {
   school42AuthRedirect(
     @Request() req: Request,
     @Res({ passthrough: true }) res: Response,
-  ) {
+  ): void {
     console.log('[Auth Controller]: GET on auth/callback');
     return this.authService.school42Login(req, res);
   }
