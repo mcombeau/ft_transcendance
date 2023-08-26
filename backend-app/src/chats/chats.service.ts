@@ -15,6 +15,7 @@ import { UserChatInfo } from 'src/chat-participants/utils/types';
 import { PasswordService } from 'src/password/password.service';
 import { sendParticipantDto } from 'src/chat-participants/dtos/sendChatParticipant.dto';
 import { ChatParticipantEntity } from 'src/chat-participants/entities/chat-participant.entity';
+import { UserEntity } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class ChatsService {
@@ -70,12 +71,9 @@ export class ChatsService {
   }
 
   async createChat(chatDetails: createChatParams): Promise<ChatEntity> {
-    const user = await this.userService.fetchUserByID(chatDetails.ownerID);
-    if (chatDetails.name.startsWith('DM:')) {
-      throw new ChatCreationError(
-        `'${chatDetails.name}': Chat name cannot start with "DM:"`,
-      );
-    }
+    const user = await this.getUserToCreateChatRoomOrFail(chatDetails.ownerID);
+    await this.checkChatRoomWithNameCanBeCreated(chatDetails.name, false);
+
     const passwordHash = await this.passwordService.hashPassword(
       chatDetails.password,
     );
@@ -104,46 +102,25 @@ export class ChatsService {
       })
       .catch((err: any) => {
         this.deleteChatByID(newSavedChat.id);
-        throw new ChatCreationError(`'ownerID: ${user.id}': ${err.message}`);
+        throw new ChatCreationError(
+          `'ownerID: ${chatDetails.ownerID}': ${err.message}`,
+        );
       });
 
     console.log('New saved chat', newSavedChat);
     return newSavedChat;
   }
 
-  private generateDMName(usernames: string[]): string {
-    usernames.sort((a, b) => a.localeCompare(b));
-    return 'DM: ' + usernames[0] + ' ' + usernames[1];
-  }
-
-  private async checkDMDoesNotExist(chatDetails: createDMParams) {
-    const chatDMs = await this.fetchDMChats();
-    for (const e of chatDMs) {
-      let count = 0;
-      for (const f of e.participants) {
-        if (
-          f.user.id === chatDetails.userID1 ||
-          f.user.id === chatDetails.userID2
-        ) {
-          count++;
-        }
-        if (count === 2) {
-          throw new ChatCreationError(
-            `DM between users ${chatDetails.userID1} and ${chatDetails.userID2}`,
-          );
-        }
-      }
-    }
-  }
-
   async createChatDM(chatDetails: createDMParams): Promise<ChatEntity> {
-    const user1 = await this.userService.fetchUserByID(chatDetails.userID1);
-    const user2 = await this.userService.fetchUserByID(chatDetails.userID2);
+    const user1 = await this.getUserToCreateChatRoomOrFail(chatDetails.userID1);
+    const user2 = await this.getUserToCreateChatRoomOrFail(chatDetails.userID2);
 
+    const chatRoomName = this.generateDMName([user1.username, user2.username]);
+    await this.checkChatRoomWithNameCanBeCreated(chatRoomName, true);
     await this.checkDMDoesNotExist(chatDetails);
 
     const newChat = this.chatRepository.create({
-      name: this.generateDMName([user1.username, user2.username]),
+      name: chatRoomName,
       password: '',
       isPrivate: true,
       isDirectMessage: true,
@@ -183,6 +160,11 @@ export class ChatsService {
       });
     }
     delete chatDetails['participantID'];
+    if (chatDetails.password) {
+      chatDetails.password = await this.passwordService.hashPassword(
+        chatDetails.password,
+      );
+    }
     const update = await this.chatRepository.update(
       { id },
       { isPrivate: chatDetails.isPrivate },
@@ -209,5 +191,63 @@ export class ChatsService {
     await this.chatMessageService.deleteMessagesByChatID(id);
     console.log('Delete channel ' + id);
     return this.chatRepository.delete({ id });
+  }
+
+  // -------- Utility Functions
+
+  private generateDMName(usernames: string[]): string {
+    usernames.sort((a, b) => a.localeCompare(b));
+    return 'DM: ' + usernames[0] + ' ' + usernames[1];
+  }
+
+  private async checkChatRoomWithNameCanBeCreated(
+    chatRoomName: string,
+    isDM: boolean,
+  ) {
+    if (!isDM && chatRoomName.startsWith('DM:')) {
+      throw new ChatCreationError(
+        `'${chatRoomName}': Chat name cannot start with "DM:"`,
+      );
+    }
+    const chat = await this.chatRepository.findOne({
+      where: { name: chatRoomName },
+    });
+    if (chat) {
+      throw new ChatCreationError(
+        `'${chatRoomName}': A chat room with this name already exists`,
+      );
+    }
+  }
+
+  private async checkDMDoesNotExist(chatDetails: createDMParams) {
+    const chatDMs = await this.fetchDMChats();
+    for (const e of chatDMs) {
+      let count = 0;
+      for (const f of e.participants) {
+        if (
+          f.user.id === chatDetails.userID1 ||
+          f.user.id === chatDetails.userID2
+        ) {
+          count++;
+        }
+        if (count === 2) {
+          throw new ChatCreationError(
+            `DM between users ${chatDetails.userID1} and ${chatDetails.userID2}`,
+          );
+        }
+      }
+    }
+  }
+
+  private async getUserToCreateChatRoomOrFail(
+    userID: number,
+  ): Promise<UserEntity> {
+    const user = await this.userService.fetchUserByID(userID);
+    if (!user) {
+      throw new ChatCreationError(
+        `User '${userID}' cannot create chat room: user not found`,
+      );
+    }
+    return user;
   }
 }
