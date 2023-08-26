@@ -56,7 +56,7 @@ export class ChatGateway implements OnModuleInit {
   @WebSocketServer()
   server: Server;
 
-  onModuleInit() {
+  onModuleInit(): void {
     this.server.on('connection', (socket) => {
       console.log('[Chat Gateway]: A user connected', socket.id);
       socket.broadcast.emit('connection event');
@@ -68,7 +68,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   // -------------------- EVENTS
-  async checkIdentity(token: string) {
+  async checkIdentity(token: string): Promise<any> {
     const isVerified = await this.authService
       .validateToken(token)
       .catch(() => {
@@ -84,7 +84,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('add chat')
-  async onAddChat(@MessageBody() info: ReceivedInfoDto) {
+  async onAddChat(@MessageBody() info: ReceivedInfoDto): Promise<void> {
     console.log('[Chat Gateway]: Add chat', info);
     try {
       info.userID = await this.checkIdentity(info.token);
@@ -102,7 +102,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('dm')
-  async onDM(@MessageBody() info: ReceivedInfoDto) {
+  async onDM(@MessageBody() info: ReceivedInfoDto): Promise<void> {
     try {
       info.userID = await this.checkIdentity(info.token);
 
@@ -124,7 +124,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('delete chat')
-  async onDeleteChat(@MessageBody() info: ReceivedInfoDto) {
+  async onDeleteChat(@MessageBody() info: ReceivedInfoDto): Promise<void> {
     console.log('[Chat Gateway]: Delete chat', info);
     try {
       info.userID = await this.checkIdentity(info.token);
@@ -138,7 +138,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('join chat')
-  async onJoinChat(@MessageBody() info: ReceivedInfoDto) {
+  async onJoinChat(@MessageBody() info: ReceivedInfoDto): Promise<void> {
     console.log('[Chat Gateway]: Join chat', info);
     try {
       info.userID = await this.checkIdentity(info.token);
@@ -157,7 +157,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('leave chat')
-  async onLeaveChat(@MessageBody() info: ReceivedInfoDto) {
+  async onLeaveChat(@MessageBody() info: ReceivedInfoDto): Promise<void> {
     try {
       info.userID = await this.checkIdentity(info.token);
       info.username = (
@@ -176,7 +176,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('chat message')
-  async onChatMessage(@MessageBody() info: ReceivedInfoDto) {
+  async onChatMessage(@MessageBody() info: ReceivedInfoDto): Promise<void> {
     console.log('[Chat Gateway]: Sending chat message');
     try {
       const userID = await this.checkIdentity(info.token);
@@ -198,7 +198,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('mute')
-  async onMute(@MessageBody() info: ReceivedInfoDto) {
+  async onMute(@MessageBody() info: ReceivedInfoDto): Promise<void> {
     try {
       info.userID = await this.checkIdentity(info.token);
       info.username = (
@@ -219,7 +219,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('toggle private')
-  async onTogglePrivate(@MessageBody() info: ReceivedInfoDto) {
+  async onTogglePrivate(@MessageBody() info: ReceivedInfoDto): Promise<void> {
     console.log('[Chat Gateway]: Toggle private chat');
     try {
       info.userID = await this.checkIdentity(info.token);
@@ -247,7 +247,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('invite')
-  async onInvite(@MessageBody() info: ReceivedInfoDto) {
+  async onInvite(@MessageBody() info: ReceivedInfoDto): Promise<void> {
     try {
       info.userID = await this.checkIdentity(info.token);
       info.username = (
@@ -268,7 +268,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('accept invite')
-  async onAcceptInvite(@MessageBody() info: ReceivedInfoDto) {
+  async onAcceptInvite(@MessageBody() info: ReceivedInfoDto): Promise<void> {
     try {
       info.userID = await this.checkIdentity(info.token);
       const user = await this.userService.fetchUserByID(info.targetID);
@@ -286,7 +286,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('operator')
-  async onMakeOperator(@MessageBody() info: ReceivedInfoDto) {
+  async onMakeOperator(@MessageBody() info: ReceivedInfoDto): Promise<void> {
     try {
       info.userID = await this.checkIdentity(info.token);
       const user = await this.userService.fetchUserByID(info.targetID);
@@ -313,7 +313,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('ban')
-  async onBan(@MessageBody() info: ReceivedInfoDto) {
+  async onBan(@MessageBody() info: ReceivedInfoDto): Promise<void> {
     try {
       info.userID = await this.checkIdentity(info.token);
       info.username = (
@@ -333,7 +333,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('kick')
-  async onKick(@MessageBody() info: ReceivedInfoDto) {
+  async onKick(@MessageBody() info: ReceivedInfoDto): Promise<void> {
     try {
       info.userID = await this.checkIdentity(info.token);
       info.username = (
@@ -354,7 +354,9 @@ export class ChatGateway implements OnModuleInit {
 
   // --------------------  PERMISSION CHECKS
 
-  private async getParticipant(info: UserChatInfo) {
+  private async getParticipant(
+    info: UserChatInfo,
+  ): Promise<ChatParticipantEntity> {
     const chatRoom = await this.chatsService.fetchChatByID(info.chatRoomID);
     if (!chatRoom) {
       throw new ChatPermissionError(
@@ -373,7 +375,7 @@ export class ChatGateway implements OnModuleInit {
     return userParticipant;
   }
 
-  private async checkUserIsOwner(user: ChatParticipantEntity) {
+  private async checkUserIsOwner(user: ChatParticipantEntity): Promise<void> {
     if (!user) {
       throw new ChatPermissionError(
         `Unexpected error during owner permission check: participant does not exist.`,
@@ -386,7 +388,9 @@ export class ChatGateway implements OnModuleInit {
     }
   }
 
-  private async checkUserIsNotOwner(user: ChatParticipantEntity) {
+  private async checkUserIsNotOwner(
+    user: ChatParticipantEntity,
+  ): Promise<void> {
     if (!user) {
       throw new ChatPermissionError(
         `Unexpected error during owner permission check: participant does not exist.`,
@@ -399,7 +403,9 @@ export class ChatGateway implements OnModuleInit {
     }
   }
 
-  private async checkUserHasOperatorPermissions(user: ChatParticipantEntity) {
+  private async checkUserHasOperatorPermissions(
+    user: ChatParticipantEntity,
+  ): Promise<void> {
     if (!user) {
       throw new ChatPermissionError(
         `Unexpected error during operator permission check: participant does not exist.`,
@@ -412,7 +418,9 @@ export class ChatGateway implements OnModuleInit {
     }
   }
 
-  private async checkUserIsNotOperator(user: ChatParticipantEntity) {
+  private async checkUserIsNotOperator(
+    user: ChatParticipantEntity,
+  ): Promise<void> {
     if (!user) {
       throw new ChatPermissionError(
         `Unexpected error during operator permission check: participant does not exist.`,
@@ -425,7 +433,9 @@ export class ChatGateway implements OnModuleInit {
     }
   }
 
-  private async checkUserIsNotBanned(user: ChatParticipantEntity) {
+  private async checkUserIsNotBanned(
+    user: ChatParticipantEntity,
+  ): Promise<void> {
     if (!user) {
       throw new ChatPermissionError(
         `Unexpected error during operator permission check: participant does not exist.`,
@@ -438,7 +448,9 @@ export class ChatGateway implements OnModuleInit {
     }
   }
 
-  private async checkUserIsNotMuted(user: ChatParticipantEntity) {
+  private async checkUserIsNotMuted(
+    user: ChatParticipantEntity,
+  ): Promise<void> {
     if (!user) {
       throw new ChatPermissionError(
         `Unexpected error during muted check: participant does not exist.`,
@@ -451,7 +463,9 @@ export class ChatGateway implements OnModuleInit {
     }
   }
 
-  private async checkUserInviteIsNotPending(invite: InviteEntity) {
+  private async checkUserInviteIsNotPending(
+    invite: InviteEntity,
+  ): Promise<void> {
     if (!invite) {
       throw new ChatPermissionError(
         `Unexpected error during invite check: invite does not exist.`,
@@ -464,7 +478,9 @@ export class ChatGateway implements OnModuleInit {
     }
   }
 
-  private async checkUserInviteHasNotExpired(info: UserChatInfo) {
+  private async checkUserInviteHasNotExpired(
+    info: UserChatInfo,
+  ): Promise<void> {
     const invite = await this.inviteService.fetchInviteByInvitedUserChatRoomID(
       info,
     );
@@ -483,7 +499,7 @@ export class ChatGateway implements OnModuleInit {
 
   private async checkUserHasNotAlreadyAcceptedInvite(
     user: ChatParticipantEntity,
-  ) {
+  ): Promise<void> {
     if (user) {
       throw new ChatPermissionError(
         `User '${user.user.username}' has already accepted invite to chat '${user.chatRoom.name}'.`,
@@ -493,7 +509,7 @@ export class ChatGateway implements OnModuleInit {
 
   // -------------------- HANDLERS
 
-  private async addUserToChat(info: UserChatInfo) {
+  private async addUserToChat(info: UserChatInfo): Promise<void> {
     const chatRoom = await this.chatsService.fetchChatByID(info.chatRoomID);
     const participant =
       await this.chatParticipantsService.fetchParticipantByUserChatID(info);
@@ -518,7 +534,7 @@ export class ChatGateway implements OnModuleInit {
 
   private async registerChatMessage(
     chatMessageDetails: createChatMessageParams,
-  ) {
+  ): Promise<void> {
     console.log('Message details: ', chatMessageDetails);
     const user = await this.getParticipant({
       userID: chatMessageDetails.senderID,
@@ -537,7 +553,7 @@ export class ChatGateway implements OnModuleInit {
     userID: number,
     targetUserID: number,
     minutes: number,
-  ) {
+  ): Promise<number> {
     const user = await this.getParticipant({
       userID: userID,
       chatRoomID: chatRoomID,
@@ -565,7 +581,7 @@ export class ChatGateway implements OnModuleInit {
     return newMutedTimestamp;
   }
 
-  private async toggleOperator(info: UserTargetChat) {
+  private async toggleOperator(info: UserTargetChat): Promise<void> {
     const user = await this.getParticipant({
       chatRoomID: info.chatRoomID,
       userID: info.userID,
@@ -584,7 +600,7 @@ export class ChatGateway implements OnModuleInit {
     });
   }
 
-  private async banUser(info: UserTargetChat) {
+  private async banUser(info: UserTargetChat): Promise<void> {
     const user = await this.getParticipant({
       chatRoomID: info.chatRoomID,
       userID: info.userID,
@@ -606,7 +622,7 @@ export class ChatGateway implements OnModuleInit {
     }
   }
 
-  private async kickUser(info: UserTargetChat) {
+  private async kickUser(info: UserTargetChat): Promise<void> {
     const user = await this.getParticipant({
       chatRoomID: info.chatRoomID,
       userID: info.userID,
@@ -623,7 +639,7 @@ export class ChatGateway implements OnModuleInit {
     this.chatParticipantsService.deleteParticipantByID(target.id);
   }
 
-  private async toggleChatPrivacy(info: UserChatInfo) {
+  private async toggleChatPrivacy(info: UserChatInfo): Promise<boolean> {
     const user = await this.getParticipant(info);
     const chatRoom = await this.chatsService.fetchChatByID(info.chatRoomID);
 
@@ -639,7 +655,7 @@ export class ChatGateway implements OnModuleInit {
     return isPrivate;
   }
 
-  private async inviteUser(info: UserTargetChat) {
+  private async inviteUser(info: UserTargetChat): Promise<number> {
     const user = await this.getParticipant({
       userID: info.userID,
       chatRoomID: info.chatRoomID,
@@ -669,7 +685,7 @@ export class ChatGateway implements OnModuleInit {
     return invite.expiresAt;
   }
 
-  private async acceptUserInvite(info: UserChatInfo) {
+  private async acceptUserInvite(info: UserChatInfo): Promise<void> {
     try {
       const invite =
         await this.inviteService.fetchInviteByInvitedUserChatRoomID(info);
@@ -692,7 +708,7 @@ export class ChatGateway implements OnModuleInit {
     }
   }
 
-  private async deleteChatRoom(info: UserChatInfo) {
+  private async deleteChatRoom(info: UserChatInfo): Promise<void> {
     const chat = await this.chatsService.fetchChatByID(info.chatRoomID);
     if (!chat) {
       throw new ChatNotFoundError(
@@ -705,7 +721,7 @@ export class ChatGateway implements OnModuleInit {
     await this.chatsService.deleteChatByID(chat.id);
   }
 
-  private async leaveChatRoom(info: UserChatInfo) {
+  private async leaveChatRoom(info: UserChatInfo): Promise<void> {
     let chat = await this.chatsService.fetchChatByID(info.chatRoomID);
     if (!chat) {
       throw new ChatNotFoundError(
