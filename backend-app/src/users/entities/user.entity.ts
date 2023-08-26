@@ -19,7 +19,7 @@ export class UserEntity {
   @Column({ unique: true, nullable: true })
   login42: string;
 
-  @ApiProperty()
+  // @ApiProperty()
   @Column({ nullable: true, select: false })
   password: string;
 
@@ -31,31 +31,31 @@ export class UserEntity {
   @Column()
   createdAt: Date;
 
-  @ApiProperty({ type: () => ChatMessageEntity, isArray: true })
+  // @ApiProperty({ type: () => ChatMessageEntity, isArray: true })
   @OneToMany(() => ChatMessageEntity, (chatMessage) => chatMessage.sender, {
     nullable: true,
   })
   messages: ChatMessageEntity[];
 
-  @ApiProperty({ type: () => ChatParticipantEntity, isArray: true })
+  // @ApiProperty({ type: () => ChatParticipantEntity, isArray: true })
   @OneToMany(() => ChatParticipantEntity, (participant) => participant.user, {
     nullable: true,
   })
   chatRooms: ChatParticipantEntity[];
 
-  @ApiProperty({ type: () => InviteEntity, isArray: true })
+  // @ApiProperty({ type: () => InviteEntity, isArray: true })
   @OneToMany(() => InviteEntity, (invite) => invite.invitedUser, {
     nullable: true,
   })
   receivedInvites: InviteEntity[];
 
-  @ApiProperty({ type: () => InviteEntity, isArray: true })
+  // @ApiProperty({ type: () => InviteEntity, isArray: true })
   @OneToMany(() => InviteEntity, (invite) => invite.inviteSender, {
     nullable: true,
   })
   sentInvites: InviteEntity[];
 
-  @ApiProperty({ type: () => GameEntity, isArray: true })
+  // @ApiProperty({ type: () => GameEntity, isArray: true })
   @OneToMany(() => GameEntity, (game) => game.winnerID, { nullable: true })
   wonGames: GameEntity[];
 }

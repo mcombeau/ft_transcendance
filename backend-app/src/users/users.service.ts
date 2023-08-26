@@ -78,11 +78,12 @@ export class UsersService {
     );
     userDetails.password = hashedPassword;
     console.log('[User Service]: creating user', userDetails);
-    const newUser = this.userRepository.create({
+    const newUserInfo = this.userRepository.create({
       ...userDetails,
       createdAt: new Date(),
     });
-    return this.userRepository.save(newUser);
+    await this.userRepository.save(newUserInfo);
+    return this.fetchUserByID(newUserInfo.id);
   }
 
   async getUserPasswordHash(userID: number): Promise<string> {
