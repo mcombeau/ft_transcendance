@@ -93,7 +93,7 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  @ApiCreatedResponse({ type: UserEntity, description: 'Record updated.' })
+  @ApiCreatedResponse({ description: 'Record updated.' })
   @ApiBadRequestResponse({ description: 'Bad request' })
   @ApiUnprocessableEntityResponse({
     description: 'Database error. (Unprocessable entity)',

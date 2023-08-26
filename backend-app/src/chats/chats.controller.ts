@@ -107,7 +107,7 @@ export class ChatsController {
   }
 
   @Patch(':id')
-  @ApiCreatedResponse({ type: ChatEntity, description: 'Record updated.' })
+  @ApiCreatedResponse({ description: 'Record updated.' })
   @ApiBadRequestResponse({ description: 'Bad request' })
   @ApiUnprocessableEntityResponse({
     description: 'Database error. (Unprocessable entity)',
