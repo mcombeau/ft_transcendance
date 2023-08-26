@@ -24,21 +24,18 @@ export class UsersService {
   fetchUserByID(id: number): Promise<UserEntity> {
     return this.userRepository.findOne({
       where: { id },
-      relations: ['chatRooms.chatRoom'],
     });
   }
 
   fetchUserByUsername(username: string): Promise<UserEntity> {
     return this.userRepository.findOne({
       where: { username: username },
-      relations: ['chatRooms.chatRoom'],
     });
   }
 
   async fetchUserBy42Login(login: string): Promise<UserEntity> {
     const user = await this.userRepository.findOne({
       where: { login42: login },
-      relations: ['chatRooms.chatRoom'],
     });
     return user;
   }
