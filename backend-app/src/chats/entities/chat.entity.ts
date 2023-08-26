@@ -14,7 +14,7 @@ export class ChatEntity {
   @Column({ unique: true })
   name: string;
 
-  @ApiProperty()
+  // @ApiProperty()
   @Column({ nullable: true, select: false })
   password: string;
 

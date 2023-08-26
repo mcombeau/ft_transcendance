@@ -32,6 +32,16 @@ import { ChatMessageEntity } from 'src/chat-messages/entities/chat-message.entit
 export class ChatsController {
   constructor(private chatService: ChatsService) {}
 
+  @Get('public')
+  @ApiOkResponse({
+    type: ChatEntity,
+    isArray: true,
+    description: 'Get public chats.',
+  })
+  getPublicChats(): Promise<ChatEntity[]> {
+    return this.chatService.fetchPublicChats();
+  }
+
   @Get(':id/participants')
   @ApiOkResponse({
     type: sendParticipantDto,
@@ -74,16 +84,6 @@ export class ChatsController {
   })
   getChats(): Promise<ChatEntity[]> {
     return this.chatService.fetchChats();
-  }
-
-  @Get('public')
-  @ApiOkResponse({
-    type: ChatEntity,
-    isArray: true,
-    description: 'Get public chats.',
-  })
-  getPublicChats(): Promise<ChatEntity[]> {
-    return this.chatService.fetchPublicChats();
   }
 
   @Post()

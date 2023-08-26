@@ -106,7 +106,7 @@ export class ChatsService {
       });
 
     console.log('New saved chat', newSavedChat);
-    return newSavedChat;
+    return this.fetchChatByID(newSavedChat.id);
   }
 
   async createChatDM(chatDetails: createDMParams): Promise<ChatEntity> {
@@ -143,7 +143,7 @@ export class ChatsService {
       throw new ChatCreationError(`${err.message}`);
     }
 
-    return newSavedChat;
+    return this.fetchChatByID(newSavedChat.id);
   }
 
   async updateChatByID(
