@@ -41,15 +41,10 @@ export class UsersService {
   }
 
   async fetchUserChatsByUserID(id: number): Promise<ChatEntity[]> {
-    // TODO: maybe transmit less user info
     const user = await this.userRepository
       .findOne({
         where: { id },
-        relations: [
-          'chatRooms.chatRoom',
-          'chatRooms.chatRoom.participants',
-          'chatRooms.chatRoom.participants.user',
-        ],
+        relations: ['chatRooms.chatRoom'],
       })
       .catch((e) => {
         console.log('[User Service]: ', e);
@@ -60,7 +55,6 @@ export class UsersService {
     for (const e of user.chatRooms) {
       userChatRooms.push(e.chatRoom);
     }
-    console.log(userChatRooms);
     return userChatRooms;
   }
 

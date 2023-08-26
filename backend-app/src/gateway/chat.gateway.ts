@@ -137,6 +137,7 @@ export class ChatGateway implements OnModuleInit {
     }
   }
 
+  // TODO: Validate chat join by checking password if there is one.
   @SubscribeMessage('join chat')
   async onJoinChat(@MessageBody() info: ReceivedInfoDto): Promise<void> {
     console.log('[Chat Gateway]: Join chat', info);
@@ -547,7 +548,6 @@ export class ChatGateway implements OnModuleInit {
     await this.chatMessagesService.createMessage(chatMessageDetails);
   }
 
-  // TODO: deal with unmute (maybe if muteduntil <= 0 unmute ?)
   private async toggleMute(
     chatRoomID: number,
     userID: number,
