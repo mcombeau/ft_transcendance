@@ -1,7 +1,7 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatMessageEntity } from 'src/chat-messages/entities/chat-message.entity';
-import { Repository } from 'typeorm';
+import { Repository, DeleteResult } from 'typeorm';
 import { ChatsService } from 'src/chats/chats.service';
 import { UsersService } from 'src/users/users.service';
 import {
@@ -19,14 +19,28 @@ export class ChatMessagesService {
     @Inject(forwardRef(() => UsersService)) private userService: UsersService,
   ) {}
 
-  async fetchMessages() {
+  async fetchMessages(): Promise<ChatMessageEntity[]> {
     const msg = await this.chatMessagesRepository.find({
       relations: ['chatRoom', 'sender'],
     });
     return msg;
   }
 
-  async createMessage(chatMessageDetails: createChatMessageParams) {
+  fetchMessage(id: number): Promise<ChatMessageEntity> {
+    return this.chatMessagesRepository.findOne({
+      where: { id },
+      relations: { sender: true },
+    });
+  }
+
+  async fetchMessagesByChatID(id: number): Promise<ChatMessageEntity[]> {
+    const chatRoom = await this.chatService.fetchChatByID(id);
+    return this.chatMessagesRepository.find({ where: { chatRoom: chatRoom } });
+  }
+
+  async createMessage(
+    chatMessageDetails: createChatMessageParams,
+  ): Promise<ChatMessageEntity> {
     const chat = await this.chatService.fetchChatByID(
       chatMessageDetails.chatRoomID,
     );
@@ -48,18 +62,6 @@ export class ChatMessagesService {
     return this.chatMessagesRepository.save(newMessage);
   }
 
-  fetchMessage(id: number) {
-    return this.chatMessagesRepository.findOne({
-      where: { id },
-      relations: { sender: true },
-    });
-  }
-
-  async fetchMessagesByChatID(id: number) {
-    const chatRoom = await this.chatService.fetchChatByID(id);
-    return this.chatMessagesRepository.find({ where: { chatRoom } });
-  }
-
   async deleteMessagesByChatID(id: number) {
     const chatRoom = await this.chatService.fetchChatByID(id);
     const messages = await this.chatMessagesRepository.find({
@@ -70,7 +72,7 @@ export class ChatMessagesService {
     });
   }
 
-  deleteMessage(id: number) {
+  deleteMessage(id: number): Promise<DeleteResult> {
     return this.chatMessagesRepository.delete({ id });
   }
 }

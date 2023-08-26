@@ -20,6 +20,7 @@ import {
 } from '@nestjs/swagger';
 import { ChatMessageEntity } from './entities/chat-message.entity';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { DeleteResult } from 'typeorm';
 
 // TODO: remove unecessary controller
 @UseGuards(JwtAuthGuard)
@@ -33,7 +34,9 @@ export class ChatMessagesController {
     type: ChatMessageEntity,
     description: 'Get chat message by ID.',
   })
-  async getMessageByID(@Param('id', ParseIntPipe) id: number) {
+  async getMessageByID(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<ChatMessageEntity> {
     const message = await this.chatMessageService.fetchMessage(id);
     if (!message) throw new ChatMessageNotFoundException(id.toString());
     return message;
@@ -45,7 +48,7 @@ export class ChatMessagesController {
     isArray: true,
     description: 'Get all chat messages.',
   })
-  getAllMessages() {
+  getAllMessages(): Promise<ChatMessageEntity[]> {
     return this.chatMessageService.fetchMessages();
   }
 
@@ -58,7 +61,9 @@ export class ChatMessagesController {
   @ApiUnprocessableEntityResponse({
     description: 'Database error. (Unprocessable entity)',
   })
-  createChatMessage(@Body() messageDto: createMessageDto) {
+  createChatMessage(
+    @Body() messageDto: createMessageDto,
+  ): Promise<ChatMessageEntity> {
     return this.chatMessageService.createMessage(messageDto);
   }
 
@@ -68,7 +73,9 @@ export class ChatMessagesController {
   @ApiUnprocessableEntityResponse({
     description: 'Database error. (Unprocessable entity)',
   })
-  async deleteMessageByID(@Param('id', ParseIntPipe) id: number) {
-    await this.chatMessageService.deleteMessage(id);
+  async deleteMessageByID(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<DeleteResult> {
+    return this.chatMessageService.deleteMessage(id);
   }
 }
