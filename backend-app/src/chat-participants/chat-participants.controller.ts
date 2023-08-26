@@ -32,7 +32,7 @@ export class ChatParticipantsController {
 
   @Get(':id')
   @ApiOkResponse({
-    type: ChatParticipantEntity,
+    type: sendParticipantDto,
     description: 'Get chat participant by ID.',
   })
   @ApiBadRequestResponse({ description: 'Bad request.' })
@@ -44,7 +44,7 @@ export class ChatParticipantsController {
 
   @Get()
   @ApiOkResponse({
-    type: ChatParticipantEntity,
+    type: sendParticipantDto,
     isArray: true,
     description: 'Get all chat participants.',
   })
@@ -69,7 +69,6 @@ export class ChatParticipantsController {
 
   @Patch(':id')
   @ApiCreatedResponse({
-    type: ChatParticipantEntity,
     description: 'Record updated.',
   })
   @ApiBadRequestResponse({ description: 'Bad request' })
