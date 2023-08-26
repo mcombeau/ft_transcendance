@@ -23,6 +23,7 @@ import { UsersService } from 'src/users/users.service';
 import { UserChatInfo } from 'src/chat-participants/utils/types';
 import { ChatNotFoundError } from 'src/exceptions/not-found.interceptor';
 import { ReceivedInfoDto } from './dtos/chatGateway.dto';
+import { ChatEntity } from 'src/chats/entities/chat.entity';
 
 type UserTargetChat = {
   userID: number;
@@ -355,12 +356,14 @@ export class ChatGateway implements OnModuleInit {
 
   // --------------------  PERMISSION CHECKS
 
-  private async getChatRoomOrFail(chatRoomID: number) {
+  private async getChatRoomOrFail(chatRoomID: number): Promise<ChatEntity> {
     const chatRoom = await this.getChatRoomOrFail(chatRoomID);
     if (!chatRoom) {
       throw new ChatPermissionError(`Chat '${chatRoomID} does not exist.`);
     }
+    return chatRoom;
   }
+
   private async getParticipantOrFail(
     info: UserChatInfo,
   ): Promise<ChatParticipantEntity> {
