@@ -31,20 +31,6 @@ export class UsersController {
   constructor(private userService: UsersService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Get('/username/:username')
-  @ApiOkResponse({
-    type: UserEntity,
-    description: 'Get user by username.',
-  })
-  async getUserByUsername(
-    @Param('username') username: string,
-  ): Promise<UserEntity> {
-    const user = await this.userService.fetchUserByUsername(username);
-    if (!user) throw new UserNotFoundException(username);
-    return user;
-  }
-
-  @UseGuards(JwtAuthGuard)
   @Get(':id')
   @ApiOkResponse({
     type: UserEntity,

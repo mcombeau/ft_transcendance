@@ -13,6 +13,8 @@ function UserPage() {
   const [user, setUser] = useState<User>();
 
   useEffect(() => {
+  // TODO: The below localhost adress no longer exists.
+  // Use `http://localhost:3001/users/${id}` instead.
     fetch(`http://localhost:3001/users/username/${username}`).then(
       async (response) => {
         const data = await response.json();
