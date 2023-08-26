@@ -250,4 +250,12 @@ export class ChatsService {
     }
     return user;
   }
+
+  async getChatRoomPasswordHash(chatRoomID: number): Promise<string> {
+    const user = await this.chatRepository.findOne({
+      where: { id: chatRoomID },
+      select: ['password'],
+    });
+    return user.password;
+  }
 }
