@@ -6,7 +6,7 @@ import { PasswordService } from 'src/password/password.service';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { createUserParams } from 'src/users/utils/types';
 import { updateUserParams } from 'src/users/utils/types';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult, DeleteResult } from 'typeorm';
 
 @Injectable()
 export class UsersService {
@@ -17,38 +17,25 @@ export class UsersService {
     private passwordService: PasswordService,
   ) {}
 
-  fetchUsers() {
+  fetchUsers(): Promise<UserEntity[]> {
     return this.userRepository.find();
   }
 
-  async createUser(userDetails: createUserParams) {
-    const hashedPassword = await this.passwordService.hashPassword(
-      userDetails.password,
-    );
-    userDetails.password = hashedPassword;
-    console.log('[User Service]: creating user', userDetails);
-    const newUser = this.userRepository.create({
-      ...userDetails,
-      createdAt: new Date(),
-    });
-    return this.userRepository.save(newUser);
-  }
-
-  fetchUserByID(id: number) {
+  fetchUserByID(id: number): Promise<UserEntity> {
     return this.userRepository.findOne({
       where: { id },
       relations: ['chatRooms.chatRoom'],
     });
   }
 
-  fetchUserByUsername(username: string) {
+  fetchUserByUsername(username: string): Promise<UserEntity> {
     return this.userRepository.findOne({
       where: { username: username },
       relations: ['chatRooms.chatRoom'],
     });
   }
 
-  async fetchUserBy42Login(login: string) {
+  async fetchUserBy42Login(login: string): Promise<UserEntity> {
     const user = await this.userRepository.findOne({
       where: { login42: login },
       relations: ['chatRooms.chatRoom'],
@@ -56,7 +43,7 @@ export class UsersService {
     return user;
   }
 
-  async fetchUserChatsByUserID(id: number) {
+  async fetchUserChatsByUserID(id: number): Promise<ChatEntity[]> {
     // TODO: maybe transmit less user info
     const user = await this.userRepository
       .findOne({
@@ -80,7 +67,7 @@ export class UsersService {
     return userChatRooms;
   }
 
-  async fetchUserChatDMsByUserID(id: number) {
+  async fetchUserChatDMsByUserID(id: number): Promise<ChatEntity[]> {
     const user = await this.userRepository.findOne({
       where: { id },
       relations: ['chatRooms.chatRoom'],
@@ -94,7 +81,20 @@ export class UsersService {
     return userDMRooms;
   }
 
-  async getUserPasswordHash(userID: number) {
+  async createUser(userDetails: createUserParams): Promise<UserEntity> {
+    const hashedPassword = await this.passwordService.hashPassword(
+      userDetails.password,
+    );
+    userDetails.password = hashedPassword;
+    console.log('[User Service]: creating user', userDetails);
+    const newUser = this.userRepository.create({
+      ...userDetails,
+      createdAt: new Date(),
+    });
+    return this.userRepository.save(newUser);
+  }
+
+  async getUserPasswordHash(userID: number): Promise<string> {
     const user = await this.userRepository.findOne({
       where: { id: userID },
       select: ['password'],
@@ -102,11 +102,14 @@ export class UsersService {
     return user.password;
   }
 
-  updateUserByID(id: number, userDetails: updateUserParams) {
+  updateUserByID(
+    id: number,
+    userDetails: updateUserParams,
+  ): Promise<UpdateResult> {
     return this.userRepository.update({ id }, { ...userDetails });
   }
 
-  deleteUserByID(id: number) {
+  deleteUserByID(id: number): Promise<DeleteResult> {
     return this.userRepository.delete({ id });
   }
 }

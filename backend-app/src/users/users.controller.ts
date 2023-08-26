@@ -23,6 +23,7 @@ import { updateUsersDto } from 'src/users/dtos/updateUsers.dto';
 import { UsersService } from 'src/users/users.service';
 import { UserEntity } from './entities/user.entity';
 import { ChatEntity } from 'src/chats/entities/chat.entity';
+import { UpdateResult, DeleteResult } from 'typeorm';
 
 @ApiTags('users')
 @Controller('users')
@@ -35,7 +36,9 @@ export class UsersController {
     type: UserEntity,
     description: 'Get user by username.',
   })
-  async getUserByUsername(@Param('username') username: string) {
+  async getUserByUsername(
+    @Param('username') username: string,
+  ): Promise<UserEntity> {
     const user = await this.userService.fetchUserByUsername(username);
     if (!user) throw new UserNotFoundException(username);
     return user;
@@ -47,7 +50,9 @@ export class UsersController {
     type: UserEntity,
     description: 'Get user by ID.',
   })
-  async getUserByID(@Param('id', ParseIntPipe) id: number) {
+  async getUserByID(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<UserEntity> {
     const user = await this.userService.fetchUserByID(id);
     if (!user) throw new UserNotFoundException(id.toString());
     return user;
@@ -60,7 +65,9 @@ export class UsersController {
     isArray: true,
     description: 'Get user chats (including DMs) by user ID.',
   })
-  async getUserChatsByUserID(@Param('id', ParseIntPipe) id: number) {
+  async getUserChatsByUserID(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<ChatEntity[]> {
     return this.userService.fetchUserChatsByUserID(id);
   }
 
@@ -71,7 +78,9 @@ export class UsersController {
     isArray: true,
     description: 'Get user DM chats (only DMs) by user ID.',
   })
-  async getUserChatDMsByUserID(@Param('id', ParseIntPipe) id: number) {
+  async getUserChatDMsByUserID(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<ChatEntity[]> {
     return this.userService.fetchUserChatDMsByUserID(id);
   }
 
@@ -82,7 +91,7 @@ export class UsersController {
     isArray: true,
     description: 'Get all users.',
   })
-  getUsers() {
+  getUsers(): Promise<UserEntity[]> {
     return this.userService.fetchUsers();
   }
 
@@ -92,7 +101,7 @@ export class UsersController {
   @ApiUnprocessableEntityResponse({
     description: 'Database error. (Unprocessable entity)',
   })
-  createUser(@Body() userDto: createUsersDto) {
+  createUser(@Body() userDto: createUsersDto): Promise<UserEntity> {
     return this.userService.createUser(userDto);
   }
 
@@ -106,8 +115,8 @@ export class UsersController {
   async updateUserByID(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: updateUsersDto,
-  ) {
-    await this.userService.updateUserByID(id, updateUserDto);
+  ): Promise<UpdateResult> {
+    return this.userService.updateUserByID(id, updateUserDto);
   }
 
   @Delete(':id')
@@ -116,7 +125,9 @@ export class UsersController {
   @ApiUnprocessableEntityResponse({
     description: 'Database error. (Unprocessable entity)',
   })
-  async deleteUserByID(@Param('id', ParseIntPipe) id: number) {
-    await this.userService.deleteUserByID(id);
+  async deleteUserByID(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<DeleteResult> {
+    return this.userService.deleteUserByID(id);
   }
 }
