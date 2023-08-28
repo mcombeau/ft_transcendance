@@ -121,15 +121,16 @@ export const Messages = (
   //   );
   // }
   function displayInvite(invite: Invite) {
-    return <br>Invite</br>;
+    return (
+      <br>{`You have been invited to ${invite.chatRoomID} by ${invite.senderID}`}</br>
+    );
   }
 
   function displayInvites() {
     if (!invitesPannel) {
       return <div></div>;
     }
-    // return <div>{invites.map(displayInvite)}</div>;
-    return <div>INVITES</div>;
+    return <div>{invites.map(displayInvite)}</div>;
   }
 
   function displayPublicChat(chat: ChatRoom, publicChats: ChatRoom[]) {
