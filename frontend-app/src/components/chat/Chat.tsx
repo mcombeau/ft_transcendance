@@ -225,7 +225,10 @@ export const Chat = () => {
         ownerID: info.userID,
         isDM: false,
       };
-      setChannels((prev) => [...prev, chatRoom]);
+      if (getUserID(cookies) === info.userID) {
+        setChannels((prev) => [...prev, chatRoom]);
+      }
+      setPublicChats((prev) => [...prev, chatRoom]);
       if (info.userID === getUserID(cookies)) {
         setCurrentChatRoomID(info.chatInfo.name);
       }
@@ -247,24 +250,26 @@ export const Chat = () => {
         invitedUntil: 0,
       };
 
-      setChannels((prev) => {
+      setPublicChats((prev) => {
         const temp = [...prev];
-        return temp.map((chan: ChatRoom) => {
-          if (chan.chatRoomID === info.chatRoomID) {
-            if (
-              !chan.participants.some((p: User) => p.userID === info.userID)
-            ) {
-              chan.participants = [...chan.participants, user];
-
-              serviceAnnouncement(
-                `${info.username} joined the channel.`,
-                info.chatRoomID
-              );
-            }
+        return temp.map((chat: ChatRoom) => {
+          if (chat.chatRoomID === info.chatRoomID) {
+            chat.participants = [...chat.participants, user];
           }
-          return chan;
+          return chat;
         });
       });
+
+      if (info.userID === getUserID(cookies)) {
+        setPublicChats((prev) => {
+          const temp = [...prev];
+          var chatRoom = temp.find(
+            (chan: ChatRoom) => chan.chatRoomID === info.chatRoomID
+          );
+          setChannels((prev_) => [...prev_, chatRoom]);
+          return temp;
+        });
+      }
     });
 
     socket.on("leave chat", (info: ReceivedInfo) => {
@@ -518,6 +523,7 @@ export const Chat = () => {
         });
       });
     }
+
     if (publicChats.length === 0) {
       fetch(`http://localhost:3001/chats/public`, request).then(
         async (response) => {
