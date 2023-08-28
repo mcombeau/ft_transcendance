@@ -153,15 +153,6 @@ li#mine {
   padding: 0rem 0.3rem;
 }
 
-#channel-info > li > .joinchan {
-  position: absolute;
-  top: 1.5rem;
-  right: 1rem;
-  background: white;
-  color: darkcyan;
-  padding: 0.2rem;
-}
-
 #channel-info > li > p {
   position: absolute;
   top: 0;
@@ -479,4 +470,27 @@ input:checked + .slider:before {
   /* position: relative; */
   display: inline-block;
   width: 50%;
+}
+
+/* Public chat pannel */
+
+#publicchat {
+  padding: 26px 30px;
+  margin: 0.5rem;
+  border: thin;
+  border-radius: 0.3rem;
+  background-color: lightseagreen;
+  color: white;
+  border-color: black;
+  position: relative;
+  list-style: none;
+}
+
+.joinchan {
+  position: absolute;
+  top: 1.5rem;
+  right: 1rem;
+  background: white;
+  color: darkcyan;
+  padding: 0.2rem;
 }

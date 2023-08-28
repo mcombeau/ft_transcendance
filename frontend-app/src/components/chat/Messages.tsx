@@ -4,6 +4,8 @@ import { Socket } from "socket.io-client";
 import { getUserID } from "../../cookies";
 import { Message, ChatRoom, Invite, typeInvite, User } from "./types";
 import { ContextMenuEl } from "./ContextMenu";
+import { isInChannel } from "./Chat";
+import { ReceivedInfo } from "./types";
 
 export const Messages = (
   messages: Message[],
@@ -15,6 +17,8 @@ export const Messages = (
   socket: Socket,
   invitesPannel: boolean,
   invites: Invite[],
+  publicChats: ChatRoom[],
+  publicChatsPannel: boolean,
   cookies: any,
   channels: ChatRoom[]
 ) => {
@@ -116,10 +120,64 @@ export const Messages = (
   //     </div>
   //   );
   // }
+  function displayInvite(invite: Invite) {
+    return <br>Invite</br>;
+  }
+
+  function displayInvites() {
+    if (!invitesPannel) {
+      return <div></div>;
+    }
+    // return <div>{invites.map(displayInvite)}</div>;
+    return <div>INVITES</div>;
+  }
+
+  function displayPublicChat(chat: ChatRoom, publicChats: ChatRoom[]) {
+    if (isInChannel(getUserID(cookies), chat.chatRoomID, publicChats)) {
+      var joinButton = <br></br>;
+    } else {
+      var joinButton = (
+        <button
+          className="joinchan"
+          value={chat.chatRoomID}
+          onClick={(e) => {
+            var info: ReceivedInfo = {
+              chatRoomID: parseInt(
+                (e.target as HTMLInputElement).getAttribute("value")
+              ),
+              token: cookies["token"],
+            };
+            socket.emit("join chat", info);
+          }}
+        >
+          Join
+        </button>
+      );
+    }
+    return (
+      <div id="publicchat">
+        {chat.name}
+        {joinButton}
+      </div>
+    );
+  }
+
+  function displayPublicChats() {
+    if (!publicChatsPannel) {
+      return <div></div>;
+    }
+    return (
+      <div>
+        {publicChats.map((chat) => displayPublicChat(chat, publicChats))}
+      </div>
+    );
+  }
 
   return (
     <div id="messages">
       {messages.map((msg: Message) => messageStatus(msg))}
+      {displayPublicChats()}
+      {displayInvites()}
       {ContextMenuEl(
         contextMenu,
         contextMenuTarget,

@@ -132,12 +132,14 @@ export const Chat = () => {
   const socket = useContext(WebSocketContext);
   const [messages, setMessages] = useState<Message[]>([]);
   const [channels, setChannels] = useState<ChatRoom[]>([]);
+  const [publicChats, setPublicChats] = useState<ChatRoom[]>([]);
   const [newchannel, setNewchannel] = useState("");
   const [currentChatRoomID, setCurrentChatRoomID] = useState(null); // TODO: have screen if no channels
   const [settings, setSettings] = useState(false);
   const [cookies] = useCookies(["cookie-name"]);
   const [contextMenu, setContextMenu] = useState(false);
   const [invitesPannel, setInvitesPannel] = useState(false);
+  const [publicChatsPannel, setPublicChatsPannel] = useState(false);
   const [invites, setInvites] = useState([]);
   let navigate = useNavigate();
 
@@ -498,9 +500,7 @@ export const Chat = () => {
     if (channels.length === 0) {
       // Fetching Chats
       fetch(
-        //`http://localhost:3001/users/${getUserID(cookies)}/chats`, TODO: change eventually
-        //`http://localhost:3001/chats/public`, TODO: change eventually
-        `http://localhost:3001/chats`,
+        `http://localhost:3001/users/${getUserID(cookies)}/chats`,
         request
       ).then(async (response) => {
         const chat_data = await response.json();
@@ -508,13 +508,28 @@ export const Chat = () => {
           console.log("error response load channels");
           return;
         }
-		console.log("RECEIVED CHAT DATA", chat_data);
+        console.log("RECEIVED private CHAT DATA", chat_data);
         chat_data.map(async (chatRoom: any) => {
           var chan = await formatChatData(chatRoom, request);
           setChannels((prev) => [...prev, chan]);
           return chatRoom;
         });
       });
+      fetch(`http://localhost:3001/chats/public`, request).then(
+        async (response) => {
+          const chat_data = await response.json();
+          if (!response.ok) {
+            console.log("error response load channels");
+            return;
+          }
+          console.log("RECEIVED public CHAT DATA", chat_data);
+          chat_data.map(async (chatRoom: any) => {
+            var chan = await formatChatData(chatRoom, request);
+            setPublicChats((prev) => [...prev, chan]);
+            return chatRoom;
+          });
+        }
+      );
     }
 
     if (invites.length === 0) {
@@ -600,8 +615,12 @@ export const Chat = () => {
   }, [messages]);
 
   useEffect(() => {
-    console.log(channels);
+    console.log("My chats: ", channels);
   }, [channels]);
+
+  useEffect(() => {
+    console.log("Public chats", publicChats);
+  }, [publicChats]);
 
   // TODO: test
   useEffect(() => {
@@ -627,6 +646,8 @@ export const Chat = () => {
           channels,
           invitesPannel,
           setInvitesPannel,
+          publicChatsPannel,
+          setPublicChatsPannel,
           cookies
         )}
         <div className="chat">
@@ -649,6 +670,8 @@ export const Chat = () => {
             socket,
             invitesPannel,
             invites,
+            publicChats,
+            publicChatsPannel,
             cookies,
             channels
           )}

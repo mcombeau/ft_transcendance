@@ -18,6 +18,8 @@ export const SidePannel = (
   channels: ChatRoom[],
   invitesPannel: boolean,
   setInvitesPannel: Dispatch<SetStateAction<boolean>>,
+  publicChatsPannel: boolean,
+  setPublicChatsPannel: Dispatch<SetStateAction<boolean>>,
   cookies: any
 ) => {
   const createChannel = (e: any) => {
@@ -41,7 +43,7 @@ export const SidePannel = (
       .username;
   }
 
-  const invitePannel = () => {
+  const invitesPannelElement = () => {
     var classname = "channotCurrent";
     if (invitesPannel) {
       classname = "chanCurrent";
@@ -53,10 +55,33 @@ export const SidePannel = (
           onClick={() => {
             setCurrentChatRoomID(null);
             setInvitesPannel(true);
+            setPublicChatsPannel(false);
           }}
           className={classname}
         >
           INVITES
+        </li>
+      </div>
+    );
+  };
+
+  const publicChatsPannelElement = () => {
+    var classname = "channotCurrent";
+    if (publicChatsPannel) {
+      classname = "chanCurrent";
+    }
+    return (
+      <div id="channel-info">
+        <li
+          value={"PUBLIC CHATS"}
+          onClick={() => {
+            setCurrentChatRoomID(null);
+            setInvitesPannel(false);
+            setPublicChatsPannel(true);
+          }}
+          className={classname}
+        >
+          PUBLIC CHATS
         </li>
       </div>
     );
@@ -82,29 +107,6 @@ export const SidePannel = (
       console.log(channel.name, " is a dm");
       classname += " dm";
     }
-    var joinchan = isInChannel(
-      getUserID(cookies),
-      channel.chatRoomID,
-      channels
-    ) ? (
-      <br></br>
-    ) : (
-      <button
-        className="joinchan"
-        value={channel.chatRoomID}
-        onClick={(e) => {
-          var info: ReceivedInfo = {
-            chatRoomID: parseInt(
-              (e.target as HTMLInputElement).getAttribute("value")
-            ),
-            token: cookies["token"],
-          };
-          socket.emit("join chat", info);
-        }}
-      >
-        Join
-      </button>
-    );
     return (
       <div id="channel-info">
         <li
@@ -115,6 +117,7 @@ export const SidePannel = (
             );
             setCurrentChatRoomID(targetChannel);
             setInvitesPannel(false);
+            setPublicChatsPannel(false);
             setMessages(
               messages.map((msg: Message) => {
                 if (msg.chatRoomID === targetChannel) {
@@ -142,7 +145,6 @@ export const SidePannel = (
           >
             ⚙
           </button>
-          {joinchan}
         </li>
       </div>
     );
@@ -160,7 +162,8 @@ export const SidePannel = (
         <button>+</button>
       </form>
       <div id="channels">
-        {invitePannel()}
+        {invitesPannelElement()}
+        {publicChatsPannelElement()}
         {channels.map((channel: ChatRoom) => channelInfo(channel))}
       </div>
     </div>
