@@ -120,7 +120,7 @@ export const Messages = (
   // }
 
   function displayPublicChat(chat: ChatRoom) {
-    return <div id="public chat">{chat.name}</div>;
+    return <div id="publicchat">{chat.name}</div>;
   }
 
   function displayPublicChats() {

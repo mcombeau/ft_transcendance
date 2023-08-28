@@ -480,3 +480,15 @@ input:checked + .slider:before {
   display: inline-block;
   width: 50%;
 }
+
+#publicchat {
+  padding: 26px 30px;
+  margin: 0.5rem;
+  border: thin;
+  border-radius: 0.3rem;
+  background-color: lightseagreen;
+  color: white;
+  border-color: black;
+  position: relative;
+  list-style: none;
+}
