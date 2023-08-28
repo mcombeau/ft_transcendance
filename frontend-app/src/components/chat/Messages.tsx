@@ -15,6 +15,8 @@ export const Messages = (
   socket: Socket,
   invitesPannel: boolean,
   invites: Invite[],
+  publicChats: ChatRoom[],
+  publicChatsPannel: boolean,
   cookies: any,
   channels: ChatRoom[]
 ) => {
@@ -117,9 +119,21 @@ export const Messages = (
   //   );
   // }
 
+  function displayPublicChat(chat: ChatRoom) {
+    return <div id="public chat">{chat.name}</div>;
+  }
+
+  function displayPublicChats() {
+    if (!publicChatsPannel) {
+      return <div></div>;
+    }
+    return <div>{publicChats.map(displayPublicChat)}</div>;
+  }
+
   return (
     <div id="messages">
       {messages.map((msg: Message) => messageStatus(msg))}
+      {displayPublicChats()}
       {ContextMenuEl(
         contextMenu,
         contextMenuTarget,

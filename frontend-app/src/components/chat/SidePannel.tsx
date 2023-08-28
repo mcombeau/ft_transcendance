@@ -140,6 +140,7 @@ export const SidePannel = (
             );
             setCurrentChatRoomID(targetChannel);
             setInvitesPannel(false);
+            setPublicChatsPannel(false);
             setMessages(
               messages.map((msg: Message) => {
                 if (msg.chatRoomID === targetChannel) {

@@ -670,6 +670,8 @@ export const Chat = () => {
             socket,
             invitesPannel,
             invites,
+            publicChats,
+            publicChatsPannel,
             cookies,
             channels
           )}
