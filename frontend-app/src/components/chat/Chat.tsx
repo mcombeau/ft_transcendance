@@ -273,7 +273,8 @@ export const Chat = () => {
     });
 
     socket.on("leave chat", (info: ReceivedInfo) => {
-      setChannels((prev) => {
+      console.log("LEAVE CHAT");
+      setPublicChats((prev) => {
         const temp = [...prev];
         return temp.map((chan: ChatRoom) => {
           if (chan.chatRoomID === info.chatRoomID) {
@@ -290,6 +291,17 @@ export const Chat = () => {
           return chan;
         });
       });
+      console.log("userid", info.userID);
+      console.log("myuserid", getUserID(cookies));
+      if (info.userID === getUserID(cookies)) {
+        console.log("I am here");
+        setChannels((prev) => {
+          const temp = [...prev];
+          return temp.filter(
+            (chat: ChatRoom) => chat.chatRoomID !== info.chatRoomID
+          );
+        });
+      }
     });
 
     socket.on("mute", (info: ReceivedInfo) => {
