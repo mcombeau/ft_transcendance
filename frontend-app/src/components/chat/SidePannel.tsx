@@ -18,6 +18,8 @@ export const SidePannel = (
   channels: ChatRoom[],
   invitesPannel: boolean,
   setInvitesPannel: Dispatch<SetStateAction<boolean>>,
+  publicChatsPannel: boolean,
+  setPublicChatsPannel: Dispatch<SetStateAction<boolean>>,
   cookies: any
 ) => {
   const createChannel = (e: any) => {
@@ -41,7 +43,7 @@ export const SidePannel = (
       .username;
   }
 
-  const invitePannel = () => {
+  const invitesPannelElement = () => {
     var classname = "channotCurrent";
     if (invitesPannel) {
       classname = "chanCurrent";
@@ -53,10 +55,33 @@ export const SidePannel = (
           onClick={() => {
             setCurrentChatRoomID(null);
             setInvitesPannel(true);
+            setPublicChatsPannel(false);
           }}
           className={classname}
         >
           INVITES
+        </li>
+      </div>
+    );
+  };
+
+  const publicChatsPannelElement = () => {
+    var classname = "channotCurrent";
+    if (publicChatsPannel) {
+      classname = "chanCurrent";
+    }
+    return (
+      <div id="channel-info">
+        <li
+          value={"PUBLIC CHATS"}
+          onClick={() => {
+            setCurrentChatRoomID(null);
+            setInvitesPannel(false);
+            setPublicChatsPannel(true);
+          }}
+          className={classname}
+        >
+          PUBLIC CHATS
         </li>
       </div>
     );
@@ -160,7 +185,8 @@ export const SidePannel = (
         <button>+</button>
       </form>
       <div id="channels">
-        {invitePannel()}
+        {invitesPannelElement()}
+        {publicChatsPannelElement()}
         {channels.map((channel: ChatRoom) => channelInfo(channel))}
       </div>
     </div>

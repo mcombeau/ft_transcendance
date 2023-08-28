@@ -138,6 +138,7 @@ export const Chat = () => {
   const [cookies] = useCookies(["cookie-name"]);
   const [contextMenu, setContextMenu] = useState(false);
   const [invitesPannel, setInvitesPannel] = useState(false);
+  const [publicChatsPannel, setPublicChatsPannel] = useState(false);
   const [invites, setInvites] = useState([]);
   let navigate = useNavigate();
 
@@ -496,7 +497,7 @@ export const Chat = () => {
       },
     };
     if (channels.length === 0) {
-      // Fetching Chats the user is part of
+      // Fetching Chats
       fetch(
         `http://localhost:3001/users/${getUserID(cookies)}/chats`,
         request
@@ -640,6 +641,8 @@ export const Chat = () => {
           channels,
           invitesPannel,
           setInvitesPannel,
+          publicChatsPannel,
+          setPublicChatsPannel,
           cookies
         )}
         <div className="chat">
