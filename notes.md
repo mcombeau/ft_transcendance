@@ -1,6 +1,7 @@
 - refacto chats/users -> recoit que relevant
 	- fetch chat publics + les siens
 - invitations
+	- dto pour pour les invites
 
 username protect everything = maybe override sender ?
 
@@ -30,3 +31,7 @@ username protect everything = maybe override sender ?
 - mot de passe update
 
 - change police chat
+
+Nice to have: 
+- notifs dans la navbar
+- pop up de notification

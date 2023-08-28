@@ -496,11 +496,9 @@ export const Chat = () => {
       },
     };
     if (channels.length === 0) {
-      // Fetching Chats
+      // Fetching Chats the user is part of
       fetch(
-        //`http://localhost:3001/users/${getUserID(cookies)}/chats`, TODO: change eventually
-        //`http://localhost:3001/chats/public`, TODO: change eventually
-        `http://localhost:3001/chats`,
+        `http://localhost:3001/users/${getUserID(cookies)}/chats`,
         request
       ).then(async (response) => {
         const chat_data = await response.json();
@@ -508,13 +506,28 @@ export const Chat = () => {
           console.log("error response load channels");
           return;
         }
-		console.log("RECEIVED CHAT DATA", chat_data);
+        console.log("RECEIVED private CHAT DATA", chat_data);
         chat_data.map(async (chatRoom: any) => {
           var chan = await formatChatData(chatRoom, request);
           setChannels((prev) => [...prev, chan]);
           return chatRoom;
         });
       });
+      // fetch(`http://localhost:3001/chats/public`, request).then(
+      //   async (response) => {
+      //     const chat_data = await response.json();
+      //     if (!response.ok) {
+      //       console.log("error response load channels");
+      //       return;
+      //     }
+      //     console.log("RECEIVED public CHAT DATA", chat_data);
+      //     chat_data.map(async (chatRoom: any) => {
+      //       var chan = await formatChatData(chatRoom, request);
+      //       setChannels((prev) => [...prev, chan]);
+      //       return chatRoom;
+      //     });
+      //   }
+      // );
     }
 
     if (invites.length === 0) {
