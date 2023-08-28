@@ -17,8 +17,10 @@ import {
 } from '@nestjs/swagger';
 import { InvitesService } from './invites.service';
 import { InviteEntity } from './entities/Invite.entity';
+import { sendInviteDto } from './dtos/sendInvite.dto';
 import { createInviteDto } from './dtos/createInvite.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { DeleteResult } from 'typeorm';
 
 @UseGuards(JwtAuthGuard)
 @Controller('invites')
@@ -27,45 +29,55 @@ export class InvitesController {
   constructor(private inviteService: InvitesService) {}
 
   @Get(':id')
-  @ApiOkResponse({ type: InviteEntity, description: 'Get invite by ID.' })
+  @ApiOkResponse({ type: sendInviteDto, description: 'Get invite by ID.' })
   @ApiBadRequestResponse({ description: 'Bad request.' })
-  getInviteByID(@Param('id', ParseIntPipe) id: number) {
+  getInviteByID(@Param('id', ParseIntPipe) id: number): Promise<sendInviteDto> {
     return this.inviteService.fetchInviteByID(id);
   }
 
   @Get('/sender/:id')
   @ApiOkResponse({
-    type: InviteEntity,
+    type: sendInviteDto,
+    isArray: true,
     description: 'Get invite by sender username.',
   })
   @ApiBadRequestResponse({ description: 'Bad request.' })
-  getInvitesBySenderUsername(@Param('id', ParseIntPipe) userID: number) {
+  getInvitesBySenderUsername(
+    @Param('id', ParseIntPipe) userID: number,
+  ): Promise<sendInviteDto[]> {
     return this.inviteService.fetchInvitesBySenderID(userID);
   }
 
   @Get('/received/:id')
   @ApiOkResponse({
-    type: InviteEntity,
+    type: sendInviteDto,
+    isArray: true,
     description: 'Get invite by invited user username.',
   })
   @ApiBadRequestResponse({ description: 'Bad request.' })
-  getInvitesByInvitedUsername(@Param('id', ParseIntPipe) userID: number) {
+  getInvitesByInvitedUsername(
+    @Param('id', ParseIntPipe) userID: number,
+  ): Promise<sendInviteDto[]> {
     return this.inviteService.fetchInvitesByInvitedID(userID);
   }
 
   @Get()
-  @ApiOkResponse({ type: InviteEntity, description: 'Get all invites.' })
-  getAllInvites() {
+  @ApiOkResponse({
+    type: sendInviteDto,
+    isArray: true,
+    description: 'Get all invites.',
+  })
+  getAllInvites(): Promise<sendInviteDto[]> {
     return this.inviteService.fetchAllInvites();
   }
 
   @Post()
-  @ApiCreatedResponse({ type: InviteEntity, description: 'Record created.' })
+  @ApiCreatedResponse({ type: sendInviteDto, description: 'Record created.' })
   @ApiBadRequestResponse({ description: 'Bad request.' })
   @ApiUnprocessableEntityResponse({
     description: 'Database error. (Unprocessable entity)',
   })
-  createInvite(@Body() inviteDto: createInviteDto) {
+  createInvite(@Body() inviteDto: createInviteDto): Promise<sendInviteDto> {
     return this.inviteService.createInvite(inviteDto);
   }
 
@@ -75,7 +87,9 @@ export class InvitesController {
   @ApiUnprocessableEntityResponse({
     description: 'Database error. (Unprocessable entity)',
   })
-  deleteInviteByID(@Param('id', ParseIntPipe) id: number) {
+  deleteInviteByID(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<DeleteResult> {
     return this.inviteService.deleteInviteByID(id);
   }
 }
