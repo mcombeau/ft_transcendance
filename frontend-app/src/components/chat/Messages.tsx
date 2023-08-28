@@ -120,6 +120,17 @@ export const Messages = (
   //     </div>
   //   );
   // }
+  function displayInvite(invite: Invite) {
+    return <br>Invite</br>;
+  }
+
+  function displayInvites() {
+    if (!invitesPannel) {
+      return <div></div>;
+    }
+    // return <div>{invites.map(displayInvite)}</div>;
+    return <div>INVITES</div>;
+  }
 
   function displayPublicChat(chat: ChatRoom, publicChats: ChatRoom[]) {
     if (isInChannel(getUserID(cookies), chat.chatRoomID, publicChats)) {
@@ -166,6 +177,7 @@ export const Messages = (
     <div id="messages">
       {messages.map((msg: Message) => messageStatus(msg))}
       {displayPublicChats()}
+      {displayInvites()}
       {ContextMenuEl(
         contextMenu,
         contextMenuTarget,
