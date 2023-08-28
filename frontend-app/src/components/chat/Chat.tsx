@@ -515,6 +515,8 @@ export const Chat = () => {
           return chatRoom;
         });
       });
+    }
+    if (publicChats.length === 0) {
       fetch(`http://localhost:3001/chats/public`, request).then(
         async (response) => {
           const chat_data = await response.json();
