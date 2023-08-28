@@ -359,7 +359,7 @@ export class ChatGateway implements OnModuleInit {
   // --------------------  PERMISSION CHECKS
 
   private async getChatRoomOrFail(chatRoomID: number): Promise<ChatEntity> {
-    const chatRoom = await this.getChatRoomOrFail(chatRoomID);
+    const chatRoom = await this.chatsService.fetchChatByID(chatRoomID);
     if (!chatRoom) {
       throw new ChatPermissionError(`Chat '${chatRoomID} does not exist.`);
     }
