@@ -4,6 +4,8 @@ import { Socket } from "socket.io-client";
 import { getUserID } from "../../cookies";
 import { Message, ChatRoom, Invite, typeInvite, User } from "./types";
 import { ContextMenuEl } from "./ContextMenu";
+import { isInChannel } from "./Chat";
+import { ReceivedInfo } from "./types";
 
 export const Messages = (
   messages: Message[],
@@ -119,15 +121,45 @@ export const Messages = (
   //   );
   // }
 
-  function displayPublicChat(chat: ChatRoom) {
-    return <div id="publicchat">{chat.name}</div>;
+  function displayPublicChat(chat: ChatRoom, publicChats: ChatRoom[]) {
+    if (isInChannel(getUserID(cookies), chat.chatRoomID, publicChats)) {
+      var joinButton = <br></br>;
+    } else {
+      var joinButton = (
+        <button
+          className="joinchan"
+          value={chat.chatRoomID}
+          onClick={(e) => {
+            var info: ReceivedInfo = {
+              chatRoomID: parseInt(
+                (e.target as HTMLInputElement).getAttribute("value")
+              ),
+              token: cookies["token"],
+            };
+            socket.emit("join chat", info);
+          }}
+        >
+          Join
+        </button>
+      );
+    }
+    return (
+      <div id="publicchat">
+        {chat.name}
+        {joinButton}
+      </div>
+    );
   }
 
   function displayPublicChats() {
     if (!publicChatsPannel) {
       return <div></div>;
     }
-    return <div>{publicChats.map(displayPublicChat)}</div>;
+    return (
+      <div>
+        {publicChats.map((chat) => displayPublicChat(chat, publicChats))}
+      </div>
+    );
   }
 
   return (

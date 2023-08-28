@@ -107,29 +107,6 @@ export const SidePannel = (
       console.log(channel.name, " is a dm");
       classname += " dm";
     }
-    var joinchan = isInChannel(
-      getUserID(cookies),
-      channel.chatRoomID,
-      channels
-    ) ? (
-      <br></br>
-    ) : (
-      <button
-        className="joinchan"
-        value={channel.chatRoomID}
-        onClick={(e) => {
-          var info: ReceivedInfo = {
-            chatRoomID: parseInt(
-              (e.target as HTMLInputElement).getAttribute("value")
-            ),
-            token: cookies["token"],
-          };
-          socket.emit("join chat", info);
-        }}
-      >
-        Join
-      </button>
-    );
     return (
       <div id="channel-info">
         <li
@@ -168,7 +145,6 @@ export const SidePannel = (
           >
             ⚙
           </button>
-          {joinchan}
         </li>
       </div>
     );

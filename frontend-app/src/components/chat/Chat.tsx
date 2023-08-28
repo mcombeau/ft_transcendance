@@ -139,7 +139,7 @@ export const Chat = () => {
   const [cookies] = useCookies(["cookie-name"]);
   const [contextMenu, setContextMenu] = useState(false);
   const [invitesPannel, setInvitesPannel] = useState(false);
-  const [publicChatsPannel, setPublicChatsPannel] = useState(false);
+  const [publicChatsPannel, setPublicChatsPannel] = useState(true); // TODO: change back
   const [invites, setInvites] = useState([]);
   let navigate = useNavigate();
 
