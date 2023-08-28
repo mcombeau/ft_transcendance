@@ -69,8 +69,10 @@ export enum typeInvite {
 export type Invite = {
   targetID: number;
   senderID: number;
+  targetUsername: string;
+  senderUsername: string;
   type: typeInvite;
-  chatRoomID: number;
+  chatRoomID?: number;
   expirationDate: number;
 };
 

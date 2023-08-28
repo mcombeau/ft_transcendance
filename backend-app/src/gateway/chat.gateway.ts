@@ -255,6 +255,8 @@ export class ChatGateway implements OnModuleInit {
       info.username = (
         await this.userService.fetchUserByID(info.targetID)
       ).username;
+      var sender = await this.userService.fetchUserByID(info.userID);
+      info.username2 = sender.username;
       const inviteExpiry = await this.inviteUser({
         userID: info.userID,
         targetID: info.targetID,

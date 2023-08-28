@@ -372,7 +372,9 @@ export const Chat = () => {
       );
       var invite: Invite = {
         targetID: info.targetID,
+        targetUsername: info.username,
         senderID: info.userID,
+        senderUsername: info.username2,
         type: typeInvite.Chat,
         chatRoomID: info.chatRoomID,
         expirationDate: info.inviteDate,
@@ -551,10 +553,12 @@ export const Chat = () => {
             type = typeInvite.Friend;
           }
           var invite: Invite = {
-            targetID: e.invitedUser,
-            senderID: e.inviteSender,
+            targetID: e.invitedID,
+            targetUsername: e.invitedUsername,
+            senderUsername: e.senderUsername,
+            senderID: e.senderID,
             type: type,
-            chatRoomID: e.chatRoom.id,
+            chatRoomID: e.chatRoomID, // TODO: change with gameroomid
             expirationDate: e.expiresAt,
           };
 
