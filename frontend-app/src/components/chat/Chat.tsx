@@ -242,7 +242,7 @@ export const Chat = () => {
       }
       setPublicChats((prev) => [...prev, chatRoom]);
       if (info.userID === getUserID(cookies)) {
-        setCurrentChatRoomID(info.chatInfo.name);
+        setCurrentChatRoomID(info.chatRoomID);
       }
       setNewchannel("");
       serviceAnnouncement(
