@@ -721,15 +721,9 @@ export class ChatGateway implements OnModuleInit {
   }
 
   private async leaveChatRoom(info: UserChatInfo): Promise<void> {
-    // TODO: fix this
-    let chat = await this.getChatRoomOrFail(info.chatRoomID);
     await this.chatsService.removeParticipantFromChatByUsername({
       userID: info.userID,
       chatRoomID: info.chatRoomID,
     });
-    chat = await this.getChatRoomOrFail(info.chatRoomID);
-    if (chat.participants.length === 0) {
-      await this.chatsService.deleteChatByID(chat.id);
-    }
   }
 }

@@ -182,7 +182,17 @@ export class ChatsService {
   async removeParticipantFromChatByUsername(
     info: UserChatInfo,
   ): Promise<DeleteResult> {
-    return this.chatParticipantService.deleteParticipantInChatByUserID(info);
+    const delete_result =
+      await this.chatParticipantService.deleteParticipantInChatByUserID(info);
+    const chat = await this.chatRepository.findOne({
+      where: { id: info.chatRoomID },
+      relations: ['participants'],
+    });
+    console.log('CHAT SERvice', chat);
+    if (chat.participants.length === 0) {
+      await this.deleteChatByID(info.chatRoomID);
+    }
+    return delete_result;
   }
 
   async deleteChatByID(id: number): Promise<DeleteResult> {
