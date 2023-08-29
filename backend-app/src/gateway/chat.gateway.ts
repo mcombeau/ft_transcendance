@@ -325,11 +325,17 @@ export class ChatGateway implements OnModuleInit {
       info.username = (
         await this.userService.fetchUserByID(info.targetID)
       ).username;
-      await this.banUser({
+      const isBanned = await this.banUser({
         userID: info.userID,
         targetID: info.targetID,
         chatRoomID: info.chatRoomID,
       });
+      info = {
+        ...info,
+        participantInfo: {
+          isBanned: isBanned,
+        },
+      };
       this.server.emit('ban', info);
     } catch (e) {
       const err_msg = '[Chat Gateway]: User ban error:' + e.message;
@@ -613,12 +619,12 @@ export class ChatGateway implements OnModuleInit {
     });
   }
 
-  private async banUser(info: UserTargetChat): Promise<void> {
+  private async banUser(info: UserTargetChat): Promise<boolean> {
     const user = await this.getParticipantOrFail({
       chatRoomID: info.chatRoomID,
       userID: info.userID,
     });
-    const target = await this.getParticipantOrFail({
+    let target = await this.getParticipantOrFail({
       chatRoomID: info.chatRoomID,
       userID: info.targetID,
     });
@@ -627,11 +633,15 @@ export class ChatGateway implements OnModuleInit {
     await this.checkUserIsNotOwner(target);
 
     if (target.isBanned) {
+      // Unban
       this.chatParticipantsService.deleteParticipantByID(target.id);
+      return false;
     } else {
+      // Ban
       this.chatParticipantsService.updateParticipantByID(target.id, {
         isBanned: true,
       });
+      return true;
     }
   }
 

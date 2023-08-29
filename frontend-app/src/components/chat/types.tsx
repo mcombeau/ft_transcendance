@@ -23,9 +23,9 @@ export type createChatParams = {
 };
 
 export type updateParticipantParams = {
-  operator?: boolean;
-  owner?: boolean;
-  banned?: boolean;
+  isOperator?: boolean;
+  isOwner?: boolean;
+  isBanned?: boolean;
   mutedUntil?: number;
 };
 

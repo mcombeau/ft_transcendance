@@ -371,13 +371,7 @@ export const Chat = () => {
         const temp = [...prev];
         return temp.map((chan: ChatRoom) => {
           if (chan.chatRoomID === info.chatRoomID) {
-            if (chan.banned.find((p) => p.userID === info.targetID)) {
-              chan.banned = chan.banned.filter(
-                (p) => p.userID !== info.targetID
-              );
-            } else if (
-              chan.participants.find((p) => p.userID === info.targetID)
-            ) {
+            if (info.participantInfo.isBanned) {
               var banned_user = chan.participants.find(
                 (p) => p.userID === info.targetID
               );
@@ -386,6 +380,10 @@ export const Chat = () => {
                 (p) => p.userID !== info.targetID
               );
               chan.banned = [...chan.banned, banned_user];
+            } else {
+              chan.banned = chan.banned.filter(
+                (p) => p.userID !== info.targetID
+              );
             }
           }
           return chan;
@@ -399,10 +397,17 @@ export const Chat = () => {
           );
         });
       }
-      serviceAnnouncement(
-        `${info.username} has been banned from this channel.`,
-        info.chatRoomID
-      );
+      if (info.participantInfo.isBanned) {
+        serviceAnnouncement(
+          `${info.username} has been banned from this channel.`,
+          info.chatRoomID
+        );
+      } else {
+        serviceAnnouncement(
+          `${info.username} has been unbanned from this channel.`,
+          info.chatRoomID
+        );
+      }
     });
 
     socket.on("invite", (info: ReceivedInfo) => {
@@ -502,7 +507,7 @@ export const Chat = () => {
           if (chan.chatRoomID === info.chatRoomID) {
             chan.participants.map((p: User) => {
               if (p.userID === info.targetID) {
-                p.isOperator = info.participantInfo.operator;
+                p.isOperator = info.participantInfo.isOperator;
                 console.log("isoperator", p.isOperator);
                 if (p.isOperator) {
                   serviceAnnouncement(
