@@ -389,6 +389,28 @@ export const Chat = () => {
           return chan;
         });
       });
+      setPublicChats((prev) => {
+        const temp = [...prev];
+        return temp.map((chan: ChatRoom) => {
+          if (chan.chatRoomID === info.chatRoomID) {
+            if (info.participantInfo.isBanned) {
+              var banned_user = chan.participants.find(
+                (p) => p.userID === info.targetID
+              );
+              banned_user.isBanned = true;
+              chan.participants = chan.participants.filter(
+                (p) => p.userID !== info.targetID
+              );
+              chan.banned = [...chan.banned, banned_user];
+            } else {
+              chan.banned = chan.banned.filter(
+                (p) => p.userID !== info.targetID
+              );
+            }
+          }
+          return chan;
+        });
+      });
       if (info.targetID === getUserID(cookies)) {
         setChannels((prev) => {
           const temp = [...prev];
