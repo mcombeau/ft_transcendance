@@ -107,8 +107,6 @@ export async function formatChatData(chatRoom: any, request: any) {
     return participants;
   });
   if (participant_list === null) return;
-  console.log("CHAT ROOM DATA", chatRoom);
-  console.log("PARTICIPANT LIST", participant_list);
   var chan: ChatRoom = {
     chatRoomID: chatRoom.id,
     name: chatRoom.name,
@@ -179,8 +177,10 @@ export const Chat = () => {
     });
 
     socket.on("delete chat", (info: ReceivedInfo) => {
-      // TODO: delete from public chats list
       setChannels((prev) =>
+        prev.filter((e: ChatRoom) => e.chatRoomID !== info.chatRoomID)
+      );
+      setPublicChats((prev) =>
         prev.filter((e: ChatRoom) => e.chatRoomID !== info.chatRoomID)
       );
       setMessages((prev) =>
@@ -191,9 +191,19 @@ export const Chat = () => {
       setCurrentChatRoomID("");
     });
 
-    socket.on("toggle private", (info: ReceivedInfo) => {
-      // TODO: delete from public chats list
-      console.log("TOGGLE PRIVATE");
+    socket.on("toggle private", async (info: ReceivedInfo) => {
+      if (info.chatInfo.isPrivate) {
+        setPublicChats((prev) =>
+          prev.filter((e: ChatRoom) => e.chatRoomID !== info.chatRoomID)
+        );
+      } else {
+        var chatInfo = {
+          ...info.chatInfo,
+          id: info.chatRoomID,
+        };
+        var chat = await formatChatData(chatInfo, request);
+        setPublicChats((prev) => [...prev, chat]);
+      }
       setChannels((prev) => {
         const temp = [...prev];
         return temp.map((chan: ChatRoom) => {

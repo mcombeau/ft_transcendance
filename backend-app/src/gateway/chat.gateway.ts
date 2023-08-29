@@ -238,6 +238,7 @@ export class ChatGateway implements OnModuleInit {
             chatRoomID: info.chatRoomID,
           }),
           name: chat.name,
+          isDirectMessage: chat.isDirectMessage,
         },
       };
 
