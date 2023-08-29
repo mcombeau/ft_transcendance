@@ -260,6 +260,20 @@ export const Chat = () => {
         });
       });
 
+      setChannels((prev) => {
+        const temp = [...prev];
+        return temp.map((chat: ChatRoom) => {
+          if (chat.chatRoomID === info.chatRoomID) {
+            chat.participants = [...chat.participants, user];
+            serviceAnnouncement(
+              `${info.username} has joined the channel`,
+              chat.chatRoomID
+            );
+          }
+          return chat;
+        });
+      });
+
       if (info.userID === getUserID(cookies)) {
         setPublicChats((prev) => {
           const temp = [...prev];
@@ -275,6 +289,19 @@ export const Chat = () => {
     socket.on("leave chat", (info: ReceivedInfo) => {
       console.log("LEAVE CHAT");
       setPublicChats((prev) => {
+        const temp = [...prev];
+        return temp.map((chan: ChatRoom) => {
+          if (chan.chatRoomID === info.chatRoomID) {
+            if (chan.participants.some((p: User) => p.userID === info.userID)) {
+              chan.participants = chan.participants.filter(
+                (p) => p.userID !== info.userID
+              );
+            }
+          }
+          return chan;
+        });
+      });
+      setChannels((prev) => {
         const temp = [...prev];
         return temp.map((chan: ChatRoom) => {
           if (chan.chatRoomID === info.chatRoomID) {
