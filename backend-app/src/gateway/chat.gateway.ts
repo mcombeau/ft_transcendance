@@ -527,6 +527,11 @@ export class ChatGateway implements OnModuleInit {
         info,
       );
     if (participant) {
+      if (participant.isBanned) {
+        throw new ChatJoinError(
+          `User '${info.userID}' is banned from '${info.chatRoomID}'.`,
+        );
+      }
       console.log('[Chat Gateway]: participant', participant);
       throw new ChatJoinError(
         `User '${info.userID}' is already in chat '${info.chatRoomID}'.`,

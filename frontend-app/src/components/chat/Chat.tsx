@@ -179,6 +179,7 @@ export const Chat = () => {
     });
 
     socket.on("delete chat", (info: ReceivedInfo) => {
+      // TODO: delete from public chats list
       setChannels((prev) =>
         prev.filter((e: ChatRoom) => e.chatRoomID !== info.chatRoomID)
       );
@@ -191,6 +192,7 @@ export const Chat = () => {
     });
 
     socket.on("toggle private", (info: ReceivedInfo) => {
+      // TODO: delete from public chats list
       console.log("TOGGLE PRIVATE");
       setChannels((prev) => {
         const temp = [...prev];
