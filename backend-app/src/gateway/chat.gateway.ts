@@ -150,7 +150,16 @@ export class ChatGateway implements OnModuleInit {
         userID: info.userID,
         chatRoomID: info.chatRoomID,
       });
+      const chat = await this.chatsService.fetchChatByID(info.chatRoomID);
       info.username = user.username;
+      info = {
+        ...info,
+        chatInfo: {
+          isPrivate: chat.isPrivate,
+          isDirectMessage: chat.isDirectMessage,
+          name: chat.name,
+        },
+      };
       this.server.emit('join chat', info);
     } catch (e) {
       const err_msg = '[Chat Gateway]: Chat join error:' + e.message;

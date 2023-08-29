@@ -238,11 +238,7 @@ export const Chat = () => {
           prev.filter((e: ChatRoom) => e.chatRoomID !== info.chatRoomID)
         );
       } else {
-        var chatInfo = {
-          ...info.chatInfo,
-          id: info.chatRoomID,
-        };
-        var chat = await fetchChatParticipants(chatInfo, request);
+        var chat = await fetchChatParticipants(info, request);
         setPublicChats((prev) => [...prev, chat]);
       }
       setChannels((prev) => {
