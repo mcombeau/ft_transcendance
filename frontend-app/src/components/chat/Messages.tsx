@@ -134,6 +134,7 @@ export const Messages = (
   }
 
   function displayPublicChat(chat: ChatRoom, publicChats: ChatRoom[]) {
+    // TODO: check if the public chat is also in mychats
     if (isInChannel(getUserID(cookies), chat.chatRoomID, publicChats)) {
       var joinButton = <br></br>;
     } else {

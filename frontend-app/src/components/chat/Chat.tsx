@@ -20,6 +20,7 @@ import {
   Invite,
   ReceivedInfo,
   typeInvite,
+  PublicChatRoom,
 } from "./types";
 
 export function isInChannel(
@@ -82,9 +83,37 @@ export function getChatRoomIDFromName(
   }).chatRoomID;
 }
 
-export async function formatChatData(chatRoom: any, request: any) {
+export async function fetchChatData(
+  chatRoom: any,
+  request: any
+): Promise<ChatRoom> {
+  var participant_list = await fetchChatParticipants(chatRoom.id, request);
+  var message_list = await fetchChatMessages(chatRoom.id, request);
+  var chan: ChatRoom = {
+    chatRoomID: chatRoom.id,
+    name: chatRoom.name,
+    isPrivate: chatRoom.isPrivate,
+    ownerID: chatRoom.isDirectMessage
+      ? null
+      : participant_list.find((u: User) => u.isOwner).userID,
+    participants: participant_list.filter(
+      (user: User) => !user.isBanned && user.invitedUntil === null
+    ),
+    banned: participant_list.filter((user: User) => user.isBanned),
+    invited: participant_list.filter(
+      (user: User) => user.invitedUntil !== null
+    ),
+    isDM: chatRoom.isDirectMessage,
+    messages: message_list,
+  };
+  return chan;
+}
+export async function fetchChatParticipants(
+  chatRoomID: number,
+  request: any
+): Promise<User[]> {
   var participant_list = await fetch(
-    `http://localhost:3001/chats/${chatRoom.id}/participants`,
+    `http://localhost:3001/chats/${chatRoomID}/participants`,
     request
   ).then(async (response) => {
     const participant_data = await response.json();
@@ -106,31 +135,43 @@ export async function formatChatData(chatRoom: any, request: any) {
     });
     return participants;
   });
-  if (participant_list === null) return;
-  var chan: ChatRoom = {
-    chatRoomID: chatRoom.id,
-    name: chatRoom.name,
-    isPrivate: chatRoom.isPrivate,
-    ownerID: chatRoom.isDirectMessage
-      ? null
-      : participant_list.find((u: User) => u.isOwner).userID,
-    participants: participant_list.filter(
-      (user: User) => !user.isBanned && user.invitedUntil === null
-    ),
-    banned: participant_list.filter((user: User) => user.isBanned),
-    invited: participant_list.filter(
-      (user: User) => user.invitedUntil !== null
-    ),
-    isDM: chatRoom.isDirectMessage,
-  };
-  return chan;
+  return participant_list;
+}
+
+export async function fetchChatMessages(
+  chatRoomID: number,
+  request: any
+): Promise<Message[]> {
+  var message_list = await fetch(
+    `http://localhost:3001/chats/${chatRoomID}/messages`,
+    request
+  ).then(async (response) => {
+    const message_data = await response.json();
+    if (!response.ok) {
+      console.log("error response load messages");
+      return null;
+    }
+    var messages = message_data.map((message: any) => {
+      var newMessage: Message = {
+        datestamp: message.sentAt,
+        msg: message.message,
+        senderID: message.sender.id,
+        senderUsername: message.sender.username,
+        chatRoomID: message.chatRoom.id,
+        read: true,
+        system: false,
+      };
+      return newMessage;
+    });
+    return messages;
+  });
+  return message_list;
 }
 
 export const Chat = () => {
   const socket = useContext(WebSocketContext);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [channels, setChannels] = useState<ChatRoom[]>([]);
-  const [publicChats, setPublicChats] = useState<ChatRoom[]>([]);
+  const [myChats, setMyChats] = useState<ChatRoom[]>([]);
+  const [publicChats, setPublicChats] = useState<PublicChatRoom[]>([]);
   const [newchannel, setNewchannel] = useState("");
   const [currentChatRoomID, setCurrentChatRoomID] = useState(null); // TODO: have screen if no channels
   const [settings, setSettings] = useState(false);
@@ -201,7 +242,7 @@ export const Chat = () => {
           ...info.chatInfo,
           id: info.chatRoomID,
         };
-        var chat = await formatChatData(chatInfo, request);
+        var chat = await fetchChatParticipants(chatInfo, request);
         setPublicChats((prev) => [...prev, chat]);
       }
       setChannels((prev) => {
@@ -218,37 +259,37 @@ export const Chat = () => {
     socket.on("add chat", (info: ReceivedInfo) => {
       console.log("Added new chat");
       console.log(info);
-      var user: User = {
-        userID: info.userID,
-        username: info.username,
-        isOwner: true,
-        isOperator: true,
-        isBanned: false,
-        mutedUntil: new Date().getTime(),
-        invitedUntil: 0,
-      };
-      var chatRoom: ChatRoom = {
+
+      var publicChatRoom: PublicChatRoom = {
         chatRoomID: info.chatRoomID,
         name: info.chatInfo.name,
-        participants: [user],
-        banned: [],
-        invited: [],
-        isPrivate: info.chatInfo.isPrivate,
-        ownerID: info.userID,
-        isDM: false,
       };
-      if (getUserID(cookies) === info.userID) {
-        setChannels((prev) => [...prev, chatRoom]);
-      }
-      setPublicChats((prev) => [...prev, chatRoom]);
+
+      setPublicChats((prev) => [...prev, publicChatRoom]);
+
+      // TODO : check if I have more info #socket refacto
       if (info.userID === getUserID(cookies)) {
-        setCurrentChatRoomID(info.chatRoomID);
+        var user: User = {
+          userID: info.userID,
+          username: info.username,
+          isOwner: true,
+          isOperator: true,
+          isBanned: false,
+          mutedUntil: new Date().getTime(),
+          invitedUntil: 0,
+        };
+        var chatRoom: ChatRoom = {
+          chatRoomID: info.chatRoomID,
+          name: info.chatInfo.name,
+          participants: [user],
+          banned: [],
+          invited: [],
+          isPrivate: info.chatInfo.isPrivate,
+          ownerID: info.userID,
+          isDM: false,
+        };
+        setMyChats((prev) => [...prev, chatRoom]);
       }
-      setNewchannel("");
-      serviceAnnouncement(
-        `${user.username} created channel.`,
-        chatRoom.chatRoomID
-      );
     });
 
     socket.on("join chat", (info: ReceivedInfo) => {
@@ -261,16 +302,6 @@ export const Chat = () => {
         mutedUntil: new Date().getTime(),
         invitedUntil: 0,
       };
-
-      setPublicChats((prev) => {
-        const temp = [...prev];
-        return temp.map((chat: ChatRoom) => {
-          if (chat.chatRoomID === info.chatRoomID) {
-            chat.participants = [...chat.participants, user];
-          }
-          return chat;
-        });
-      });
 
       setChannels((prev) => {
         const temp = [...prev];
@@ -603,7 +634,7 @@ export const Chat = () => {
         }
         console.log("RECEIVED private CHAT DATA", chat_data);
         chat_data.map(async (chatRoom: any) => {
-          var chan = await formatChatData(chatRoom, request);
+          var chan = await fetchChatParticipants(chatRoom, request);
           setChannels((prev) => [...prev, chan]);
           return chatRoom;
         });
@@ -620,7 +651,7 @@ export const Chat = () => {
           }
           console.log("RECEIVED public CHAT DATA", chat_data);
           chat_data.map(async (chatRoom: any) => {
-            var chan = await formatChatData(chatRoom, request);
+            var chan = await fetchChatParticipants(chatRoom, request);
             setPublicChats((prev) => [...prev, chan]);
             return chatRoom;
           });

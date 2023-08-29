@@ -1,6 +1,9 @@
 - chats public are just a name + id / all infos for private chats 
 - socket sends to people who need to know
 
+Side Quests:
+- change format message controller
+
 ---
 
 - validation channel name

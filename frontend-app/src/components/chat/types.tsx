@@ -54,10 +54,16 @@ export type ChatRoom = {
   name: string;
   ownerID: number;
   participants: User[];
+  messages: Message[];
   invited: User[];
   banned: User[];
   isPrivate: boolean;
   isDM: boolean;
+};
+
+export type PublicChatRoom = {
+  chatRoomID: number;
+  name: string;
 };
 
 export enum typeInvite {
