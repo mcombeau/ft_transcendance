@@ -379,6 +379,12 @@ export const Chat = () => {
           return chan;
         });
       });
+      setChannels((prev) => {
+        const temp = [...prev];
+        return temp.filter(
+          (chat: ChatRoom) => chat.chatRoomID !== info.chatRoomID
+        );
+      });
       serviceAnnouncement(
         `${info.username} has been banned from this channel.`,
         info.chatRoomID

@@ -7,6 +7,8 @@ import { UserEntity } from 'src/users/entities/user.entity';
 import { createUserParams } from 'src/users/utils/types';
 import { updateUserParams } from 'src/users/utils/types';
 import { Repository, UpdateResult, DeleteResult } from 'typeorm';
+import { ChatsService } from 'src/chats/chats.service';
+import { sendParticipantDto } from 'src/chat-participants/dtos/sendChatParticipant.dto';
 
 @Injectable()
 export class UsersService {
@@ -15,6 +17,8 @@ export class UsersService {
     private userRepository: Repository<UserEntity>,
     @Inject(forwardRef(() => PasswordService))
     private passwordService: PasswordService,
+    @Inject(forwardRef(() => ChatsService))
+    private chatsService: ChatsService,
   ) {}
 
   fetchUsers(): Promise<UserEntity[]> {
@@ -40,10 +44,10 @@ export class UsersService {
     return user;
   }
 
-  async fetchUserChatsByUserID(id: number): Promise<ChatEntity[]> {
+  async fetchUserChatsByUserID(userID: number): Promise<ChatEntity[]> {
     const user = await this.userRepository
       .findOne({
-        where: { id },
+        where: { id: userID },
         relations: ['chatRooms.chatRoom'],
       })
       .catch((e) => {
@@ -53,7 +57,15 @@ export class UsersService {
 
     const userChatRooms: ChatEntity[] = [];
     for (const e of user.chatRooms) {
-      userChatRooms.push(e.chatRoom);
+      const participants =
+        await this.chatsService.fetchChatParticipantsByChatID(e.chatRoom.id);
+      if (
+        participants.some((user: sendParticipantDto) => {
+          return user.userID === userID && !user.isBanned;
+        })
+      ) {
+        userChatRooms.push(e.chatRoom);
+      }
     }
     return userChatRooms;
   }

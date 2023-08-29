@@ -57,7 +57,9 @@ export class ChatsService {
     });
   }
 
-  async fetchChatParticipantsByID(id: number): Promise<sendParticipantDto[]> {
+  async fetchChatParticipantsByChatID(
+    id: number,
+  ): Promise<sendParticipantDto[]> {
     const participants =
       await this.participantService.fetchParticipantsByChatID(id);
     return participants;

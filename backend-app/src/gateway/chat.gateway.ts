@@ -141,6 +141,7 @@ export class ChatGateway implements OnModuleInit {
   // TODO: Validate chat join by checking password if there is one.
   @SubscribeMessage('join chat')
   async onJoinChat(@MessageBody() info: ReceivedInfoDto): Promise<void> {
+    // TODO: good error message "You have been banned"
     try {
       info.userID = await this.checkIdentity(info.token);
       console.log('[Chat Gateway]: Join chat', info);

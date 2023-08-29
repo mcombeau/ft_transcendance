@@ -51,7 +51,7 @@ export class ChatsController {
   async getChatParticipantsByChatRoomID(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<sendParticipantDto[]> {
-    return this.chatService.fetchChatParticipantsByID(id);
+    return this.chatService.fetchChatParticipantsByChatID(id);
   }
 
   @Get(':id/messages')
