@@ -16,7 +16,7 @@ import { PasswordService } from 'src/password/password.service';
 import { sendParticipantDto } from 'src/chat-participants/dtos/sendChatParticipant.dto';
 import { ChatParticipantEntity } from 'src/chat-participants/entities/chat-participant.entity';
 import { UserEntity } from 'src/users/entities/user.entity';
-import { ChatMessageEntity } from 'src/chat-messages/entities/chat-message.entity';
+import { sendChatMessageDto } from 'src/chat-messages/dtos/sendChatMessage.dto';
 
 @Injectable()
 export class ChatsService {
@@ -65,7 +65,7 @@ export class ChatsService {
     return participants;
   }
 
-  async fetchChatRoomMessagesByID(id: number): Promise<ChatMessageEntity[]> {
+  async fetchChatRoomMessagesByID(id: number): Promise<sendChatMessageDto[]> {
     const messages = await this.chatMessageService.fetchMessagesByChatID(id);
     return messages;
   }

@@ -24,7 +24,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { updateChatDto } from './dtos/updateChats.dto';
 import { sendParticipantDto } from 'src/chat-participants/dtos/sendChatParticipant.dto';
 import { UpdateResult, DeleteResult } from 'typeorm';
-import { ChatMessageEntity } from 'src/chat-messages/entities/chat-message.entity';
+import { sendChatMessageDto } from 'src/chat-messages/dtos/sendChatMessage.dto';
 
 @Controller('chats')
 @UseGuards(JwtAuthGuard)
@@ -56,13 +56,13 @@ export class ChatsController {
 
   @Get(':id/messages')
   @ApiOkResponse({
-    type: ChatMessageEntity,
+    type: sendChatMessageDto,
     isArray: true,
     description: 'Get chat messages by chat id.',
   })
   async getChatMessagesByChatRoomID(
     @Param('id', ParseIntPipe) id: number,
-  ): Promise<ChatMessageEntity[]> {
+  ): Promise<sendChatMessageDto[]> {
     return this.chatService.fetchChatRoomMessagesByID(id);
   }
 

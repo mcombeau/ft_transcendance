@@ -9,6 +9,7 @@ import {
   UserNotFoundError,
 } from 'src/exceptions/not-found.interceptor';
 import { createChatMessageParams } from './utils/types';
+import { sendChatMessageDto } from './dtos/sendChatMessage.dto';
 
 @Injectable()
 export class ChatMessagesService {
@@ -19,23 +20,48 @@ export class ChatMessagesService {
     @Inject(forwardRef(() => UsersService)) private userService: UsersService,
   ) {}
 
-  async fetchMessages(): Promise<ChatMessageEntity[]> {
-    const msg = await this.chatMessagesRepository.find({
-      relations: ['chatRoom', 'sender'],
-    });
-    return msg;
+  private formatChatMessageForSending(
+    message: ChatMessageEntity,
+  ): sendChatMessageDto {
+    const sendMessage: sendChatMessageDto = {
+      messageID: message.id,
+      message: message.message,
+      senderID: message.sender.id,
+      senderUsername: message.sender.username,
+      chatRoomID: message.chatRoom.id,
+      sentAt: message.sentAt,
+    };
+    return sendMessage;
   }
 
-  fetchMessage(id: number): Promise<ChatMessageEntity> {
-    return this.chatMessagesRepository.findOne({
+  private formatChatMessageArrayForSending(
+    messages: ChatMessageEntity[],
+  ): sendChatMessageDto[] {
+    return messages.map(this.formatChatMessageForSending);
+  }
+
+  async fetchMessages(): Promise<sendChatMessageDto[]> {
+    const messages = await this.chatMessagesRepository.find({
+      relations: ['chatRoom', 'sender'],
+    });
+    return this.formatChatMessageArrayForSending(messages);
+  }
+
+  async fetchMessage(id: number): Promise<sendChatMessageDto> {
+    const message = await this.chatMessagesRepository.findOne({
       where: { id },
       relations: { sender: true },
     });
+    return this.formatChatMessageForSending(message);
   }
 
-  async fetchMessagesByChatID(id: number): Promise<ChatMessageEntity[]> {
+  async fetchMessagesByChatID(id: number): Promise<sendChatMessageDto[]> {
     const chatRoom = await this.chatService.fetchChatByID(id);
-    return this.chatMessagesRepository.find({ where: { chatRoom: chatRoom } });
+    const messages = await this.chatMessagesRepository.find({
+      where: { chatRoom: chatRoom },
+      relations: ['chatRoom', 'sender'],
+    });
+    return this.formatChatMessageArrayForSending(messages);
   }
 
   async createMessage(

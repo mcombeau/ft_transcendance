@@ -21,6 +21,7 @@ import {
 import { ChatMessageEntity } from './entities/chat-message.entity';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { DeleteResult } from 'typeorm';
+import { sendChatMessageDto } from './dtos/sendChatMessage.dto';
 
 // TODO: remove unecessary controller
 @UseGuards(JwtAuthGuard)
@@ -31,12 +32,12 @@ export class ChatMessagesController {
 
   @Get(':id')
   @ApiOkResponse({
-    type: ChatMessageEntity,
+    type: sendChatMessageDto,
     description: 'Get chat message by ID.',
   })
   async getMessageByID(
     @Param('id', ParseIntPipe) id: number,
-  ): Promise<ChatMessageEntity> {
+  ): Promise<sendChatMessageDto> {
     const message = await this.chatMessageService.fetchMessage(id);
     if (!message) throw new ChatMessageNotFoundException(id.toString());
     return message;
@@ -44,11 +45,11 @@ export class ChatMessagesController {
 
   @Get()
   @ApiOkResponse({
-    type: ChatMessageEntity,
+    type: sendChatMessageDto,
     isArray: true,
     description: 'Get all chat messages.',
   })
-  getAllMessages(): Promise<ChatMessageEntity[]> {
+  getAllMessages(): Promise<sendChatMessageDto[]> {
     return this.chatMessageService.fetchMessages();
   }
 
