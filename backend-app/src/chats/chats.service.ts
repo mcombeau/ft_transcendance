@@ -188,7 +188,6 @@ export class ChatsService {
       where: { id: info.chatRoomID },
       relations: ['participants'],
     });
-    console.log('CHAT SERvice', chat);
     if (chat.participants.length === 0) {
       await this.deleteChatByID(info.chatRoomID);
     }
