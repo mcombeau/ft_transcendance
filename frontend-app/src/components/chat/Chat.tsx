@@ -84,16 +84,19 @@ export function getChatRoomIDFromName(
 }
 
 export async function fetchChatData(
-  chatRoom: any,
+  chatRoomID: number,
+  chatRoomName: string,
+  isPrivate: boolean,
+  isDirectMessage: boolean,
   request: any
 ): Promise<ChatRoom> {
-  var participant_list = await fetchChatParticipants(chatRoom.id, request);
-  var message_list = await fetchChatMessages(chatRoom.id, request);
+  var participant_list = await fetchChatParticipants(chatRoomID, request);
+  var message_list = await fetchChatMessages(chatRoomID, request);
   var chan: ChatRoom = {
-    chatRoomID: chatRoom.id,
-    name: chatRoom.name,
-    isPrivate: chatRoom.isPrivate,
-    ownerID: chatRoom.isDirectMessage
+    chatRoomID: chatRoomID,
+    name: chatRoomName,
+    isPrivate: isPrivate,
+    ownerID: isDirectMessage
       ? null
       : participant_list.find((u: User) => u.isOwner).userID,
     participants: participant_list.filter(
@@ -103,7 +106,7 @@ export async function fetchChatData(
     invited: participant_list.filter(
       (user: User) => user.invitedUntil !== null
     ),
-    isDM: chatRoom.isDirectMessage,
+    isDM: isDirectMessage,
     messages: message_list,
   };
   return chan;
@@ -155,9 +158,9 @@ export async function fetchChatMessages(
       var newMessage: Message = {
         datestamp: message.sentAt,
         msg: message.message,
-        senderID: message.sender.id,
-        senderUsername: message.sender.username,
-        chatRoomID: message.chatRoom.id,
+        senderID: message.senderID,
+        senderUsername: message.senderUsername,
+        chatRoomID: message.chatRoomID,
         read: true,
         system: false,
       };
@@ -288,7 +291,7 @@ export const Chat = () => {
       }
     });
 
-    socket.on("join chat", (info: ReceivedInfo) => {
+    socket.on("join chat", async (info: ReceivedInfo) => {
       var user: User = {
         userID: info.userID,
         username: info.username,
@@ -299,7 +302,8 @@ export const Chat = () => {
         invitedUntil: 0,
       };
 
-      setChannels((prev) => {
+      // For everybody in the chat, update participants
+      setMyChats((prev) => {
         const temp = [...prev];
         return temp.map((chat: ChatRoom) => {
           if (chat.chatRoomID === info.chatRoomID) {
@@ -314,14 +318,15 @@ export const Chat = () => {
       });
 
       if (info.userID === getUserID(cookies)) {
-        setPublicChats((prev) => {
-          const temp = [...prev];
-          var chatRoom = temp.find(
-            (chan: ChatRoom) => chan.chatRoomID === info.chatRoomID
-          );
-          setChannels((prev_) => [...prev_, chatRoom]);
-          return temp;
-        });
+        // If i'm the one joining create new mychat and fetch info
+        const newChat = await fetchChatData(
+          info.chatRoomID,
+          info.chatInfo.name,
+          info.chatInfo.isPrivate,
+          false,
+          request
+        );
+        setMyChats((prev) => [...prev, newChat]);
       }
     });
 
