@@ -383,68 +383,56 @@ export const Chat = () => {
     });
 
     socket.on("ban", (info: ReceivedInfo) => {
-      setChannels((prev) => {
-        const temp = [...prev];
-        return temp.map((chan: ChatRoom) => {
-          if (chan.chatRoomID === info.chatRoomID) {
-            if (info.participantInfo.isBanned) {
-              var banned_user = chan.participants.find(
-                (p) => p.userID === info.targetID
-              );
-              banned_user.isBanned = true;
-              chan.participants = chan.participants.filter(
-                (p) => p.userID !== info.targetID
-              );
-              chan.banned = [...chan.banned, banned_user];
-            } else {
-              chan.banned = chan.banned.filter(
-                (p) => p.userID !== info.targetID
-              );
-            }
-          }
-          return chan;
-        });
-      });
-      setPublicChats((prev) => {
-        const temp = [...prev];
-        return temp.map((chan: ChatRoom) => {
-          if (chan.chatRoomID === info.chatRoomID) {
-            if (info.participantInfo.isBanned) {
-              var banned_user = chan.participants.find(
-                (p) => p.userID === info.targetID
-              );
-              banned_user.isBanned = true;
-              chan.participants = chan.participants.filter(
-                (p) => p.userID !== info.targetID
-              );
-              chan.banned = [...chan.banned, banned_user];
-            } else {
-              chan.banned = chan.banned.filter(
-                (p) => p.userID !== info.targetID
-              );
-            }
-          }
-          return chan;
-        });
-      });
-      if (info.targetID === getUserID(cookies)) {
-        setChannels((prev) => {
-          const temp = [...prev];
-          return temp.filter(
-            (chat: ChatRoom) => chat.chatRoomID !== info.chatRoomID
-          );
-        });
-      }
+      // If somebody is being banned
       if (info.participantInfo.isBanned) {
-        serviceAnnouncement(
-          `${info.username} has been banned from this channel.`,
-          info.chatRoomID
-        );
+        if (info.userID === getUserID(cookies)) {
+          // If i'm the one being banned remove chat from mychats
+          setMyChats((prev) => {
+            const tmp = [...prev];
+            return tmp.filter(
+              (chat: ChatRoom) => chat.chatRoomID !== info.chatRoomID
+            );
+          });
+        }
+        // For other people, move participant to banned list
+        setMyChats((prev) => {
+          const temp = [...prev];
+          return temp.map((chat: ChatRoom) => {
+            if (chat.chatRoomID === info.chatRoomID) {
+              var banned_user = chat.participants.find(
+                (p) => p.userID === info.targetID
+              );
+              banned_user.isBanned = true;
+              chat.participants = chat.participants.filter(
+                (p) => p.userID !== info.targetID
+              );
+              chat.banned = [...chat.banned, banned_user];
+              serviceAnnouncement(
+                `${info.username} has been banned from this channel.`,
+                info.chatRoomID
+              );
+            }
+            return chat;
+          });
+        });
       } else {
-        serviceAnnouncement(
-          `${info.username} has been unbanned from this channel.`,
-          info.chatRoomID
-        );
+        // Somebody is being unbanned
+        setMyChats((prev) => {
+          const temp = [...prev];
+          return temp.map((chat: ChatRoom) => {
+            if (chat.chatRoomID === info.chatRoomID) {
+              chat.banned = chat.banned.filter(
+                (p) => p.userID !== info.targetID
+              );
+
+              serviceAnnouncement(
+                `${info.username} has been unbanned from this channel.`,
+                info.chatRoomID
+              );
+            }
+            return chat;
+          });
+        });
       }
     });
 
@@ -521,21 +509,32 @@ export const Chat = () => {
     });
 
     socket.on("kick", (info: ReceivedInfo) => {
-      setChannels((prev) => {
+      // For everybody in the chat, update participants
+      setMyChats((prev) => {
         const temp = [...prev];
-        return temp.map((chan: ChatRoom) => {
-          if (chan.chatRoomID === info.chatRoomID) {
-            chan.participants = chan.participants.filter(
-              (p: User) => p.userID !== info.targetID
+        return temp.map((chat: ChatRoom) => {
+          if (chat.chatRoomID === info.chatRoomID) {
+            chat.participants = chat.participants.filter(
+              (participant: User) => participant.userID !== info.userID
+            );
+            serviceAnnouncement(
+              `${info.username} has been kicked from the channel`,
+              chat.chatRoomID
             );
           }
-          return chan;
+          return chat;
         });
       });
-      serviceAnnouncement(
-        `${info.username} has been kicked from this channel.`,
-        info.chatRoomID
-      );
+
+      if (info.userID === getUserID(cookies)) {
+        // If i'm the one being kicked remove chat from mychats
+        setMyChats((prev) => {
+          const tmp = [...prev];
+          return tmp.filter(
+            (chat: ChatRoom) => chat.chatRoomID !== info.chatRoomID
+          );
+        });
+      }
     });
 
     socket.on("operator", (info: ReceivedInfo) => {
