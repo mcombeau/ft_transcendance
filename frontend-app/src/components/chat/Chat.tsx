@@ -199,7 +199,7 @@ export const Chat = () => {
       system: true,
       senderUsername: null,
     };
-    setMessages((prev) => [...prev, message]);
+    addMessageToChatRoom(message, chatRoomID);
   }
 
   function addMessageToChatRoom(message: Message, chatRoomID: number) {
