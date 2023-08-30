@@ -331,44 +331,28 @@ export const Chat = () => {
     });
 
     socket.on("leave chat", (info: ReceivedInfo) => {
-      console.log("LEAVE CHAT");
-      setPublicChats((prev) => {
+      // For everybody in the chat, update participants
+      setMyChats((prev) => {
         const temp = [...prev];
-        return temp.map((chan: ChatRoom) => {
-          if (chan.chatRoomID === info.chatRoomID) {
-            if (chan.participants.some((p: User) => p.userID === info.userID)) {
-              chan.participants = chan.participants.filter(
-                (p) => p.userID !== info.userID
-              );
-            }
+        return temp.map((chat: ChatRoom) => {
+          if (chat.chatRoomID === info.chatRoomID) {
+            chat.participants = chat.participants.filter(
+              (participant: User) => participant.userID !== info.userID
+            );
+            serviceAnnouncement(
+              `${info.username} has left the channel`,
+              chat.chatRoomID
+            );
           }
-          return chan;
+          return chat;
         });
       });
-      setChannels((prev) => {
-        const temp = [...prev];
-        return temp.map((chan: ChatRoom) => {
-          if (chan.chatRoomID === info.chatRoomID) {
-            if (chan.participants.some((p: User) => p.userID === info.userID)) {
-              chan.participants = chan.participants.filter(
-                (p) => p.userID !== info.userID
-              );
-              serviceAnnouncement(
-                `${info.username} has left the channel`,
-                chan.chatRoomID
-              );
-            }
-          }
-          return chan;
-        });
-      });
-      console.log("userid", info.userID);
-      console.log("myuserid", getUserID(cookies));
+
       if (info.userID === getUserID(cookies)) {
-        console.log("I am here");
-        setChannels((prev) => {
-          const temp = [...prev];
-          return temp.filter(
+        // If i'm the one leaving remove chat from mychats
+        setMyChats((prev) => {
+          const tmp = [...prev];
+          return tmp.filter(
             (chat: ChatRoom) => chat.chatRoomID !== info.chatRoomID
           );
         });
