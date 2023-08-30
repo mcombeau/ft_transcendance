@@ -1,6 +1,7 @@
 import { OnModuleInit, Inject, forwardRef } from '@nestjs/common';
 import { createChatMessageParams } from 'src/chat-messages/utils/types';
 import {
+  ConnectedSocket,
   MessageBody,
   SubscribeMessage,
   WebSocketGateway,
@@ -33,7 +34,7 @@ type UserTargetChat = {
 
 // TODO [mcombeau]: Make WSExceptionFilter to translate HTTP exceptions
 //                  to Websocket exceptions
-// TODO: link users and sockets so that we don't send to everyone
+// TODO: emit errors only to initiator
 @WebSocketGateway({
   cors: {
     origin: ['http://localhost:3000', 'http://localhost'],
@@ -99,6 +100,7 @@ export class ChatGateway implements OnModuleInit {
       });
 
       // Join channel named by the id of the user
+      socket.data.userID = user.userID;
       socket.join(user.userID.toString());
       // Join all the channels the user is part of
       var chats = await this.userService.fetchUserChatsByUserID(user.userID);
@@ -125,7 +127,10 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('add chat')
-  async onAddChat(@MessageBody() info: ReceivedInfoDto): Promise<void> {
+  async onAddChat(
+    @ConnectedSocket() socket: any,
+    @MessageBody() info: ReceivedInfoDto,
+  ): Promise<void> {
     console.log('[Chat Gateway]: Add chat', info);
     try {
       info.userID = await this.checkIdentity(info.token);
@@ -134,6 +139,11 @@ export class ChatGateway implements OnModuleInit {
       info.username = owner.username;
       const chat = await this.chatsService.createChat(info.chatInfo);
       info.chatRoomID = chat.id;
+
+      if (socket.data.userID === info.userID) {
+        // Making the owner join the socket room
+        socket.join(info.chatRoomID.toString());
+      }
       this.server.emit('add chat', info);
     } catch (e) {
       const err_msg = '[Chat Gateway]: Chat creation error:' + e.message;
@@ -143,7 +153,10 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('dm')
-  async onDM(@MessageBody() info: ReceivedInfoDto): Promise<void> {
+  async onDM(
+    @ConnectedSocket() socket: any,
+    @MessageBody() info: ReceivedInfoDto,
+  ): Promise<void> {
     try {
       info.userID = await this.checkIdentity(info.token);
 
@@ -156,7 +169,14 @@ export class ChatGateway implements OnModuleInit {
       info.chatRoomID = chat.id;
       info.username = user1.username;
       info.username2 = user2.username;
-      this.server.emit('dm', info);
+      if (
+        socket.data.userID === info.userID ||
+        socket.data.userID === info.targetID
+      ) {
+        // Making the participants join the socket room
+        socket.join(info.chatRoomID.toString());
+      }
+      this.server.to(info.chatRoomID.toString()).emit('dm', info);
     } catch (e) {
       const err_msg = '[Chat Gateway]: DM creation error:' + e.message;
       console.log(err_msg);
@@ -180,7 +200,10 @@ export class ChatGateway implements OnModuleInit {
 
   // TODO: Validate chat join by checking password if there is one.
   @SubscribeMessage('join chat')
-  async onJoinChat(@MessageBody() info: ReceivedInfoDto): Promise<void> {
+  async onJoinChat(
+    @ConnectedSocket() socket: any,
+    @MessageBody() info: ReceivedInfoDto,
+  ): Promise<void> {
     // TODO: good error message "You have been banned"
     try {
       info.userID = await this.checkIdentity(info.token);
@@ -200,7 +223,11 @@ export class ChatGateway implements OnModuleInit {
           name: chat.name,
         },
       };
-      this.server.emit('join chat', info);
+      if (socket.data.userID === info.userID) {
+        // Making the participants join the socket room
+        socket.join(info.chatRoomID.toString());
+      }
+      this.server.to(info.chatRoomID.toString()).emit('join chat', info);
     } catch (e) {
       const err_msg = '[Chat Gateway]: Chat join error:' + e.message;
       console.log(err_msg);
@@ -209,7 +236,10 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('leave chat')
-  async onLeaveChat(@MessageBody() info: ReceivedInfoDto): Promise<void> {
+  async onLeaveChat(
+    @ConnectedSocket() socket: any,
+    @MessageBody() info: ReceivedInfoDto,
+  ): Promise<void> {
     try {
       info.userID = await this.checkIdentity(info.token);
       info.username = (
@@ -219,7 +249,12 @@ export class ChatGateway implements OnModuleInit {
         userID: info.userID,
         chatRoomID: info.chatRoomID,
       });
-      this.server.emit('leave chat', info);
+
+      if (socket.data.userID === info.userID) {
+        // Making the participant leave the socket room
+        socket.leave(info.chatRoomID.toString());
+      }
+      this.server.to(info.chatRoomID.toString()).emit('leave chat', info);
     } catch (e) {
       const err_msg = '[Chat Gateway]: Chat leave error:' + e.message;
       console.log(err_msg);
@@ -228,19 +263,21 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('chat message')
-  async onChatMessage(@MessageBody() info: ReceivedInfoDto): Promise<void> {
+  async onChatMessage(
+    @ConnectedSocket() socket: any,
+    @MessageBody() info: ReceivedInfoDto,
+  ): Promise<void> {
     console.log('[Chat Gateway]: Sending chat message');
     try {
       const userID = await this.checkIdentity(info.token);
       info.userID = userID;
       info.messageInfo.senderID = userID;
       info.messageInfo.chatRoomID = info.chatRoomID;
-      console.log('SENDERID: ', info.userID);
       const user = await this.userService.fetchUserByID(info.userID);
-      console.log('SENDER: ', user);
       info.username = user.username;
       await this.registerChatMessage(info.messageInfo);
-      this.server.emit('chat message', info);
+
+      this.server.to(info.chatRoomID.toString()).emit('chat message', info);
     } catch (e) {
       const err_msg =
         '[Chat Gateway]: Chat message registration error:' + e.message;
@@ -250,7 +287,10 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('mute')
-  async onMute(@MessageBody() info: ReceivedInfoDto): Promise<void> {
+  async onMute(
+    @ConnectedSocket() socket: any,
+    @MessageBody() info: ReceivedInfoDto,
+  ): Promise<void> {
     try {
       info.userID = await this.checkIdentity(info.token);
       info.username = (
@@ -262,7 +302,7 @@ export class ChatGateway implements OnModuleInit {
         info.targetID,
         info.participantInfo.mutedUntil,
       );
-      this.server.emit('mute', info);
+      this.server.to(info.chatRoomID.toString()).emit('mute', info);
     } catch (e) {
       const err_msg = '[Chat Gateway]: User mute error:' + e.message;
       console.log(err_msg);
@@ -271,7 +311,10 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('toggle private')
-  async onTogglePrivate(@MessageBody() info: ReceivedInfoDto): Promise<void> {
+  async onTogglePrivate(
+    @ConnectedSocket() socket: any,
+    @MessageBody() info: ReceivedInfoDto,
+  ): Promise<void> {
     console.log('[Chat Gateway]: Toggle private chat');
     try {
       info.userID = await this.checkIdentity(info.token);
@@ -300,7 +343,10 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('invite')
-  async onInvite(@MessageBody() info: ReceivedInfoDto): Promise<void> {
+  async onInvite(
+    @ConnectedSocket() socket: any,
+    @MessageBody() info: ReceivedInfoDto,
+  ): Promise<void> {
     try {
       info.userID = await this.checkIdentity(info.token);
       info.username = (
@@ -323,7 +369,10 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('accept invite')
-  async onAcceptInvite(@MessageBody() info: ReceivedInfoDto): Promise<void> {
+  async onAcceptInvite(
+    @ConnectedSocket() socket: any,
+    @MessageBody() info: ReceivedInfoDto,
+  ): Promise<void> {
     try {
       info.userID = await this.checkIdentity(info.token);
       const user = await this.userService.fetchUserByID(info.targetID);
@@ -341,7 +390,10 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('operator')
-  async onMakeOperator(@MessageBody() info: ReceivedInfoDto): Promise<void> {
+  async onMakeOperator(
+    @ConnectedSocket() socket: any,
+    @MessageBody() info: ReceivedInfoDto,
+  ): Promise<void> {
     try {
       info.userID = await this.checkIdentity(info.token);
       const user = await this.userService.fetchUserByID(info.targetID);
@@ -368,7 +420,10 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('ban')
-  async onBan(@MessageBody() info: ReceivedInfoDto): Promise<void> {
+  async onBan(
+    @ConnectedSocket() socket: any,
+    @MessageBody() info: ReceivedInfoDto,
+  ): Promise<void> {
     try {
       info.userID = await this.checkIdentity(info.token);
       info.username = (
@@ -394,7 +449,10 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('kick')
-  async onKick(@MessageBody() info: ReceivedInfoDto): Promise<void> {
+  async onKick(
+    @ConnectedSocket() socket: any,
+    @MessageBody() info: ReceivedInfoDto,
+  ): Promise<void> {
     try {
       info.userID = await this.checkIdentity(info.token);
       info.username = (
