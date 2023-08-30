@@ -250,6 +250,28 @@ export const Chat = () => {
 
         setPublicChats((prev) => [...prev, newPublicChat]);
       }
+
+      setMyChats((prev) => {
+        const temp = [...prev];
+        return temp.map((chat: ChatRoom) => {
+          if (chat.chatRoomID === info.chatRoomID) {
+            if (info.chatInfo.isPrivate) {
+              chat.isPrivate = true;
+              serviceAnnouncement(
+                "This chatroom is now private",
+                chat.chatRoomID
+              );
+            } else {
+              chat.isPrivate = false;
+              serviceAnnouncement(
+                "This chatroom is now public",
+                chat.chatRoomID
+              );
+            }
+          }
+          return chat;
+        });
+      });
     });
 
     socket.on("add chat", (info: ReceivedInfo) => {
