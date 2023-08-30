@@ -761,8 +761,6 @@ export const Chat = () => {
           currentChatRoomID,
           setCurrentChatRoomID,
           socket,
-          messages,
-          setMessages,
           settings,
           setSettings,
           setContextMenu,

@@ -1,8 +1,7 @@
 import { Dispatch, SetStateAction } from "react";
 import { Socket } from "socket.io-client";
 import { getUserID } from "../../cookies";
-import { isInChannel } from "./Chat";
-import { ReceivedInfo, Message, ChatRoom } from "./types";
+import { ReceivedInfo, ChatRoom } from "./types";
 
 export const SidePannel = (
   newchannel: string,
@@ -10,12 +9,10 @@ export const SidePannel = (
   currentChatRoomID: number,
   setCurrentChatRoomID: Dispatch<SetStateAction<number>>,
   socket: Socket,
-  messages: Message[],
-  setMessages: Dispatch<SetStateAction<Message[]>>,
   settings: boolean,
   setSettings: Dispatch<SetStateAction<boolean>>,
   setContextMenu: Dispatch<SetStateAction<boolean>>,
-  channels: ChatRoom[],
+  myChats: ChatRoom[],
   invitesPannel: boolean,
   setInvitesPannel: Dispatch<SetStateAction<boolean>>,
   publicChatsPannel: boolean,
@@ -89,13 +86,13 @@ export const SidePannel = (
 
   const channelInfo = (channel: ChatRoom) => {
     var isCurrent = channel.chatRoomID == currentChatRoomID;
-    var unreadMessages: number = messages
-      .filter((msg: Message) => {
-        return msg.chatRoomID == channel.chatRoomID;
-      })
-      .filter((msg: Message) => {
-        return msg.read == false;
-      }).length;
+    // var unreadMessages: number = messages
+    //   .filter((msg: Message) => {
+    //     return msg.chatRoomID == channel.chatRoomID;
+    //   })
+    //   .filter((msg: Message) => {
+    //     return msg.read == false;
+    //   }).length;
     var channel_alias = channel.isDM // TODO: change with actual name (get from back)
       ? `💬 ${getDMChannelAlias(channel)}`
       : channel.name;
@@ -118,15 +115,15 @@ export const SidePannel = (
             setCurrentChatRoomID(targetChannel);
             setInvitesPannel(false);
             setPublicChatsPannel(false);
-            setMessages(
-              messages.map((msg: Message) => {
-                if (msg.chatRoomID === targetChannel) {
-                  return { ...msg, read: true };
-                } else {
-                  return { ...msg };
-                }
-              })
-            );
+            // setMessages(
+            //   messages.map((msg: Message) => {
+            //     if (msg.chatRoomID === targetChannel) {
+            //       return { ...msg, read: true };
+            //     } else {
+            //       return { ...msg };
+            //     }
+            //   })
+            // );
           }}
           className={classname}
         >
@@ -164,7 +161,7 @@ export const SidePannel = (
       <div id="channels">
         {invitesPannelElement()}
         {publicChatsPannelElement()}
-        {channels.map((channel: ChatRoom) => channelInfo(channel))}
+        {myChats.map((channel: ChatRoom) => channelInfo(channel))}
       </div>
     </div>
   );
