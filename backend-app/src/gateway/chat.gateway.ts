@@ -514,7 +514,7 @@ export class ChatGateway implements OnModuleInit {
       );
     }
     if (invite.expiresAt < new Date().getTime()) {
-      this.inviteService.deleteInviteByID(invite.id);
+      await this.inviteService.deleteInviteByID(invite.id);
       throw new ChatPermissionError(
         `User '${info.userID}' invite to chat '${info.chatRoomID}' has expired.`,
       );
@@ -558,7 +558,7 @@ export class ChatGateway implements OnModuleInit {
         `User '${info.userID}' is banned from chat '${info.chatRoomID}'.`,
       );
     }
-    this.chatsService.addParticipantToChatByUserChatID(info);
+    await this.chatsService.addParticipantToChatByUserChatID(info);
   }
 
   private async registerChatMessage(
@@ -623,7 +623,7 @@ export class ChatGateway implements OnModuleInit {
     await this.checkUserIsNotOwner(target);
     await this.checkUserIsNotBanned(target);
 
-    this.chatParticipantsService.updateParticipantByID(target.id, {
+    await this.chatParticipantsService.updateParticipantByID(target.id, {
       isOperator: !target.isOperator,
     });
   }
@@ -643,11 +643,11 @@ export class ChatGateway implements OnModuleInit {
 
     if (target.isBanned) {
       // Unban
-      this.chatParticipantsService.deleteParticipantByID(target.id);
+      await this.chatParticipantsService.deleteParticipantByID(target.id);
       return false;
     } else {
       // Ban
-      this.chatParticipantsService.updateParticipantByID(target.id, {
+      await this.chatParticipantsService.updateParticipantByID(target.id, {
         isBanned: true,
       });
       return true;
@@ -668,7 +668,7 @@ export class ChatGateway implements OnModuleInit {
     await this.checkUserIsNotOwner(target);
     await this.checkUserIsNotBanned(target);
 
-    this.chatParticipantsService.deleteParticipantByID(target.id);
+    await this.chatParticipantsService.deleteParticipantByID(target.id);
   }
 
   private async toggleChatPrivacy(info: UserChatInfo): Promise<boolean> {
