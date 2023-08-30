@@ -237,22 +237,19 @@ export const Chat = () => {
 
     socket.on("toggle private", async (info: ReceivedInfo) => {
       if (info.chatInfo.isPrivate) {
+        // the chat is becoming private
         setPublicChats((prev) =>
           prev.filter((e: ChatRoom) => e.chatRoomID !== info.chatRoomID)
         );
       } else {
-        var chat = await fetchChatParticipants(info, request);
-        setPublicChats((prev) => [...prev, chat]);
+        // the chat is going public
+        const newPublicChat: PublicChatRoom = {
+          chatRoomID: info.chatRoomID,
+          name: info.chatInfo.name,
+        };
+
+        setPublicChats((prev) => [...prev, newPublicChat]);
       }
-      setChannels((prev) => {
-        const temp = [...prev];
-        return temp.map((chan: ChatRoom) => {
-          if (chan.chatRoomID === info.chatRoomID) {
-            chan.isPrivate = info.chatInfo.isPrivate;
-          }
-          return chan;
-        });
-      });
     });
 
     socket.on("add chat", (info: ReceivedInfo) => {
