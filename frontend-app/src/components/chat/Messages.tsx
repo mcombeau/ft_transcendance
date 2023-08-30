@@ -162,7 +162,7 @@ export const Messages = (
 
   function displayMessages(currentChatRoom: ChatRoom) {
     if (currentChatRoom === undefined) return <div></div>;
-    currentChatRoom.messages.map(messageStatus);
+    return currentChatRoom.messages.map(messageStatus);
   }
 
   return (
