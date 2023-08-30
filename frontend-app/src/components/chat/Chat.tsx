@@ -233,14 +233,11 @@ export const Chat = () => {
     });
 
     socket.on("delete chat", (info: ReceivedInfo) => {
-      setChannels((prev) =>
+      setMyChats((prev) =>
         prev.filter((e: ChatRoom) => e.chatRoomID !== info.chatRoomID)
       );
       setPublicChats((prev) =>
         prev.filter((e: ChatRoom) => e.chatRoomID !== info.chatRoomID)
-      );
-      setMessages((prev) =>
-        prev.filter((e: Message) => e.chatRoomID !== info.chatRoomID)
       );
       setSettings(false);
       setContextMenu(false);
@@ -314,6 +311,7 @@ export const Chat = () => {
           participants: [user],
           banned: [],
           invited: [],
+          messages: [],
           isPrivate: info.chatInfo.isPrivate,
           ownerID: info.userID,
           isDM: false,
@@ -509,34 +507,33 @@ export const Chat = () => {
     });
 
     socket.on("accept invite", (info: ReceivedInfo) => {
-      var user: User = {
-        userID: info.targetID,
-        username: info.username,
-        isOwner: false,
-        isOperator: false,
-        isBanned: false,
-        mutedUntil: new Date().getTime(),
-        invitedUntil: 0,
-      };
-
-      setChannels((prev) => {
-        const temp = [...prev];
-        return temp.map((chan: ChatRoom) => {
-          if (chan.chatRoomID === info.chatRoomID) {
-            if (
-              !chan.participants.some((p: User) => p.userID === info.targetID)
-            ) {
-              chan.participants = [...chan.participants, user];
-
-              serviceAnnouncement(
-                `${info.username} joined the channel.`,
-                info.chatRoomID
-              );
-            }
-          }
-          return chan;
-        });
-      });
+      // TODO: later
+      // var user: User = {
+      //   userID: info.targetID,
+      //   username: info.username,
+      //   isOwner: false,
+      //   isOperator: false,
+      //   isBanned: false,
+      //   mutedUntil: new Date().getTime(),
+      //   invitedUntil: 0,
+      // };
+      // setChannels((prev) => {
+      //   const temp = [...prev];
+      //   return temp.map((chan: ChatRoom) => {
+      //     if (chan.chatRoomID === info.chatRoomID) {
+      //       if (
+      //         !chan.participants.some((p: User) => p.userID === info.targetID)
+      //       ) {
+      //         chan.participants = [...chan.participants, user];
+      //         serviceAnnouncement(
+      //           `${info.username} joined the channel.`,
+      //           info.chatRoomID
+      //         );
+      //       }
+      //     }
+      //     return chan;
+      //   });
+      // });
     });
 
     socket.on("kick", (info: ReceivedInfo) => {
@@ -622,11 +619,12 @@ export const Chat = () => {
         participants: [user1, user2],
         banned: [],
         invited: [],
+        messages: [],
         isPrivate: true,
         ownerID: null,
         isDM: true,
       };
-      setChannels((prev) => [...prev, channel]);
+      setMyChats((prev) => [...prev, channel]);
     });
 
     var request = {
@@ -635,7 +633,7 @@ export const Chat = () => {
         Authorization: `Bearer ${cookies["token"]}`,
       },
     };
-    if (channels.length === 0) {
+    if (myChats.length === 0) {
       // Fetching Chats
       fetch(
         `http://localhost:3001/users/${getUserID(cookies)}/chats`,
@@ -648,8 +646,14 @@ export const Chat = () => {
         }
         console.log("RECEIVED private CHAT DATA", chat_data);
         chat_data.map(async (chatRoom: any) => {
-          var chan = await fetchChatParticipants(chatRoom, request);
-          setChannels((prev) => [...prev, chan]);
+          var chan = await fetchChatData(
+            chatRoom.id,
+            chatRoom.name,
+            chatRoom.isPrivate,
+            chatRoom.isDirectMessage,
+            request
+          );
+          setMyChats((prev) => [...prev, chan]);
           return chatRoom;
         });
       });
@@ -665,71 +669,48 @@ export const Chat = () => {
           }
           console.log("RECEIVED public CHAT DATA", chat_data);
           chat_data.map(async (chatRoom: any) => {
-            var chan = await fetchChatParticipants(chatRoom, request);
-            setPublicChats((prev) => [...prev, chan]);
+            const newPublicChat: PublicChatRoom = {
+              chatRoomID: chatRoom.id,
+              name: chatRoom.name,
+            };
+            setPublicChats((prev) => [...prev, newPublicChat]);
             return chatRoom;
           });
         }
       );
     }
 
-    if (invites.length === 0) {
-      fetch(
-        `http://localhost:3001/invites/received/${getUserID(cookies)}`
-      ).then(async (response) => {
-        const data = await response.json();
-        if (!response.ok) {
-          console.log("error response load invites");
-          return;
-        }
-        data.map((e: any) => {
-          var type: typeInvite = typeInvite.Chat;
-          if (e.type === "game") {
-            type = typeInvite.Game;
-          } else if (e.type === "friend") {
-            type = typeInvite.Friend;
-          }
-          var invite: Invite = {
-            targetID: e.invitedID,
-            targetUsername: e.invitedUsername,
-            senderUsername: e.senderUsername,
-            senderID: e.senderID,
-            type: type,
-            chatRoomID: e.chatRoomID, // TODO: change with gameroomid
-            expirationDate: e.expiresAt,
-          };
+    // TODO: implement
+    // if (invites.length === 0) {
+    //   fetch(
+    //     `http://localhost:3001/invites/received/${getUserID(cookies)}`
+    //   ).then(async (response) => {
+    //     const data = await response.json();
+    //     if (!response.ok) {
+    //       console.log("error response load invites");
+    //       return;
+    //     }
+    //     data.map((e: any) => {
+    //       var type: typeInvite = typeInvite.Chat;
+    //       if (e.type === "game") {
+    //         type = typeInvite.Game;
+    //       } else if (e.type === "friend") {
+    //         type = typeInvite.Friend;
+    //       }
+    //       var invite: Invite = {
+    //         targetID: e.invitedID,
+    //         targetUsername: e.invitedUsername,
+    //         senderUsername: e.senderUsername,
+    //         senderID: e.senderID,
+    //         type: type,
+    //         chatRoomID: e.chatRoomID, // TODO: change with gameroomid
+    //         expirationDate: e.expiresAt,
+    //       };
 
-          setInvites((prev) => [...prev, invite]);
-        });
-      });
-    }
-
-    if (messages.length === 0) {
-      fetch("http://localhost:3001/chat-messages", request).then(
-        async (response) => {
-          const data = await response.json();
-          if (!response.ok) {
-            console.log("error response load messages");
-            return;
-          }
-          data.map((e: any) => {
-            console.log("MESSAGE");
-            console.log(e);
-            var msg: Message = {
-              datestamp: e.sentAt,
-              msg: e.message,
-              senderID: e.sender.id,
-              chatRoomID: e.chatRoom.id,
-              read: true,
-              system: false,
-              senderUsername: e.sender.username,
-            };
-            setMessages((prev) => [...prev, msg]);
-            return e;
-          });
-        }
-      );
-    }
+    //       setInvites((prev) => [...prev, invite]);
+    //     });
+    //   });
+    // }
 
     return () => {
       console.log("unregistering events");
@@ -755,17 +736,16 @@ export const Chat = () => {
     if (!message_els) return;
 
     message_els.scrollTop = message_els.scrollHeight;
-  }, [messages]);
+  }, [myChats]);
 
   useEffect(() => {
-    console.log("My chats: ", channels);
-  }, [channels]);
+    console.log("My chats: ", myChats);
+  }, [myChats]);
 
   useEffect(() => {
     console.log("Public chats", publicChats);
   }, [publicChats]);
 
-  // TODO: test
   useEffect(() => {
     if (getUsername(cookies) === undefined) {
       alert("You have no username"); // TODO : remove = for debug purposes
