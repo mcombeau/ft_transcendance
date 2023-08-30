@@ -147,7 +147,7 @@ export class ChatGateway implements OnModuleInit {
     } catch (e) {
       const err_msg = '[Chat Gateway]: Chat creation error:' + e.message;
       console.log(err_msg);
-      this.server.emit('error', err_msg);
+      this.server.to(info.userID.toString()).emit('error', err_msg);
     }
   }
 
@@ -179,7 +179,7 @@ export class ChatGateway implements OnModuleInit {
     } catch (e) {
       const err_msg = '[Chat Gateway]: DM creation error:' + e.message;
       console.log(err_msg);
-      this.server.emit('error', err_msg);
+      this.server.to(info.userID.toString()).emit('error', err_msg);
     }
   }
 
@@ -193,7 +193,7 @@ export class ChatGateway implements OnModuleInit {
     } catch (e) {
       const err_msg = '[Chat Gateway]: Chat deletion error:' + e.message;
       console.log(err_msg);
-      this.server.emit('error', err_msg);
+      this.server.to(info.userID.toString()).emit('error', err_msg);
     }
   }
 
@@ -231,7 +231,7 @@ export class ChatGateway implements OnModuleInit {
     } catch (e) {
       const err_msg = '[Chat Gateway]: Chat join error:' + e.message;
       console.log(err_msg);
-      this.server.emit('error', err_msg);
+      this.server.to(info.userID.toString()).emit('error', err_msg);
     }
   }
 
@@ -259,7 +259,7 @@ export class ChatGateway implements OnModuleInit {
     } catch (e) {
       const err_msg = '[Chat Gateway]: Chat leave error:' + e.message;
       console.log(err_msg);
-      this.server.emit(err_msg);
+      this.server.to(info.userID.toString()).emit('error', err_msg);
     }
   }
 
@@ -283,7 +283,7 @@ export class ChatGateway implements OnModuleInit {
       const err_msg =
         '[Chat Gateway]: Chat message registration error:' + e.message;
       console.log(err_msg);
-      this.server.emit(err_msg);
+      this.server.to(info.userID.toString()).emit('error', err_msg);
     }
   }
 
@@ -307,7 +307,7 @@ export class ChatGateway implements OnModuleInit {
     } catch (e) {
       const err_msg = '[Chat Gateway]: User mute error:' + e.message;
       console.log(err_msg);
-      this.server.emit(err_msg);
+      this.server.to(info.userID.toString()).emit('error', err_msg);
     }
   }
 
@@ -336,7 +336,7 @@ export class ChatGateway implements OnModuleInit {
     } catch (e) {
       const err_msg = '[Chat Gateway]: Chat privacy toggle error:' + e.message;
       console.log(err_msg);
-      this.server.emit(err_msg);
+      this.server.to(info.userID.toString()).emit('error', err_msg);
     }
   }
 
@@ -363,7 +363,7 @@ export class ChatGateway implements OnModuleInit {
     } catch (e) {
       const err_msg = '[Chat Gateway]: Chat invite error:' + e.message;
       console.log(err_msg);
-      this.server.emit(err_msg);
+      this.server.to(info.userID.toString()).emit('error', err_msg);
     }
   }
 
@@ -385,7 +385,7 @@ export class ChatGateway implements OnModuleInit {
     } catch (e) {
       const err_msg = '[Chat Gateway]: Chat accept invite error:' + e.message;
       console.log(err_msg);
-      this.server.emit(err_msg);
+      this.server.to(info.userID.toString()).emit('error', err_msg);
     }
   }
 
@@ -445,7 +445,7 @@ export class ChatGateway implements OnModuleInit {
     } catch (e) {
       const err_msg = '[Chat Gateway]: User ban error:' + e.message;
       console.log(err_msg);
-      this.server.emit(err_msg);
+      this.server.to(info.userID.toString()).emit('error', err_msg);
     }
   }
 
@@ -472,7 +472,7 @@ export class ChatGateway implements OnModuleInit {
     } catch (e) {
       const err_msg = '[Chat Gateway]: User kick error:' + e.message;
       console.log(err_msg);
-      this.server.emit(err_msg);
+      this.server.to(info.userID.toString()).emit('error', err_msg);
     }
   }
 
