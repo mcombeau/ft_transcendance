@@ -22,7 +22,6 @@ import { InviteEntity, inviteType } from 'src/invites/entities/Invite.entity';
 import { InvitesService } from 'src/invites/invites.service';
 import { UsersService } from 'src/users/users.service';
 import { UserChatInfo } from 'src/chat-participants/utils/types';
-import { ChatNotFoundError } from 'src/exceptions/not-found.interceptor';
 import { ReceivedInfoDto } from './dtos/chatGateway.dto';
 import { ChatEntity } from 'src/chats/entities/chat.entity';
 
@@ -223,6 +222,7 @@ export class ChatGateway implements OnModuleInit {
           name: chat.name,
         },
       };
+
       if (socket.data.userID === info.userID) {
         // Making the participants join the socket room
         socket.join(info.chatRoomID.toString());
@@ -255,6 +255,7 @@ export class ChatGateway implements OnModuleInit {
         socket.leave(info.chatRoomID.toString());
       }
       this.server.to(info.chatRoomID.toString()).emit('leave chat', info);
+      this.server.to(info.userID.toString()).emit('leave chat', info);
     } catch (e) {
       const err_msg = '[Chat Gateway]: Chat leave error:' + e.message;
       console.log(err_msg);
@@ -440,6 +441,7 @@ export class ChatGateway implements OnModuleInit {
         socket.leave(info.chatRoomID.toString());
       }
       this.server.to(info.chatRoomID.toString()).emit('ban', info);
+      this.server.to(info.targetID.toString()).emit('ban', info);
     } catch (e) {
       const err_msg = '[Chat Gateway]: User ban error:' + e.message;
       console.log(err_msg);
@@ -466,6 +468,7 @@ export class ChatGateway implements OnModuleInit {
         socket.leave(info.chatRoomID.toString());
       }
       this.server.to(info.chatRoomID.toString()).emit('kick', info);
+      this.server.to(info.targetID.toString()).emit('kick', info);
     } catch (e) {
       const err_msg = '[Chat Gateway]: User kick error:' + e.message;
       console.log(err_msg);
