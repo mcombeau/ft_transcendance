@@ -414,7 +414,7 @@ export const Chat = () => {
     socket.on("ban", (info: ReceivedInfo) => {
       // If somebody is being banned
       if (info.participantInfo.isBanned) {
-        if (info.userID === getUserID(cookies)) {
+        if (info.targetID === getUserID(cookies)) {
           // If i'm the one being banned remove chat from mychats
           setMyChats((prev) => {
             const tmp = [...prev];
@@ -543,7 +543,7 @@ export const Chat = () => {
         return temp.map((chat: ChatRoom) => {
           if (chat.chatRoomID === info.chatRoomID) {
             chat.participants = chat.participants.filter(
-              (participant: User) => participant.userID !== info.userID
+              (participant: User) => participant.userID !== info.targetID
             );
             serviceAnnouncement(
               `${info.username} has been kicked from the channel`,
@@ -554,7 +554,7 @@ export const Chat = () => {
         });
       });
 
-      if (info.userID === getUserID(cookies)) {
+      if (info.targetID === getUserID(cookies)) {
         // If i'm the one being kicked remove chat from mychats
         setMyChats((prev) => {
           const tmp = [...prev];
