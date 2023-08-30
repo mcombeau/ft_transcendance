@@ -220,6 +220,7 @@ export const Chat = () => {
     });
 
     socket.on("chat message", (info: ReceivedInfo) => {
+      console.log("RECEIVED", "chat message", info);
       var message: Message = {
         datestamp: info.messageInfo.sentAt,
         msg: info.messageInfo.message,
@@ -233,6 +234,7 @@ export const Chat = () => {
     });
 
     socket.on("delete chat", (info: ReceivedInfo) => {
+      console.log("RECEIVED", "delete chat", info);
       setMyChats((prev) =>
         prev.filter((e: ChatRoom) => e.chatRoomID !== info.chatRoomID)
       );
@@ -245,6 +247,7 @@ export const Chat = () => {
     });
 
     socket.on("toggle private", async (info: ReceivedInfo) => {
+      console.log("RECEIVED", "toggle private", info);
       if (info.chatInfo.isPrivate) {
         // the chat is becoming private
         setPublicChats((prev) =>
@@ -284,6 +287,7 @@ export const Chat = () => {
     });
 
     socket.on("add chat", (info: ReceivedInfo) => {
+      console.log("RECEIVED", "add chat", info);
       console.log("Added new chat");
       console.log(info);
 
@@ -321,6 +325,7 @@ export const Chat = () => {
     });
 
     socket.on("join chat", async (info: ReceivedInfo) => {
+      console.log("RECEIVED", "join chat", info);
       var user: User = {
         userID: info.userID,
         username: info.username,
@@ -360,6 +365,7 @@ export const Chat = () => {
     });
 
     socket.on("leave chat", (info: ReceivedInfo) => {
+      console.log("RECEIVED", "leave chat", info);
       // For everybody in the chat, update participants
       setMyChats((prev) => {
         const temp = [...prev];
@@ -389,6 +395,7 @@ export const Chat = () => {
     });
 
     socket.on("mute", (info: ReceivedInfo) => {
+      console.log("RECEIVED", "mute", info);
       setMyChats((prev) => {
         const temp = [...prev];
         return temp.map((chan: ChatRoom) => {
@@ -412,6 +419,7 @@ export const Chat = () => {
     });
 
     socket.on("ban", (info: ReceivedInfo) => {
+      console.log("RECEIVED", "ban", info);
       // If somebody is being banned
       if (info.participantInfo.isBanned) {
         if (info.targetID === getUserID(cookies)) {
@@ -537,6 +545,7 @@ export const Chat = () => {
     });
 
     socket.on("kick", (info: ReceivedInfo) => {
+      console.log("RECEIVED", "kick", info);
       // For everybody in the chat, update participants
       setMyChats((prev) => {
         const temp = [...prev];
@@ -566,6 +575,7 @@ export const Chat = () => {
     });
 
     socket.on("operator", (info: ReceivedInfo) => {
+      console.log("RECEIVED", "operator", info);
       setMyChats((prev) => {
         const temp = [...prev];
         return temp.map((chan: ChatRoom) => {
@@ -594,6 +604,7 @@ export const Chat = () => {
     });
 
     socket.on("dm", (info: ReceivedInfo) => {
+      console.log("RECEIVED", "dm", info);
       console.log(info);
       var user1: User = {
         userID: info.userID,
