@@ -97,6 +97,14 @@ export class ChatGateway implements OnModuleInit {
         );
         socket.broadcast.emit('disconnection event');
       });
+
+      // Join channel named by the id of the user
+      socket.join(user.userID.toString());
+      // Join all the channels the user is part of
+      var chats = await this.userService.fetchUserChatsByUserID(user.userID);
+      chats.map((chatRoom: ChatEntity) => {
+        socket.join(chatRoom.id.toString()); // Name of the socket room is the string id of the channel
+      });
     });
   }
 
