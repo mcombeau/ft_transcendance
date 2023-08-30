@@ -155,7 +155,9 @@ export const Messages = (
     }
     return (
       <div>
-        {publicChats.map((chat: PublicChatRoom) => displayPublicChat(chat))}
+        {publicChats
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map((chat: PublicChatRoom) => displayPublicChat(chat))}
       </div>
     );
   }

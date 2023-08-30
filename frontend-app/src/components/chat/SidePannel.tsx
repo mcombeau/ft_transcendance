@@ -161,7 +161,9 @@ export const SidePannel = (
       <div id="channels">
         {invitesPannelElement()}
         {publicChatsPannelElement()}
-        {myChats.map((channel: ChatRoom) => channelInfo(channel))}
+        {myChats
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map((channel: ChatRoom) => channelInfo(channel))}
       </div>
     </div>
   );
