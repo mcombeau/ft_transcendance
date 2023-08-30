@@ -1,7 +1,7 @@
-- chats public are just a name + id / all infos for private chats 
 - socket sends to people who need to know
 
 Side Quests:
+-  re test make admin
 - change format message controller
 
 ---
