@@ -88,12 +88,12 @@ export class ChatGateway implements OnModuleInit {
         });
 
       console.log(
-        `[Chat Gateway]: A user connected: ${user.username} (${socket.id})`,
+        `[Chat Gateway]: A user connected: ${user.username} - ${user.userID} (${socket.id})`,
       );
-      socket.broadcast.emit('connection event');
+      socket.broadcast.emit('connection event'); // TODO: probably remove
       socket.on('disconnect', () => {
         console.log(
-          `[Chat Gateway]: A user disconnected: ${user.username} (${socket.id})`,
+          `[Chat Gateway]: A user disconnected: ${user.username} - ${user.userID} (${socket.id})`,
         );
         socket.broadcast.emit('disconnection event');
       });
