@@ -14,7 +14,7 @@ export const ContextMenuEl = (
   socket: Socket,
   channel: ChatRoom,
   cookies: any,
-  channels: ChatRoom[]
+  myChats: ChatRoom[]
 ) => {
   const menuRef = useRef<HTMLDivElement>(null);
   if (!contextMenu) {
@@ -106,7 +106,7 @@ export const ContextMenuEl = (
               }
               var info: ReceivedInfo = {
                 token: cookies["token"],
-                chatRoomID: getChatRoomIDFromName(channel_name, channels),
+                chatRoomID: getChatRoomIDFromName(channel_name, myChats),
                 targetID: target.id,
               };
               ChangeStatus(info, "invite", socket);

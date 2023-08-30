@@ -1,7 +1,7 @@
 import { Status, ChatRoom, ReceivedInfo } from "./types";
 import { checkStatus } from "./Chat";
 import { Socket } from "socket.io-client";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction } from "react";
 import { ListParticipants } from "./ListParticipants";
 import { NavigateFunction } from "react-router-dom";
 import { getUserID } from "../../cookies";

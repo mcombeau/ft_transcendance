@@ -186,7 +186,7 @@ export const Chat = () => {
   let navigate = useNavigate();
 
   function getChannel(chatRoomID: number): ChatRoom {
-    return channels.find((e) => e.chatRoomID === chatRoomID);
+    return myChats.find((e) => e.chatRoomID === chatRoomID);
   }
 
   function serviceAnnouncement(content: string, chatRoomID: number) {
@@ -764,7 +764,7 @@ export const Chat = () => {
           settings,
           setSettings,
           setContextMenu,
-          channels,
+          myChats,
           invitesPannel,
           setInvitesPannel,
           publicChatsPannel,
@@ -782,7 +782,6 @@ export const Chat = () => {
             cookies
           )}
           {Messages(
-            messages,
             getChannel(currentChatRoomID),
             navigate,
             settings,
@@ -794,7 +793,7 @@ export const Chat = () => {
             publicChats,
             publicChatsPannel,
             cookies,
-            channels
+            myChats
           )}
           {SendForm(getChannel(currentChatRoomID), cookies, socket)}
         </div>

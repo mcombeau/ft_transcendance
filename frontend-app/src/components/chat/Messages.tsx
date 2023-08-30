@@ -2,13 +2,11 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { NavigateFunction } from "react-router-dom";
 import { Socket } from "socket.io-client";
 import { getUserID } from "../../cookies";
-import { Message, ChatRoom, Invite, typeInvite, User } from "./types";
+import { Message, ChatRoom, Invite, User, PublicChatRoom } from "./types";
 import { ContextMenuEl } from "./ContextMenu";
-import { isInChannel } from "./Chat";
 import { ReceivedInfo } from "./types";
 
 export const Messages = (
-  messages: Message[],
   currentChatRoom: ChatRoom,
   navigate: NavigateFunction,
   settings: boolean,
@@ -17,10 +15,10 @@ export const Messages = (
   socket: Socket,
   invitesPannel: boolean,
   invites: Invite[],
-  publicChats: ChatRoom[],
+  publicChats: PublicChatRoom[],
   publicChatsPannel: boolean,
   cookies: any,
-  channels: ChatRoom[]
+  myChats: ChatRoom[]
 ) => {
   const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
   const [contextMenuTarget, setContextMenuTarget] = useState({
@@ -29,15 +27,6 @@ export const Messages = (
   });
 
   const messageStatus = (msg: Message) => {
-    if (
-      !currentChatRoom ||
-      !currentChatRoom.participants.find(
-        (p: User) => p.userID === getUserID(cookies)
-      )
-    ) {
-      return;
-    }
-    if (msg.chatRoomID !== currentChatRoom.chatRoomID) return;
     if (msg.system) {
       return (
         <div id="announcement">
@@ -133,29 +122,25 @@ export const Messages = (
     return <div>{invites.map(displayInvite)}</div>;
   }
 
-  function displayPublicChat(chat: ChatRoom, publicChats: ChatRoom[]) {
+  function displayPublicChat(chat: PublicChatRoom) {
     // TODO: check if the public chat is also in mychats
-    if (isInChannel(getUserID(cookies), chat.chatRoomID, publicChats)) {
-      var joinButton = <br></br>;
-    } else {
-      var joinButton = (
-        <button
-          className="joinchan"
-          value={chat.chatRoomID}
-          onClick={(e) => {
-            var info: ReceivedInfo = {
-              chatRoomID: parseInt(
-                (e.target as HTMLInputElement).getAttribute("value")
-              ),
-              token: cookies["token"],
-            };
-            socket.emit("join chat", info);
-          }}
-        >
-          Join
-        </button>
-      );
-    }
+    var joinButton = (
+      <button
+        className="joinchan"
+        value={chat.chatRoomID}
+        onClick={(e) => {
+          var info: ReceivedInfo = {
+            chatRoomID: parseInt(
+              (e.target as HTMLInputElement).getAttribute("value")
+            ),
+            token: cookies["token"],
+          };
+          socket.emit("join chat", info);
+        }}
+      >
+        Join
+      </button>
+    );
     return (
       <div id="publicchat">
         {chat.name}
@@ -170,14 +155,19 @@ export const Messages = (
     }
     return (
       <div>
-        {publicChats.map((chat) => displayPublicChat(chat, publicChats))}
+        {publicChats.map((chat: PublicChatRoom) => displayPublicChat(chat))}
       </div>
     );
   }
 
+  function displayMessages(currentChatRoom: ChatRoom) {
+    if (currentChatRoom === undefined) return <div></div>;
+    currentChatRoom.messages.map(messageStatus);
+  }
+
   return (
     <div id="messages">
-      {messages.map((msg: Message) => messageStatus(msg))}
+      {displayMessages(currentChatRoom)}
       {displayPublicChats()}
       {displayInvites()}
       {ContextMenuEl(
@@ -188,7 +178,7 @@ export const Messages = (
         socket,
         currentChatRoom,
         cookies,
-        channels
+        myChats
       )}
     </div>
   );
