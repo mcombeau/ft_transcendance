@@ -311,10 +311,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('toggle private')
-  async onTogglePrivate(
-    @ConnectedSocket() socket: any,
-    @MessageBody() info: ReceivedInfoDto,
-  ): Promise<void> {
+  async onTogglePrivate(@MessageBody() info: ReceivedInfoDto): Promise<void> {
     console.log('[Chat Gateway]: Toggle private chat');
     try {
       info.userID = await this.checkIdentity(info.token);
@@ -348,6 +345,7 @@ export class ChatGateway implements OnModuleInit {
     @MessageBody() info: ReceivedInfoDto,
   ): Promise<void> {
     try {
+      // TODO: reimplement later (socket send to right userse)
       info.userID = await this.checkIdentity(info.token);
       info.username = (
         await this.userService.fetchUserByID(info.targetID)
@@ -374,6 +372,7 @@ export class ChatGateway implements OnModuleInit {
     @MessageBody() info: ReceivedInfoDto,
   ): Promise<void> {
     try {
+      // TODO: reimplement later (socket send to right userse)
       info.userID = await this.checkIdentity(info.token);
       const user = await this.userService.fetchUserByID(info.targetID);
       info.username = user.username;
@@ -390,10 +389,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('operator')
-  async onMakeOperator(
-    @ConnectedSocket() socket: any,
-    @MessageBody() info: ReceivedInfoDto,
-  ): Promise<void> {
+  async onMakeOperator(@MessageBody() info: ReceivedInfoDto): Promise<void> {
     try {
       info.userID = await this.checkIdentity(info.token);
       const user = await this.userService.fetchUserByID(info.targetID);
@@ -413,7 +409,7 @@ export class ChatGateway implements OnModuleInit {
           isOperator: participant.isOperator,
         },
       };
-      this.server.emit('operator', info);
+      this.server.to(info.chatRoomID.toString()).emit('operator', info);
     } catch (e) {
       console.log('[Chat Gateway]: Operator promotion error:', e.message);
     }
@@ -440,7 +436,10 @@ export class ChatGateway implements OnModuleInit {
           isBanned: isBanned,
         },
       };
-      this.server.emit('ban', info);
+      if (info.targetID === socket.data.userID) {
+        socket.leave(info.chatRoomID.toString());
+      }
+      this.server.to(info.chatRoomID.toString()).emit('ban', info);
     } catch (e) {
       const err_msg = '[Chat Gateway]: User ban error:' + e.message;
       console.log(err_msg);
@@ -463,7 +462,10 @@ export class ChatGateway implements OnModuleInit {
         targetID: info.targetID,
         chatRoomID: info.chatRoomID,
       });
-      this.server.emit('kick', info);
+      if (info.targetID === socket.data.userID) {
+        socket.leave(info.chatRoomID.toString());
+      }
+      this.server.to(info.chatRoomID.toString()).emit('kick', info);
     } catch (e) {
       const err_msg = '[Chat Gateway]: User kick error:' + e.message;
       console.log(err_msg);
