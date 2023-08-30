@@ -202,6 +202,18 @@ export const Chat = () => {
     setMessages((prev) => [...prev, message]);
   }
 
+  function addMessageToChatRoom(message: Message, chatRoomID: number) {
+    setMyChats((prev) => {
+      const temp = [...prev];
+      return temp.map((chat: ChatRoom) => {
+        if (chat.chatRoomID === chatRoomID) {
+          chat.messages = [...chat.messages, message];
+        }
+        return chat;
+      });
+    });
+  }
+
   useEffect(() => {
     socket.on("error", (error_msg: string) => {
       alert(error_msg);
@@ -217,7 +229,7 @@ export const Chat = () => {
         system: false,
         senderUsername: info.username,
       };
-      setMessages((prev) => [...prev, message]);
+      addMessageToChatRoom(message, info.chatRoomID);
     });
 
     socket.on("delete chat", (info: ReceivedInfo) => {
@@ -379,7 +391,7 @@ export const Chat = () => {
     });
 
     socket.on("mute", (info: ReceivedInfo) => {
-      setChannels((prev) => {
+      setMyChats((prev) => {
         const temp = [...prev];
         return temp.map((chan: ChatRoom) => {
           if (chan.chatRoomID === info.chatRoomID) {
@@ -557,14 +569,13 @@ export const Chat = () => {
     });
 
     socket.on("operator", (info: ReceivedInfo) => {
-      setChannels((prev) => {
+      setMyChats((prev) => {
         const temp = [...prev];
         return temp.map((chan: ChatRoom) => {
           if (chan.chatRoomID === info.chatRoomID) {
             chan.participants.map((p: User) => {
               if (p.userID === info.targetID) {
                 p.isOperator = info.participantInfo.isOperator;
-                console.log("isoperator", p.isOperator);
                 if (p.isOperator) {
                   serviceAnnouncement(
                     `${info.username} is now a channel admin.`,
