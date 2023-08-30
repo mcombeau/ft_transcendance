@@ -58,18 +58,50 @@ export class ChatGateway implements OnModuleInit {
   server: Server;
 
   onModuleInit(): void {
-    this.server.on('connection', (socket) => {
-      console.log('[Chat Gateway]: A user connected', socket.id);
+    this.server.use(async (socket, next) => {
+      const token = socket.handshake.headers.authorization.split(' ')[1];
+
+      const isVerified = await this.authService
+        .validateToken(token)
+        .catch(() => {
+          return false;
+        })
+        .finally(() => {
+          return true;
+        });
+
+      if (isVerified) {
+        return next();
+      }
+      return next(new Error('authentication error'));
+    });
+
+    this.server.on('connection', async (socket) => {
+      const token = socket.handshake.headers.authorization.split(' ')[1];
+      const user = await this.authService
+        .validateToken(token)
+        .catch(() => {
+          return false;
+        })
+        .finally(() => {
+          return true;
+        });
+
+      console.log(
+        `[Chat Gateway]: A user connected: ${user.username} (${socket.id})`,
+      );
       socket.broadcast.emit('connection event');
       socket.on('disconnect', () => {
-        console.log('[Chat Gateway]: A user disconnected', socket.id);
+        console.log(
+          `[Chat Gateway]: A user disconnected: ${user.username} (${socket.id})`,
+        );
         socket.broadcast.emit('disconnection event');
       });
     });
   }
 
   // -------------------- EVENTS
-  async checkIdentity(token: string): Promise<any> {
+  async checkIdentity(token: string): Promise<number> {
     const isVerified = await this.authService
       .validateToken(token)
       .catch(() => {
