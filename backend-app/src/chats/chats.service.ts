@@ -117,7 +117,7 @@ export class ChatsService {
 
     const chatRoomName = this.generateDMName([user1.username, user2.username]);
     await this.checkChatRoomWithNameCanBeCreated(chatRoomName, true);
-    await this.checkDMDoesNotExist(chatDetails);
+    // await this.checkDMDoesNotExist(chatDetails); // FIXME: or remove me
 
     const newChat = this.chatRepository.create({
       name: chatRoomName,
