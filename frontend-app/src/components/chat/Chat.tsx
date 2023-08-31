@@ -410,12 +410,19 @@ export const Chat = () => {
           return chan;
         });
       });
-      serviceAnnouncement(
-        `${info.username} has been muted until ${
-          new Date(info.participantInfo.mutedUntil).toString().split("GMT")[0]
-        }.`,
-        info.chatRoomID
-      );
+      if (new Date(info.participantInfo.mutedUntil) > new Date()) {
+        serviceAnnouncement(
+          `${info.username} has been muted until ${
+            new Date(info.participantInfo.mutedUntil).toString().split("GMT")[0]
+          }.`,
+          info.chatRoomID
+        );
+      } else {
+        serviceAnnouncement(
+          `${info.username} has been unmuted.`,
+          info.chatRoomID
+        );
+      }
     });
 
     socket.on("ban", (info: ReceivedInfo) => {
