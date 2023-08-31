@@ -1,8 +1,9 @@
-import { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useContext, useEffect } from "react";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
 import { useCookies } from "react-cookie";
 import { getUserID } from "../../cookies";
+import { WebSocketContext } from "../../contexts/WebsocketContext";
 
 type User = {
   username: string;
@@ -15,8 +16,12 @@ function UserPage() {
   const [user, setUser] = useState<User>();
   const [isMyPage, setIsMyPage] = useState(false);
   const [cookies] = useCookies(["cookie-name"]);
+  const socket = useContext(WebSocketContext);
+  let navigate = useNavigate();
 
   useEffect(() => {
+    socket.emit("login", cookies["token"]);
+
     var request = {
       headers: {
         "Content-Type": "application/json",

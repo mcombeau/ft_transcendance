@@ -8,6 +8,8 @@ import { useState } from "react";
 import { useCookies } from "react-cookie";
 import { WebSocketContext } from "../../contexts/WebsocketContext";
 import { useContext } from "react";
+import { getUserID, getUserIDFromToken } from "../../cookies";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -17,6 +19,7 @@ function Login() {
   const [email, setEmail] = useState("");
   const [cookies, setCookie, removeCookie] = useCookies(["cookie-name"]);
   const socket = useContext(WebSocketContext);
+  let navigate = useNavigate();
 
   const InstagramBackground =
     "linear-gradient(to right, #A12AC4 0%, #ED586C 40%, #F0A853 100%)";
@@ -40,7 +43,8 @@ function Login() {
         }
         setCookie("token", data.access_token, { path: "/" }); // TODO: check if await is needed/if it does anything
         console.log("Access Token " + data.access_token);
-        socket.emit("login", data.access_token);
+        // socket.emit("login", data.access_token);
+        navigate(`/user/${getUserIDFromToken(data.access_token)}`);
       }
     );
     setUsername("");
