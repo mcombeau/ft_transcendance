@@ -34,7 +34,6 @@ type UserTargetChat = {
 
 // TODO [mcombeau]: Make WSExceptionFilter to translate HTTP exceptions
 //                  to Websocket exceptions
-// TODO: emit errors only to initiator
 @WebSocketGateway({
   cors: {
     origin: ['http://localhost:3000', 'http://localhost'],
