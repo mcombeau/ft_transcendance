@@ -117,7 +117,6 @@ export class ChatsService {
 
     const chatRoomName = this.generateDMName([user1.username, user2.username]);
     await this.checkChatRoomWithNameCanBeCreated(chatRoomName, true);
-    // await this.checkDMDoesNotExist(chatDetails); // FIXME: or remove me
 
     const newChat = this.chatRepository.create({
       name: chatRoomName,
@@ -225,26 +224,6 @@ export class ChatsService {
       throw new ChatCreationError(
         `'${chatRoomName}': A chat room with this name already exists`,
       );
-    }
-  }
-
-  private async checkDMDoesNotExist(chatDetails: createDMParams) {
-    const chatDMs = await this.fetchDMChats();
-    for (const e of chatDMs) {
-      let count = 0;
-      for (const f of e.participants) {
-        if (
-          f.user.id === chatDetails.userID1 ||
-          f.user.id === chatDetails.userID2
-        ) {
-          count++;
-        }
-        if (count === 2) {
-          throw new ChatCreationError(
-            `DM between users ${chatDetails.userID1} and ${chatDetails.userID2}`,
-          );
-        }
-      }
     }
   }
 
