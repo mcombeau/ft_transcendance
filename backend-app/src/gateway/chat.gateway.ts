@@ -105,7 +105,7 @@ export class ChatGateway implements OnModuleInit {
         );
         socket.broadcast.emit('disconnection event');
       });
-      this.joinSocketRooms(socket, user.userID);
+      await this.joinSocketRooms(socket, user.userID);
     });
   }
 
@@ -134,6 +134,29 @@ export class ChatGateway implements OnModuleInit {
     chats.map((chatRoom: ChatEntity) => {
       socket.join(this.getSocketRoomIdentifier(chatRoom.id, RoomType.Chat)); // Name of the socket room is the string id of the channel
     });
+  }
+
+  @SubscribeMessage('login')
+  async onLogin(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() token: string,
+  ): Promise<void> {
+    console.log('[Chat Gateway]: Login', token);
+    try {
+      const userID = await this.checkIdentity(token);
+      socket.data.userID = userID;
+
+      socket.rooms.forEach((room: string) => {
+        if (room !== socket.id) socket.leave(room);
+      });
+      await this.joinSocketRooms(socket, userID);
+    } catch (e) {
+      const err_msg = '[Chat Gateway]: login error:' + e.message;
+      console.log(err_msg);
+      // this.server
+      //   .to(this.getSocketRoomIdentifier(userID, RoomType.User))
+      //   .emit('error', err_msg);
+    }
   }
 
   @SubscribeMessage('add chat')

@@ -6,6 +6,12 @@ import "./login.css";
 import { FaInstagram } from "react-icons/fa";
 import { useState } from "react";
 import { useCookies } from "react-cookie";
+import {
+  WebSocketContext,
+  WebSocketProvider,
+} from "../../contexts/WebsocketContext";
+import { Socket } from "socket.io-client";
+import { useContext } from "react";
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -14,6 +20,7 @@ function Login() {
   const [newPassword, setNewPassword] = useState("");
   const [email, setEmail] = useState("");
   const [cookies, setCookie, removeCookie] = useCookies(["cookie-name"]);
+  const socket = useContext(WebSocketContext);
 
   const InstagramBackground =
     "linear-gradient(to right, #A12AC4 0%, #ED586C 40%, #F0A853 100%)";
@@ -39,6 +46,7 @@ function Login() {
         console.log("Access Token " + data.access_token);
       }
     );
+    socket.emit("login", cookies["token"]);
     setUsername("");
     setPassword("");
   };
