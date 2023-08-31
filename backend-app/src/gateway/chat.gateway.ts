@@ -150,6 +150,10 @@ export class ChatGateway implements OnModuleInit {
         if (room !== socket.id) socket.leave(room);
       });
       await this.joinSocketRooms(socket, userID);
+      const username = (await this.userService.fetchUserByID(userID)).username;
+      this.server
+        .to(this.getSocketRoomIdentifier(userID, RoomType.User))
+        .emit('login', username);
     } catch (e) {
       const err_msg = '[Chat Gateway]: login error:' + e.message;
       console.log(err_msg);

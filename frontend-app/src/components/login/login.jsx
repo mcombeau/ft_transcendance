@@ -25,7 +25,7 @@ function Login() {
   const InstagramBackground =
     "linear-gradient(to right, #A12AC4 0%, #ED586C 40%, #F0A853 100%)";
 
-  const sendAuth = (e) => {
+  const sendAuth = async (e) => {
     e.preventDefault();
     if (username === "" || password === "") return;
     var request = {
@@ -35,18 +35,18 @@ function Login() {
       },
       body: JSON.stringify({ username: username, password: password }),
     };
-    fetch("http://localhost:3001/auth/login", request).then(
+    await fetch("http://localhost:3001/auth/login", request).then(
       async (response) => {
         const data = await response.json();
         if (!response.ok) {
           console.log("error user login");
           return;
         }
-        setCookie("token", data.access_token, { path: "/" });
+        setCookie("token", data.access_token, { path: "/" }); // TODO: check if await is needed/if it does anything
         console.log("Access Token " + data.access_token);
+        socket.emit("login", data.access_token);
       }
     );
-    socket.emit("login", cookies["token"]);
     setUsername("");
     setPassword("");
   };
