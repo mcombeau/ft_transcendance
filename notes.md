@@ -1,4 +1,6 @@
 - socket sends to people who need to know
+- enlever les tokens avant d'envoyer a tout le monde
+- login update socket
 
 Side Quests:
 -  re test make admin
