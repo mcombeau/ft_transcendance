@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useState } from "react";
+import { useCookies } from "react-cookie";
+import { getUserID } from "../../cookies";
 
 type User = {
   username: string;
@@ -9,18 +11,28 @@ type User = {
 
 function UserPage() {
   const [userExists, setUserExists] = useState(false);
-  var username = useParams().name;
+  var userID = useParams().name;
   const [user, setUser] = useState<User>();
+  const [isMyPage, setIsMyPage] = useState(false);
+  const [cookies] = useCookies(["cookie-name"]);
 
   useEffect(() => {
-  // TODO: The below localhost adress no longer exists.
-  // Use `http://localhost:3001/users/${id}` instead.
-    fetch(`http://localhost:3001/users/username/${username}`).then(
+    var request = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${cookies["token"]}`,
+      },
+    };
+
+    if (getUserID(cookies).toString() === userID) {
+      setIsMyPage(true);
+    }
+
+    fetch(`http://localhost:3001/users/${userID}`, request).then(
       async (response) => {
         const data = await response.json();
         if (!response.ok) {
           console.log("error response load channels");
-          console.log("fucking here");
           return <h1>No such user</h1>;
         }
         setUserExists(true);
@@ -34,7 +46,7 @@ function UserPage() {
   }
   return (
     <div>
-      <h1>User page for {user.username}</h1>
+      <h1>User page for {isMyPage ? "me" : user.username}</h1>
       <p> My email is : {user.email}</p>
     </div>
   );

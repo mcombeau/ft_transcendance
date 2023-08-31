@@ -40,7 +40,7 @@ export const Messages = (
           <span
             id="sender"
             onClick={() => {
-              navigate("/user/" + msg.senderUsername); // TODO: create front profile page and go there
+              navigate("/user/" + msg.senderID); // TODO: create front profile page and go there
             }}
           >
             {msg.senderUsername}
@@ -55,7 +55,7 @@ export const Messages = (
         <span
           id="sender"
           onClick={() => {
-            navigate("/user/" + msg.senderUsername);
+            navigate("/user/" + msg.senderID); // TODO: create front profile page and go there
           }}
           onContextMenu={(e) => {
             e.preventDefault();

@@ -6,11 +6,7 @@ import "./login.css";
 import { FaInstagram } from "react-icons/fa";
 import { useState } from "react";
 import { useCookies } from "react-cookie";
-import {
-  WebSocketContext,
-  WebSocketProvider,
-} from "../../contexts/WebsocketContext";
-import { Socket } from "socket.io-client";
+import { WebSocketContext } from "../../contexts/WebsocketContext";
 import { useContext } from "react";
 
 function Login() {
