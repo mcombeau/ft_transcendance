@@ -188,6 +188,33 @@ export class ChatGateway implements OnModuleInit {
     }
   }
 
+  @SubscribeMessage('join socket room')
+  async onJoinSocketRoom(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() info: ReceivedInfoDto,
+  ): Promise<void> {
+    console.log('[Chat Gateway]: Join socket room:', info);
+    try {
+      info.userID = await this.checkIdentity(info.token);
+      const userParticipant =
+        await this.chatParticipantsService.fetchParticipantEntityByUserChatID({
+          userID: info.userID,
+          chatRoomID: info.chatRoomID,
+        });
+      if (userParticipant) {
+        socket.join(
+          this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat),
+        );
+      }
+    } catch (e) {
+      const err_msg = '[Chat Gateway]: join socket room error:' + e.message;
+      console.log(err_msg);
+      this.server
+        .to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
+        .emit('error', err_msg);
+    }
+  }
+
   @SubscribeMessage('dm')
   async onDM(
     @ConnectedSocket() socket: Socket,
@@ -205,17 +232,9 @@ export class ChatGateway implements OnModuleInit {
       info.chatRoomID = chat.id;
       info.username = user1.username;
       info.username2 = user2.username;
-      if (
-        socket.data.userID === info.userID ||
-        socket.data.userID === info.targetID
-      ) {
-        // Making the participants join the socket room
-        socket.join(
-          this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat),
-        );
-      }
       this.server
-        .to(this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat))
+        .to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
+        .to(this.getSocketRoomIdentifier(info.targetID, RoomType.User))
         .emit('dm', info);
     } catch (e) {
       const err_msg = '[Chat Gateway]: DM creation error:' + e.message;

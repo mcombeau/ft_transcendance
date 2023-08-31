@@ -639,6 +639,8 @@ export const Chat = () => {
         ownerID: null,
         isDM: true,
       };
+      info.token = cookies["token"];
+      socket.emit("join socket room", info);
       setMyChats((prev) => [...prev, channel]);
     });
 
