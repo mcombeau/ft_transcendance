@@ -54,6 +54,6 @@ export class AuthService {
     console.log(user);
     const access_token = this.login(user);
     res.cookie('token', access_token.access_token);
-    res.redirect(302, 'http://localhost:3000/profile');
+    res.redirect(302, `http://localhost:3000/user/${user.id}`);
   }
 }

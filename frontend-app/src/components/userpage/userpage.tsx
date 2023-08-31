@@ -17,11 +17,8 @@ function UserPage() {
   const [isMyPage, setIsMyPage] = useState(false);
   const [cookies] = useCookies(["cookie-name"]);
   const socket = useContext(WebSocketContext);
-  let navigate = useNavigate();
 
   useEffect(() => {
-    socket.emit("login", cookies["token"]);
-
     var request = {
       headers: {
         "Content-Type": "application/json",
@@ -30,6 +27,7 @@ function UserPage() {
     };
 
     if (getUserID(cookies).toString() === userID) {
+      socket.emit("login", cookies["token"]);
       setIsMyPage(true);
     }
 
