@@ -101,7 +101,6 @@ export const SidePannel = (
       classname = "chanCurrent";
     }
     if (channel.isDM) {
-      console.log(channel.name, " is a dm");
       classname += " dm";
     }
     return (

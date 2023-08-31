@@ -32,6 +32,11 @@ type UserTargetChat = {
   chatRoomID: number;
 };
 
+enum RoomType {
+  User,
+  Chat,
+}
+
 // TODO [mcombeau]: Make WSExceptionFilter to translate HTTP exceptions
 //                  to Websocket exceptions
 @WebSocketGateway({
@@ -100,11 +105,11 @@ export class ChatGateway implements OnModuleInit {
 
       // Join channel named by the id of the user
       socket.data.userID = user.userID;
-      socket.join(user.userID.toString());
+      socket.join(this.getSocketRoomIdentifier(user.userID, RoomType.User));
       // Join all the channels the user is part of
       var chats = await this.userService.fetchUserChatsByUserID(user.userID);
       chats.map((chatRoom: ChatEntity) => {
-        socket.join(chatRoom.id.toString()); // Name of the socket room is the string id of the channel
+        socket.join(this.getSocketRoomIdentifier(chatRoom.id, RoomType.Chat)); // Name of the socket room is the string id of the channel
       });
     });
   }
@@ -141,13 +146,17 @@ export class ChatGateway implements OnModuleInit {
 
       if (socket.data.userID === info.userID) {
         // Making the owner join the socket room
-        socket.join(info.chatRoomID.toString());
+        socket.join(
+          this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat),
+        );
       }
       this.server.emit('add chat', info);
     } catch (e) {
       const err_msg = '[Chat Gateway]: Chat creation error:' + e.message;
       console.log(err_msg);
-      this.server.to(info.userID.toString()).emit('error', err_msg);
+      this.server
+        .to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
+        .emit('error', err_msg);
     }
   }
 
@@ -173,13 +182,19 @@ export class ChatGateway implements OnModuleInit {
         socket.data.userID === info.targetID
       ) {
         // Making the participants join the socket room
-        socket.join(info.chatRoomID.toString());
+        socket.join(
+          this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat),
+        );
       }
-      this.server.to(info.chatRoomID.toString()).emit('dm', info);
+      this.server
+        .to(this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat))
+        .emit('dm', info);
     } catch (e) {
       const err_msg = '[Chat Gateway]: DM creation error:' + e.message;
       console.log(err_msg);
-      this.server.to(info.userID.toString()).emit('error', err_msg);
+      this.server
+        .to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
+        .emit('error', err_msg);
     }
   }
 
@@ -193,7 +208,9 @@ export class ChatGateway implements OnModuleInit {
     } catch (e) {
       const err_msg = '[Chat Gateway]: Chat deletion error:' + e.message;
       console.log(err_msg);
-      this.server.to(info.userID.toString()).emit('error', err_msg);
+      this.server
+        .to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
+        .emit('error', err_msg);
     }
   }
 
@@ -225,13 +242,20 @@ export class ChatGateway implements OnModuleInit {
 
       if (socket.data.userID === info.userID) {
         // Making the participants join the socket room
-        socket.join(info.chatRoomID.toString());
+        console.log('JOIN', socket.data.userID);
+        socket.join(
+          this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat),
+        );
       }
-      this.server.to(info.chatRoomID.toString()).emit('join chat', info);
+      this.server
+        .to(this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat))
+        .emit('join chat', info);
     } catch (e) {
       const err_msg = '[Chat Gateway]: Chat join error:' + e.message;
       console.log(err_msg);
-      this.server.to(info.userID.toString()).emit('error', err_msg);
+      this.server
+        .to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
+        .emit('error', err_msg);
     }
   }
 
@@ -250,16 +274,21 @@ export class ChatGateway implements OnModuleInit {
         chatRoomID: info.chatRoomID,
       });
 
+      this.server
+        .to(this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat))
+        .emit('leave chat', info);
       if (socket.data.userID === info.userID) {
         // Making the participant leave the socket room
-        socket.leave(info.chatRoomID.toString());
+        socket.leave(
+          this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat),
+        );
       }
-      this.server.to(info.chatRoomID.toString()).emit('leave chat', info);
-      this.server.to(info.userID.toString()).emit('leave chat', info);
     } catch (e) {
       const err_msg = '[Chat Gateway]: Chat leave error:' + e.message;
       console.log(err_msg);
-      this.server.to(info.userID.toString()).emit('error', err_msg);
+      this.server
+        .to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
+        .emit('error', err_msg);
     }
   }
 
@@ -278,12 +307,16 @@ export class ChatGateway implements OnModuleInit {
       info.username = user.username;
       await this.registerChatMessage(info.messageInfo);
 
-      this.server.to(info.chatRoomID.toString()).emit('chat message', info);
+      this.server
+        .to(this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat))
+        .emit('chat message', info);
     } catch (e) {
       const err_msg =
         '[Chat Gateway]: Chat message registration error:' + e.message;
       console.log(err_msg);
-      this.server.to(info.userID.toString()).emit('error', err_msg);
+      this.server
+        .to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
+        .emit('error', err_msg);
     }
   }
 
@@ -303,11 +336,15 @@ export class ChatGateway implements OnModuleInit {
         info.targetID,
         info.participantInfo.mutedUntil,
       );
-      this.server.to(info.chatRoomID.toString()).emit('mute', info);
+      this.server
+        .to(this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat))
+        .emit('mute', info);
     } catch (e) {
       const err_msg = '[Chat Gateway]: User mute error:' + e.message;
       console.log(err_msg);
-      this.server.to(info.userID.toString()).emit('error', err_msg);
+      this.server
+        .to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
+        .emit('error', err_msg);
     }
   }
 
@@ -336,7 +373,9 @@ export class ChatGateway implements OnModuleInit {
     } catch (e) {
       const err_msg = '[Chat Gateway]: Chat privacy toggle error:' + e.message;
       console.log(err_msg);
-      this.server.to(info.userID.toString()).emit('error', err_msg);
+      this.server
+        .to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
+        .emit('error', err_msg);
     }
   }
 
@@ -363,7 +402,9 @@ export class ChatGateway implements OnModuleInit {
     } catch (e) {
       const err_msg = '[Chat Gateway]: Chat invite error:' + e.message;
       console.log(err_msg);
-      this.server.to(info.userID.toString()).emit('error', err_msg);
+      this.server
+        .to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
+        .emit('error', err_msg);
     }
   }
 
@@ -385,7 +426,9 @@ export class ChatGateway implements OnModuleInit {
     } catch (e) {
       const err_msg = '[Chat Gateway]: Chat accept invite error:' + e.message;
       console.log(err_msg);
-      this.server.to(info.userID.toString()).emit('error', err_msg);
+      this.server
+        .to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
+        .emit('error', err_msg);
     }
   }
 
@@ -410,9 +453,15 @@ export class ChatGateway implements OnModuleInit {
           isOperator: participant.isOperator,
         },
       };
-      this.server.to(info.chatRoomID.toString()).emit('operator', info);
+      this.server
+        .to(this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat))
+        .emit('operator', info);
     } catch (e) {
-      console.log('[Chat Gateway]: Operator promotion error:', e.message);
+      const err_msg = '[Chat Gateway]: Operator promotion error:' + e.message;
+      console.log(err_msg);
+      this.server
+        .to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
+        .emit('error', err_msg);
     }
   }
 
@@ -437,15 +486,20 @@ export class ChatGateway implements OnModuleInit {
           isBanned: isBanned,
         },
       };
+      this.server
+        .to(this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat))
+        .emit('ban', info);
       if (info.targetID === socket.data.userID) {
-        socket.leave(info.chatRoomID.toString());
+        socket.leave(
+          this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat),
+        );
       }
-      this.server.to(info.chatRoomID.toString()).emit('ban', info);
-      this.server.to(info.targetID.toString()).emit('ban', info);
     } catch (e) {
       const err_msg = '[Chat Gateway]: User ban error:' + e.message;
       console.log(err_msg);
-      this.server.to(info.userID.toString()).emit('error', err_msg);
+      this.server
+        .to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
+        .emit('error', err_msg);
     }
   }
 
@@ -464,15 +518,23 @@ export class ChatGateway implements OnModuleInit {
         targetID: info.targetID,
         chatRoomID: info.chatRoomID,
       });
+      this.server
+        .to(this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat))
+        .emit('kick', info);
+      this.server.adapter();
+      console.log('WE ARE HERE', info.targetID, socket.data.userID);
       if (info.targetID === socket.data.userID) {
-        socket.leave(info.chatRoomID.toString());
+        console.log('KICKED', info.targetID, ' aka ', socket.data.userID);
+        socket.leave(
+          this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat),
+        );
       }
-      this.server.to(info.chatRoomID.toString()).emit('kick', info);
-      this.server.to(info.targetID.toString()).emit('kick', info);
     } catch (e) {
       const err_msg = '[Chat Gateway]: User kick error:' + e.message;
       console.log(err_msg);
-      this.server.to(info.userID.toString()).emit('error', err_msg);
+      this.server
+        .to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
+        .emit('error', err_msg);
     }
   }
 
@@ -854,5 +916,14 @@ export class ChatGateway implements OnModuleInit {
       userID: info.userID,
       chatRoomID: info.chatRoomID,
     });
+  }
+
+  private getSocketRoomIdentifier(id: number, type: RoomType): string {
+    switch (type) {
+      case RoomType.User:
+        return 'user' + id.toString();
+      default:
+        return 'chat' + id.toString();
+    }
   }
 }
