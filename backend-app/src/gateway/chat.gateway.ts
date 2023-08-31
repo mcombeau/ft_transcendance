@@ -24,6 +24,7 @@ import { UsersService } from 'src/users/users.service';
 import { UserChatInfo } from 'src/chat-participants/utils/types';
 import { ReceivedInfoDto } from './dtos/chatGateway.dto';
 import { ChatEntity } from 'src/chats/entities/chat.entity';
+import { Socket } from 'socket.io';
 
 type UserTargetChat = {
   userID: number;
@@ -127,7 +128,7 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('add chat')
   async onAddChat(
-    @ConnectedSocket() socket: any,
+    @ConnectedSocket() socket: Socket,
     @MessageBody() info: ReceivedInfoDto,
   ): Promise<void> {
     console.log('[Chat Gateway]: Add chat', info);
@@ -153,7 +154,7 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('dm')
   async onDM(
-    @ConnectedSocket() socket: any,
+    @ConnectedSocket() socket: Socket,
     @MessageBody() info: ReceivedInfoDto,
   ): Promise<void> {
     try {
@@ -200,7 +201,7 @@ export class ChatGateway implements OnModuleInit {
   // TODO: Validate chat join by checking password if there is one.
   @SubscribeMessage('join chat')
   async onJoinChat(
-    @ConnectedSocket() socket: any,
+    @ConnectedSocket() socket: Socket,
     @MessageBody() info: ReceivedInfoDto,
   ): Promise<void> {
     // TODO: good error message "You have been banned"
@@ -237,7 +238,7 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('leave chat')
   async onLeaveChat(
-    @ConnectedSocket() socket: any,
+    @ConnectedSocket() socket: Socket,
     @MessageBody() info: ReceivedInfoDto,
   ): Promise<void> {
     try {
@@ -265,7 +266,7 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('chat message')
   async onChatMessage(
-    @ConnectedSocket() socket: any,
+    @ConnectedSocket() socket: Socket,
     @MessageBody() info: ReceivedInfoDto,
   ): Promise<void> {
     console.log('[Chat Gateway]: Sending chat message');
@@ -289,7 +290,7 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('mute')
   async onMute(
-    @ConnectedSocket() socket: any,
+    @ConnectedSocket() socket: Socket,
     @MessageBody() info: ReceivedInfoDto,
   ): Promise<void> {
     try {
@@ -342,7 +343,7 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('invite')
   async onInvite(
-    @ConnectedSocket() socket: any,
+    @ConnectedSocket() socket: Socket,
     @MessageBody() info: ReceivedInfoDto,
   ): Promise<void> {
     try {
@@ -369,7 +370,7 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('accept invite')
   async onAcceptInvite(
-    @ConnectedSocket() socket: any,
+    @ConnectedSocket() socket: Socket,
     @MessageBody() info: ReceivedInfoDto,
   ): Promise<void> {
     try {
@@ -418,7 +419,7 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('ban')
   async onBan(
-    @ConnectedSocket() socket: any,
+    @ConnectedSocket() socket: Socket,
     @MessageBody() info: ReceivedInfoDto,
   ): Promise<void> {
     try {
@@ -451,7 +452,7 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('kick')
   async onKick(
-    @ConnectedSocket() socket: any,
+    @ConnectedSocket() socket: Socket,
     @MessageBody() info: ReceivedInfoDto,
   ): Promise<void> {
     try {
