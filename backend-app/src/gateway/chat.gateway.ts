@@ -39,6 +39,7 @@ enum RoomType {
 
 // TODO [mcombeau]: Make WSExceptionFilter to translate HTTP exceptions
 //                  to Websocket exceptions
+// TODO: don't send everyone's token around
 @WebSocketGateway({
   cors: {
     origin: ['http://localhost:3000', 'http://localhost'],
@@ -160,6 +161,33 @@ export class ChatGateway implements OnModuleInit {
     }
   }
 
+  @SubscribeMessage('leave socket room')
+  async onLeaveSocketRoom(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() info: ReceivedInfoDto,
+  ): Promise<void> {
+    console.log('[Chat Gateway]: Leave socket room:', info);
+    try {
+      info.userID = await this.checkIdentity(info.token);
+      const userParticipant =
+        await this.chatParticipantsService.fetchParticipantEntityByUserChatID({
+          userID: info.userID,
+          chatRoomID: info.chatRoomID,
+        });
+      if (!userParticipant || userParticipant.isBanned) {
+        socket.leave(
+          this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat),
+        );
+      }
+    } catch (e) {
+      const err_msg = '[Chat Gateway]: Leave socket room error:' + e.message;
+      console.log(err_msg);
+      this.server
+        .to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
+        .emit('error', err_msg);
+    }
+  }
+
   @SubscribeMessage('dm')
   async onDM(
     @ConnectedSocket() socket: Socket,
@@ -242,7 +270,6 @@ export class ChatGateway implements OnModuleInit {
 
       if (socket.data.userID === info.userID) {
         // Making the participants join the socket room
-        console.log('JOIN', socket.data.userID);
         socket.join(
           this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat),
         );
@@ -501,31 +528,22 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('kick')
-  async onKick(
-    @ConnectedSocket() socket: Socket,
-    @MessageBody() info: ReceivedInfoDto,
-  ): Promise<void> {
+  async onKick(@MessageBody() info: ReceivedInfoDto): Promise<void> {
     try {
       info.userID = await this.checkIdentity(info.token);
       info.username = (
         await this.userService.fetchUserByID(info.targetID)
       ).username;
+
       await this.kickUser({
         userID: info.userID,
         targetID: info.targetID,
         chatRoomID: info.chatRoomID,
       });
+
       this.server
         .to(this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat))
         .emit('kick', info);
-      this.server.adapter();
-      console.log('WE ARE HERE', info.targetID, socket.data.userID);
-      if (info.targetID === socket.data.userID) {
-        console.log('KICKED', info.targetID, ' aka ', socket.data.userID);
-        socket.leave(
-          this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat),
-        );
-      }
     } catch (e) {
       const err_msg = '[Chat Gateway]: User kick error:' + e.message;
       console.log(err_msg);

@@ -430,6 +430,8 @@ export const Chat = () => {
               (chat: ChatRoom) => chat.chatRoomID !== info.chatRoomID
             );
           });
+          info.token = cookies["token"];
+          socket.emit("leave socket room", info);
         }
         // For other people, move participant to banned list
         setMyChats((prev) => {
@@ -571,6 +573,8 @@ export const Chat = () => {
             (chat: ChatRoom) => chat.chatRoomID !== info.chatRoomID
           );
         });
+        info.token = cookies["token"];
+        socket.emit("leave socket room", info);
       }
     });
 
