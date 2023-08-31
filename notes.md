@@ -1,4 +1,4 @@
-- login update socket
+- login update socket ( make navbar username instantaneous)
 
 Side Quests:
 -  re test make admin
@@ -15,7 +15,6 @@ Side Quests:
 
 # Authentication - cookies
 
--  make navbar username instantaneous
 - logout
 - pretty navbar login/logout/profile
 - mot de passe update
