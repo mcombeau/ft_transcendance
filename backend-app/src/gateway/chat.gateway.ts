@@ -293,10 +293,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('chat message')
-  async onChatMessage(
-    @ConnectedSocket() socket: Socket,
-    @MessageBody() info: ReceivedInfoDto,
-  ): Promise<void> {
+  async onChatMessage(@MessageBody() info: ReceivedInfoDto): Promise<void> {
     console.log('[Chat Gateway]: Sending chat message');
     try {
       const userID = await this.checkIdentity(info.token);
@@ -729,7 +726,6 @@ export class ChatGateway implements OnModuleInit {
   private async registerChatMessage(
     chatMessageDetails: createChatMessageParams,
   ): Promise<void> {
-    console.log('Message details: ', chatMessageDetails);
     const user = await this.getParticipantOrFail({
       userID: chatMessageDetails.senderID,
       chatRoomID: chatMessageDetails.chatRoomID,
