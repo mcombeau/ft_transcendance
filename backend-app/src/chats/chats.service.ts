@@ -67,6 +67,7 @@ export class ChatsService {
 
   async fetchChatRoomMessagesByID(id: number): Promise<sendChatMessageDto[]> {
     const messages = await this.chatMessageService.fetchMessagesByChatID(id);
+    messages.sort((a, b) => a.sentAt.getTime() - b.sentAt.getTime());
     return messages;
   }
 
