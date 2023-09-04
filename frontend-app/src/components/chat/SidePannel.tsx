@@ -22,7 +22,7 @@ export const SidePannel = (
   const createChannel = (e: any) => {
     console.log(e); // TODO: maybe change any
     e.preventDefault();
-    if (newchannel == "") return;
+    if (newchannel === "") return;
     console.log("Emit new chan");
     var info: ReceivedInfo = {
       chatInfo: {
@@ -33,10 +33,11 @@ export const SidePannel = (
       token: cookies["token"],
     };
     socket.emit("add chat", info);
+	setNewchannel("");
   };
 
   function getDMChannelAlias(channel: ChatRoom) {
-    return channel.participants.find((p) => p.userID != getUserID(cookies))
+    return channel.participants.find((p) => p.userID !== getUserID(cookies))
       .username;
   }
 
