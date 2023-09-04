@@ -84,9 +84,8 @@ export const Messages = (
     );
   };
 
-  // TODO: maybe get chat name for display
   const inviteStatus = (invite: Invite) => {
-	// MAKE SURE THIS WORKS BECAUSE ITS FUCKING WEIIIIIIRD
+    // MAKE SURE THIS WORKS BECAUSE ITS FUCKING WEIIIIIIRD
     var date = new Date(parseInt(invite.expiresAt.toString()));
     var text = `${invite.senderUsername} invites you to join the ${
       invite.type
@@ -95,21 +94,31 @@ export const Messages = (
       // TODO: make actual type
       <div id="messages invite">
         <p>{text}</p>
-        <button id="accept" onClick={(e)=> {
-			const info = {
-            	token: cookies["token"],
-				inviteInfo: invite,
-			};
-			socket.emit('accept invite', info);
-				}}>Accept</button>
+        <button
+          id="accept"
+          onClick={(e) => {
+            const info = {
+              token: cookies["token"],
+              inviteInfo: invite,
+            };
+            socket.emit("accept invite", info);
+          }}
+        >
+          Accept
+        </button>
 
-        <button id="refuse" onClick={(e)=> {
-			const info = {
-            	token: cookies["token"],
-				inviteInfo: invite,
-			};
-			socket.emit('refuse invite', info);
-				}}>Refuse</button>
+        <button
+          id="refuse"
+          onClick={(e) => {
+            const info = {
+              token: cookies["token"],
+              inviteInfo: invite,
+            };
+            socket.emit("refuse invite", info);
+          }}
+        >
+          Refuse
+        </button>
       </div>
     );
   };
