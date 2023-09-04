@@ -3,6 +3,9 @@ import { inviteType } from '../entities/Invite.entity';
 
 export class sendInviteDto {
   @ApiProperty()
+  id: number;
+
+  @ApiProperty()
   type: inviteType;
 
   @ApiProperty()

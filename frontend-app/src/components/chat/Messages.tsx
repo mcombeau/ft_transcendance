@@ -2,7 +2,14 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { NavigateFunction } from "react-router-dom";
 import { Socket } from "socket.io-client";
 import { getUserID } from "../../cookies";
-import { Message, ChatRoom, Invite, User, PublicChatRoom } from "./types";
+import {
+  Message,
+  ChatRoom,
+  Invite,
+  User,
+  PublicChatRoom,
+  typeInvite,
+} from "./types";
 import { ContextMenuEl } from "./ContextMenu";
 import { ReceivedInfo } from "./types";
 
@@ -77,38 +84,35 @@ export const Messages = (
     );
   };
 
-  // TODO: invites pannel
+  const inviteStatus = (invite: Invite) => {
+    var text = `${invite.senderUsername} invites you to join the chat ${invite.chatRoomID}`;
+    return (
+      // TODO: make actual type
+      <div id="messages invite">
+        <p>{text}</p>
+        <button id="accept">Accept</button>
+        <button id="refuse">Refuse</button>
+      </div>
+    );
+  };
 
-  // const inviteStatus = (invite: Invite) => {
-  //   if (invite.type === typeInvite.Chat) {
-  //     var text = `${invite.sender} invites you to join the chat ${invite.target}`;
-  //   }
-  //   return (
-  //     // TODO: make actual type
-  //     <div id="messages invite">
-  //       <p>{text}</p>
-  //       <button id="accept">Accept</button>
-  //       <button id="refuse">Refuse</button>
-  //     </div>
-  //   );
-  // };
-  // if (invitesPannel) {
-  //   return (
-  //     <div id="messages">
-  //       {invites.map((invite: Invite) => inviteStatus(invite))}
-  //       {ContextMenuEl(
-  //         contextMenu,
-  //         contextMenuSender,
-  //         setContextMenu,
-  //         contextMenuPos,
-  //         socket,
-  //         currentChatRoom,
-  //         username,
-  //         cookies
-  //       )}
-  //     </div>
-  //   );
-  // }
+  if (invitesPannel) {
+    return (
+      <div id="messages">
+        {invites.map((invite: Invite) => inviteStatus(invite))}
+        {ContextMenuEl(
+          contextMenu,
+          contextMenuTarget,
+          setContextMenu,
+          contextMenuPos,
+          socket,
+          currentChatRoom,
+          cookies,
+          myChats
+        )}
+      </div>
+    );
+  }
   function displayInvite(invite: Invite) {
     return (
       <br>{`You have been invited to ${invite.chatRoomID} by ${invite.senderID}`}</br>

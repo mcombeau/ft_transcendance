@@ -12,6 +12,7 @@ import {
 import { createMessageDto } from 'src/chat-messages/dtos/createMessage.dto';
 import { updateParticipantDto } from 'src/chat-participants/dtos/updateChatParticipant.dto';
 import { createChatDto } from 'src/chats/dtos/createChats.dto';
+import { sendInviteDto } from 'src/invites/dtos/sendInvite.dto';
 
 export class ReceivedInfoDto {
   @ApiProperty()
@@ -63,6 +64,12 @@ export class ReceivedInfoDto {
   @ValidateNested()
   @Type(() => updateParticipantDto)
   participantInfo?: updateParticipantDto;
+
+  @ApiProperty()
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => sendInviteDto)
+  inviteInfo?: sendInviteDto;
 
   @ApiProperty()
   @IsOptional()

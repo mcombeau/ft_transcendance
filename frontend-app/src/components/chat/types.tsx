@@ -8,6 +8,7 @@ export type ReceivedInfo = {
   messageInfo?: createChatMessageParams;
   chatInfo?: createChatParams;
   participantInfo?: updateParticipantParams;
+  inviteInfo?: Invite;
   inviteDate?: number;
 };
 
@@ -73,13 +74,14 @@ export enum typeInvite {
 }
 
 export type Invite = {
-  targetID: number;
+  id: number;
+  invitedID: number;
   senderID: number;
-  targetUsername: string;
+  invitedUsername: string;
   senderUsername: string;
   type: typeInvite;
   chatRoomID?: number;
-  expirationDate: number;
+  expiresAt: number;
 };
 
 export enum Status {

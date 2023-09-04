@@ -1,7 +1,6 @@
 - validation channel name
 
 - invitations
-	- dto pour pour les invites
 	- invite display 
 	- accept invite makes you join channel
 

@@ -33,6 +33,29 @@ export const ContextMenuEl = (
       </li>
       <li
         onClick={() => {
+          console.log("Invited " + target.username);
+          var channel_name = prompt(
+            "Which channel do you want to send an invitation for ?"
+          );
+          console.log("THERE");
+          console.log("channame", channel_name);
+          if (channel_name === null) {
+            console.log("Cant invite to null channel");
+            return;
+          }
+          var info: ReceivedInfo = {
+            token: cookies["token"],
+            chatRoomID: getChatRoomIDFromName(channel_name, myChats),
+            targetID: target.id,
+          };
+          ChangeStatus(info, "invite", socket);
+          setContextMenu(false);
+        }}
+      >
+        Invite
+      </li>
+      <li
+        onClick={() => {
           console.log("DM " + target.username);
           var info: ReceivedInfo = {
             token: cookies["token"],
@@ -91,29 +114,6 @@ export const ContextMenuEl = (
             }}
           >
             Ban
-          </li>
-          <li
-            onClick={() => {
-              console.log("Invited " + target.username);
-              var channel_name = prompt(
-                "Which channel do you want to send an invitation for ?"
-              );
-              console.log("THERE");
-              console.log("channame", channel_name);
-              if (channel_name === null) {
-                console.log("Cant invite to null channel");
-                return;
-              }
-              var info: ReceivedInfo = {
-                token: cookies["token"],
-                chatRoomID: getChatRoomIDFromName(channel_name, myChats),
-                targetID: target.id,
-              };
-              ChangeStatus(info, "invite", socket);
-              setContextMenu(false);
-            }}
-          >
-            Invite
           </li>
         </div>
       ) : (

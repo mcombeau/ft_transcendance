@@ -22,6 +22,7 @@ export class InvitesService {
 
   private formatInviteForSending(invite: InviteEntity): sendInviteDto {
     const sendInvite: sendInviteDto = {
+      id: invite.id,
       type: invite.type,
       expiresAt: invite.expiresAt,
       senderID: invite.inviteSender.id,

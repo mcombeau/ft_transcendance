@@ -1,4 +1,5 @@
 import { OnModuleInit, Inject, forwardRef } from '@nestjs/common';
+import { sendInviteDto } from 'src/invites/dtos/sendInvite.dto';
 import { createChatMessageParams } from 'src/chat-messages/utils/types';
 import {
   ConnectedSocket,
@@ -463,26 +464,27 @@ export class ChatGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('invite')
-  async onInvite(
-    @ConnectedSocket() socket: Socket,
-    @MessageBody() info: ReceivedInfoDto,
-  ): Promise<void> {
+  async onInvite(@MessageBody() info: ReceivedInfoDto): Promise<void> {
     try {
-      // TODO: reimplement later (socket send to right userse)
       info.userID = await this.checkIdentity(info.token);
-      info.username = (
-        await this.userService.fetchUserByID(info.targetID)
-      ).username;
-      const sender = await this.userService.fetchUserByID(info.userID);
-      info.username2 = sender.username;
-      const inviteExpiry = await this.inviteUser({
+      const invite = await this.inviteUser({
         userID: info.userID,
         targetID: info.targetID,
         chatRoomID: info.chatRoomID,
       });
-      info.inviteDate = inviteExpiry;
+      info.inviteInfo = invite;
       info.token = '';
-      this.server.emit('invite', info);
+      this.server
+        .to(
+          this.getSocketRoomIdentifier(
+            info.inviteInfo.invitedID,
+            RoomType.User,
+          ),
+        )
+        .to(
+          this.getSocketRoomIdentifier(info.inviteInfo.senderID, RoomType.User),
+        )
+        .emit('invite', info);
     } catch (e) {
       const err_msg = '[Chat Gateway]: Chat invite error:' + e.message;
       console.log(err_msg);
@@ -928,7 +930,7 @@ export class ChatGateway implements OnModuleInit {
     return isPrivate;
   }
 
-  private async inviteUser(info: UserTargetChat): Promise<number> {
+  private async inviteUser(info: UserTargetChat): Promise<sendInviteDto> {
     const user = await this.getParticipantOrFail({
       userID: info.userID,
       chatRoomID: info.chatRoomID,
@@ -955,7 +957,7 @@ export class ChatGateway implements OnModuleInit {
       invitedUserID: info.targetID,
       chatRoomID: info.chatRoomID,
     });
-    return invite.expiresAt;
+    return invite;
   }
 
   private async acceptUserInvite(info: UserChatInfo): Promise<void> {

@@ -1,7 +1,5 @@
 import { createContext } from "react";
 import { io, Socket } from "socket.io-client";
-import { Cookies } from "react-cookie";
-import { getUserID } from "../cookies";
 
 const URL = "http://localhost:3001";
 

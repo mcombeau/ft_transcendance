@@ -483,74 +483,17 @@ export const Chat = () => {
     });
 
     socket.on("invite", (info: ReceivedInfo) => {
-      // TODO: check if we are sure we don't need that
-
-      // console.log("Received invite info");
-      // setChannels((prev) => {
-      //   const temp = [...prev];
-      //   return temp.map((chan: ChatRoom) => {
-      //     if (chan.chatRoomID === info.chatRoomID) {
-      //       var invited_user: User = {
-      //         userID: info.targetID,
-      //         username: info.username,
-      //         isOwner: false,
-      //         isOperator: false,
-      //         isBanned: false,
-      //         mutedUntil: new Date().getTime(),
-      //         invitedUntil: info.inviteDate,
-      //       };
-      //       chan.participants = chan.participants.filter(
-      //         (p: User) => p.userID !== info.targetID
-      //       );
-      //       chan.invited = [...chan.invited, invited_user];
-      //     }
-      //     return chan;
-      //   });
-      // });
-      serviceAnnouncement(
-        `${info.username} has been invited to this channel.`,
-        info.chatRoomID
-      );
-      var invite: Invite = {
-        targetID: info.targetID,
-        targetUsername: info.username,
-        senderID: info.userID,
-        senderUsername: info.username2,
-        type: typeInvite.Chat,
-        chatRoomID: info.chatRoomID,
-        expirationDate: info.inviteDate,
-      };
-      setInvites((prev) => [...prev, invite]);
+      // Receive invitation from someone else
+      var invite: Invite = info.inviteInfo;
+      if (invite.invitedID === getUserID(cookies)) {
+        setInvites((prev) => [...prev, invite]);
+      }
     });
 
     socket.on("accept invite", (info: ReceivedInfo) => {
-      // TODO: later
-      // var user: User = {
-      //   userID: info.targetID,
-      //   username: info.username,
-      //   isOwner: false,
-      //   isOperator: false,
-      //   isBanned: false,
-      //   mutedUntil: new Date().getTime(),
-      //   invitedUntil: 0,
-      // };
-      // setChannels((prev) => {
-      //   const temp = [...prev];
-      //   return temp.map((chan: ChatRoom) => {
-      //     if (chan.chatRoomID === info.chatRoomID) {
-      //       if (
-      //         !chan.participants.some((p: User) => p.userID === info.targetID)
-      //       ) {
-      //         chan.participants = [...chan.participants, user];
-      //         serviceAnnouncement(
-      //           `${info.username} joined the channel.`,
-      //           info.chatRoomID
-      //         );
-      //       }
-      //     }
-      //     return chan;
-      //   });
-      // });
+      setInvites((prev) =>
+        prev.filter((invite: Invite) => invite.id !== info.inviteInfo.id)
+      );
     });
 
     socket.on("kick", (info: ReceivedInfo) => {
