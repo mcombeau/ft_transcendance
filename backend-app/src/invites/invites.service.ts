@@ -159,14 +159,13 @@ export class InvitesService {
       });
       return this.fetchInviteEntityByID(invite.id);
     } else {
-      await this.inviteRepository.save({
+      return this.inviteRepository.save({
         type: inviteType.CHAT,
         expiresAt: inviteExpiry,
         inviteSender: sender,
         invitedUser: invitedUser,
         chatRoom: chatRoom,
       });
-      return this.fetchInviteEntityByID(invite.id);
     }
   }
 
