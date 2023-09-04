@@ -85,7 +85,7 @@ export const Messages = (
   };
 
   const inviteStatus = (invite: Invite) => {
-    var text = `${invite.senderUsername} invites you to join the chat ${invite.chatRoomID}`;
+    var text = `${invite.senderUsername} invites you to join the ${invite.type} ${invite.chatRoomID}`;
     return (
       // TODO: make actual type
       <div id="messages invite">

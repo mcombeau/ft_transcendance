@@ -68,9 +68,9 @@ export type PublicChatRoom = {
 };
 
 export enum typeInvite {
-  Chat,
-  Game,
-  Friend,
+  Chat = "chat",
+  Game = "game",
+  Friend = "friend",
 }
 
 export type Invite = {
