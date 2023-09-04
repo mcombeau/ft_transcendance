@@ -65,7 +65,9 @@ export class ChatGateway implements OnModuleInit {
 
   onModuleInit(): void {
     this.server.use(async (socket, next) => {
-      const token = socket.handshake.headers.authorization.split(' ')[1];
+      const authorization_data = socket.handshake.headers.authorization;
+      if (!authorization_data) return next(new Error('authentication error'));
+      const token = authorization_data.split(' ')[1];
 
       const isVerified = await this.authService
         .validateToken(token)
@@ -103,15 +105,7 @@ export class ChatGateway implements OnModuleInit {
         );
         socket.broadcast.emit('disconnection event');
       });
-
-      // Join channel named by the id of the user
-      socket.data.userID = user.userID;
-      socket.join(this.getSocketRoomIdentifier(user.userID, RoomType.User));
-      // Join all the channels the user is part of
-      const chats = await this.userService.fetchUserChatsByUserID(user.userID);
-      chats.map((chatRoom: ChatEntity) => {
-        socket.join(this.getSocketRoomIdentifier(chatRoom.id, RoomType.Chat)); // Name of the socket room is the string id of the channel
-      });
+      await this.joinSocketRooms(socket, user.userID);
     });
   }
 
@@ -129,6 +123,44 @@ export class ChatGateway implements OnModuleInit {
       throw new ChatPermissionError('User not authenticated');
     }
     return isVerified.userID;
+  }
+
+  private async joinSocketRooms(socket: Socket, userID: number) {
+    // Join channel named by the id of the user
+    socket.data.userID = userID;
+    socket.join(this.getSocketRoomIdentifier(userID, RoomType.User));
+    // Join all the channels the user is part of
+    const chats = await this.userService.fetchUserChatsByUserID(userID);
+    chats.map((chatRoom: ChatEntity) => {
+      socket.join(this.getSocketRoomIdentifier(chatRoom.id, RoomType.Chat)); // Name of the socket room is the string id of the channel
+    });
+  }
+
+  @SubscribeMessage('login')
+  async onLogin(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() token: string,
+  ): Promise<void> {
+    console.log('[Chat Gateway]: Login', token);
+    try {
+      const userID = await this.checkIdentity(token);
+      socket.data.userID = userID;
+
+      socket.rooms.forEach((room: string) => {
+        if (room !== socket.id) socket.leave(room);
+      });
+      await this.joinSocketRooms(socket, userID);
+      const username = (await this.userService.fetchUserByID(userID)).username;
+      this.server
+        .to(this.getSocketRoomIdentifier(userID, RoomType.User))
+        .emit('login', username);
+    } catch (e) {
+      const err_msg = '[Chat Gateway]: login error:' + e.message;
+      console.log(err_msg);
+      // this.server
+      //   .to(this.getSocketRoomIdentifier(userID, RoomType.User))
+      //   .emit('error', err_msg);
+    }
   }
 
   @SubscribeMessage('add chat')

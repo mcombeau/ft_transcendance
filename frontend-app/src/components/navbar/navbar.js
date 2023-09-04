@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
-import { getUsername } from "../../cookies";
+import { getUsername, getUserID } from "../../cookies";
 
 import {
   NavbarContainer,
@@ -15,17 +15,25 @@ import {
   NavbarLinkExtended,
 } from "./NavBar.style";
 import LogoImg from "./../../ping.svg";
+import { WebSocketContext } from "../../contexts/WebsocketContext";
 
 function Navbar() {
   const [extendNavbar, setExtendNavbar] = useState(false);
   const [cookies] = useCookies(["cookie-name"]);
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState(getUsername(cookies));
+  const socket = useContext(WebSocketContext);
 
   useEffect(() => {
     if (getUsername(cookies) != null) {
       setUsername(getUsername(cookies));
     }
   }, [cookies]);
+
+  useEffect(() => {
+    socket.on("login", (username) => {
+      setUsername(username);
+    });
+  }, []);
 
   return (
     <NavbarContainer extendNavbar={extendNavbar}>

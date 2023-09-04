@@ -6,6 +6,10 @@ import "./login.css";
 import { FaInstagram } from "react-icons/fa";
 import { useState } from "react";
 import { useCookies } from "react-cookie";
+import { WebSocketContext } from "../../contexts/WebsocketContext";
+import { useContext } from "react";
+import { getUserID, getUserIDFromToken } from "../../cookies";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -14,11 +18,13 @@ function Login() {
   const [newPassword, setNewPassword] = useState("");
   const [email, setEmail] = useState("");
   const [cookies, setCookie, removeCookie] = useCookies(["cookie-name"]);
+  const socket = useContext(WebSocketContext);
+  let navigate = useNavigate();
 
   const InstagramBackground =
     "linear-gradient(to right, #A12AC4 0%, #ED586C 40%, #F0A853 100%)";
 
-  const sendAuth = (e) => {
+  const sendAuth = async (e) => {
     e.preventDefault();
     if (username === "" || password === "") return;
     var request = {
@@ -28,15 +34,17 @@ function Login() {
       },
       body: JSON.stringify({ username: username, password: password }),
     };
-    fetch("http://localhost:3001/auth/login", request).then(
+    await fetch("http://localhost:3001/auth/login", request).then(
       async (response) => {
         const data = await response.json();
         if (!response.ok) {
           console.log("error user login");
           return;
         }
-        setCookie("token", data.access_token, { path: "/" });
+        setCookie("token", data.access_token, { path: "/" }); // TODO: check if await is needed/if it does anything
         console.log("Access Token " + data.access_token);
+        // socket.emit("login", data.access_token);
+        navigate(`/user/${getUserIDFromToken(data.access_token)}`);
       }
     );
     setUsername("");
