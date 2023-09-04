@@ -192,9 +192,9 @@ export class InvitesService {
     info: UserChatInfo,
   ): Promise<DeleteResult> {
     const invites = await this.fetchAllInvitesByInvitedUserChatRoomIDs(info);
-    for (const e of invites) {
+    invites.map(async (e) => {
       await this.deleteInviteByID(e.id);
-    }
+    });
     return;
   }
 
@@ -203,11 +203,13 @@ export class InvitesService {
   }
 
   async deleteExpiredInvites() {
-    const invites = this.fetchAllInvites();
-    for (const e of invites) {
+    const invites = await this.inviteRepository.find({
+      relations: ['inviteSender', 'invitedUser', 'chatRoom'],
+    });
+    invites.map(async (e) => {
       if (e.expiresAt < new Date().getTime()) {
-        this.deleteInviteByID(e.id);
+        await this.deleteInviteByID(e.id);
       }
-    }
+    });
   }
 }
