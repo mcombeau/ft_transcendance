@@ -129,11 +129,13 @@ export class ChatGateway implements OnModuleInit {
   private async joinSocketRooms(socket: Socket, userID: number) {
     // Join channel named by the id of the user
     socket.data.userID = userID;
-    socket.join(this.getSocketRoomIdentifier(userID, RoomType.User));
+    await socket.join(this.getSocketRoomIdentifier(userID, RoomType.User));
     // Join all the channels the user is part of
     const chats = await this.userService.fetchUserChatsByUserID(userID);
-    chats.map((chatRoom: ChatEntity) => {
-      socket.join(this.getSocketRoomIdentifier(chatRoom.id, RoomType.Chat)); // Name of the socket room is the string id of the channel
+    chats.map(async (chatRoom: ChatEntity) => {
+      await socket.join(
+        this.getSocketRoomIdentifier(chatRoom.id, RoomType.Chat),
+      ); // Name of the socket room is the string id of the channel
     });
   }
 
@@ -147,8 +149,8 @@ export class ChatGateway implements OnModuleInit {
       const userID = await this.checkIdentity(token);
       socket.data.userID = userID;
 
-      socket.rooms.forEach((room: string) => {
-        if (room !== socket.id) socket.leave(room);
+      socket.rooms.forEach(async (room: string) => {
+        if (room !== socket.id) await socket.leave(room);
       });
       await this.joinSocketRooms(socket, userID);
       const username = (await this.userService.fetchUserByID(userID)).username;
@@ -180,7 +182,7 @@ export class ChatGateway implements OnModuleInit {
 
       if (socket.data.userID === info.userID) {
         // Making the owner join the socket room
-        socket.join(
+        await socket.join(
           this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat),
         );
       }
@@ -209,7 +211,7 @@ export class ChatGateway implements OnModuleInit {
           chatRoomID: info.chatRoomID,
         });
       if (!userParticipant || userParticipant.isBanned) {
-        socket.leave(
+        await socket.leave(
           this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat),
         );
       }
@@ -236,7 +238,7 @@ export class ChatGateway implements OnModuleInit {
           chatRoomID: info.chatRoomID,
         });
       if (userParticipant) {
-        socket.join(
+        await socket.join(
           this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat),
         );
       }
@@ -325,7 +327,7 @@ export class ChatGateway implements OnModuleInit {
 
       if (socket.data.userID === info.userID) {
         // Making the participants join the socket room
-        socket.join(
+        await socket.join(
           this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat),
         );
       }
@@ -363,7 +365,7 @@ export class ChatGateway implements OnModuleInit {
         .emit('leave chat', info);
       if (socket.data.userID === info.userID) {
         // Making the participant leave the socket room
-        socket.leave(
+        await socket.leave(
           this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat),
         );
       }
@@ -506,10 +508,9 @@ export class ChatGateway implements OnModuleInit {
     @MessageBody() info: ReceivedInfoDto,
   ): Promise<void> {
     try {
-      // TODO: reimplement later (socket send to right userse)
       console.log('[Chat Gateway]: accept invite', info);
       info.userID = await this.checkIdentity(info.token);
-      const user = await this.userService.fetchUserByID(info.targetID);
+      const user = await this.userService.fetchUserByID(info.userID);
       info.username = user.username;
       await this.acceptUserInvite({
         userID: info.userID,
@@ -524,9 +525,14 @@ export class ChatGateway implements OnModuleInit {
         name: chat.name,
         isPrivate: chat.isPrivate,
       };
-      console.log('[Chat Gateway]: accept invite emit', info);
+      if (socket.data.userID === info.userID) {
+        // Making the participants join the socket room
+        await socket.join(
+          this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat),
+        );
+      }
       this.server
-        .to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
+        .to(this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat))
         .emit('accept invite', info);
     } catch (e) {
       const err_msg = '[Chat Gateway]: Chat accept invite error:' + e.message;
@@ -619,7 +625,7 @@ export class ChatGateway implements OnModuleInit {
         .to(this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat))
         .emit('ban', info);
       if (info.targetID === socket.data.userID) {
-        socket.leave(
+        await socket.leave(
           this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat),
         );
       }
