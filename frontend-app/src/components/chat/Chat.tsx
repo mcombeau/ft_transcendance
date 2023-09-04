@@ -647,37 +647,22 @@ export const Chat = () => {
       );
     }
 
-    // TODO: implement
-    // if (invites.length === 0) {
-    //   fetch(
-    //     `http://localhost:3001/invites/received/${getUserID(cookies)}`
-    //   ).then(async (response) => {
-    //     const data = await response.json();
-    //     if (!response.ok) {
-    //       console.log("error response load invites");
-    //       return;
-    //     }
-    //     data.map((e: any) => {
-    //       var type: typeInvite = typeInvite.Chat;
-    //       if (e.type === "game") {
-    //         type = typeInvite.Game;
-    //       } else if (e.type === "friend") {
-    //         type = typeInvite.Friend;
-    //       }
-    //       var invite: Invite = {
-    //         targetID: e.invitedID,
-    //         targetUsername: e.invitedUsername,
-    //         senderUsername: e.senderUsername,
-    //         senderID: e.senderID,
-    //         type: type,
-    //         chatRoomID: e.chatRoomID, // TODO: change with gameroomid
-    //         expirationDate: e.expiresAt,
-    //       };
-
-    //       setInvites((prev) => [...prev, invite]);
-    //     });
-    //   });
-    // }
+    if (invites.length === 0) {
+      fetch(
+        `http://localhost:3001/invites/received/${getUserID(cookies)}`,
+        request
+      ).then(async (response) => {
+        const data = await response.json();
+        if (!response.ok) {
+          console.log("error response load invites");
+          return;
+        }
+        data.map((invite: Invite) => {
+          console.log("fetching invites", invite);
+          setInvites((prev) => [...prev, invite]);
+        });
+      });
+    }
 
     return () => {
       console.log("unregistering events");

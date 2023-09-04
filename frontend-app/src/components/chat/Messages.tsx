@@ -84,6 +84,7 @@ export const Messages = (
     );
   };
 
+  // TODO: maybe get chat name for display
   const inviteStatus = (invite: Invite) => {
     var text = `${invite.senderUsername} invites you to join the ${invite.type} ${invite.chatRoomID}`;
     return (
