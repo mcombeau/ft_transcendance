@@ -43,6 +43,7 @@ export class InvitesService {
   }
 
   async fetchAllInvites(): Promise<sendInviteDto[]> {
+    await this.deleteExpiredInvites();
     const invites = await this.inviteRepository.find({
       relations: ['inviteSender', 'invitedUser', 'chatRoom'],
     });
@@ -50,11 +51,13 @@ export class InvitesService {
   }
 
   async fetchInviteByID(id: number): Promise<sendInviteDto> {
+    await this.deleteExpiredInvites();
     const invite = await this.fetchInviteEntityByID(id);
     return this.formatInviteForSending(invite);
   }
 
   async fetchInviteEntityByID(id: number): Promise<InviteEntity> {
+    await this.deleteExpiredInvites();
     return this.inviteRepository.findOne({
       where: { id: id },
       relations: ['inviteSender', 'invitedUser', 'chatRoom'],
@@ -62,6 +65,7 @@ export class InvitesService {
   }
 
   async fetchInvitesByInvitedID(userID: number): Promise<sendInviteDto[]> {
+    await this.deleteExpiredInvites();
     const user = await this.userService.fetchUserByID(userID);
     const invites = await this.inviteRepository.find({
       where: { invitedUser: user },
@@ -71,6 +75,7 @@ export class InvitesService {
   }
 
   async fetchInvitesBySenderID(userID: number): Promise<sendInviteDto[]> {
+    await this.deleteExpiredInvites();
     const user = await this.userService.fetchUserByID(userID);
     const invites = await this.inviteRepository.find({
       where: { inviteSender: user },
@@ -80,6 +85,7 @@ export class InvitesService {
   }
 
   async fetchInvitesByChatRoomID(chatRoomID: number): Promise<sendInviteDto[]> {
+    await this.deleteExpiredInvites();
     const chatRoom = await this.chatService.fetchChatByID(chatRoomID);
     const invites = await this.inviteRepository.find({
       where: { chatRoom: chatRoom },
@@ -91,6 +97,7 @@ export class InvitesService {
   async fetchInviteByInvitedUserChatRoomID(
     info: UserChatInfo,
   ): Promise<InviteEntity> {
+    await this.deleteExpiredInvites();
     const chatRoom = await this.chatService.fetchChatByID(info.chatRoomID);
     const user = await this.userService.fetchUserByID(info.userID);
     return await this.inviteRepository.findOne({
@@ -102,6 +109,7 @@ export class InvitesService {
   async fetchAllInvitesByInvitedUserChatRoomIDs(
     info: UserChatInfo,
   ): Promise<InviteEntity[]> {
+    await this.deleteExpiredInvites();
     const chatRoom = await this.chatService.fetchChatByID(info.chatRoomID);
     const user = await this.userService.fetchUserByID(info.userID);
     const invites = this.inviteRepository.find({
@@ -192,5 +200,14 @@ export class InvitesService {
 
   async deleteInviteByID(id: number): Promise<DeleteResult> {
     return this.inviteRepository.delete({ id });
+  }
+
+  async deleteExpiredInvites() {
+    const invites = this.fetchAllInvites();
+    for (const e of invites) {
+      if (e.expiresAt < new Date().getTime()) {
+        this.deleteInviteByID(e.id);
+      }
+    }
   }
 }
