@@ -515,9 +515,33 @@ export class ChatGateway implements OnModuleInit {
         chatRoomID: info.chatRoomID,
       });
       info.token = '';
-      this.server.emit('accept invite', info);
+      this.server
+        .to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
+        .emit('accept invite', info);
     } catch (e) {
       const err_msg = '[Chat Gateway]: Chat accept invite error:' + e.message;
+      console.log(err_msg);
+      this.server
+        .to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
+        .emit('error', err_msg);
+    }
+  }
+
+  @SubscribeMessage('refuse invite')
+  async onRefuseInvite(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() info: ReceivedInfoDto,
+  ): Promise<void> {
+    try {
+      console.log('[Chat Gateway]: Refuse invite', info);
+      info.userID = await this.checkIdentity(info.token);
+      await this.refuseUserInvite(info.inviteInfo);
+      info.token = '';
+      this.server
+        .to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
+        .emit('refuse invite', info);
+    } catch (e) {
+      const err_msg = '[Chat Gateway]: Chat refuse invite error:' + e.message;
       console.log(err_msg);
       this.server
         .to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
@@ -982,6 +1006,14 @@ export class ChatGateway implements OnModuleInit {
         chatRoomID: invite.chatRoom.id,
       });
       await this.inviteService.deleteInvitesByInvitedUserChatRoomID(info);
+    } catch (e) {
+      throw new ChatPermissionError(e.message);
+    }
+  }
+
+  private async refuseUserInvite(invite: sendInviteDto): Promise<void> {
+    try {
+      await this.inviteService.deleteInviteByID(invite.id);
     } catch (e) {
       throw new ChatPermissionError(e.message);
     }
