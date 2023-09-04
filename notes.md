@@ -1,10 +1,10 @@
 - validation channel name
 
-- invitations
-	- invite display 
-	- accept invite makes you join channel
+- invite display (it's almost there !)
 
-- passwords 1) chat [has](has) password 2) field popup to enter said password
+- passwords:
+  - chat has password
+  - field popup to enter said password
 
 # Authentication - cookies
 
@@ -15,6 +15,7 @@
 - mot de passe update
 - change police chat
 
-Nice to have: 
+Nice to have:
+
 - notifs dans la navbar
 - pop up de notification
