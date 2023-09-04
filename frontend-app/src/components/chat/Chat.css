@@ -494,3 +494,30 @@ input:checked + .slider:before {
   color: darkcyan;
   padding: 0.2rem;
 }
+
+/* Invites */
+
+#messages_invite {
+  padding: 26px 30px;
+  margin: 0.5rem;
+  border: thin;
+  border-radius: 0.3rem;
+  background-color: lightseagreen;
+  color: white;
+  border-color: black;
+  position: relative;
+  list-style: none;
+  text-align: center;
+}
+
+#messages_invite > button {
+  background-color: darkcyan;
+  border: none;
+  padding: 0.5rem;
+  border: thin;
+  border-radius: 0.3rem;
+  margin-top: 0.8rem;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+  margin-bottom: 0rem;
+}

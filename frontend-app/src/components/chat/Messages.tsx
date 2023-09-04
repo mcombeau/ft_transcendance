@@ -87,13 +87,13 @@ export const Messages = (
   const inviteStatus = (invite: Invite) => {
     // MAKE SURE THIS WORKS BECAUSE ITS FUCKING WEIIIIIIRD
     var date = new Date(parseInt(invite.expiresAt.toString()));
-    var text = `${invite.senderUsername} invites you to join the ${
-      invite.type
-    } "${invite.chatRoomName}" until ${date.toString().split("GMT")[0]}`;
     return (
       // TODO: make actual type
-      <div id="messages invite">
-        <p>{text}</p>
+      <div id="messages_invite">
+        <p>
+          <b>{invite.senderUsername}</b> invites you to join the {invite.type}{" "}
+          <i>{invite.chatRoomName}</i> until {date.toString().split("GMT")[0]}
+        </p>
         <button
           id="accept"
           onClick={(e) => {
@@ -139,18 +139,6 @@ export const Messages = (
         )}
       </div>
     );
-  }
-  function displayInvite(invite: Invite) {
-    return (
-      <br>{`You have been invited to ${invite.chatRoomID} by ${invite.senderID}`}</br>
-    );
-  }
-
-  function displayInvites() {
-    if (!invitesPannel) {
-      return <div></div>;
-    }
-    return <div>{invites.map(displayInvite)}</div>;
   }
 
   function displayPublicChat(chat: PublicChatRoom) {
@@ -202,7 +190,6 @@ export const Messages = (
     <div id="messages">
       {displayMessages(currentChatRoom)}
       {displayPublicChats()}
-      {displayInvites()}
       {ContextMenuEl(
         contextMenu,
         contextMenuTarget,
