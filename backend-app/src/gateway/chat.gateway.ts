@@ -419,6 +419,12 @@ export class ChatGateway implements OnModuleInit {
         info.participantInfo.mutedUntil,
       );
       info.token = '';
+      console.log('Muted date:', info.participantInfo.mutedUntil);
+      console.log('Muted date:', info.participantInfo.mutedUntil.toString());
+      console.log(
+        'Muted date:',
+        new Date(info.participantInfo.mutedUntil).toString(),
+      );
       this.server
         .to(this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat))
         .emit('mute', info);
@@ -474,12 +480,6 @@ export class ChatGateway implements OnModuleInit {
       });
       info.inviteInfo = invite;
       info.token = '';
-      console.log('INVITED UNTIL', info.inviteInfo.expiresAt);
-      console.log('INVITED UNTIL', info.inviteInfo.expiresAt.toString());
-      console.log(
-        'INVITED UNTIL',
-        new Date(info.inviteInfo.expiresAt).toString(),
-      );
       this.server
         .to(
           this.getSocketRoomIdentifier(
@@ -853,6 +853,9 @@ export class ChatGateway implements OnModuleInit {
       newMutedTimestamp = new Date(
         Date.now() + minutes * (60 * 1000),
       ).getTime();
+      console.log('Muted date:', newMutedTimestamp);
+      console.log('Muted date:', newMutedTimestamp.toString());
+      console.log('Muted date:', new Date(newMutedTimestamp).toString());
     }
     await this.chatParticipantsService.updateParticipantByID(target.id, {
       mutedUntil: newMutedTimestamp,
@@ -937,15 +940,10 @@ export class ChatGateway implements OnModuleInit {
   }
 
   private async inviteUser(info: UserTargetChat): Promise<sendInviteDto> {
-    const user = await this.getParticipantOrFail({
+    await this.getParticipantOrFail({
       userID: info.userID,
       chatRoomID: info.chatRoomID,
     });
-    if (!user) {
-      throw new InviteCreationError(
-        `${info.userID} cannot invite: invite sender not in chat room.`,
-      );
-    }
 
     const target =
       await this.chatParticipantsService.fetchParticipantEntityByUserChatID({

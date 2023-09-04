@@ -484,7 +484,7 @@ export const Chat = () => {
 
     socket.on("invite", (info: ReceivedInfo) => {
       // Receive invitation from someone else
-      var invite: Invite = info.inviteInfo;
+		var invite: Invite = info.inviteInfo;
       if (invite.invitedID === getUserID(cookies)) {
         setInvites((prev: Invite[]) =>
           prev.filter((i: Invite) => i.id !== invite.id)

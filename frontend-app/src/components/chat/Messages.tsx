@@ -86,8 +86,8 @@ export const Messages = (
 
   // TODO: maybe get chat name for display
   const inviteStatus = (invite: Invite) => {
-    var date = new Date(invite.expiresAt);
-    console.log("Date", date);
+	// MAKE SURE THIS WORKS BECAUSE ITS FUCKING WEIIIIIIRD
+    var date = new Date(parseInt(invite.expiresAt.toString()));
     var text = `${invite.senderUsername} invites you to join the ${
       invite.type
     } ${invite.chatRoomID} until ${date.toString()}`;
