@@ -507,14 +507,24 @@ export class ChatGateway implements OnModuleInit {
   ): Promise<void> {
     try {
       // TODO: reimplement later (socket send to right userse)
+      console.log('[Chat Gateway]: accept invite', info);
       info.userID = await this.checkIdentity(info.token);
       const user = await this.userService.fetchUserByID(info.targetID);
       info.username = user.username;
       await this.acceptUserInvite({
         userID: info.userID,
-        chatRoomID: info.chatRoomID,
+        chatRoomID: info.inviteInfo.chatRoomID,
       });
       info.token = '';
+      const chat = await this.chatsService.fetchChatByID(
+        info.inviteInfo.chatRoomID,
+      );
+      info.chatRoomID = chat.id;
+      info.chatInfo = {
+        name: chat.name,
+        isPrivate: chat.isPrivate,
+      };
+      console.log('[Chat Gateway]: accept invite emit', info);
       this.server
         .to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
         .emit('accept invite', info);
@@ -995,7 +1005,10 @@ export class ChatGateway implements OnModuleInit {
       await this.checkUserInviteHasNotExpired(info);
 
       // TODO: can a banned user be invited to chatroom?
-      const user = await this.getParticipantOrFail(info);
+      const user =
+        await this.chatParticipantsService.fetchParticipantEntityByUserChatID(
+          info,
+        );
       if (user) {
         await this.checkUserHasNotAlreadyAcceptedInvite(user);
         await this.checkUserIsNotBanned(user);

@@ -95,9 +95,15 @@ export const Messages = (
       // TODO: make actual type
       <div id="messages invite">
         <p>{text}</p>
-        <button id="accept">Accept</button>
+        <button id="accept" onClick={(e)=> {
+			const info = {
+            	token: cookies["token"],
+				inviteInfo: invite,
+			};
+			socket.emit('accept invite', info);
+				}}>Accept</button>
+
         <button id="refuse" onClick={(e)=> {
-				console.log("Click!");
 			const info = {
             	token: cookies["token"],
 				inviteInfo: invite,
