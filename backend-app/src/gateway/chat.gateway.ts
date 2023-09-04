@@ -474,6 +474,12 @@ export class ChatGateway implements OnModuleInit {
       });
       info.inviteInfo = invite;
       info.token = '';
+      console.log('INVITED UNTIL', info.inviteInfo.expiresAt);
+      console.log('INVITED UNTIL', info.inviteInfo.expiresAt.toString());
+      console.log(
+        'INVITED UNTIL',
+        new Date(info.inviteInfo.expiresAt).toString(),
+      );
       this.server
         .to(
           this.getSocketRoomIdentifier(

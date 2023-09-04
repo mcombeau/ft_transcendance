@@ -486,7 +486,10 @@ export const Chat = () => {
       // Receive invitation from someone else
       var invite: Invite = info.inviteInfo;
       if (invite.invitedID === getUserID(cookies)) {
-        setInvites((prev) => [...prev, invite]);
+        setInvites((prev: Invite[]) =>
+          prev.filter((i: Invite) => i.id !== invite.id)
+        );
+        setInvites((prev: Invite[]) => [...prev, invite]);
       }
     });
 

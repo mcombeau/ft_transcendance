@@ -142,8 +142,12 @@ export class InvitesService {
     }
 
     const inviteExpiry = new Date(
-      Date.now() + 1 * (60 * 60 * 1000), // time + 1 hour
+      Date.now() + 1 * (60 * 1000), // time + 1 hour
     ).getTime();
+
+    // const inviteExpiry = new Date(
+    //   Date.now() + 1 * (60 * 60 * 1000), // time + 1 hour
+    // ).getTime();
 
     const invite = await this.inviteRepository.findOne({
       where: {

@@ -86,7 +86,11 @@ export const Messages = (
 
   // TODO: maybe get chat name for display
   const inviteStatus = (invite: Invite) => {
-    var text = `${invite.senderUsername} invites you to join the ${invite.type} ${invite.chatRoomID}`;
+    var date = new Date(invite.expiresAt);
+    console.log("Date", date);
+    var text = `${invite.senderUsername} invites you to join the ${
+      invite.type
+    } ${invite.chatRoomID} until ${date.toString()}`;
     return (
       // TODO: make actual type
       <div id="messages invite">
