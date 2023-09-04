@@ -90,7 +90,7 @@ export const Messages = (
     var date = new Date(parseInt(invite.expiresAt.toString()));
     var text = `${invite.senderUsername} invites you to join the ${
       invite.type
-    } ${invite.chatRoomID} until ${date.toString()}`;
+    } "${invite.chatRoomName}" until ${date.toString().split("GMT")[0]}`;
     return (
       // TODO: make actual type
       <div id="messages invite">

@@ -32,6 +32,7 @@ export class InvitesService {
     };
     if (invite.chatRoom) {
       sendInvite.chatRoomID = invite.chatRoom.id;
+      sendInvite.chatRoomName = invite.chatRoom.name;
     }
     return sendInvite;
   }
