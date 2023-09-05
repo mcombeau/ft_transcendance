@@ -85,7 +85,7 @@ export const SettingsMenu = (
         <div>
           <form className="set_password" onSubmit={submitNewPassword}>
             <input
-              type="text"
+              type="password"
               value={newPassword}
               onChange={(e) => {
                 setNewPassword(e.target.value);
