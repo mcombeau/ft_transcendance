@@ -489,6 +489,8 @@ export class ChatGateway implements OnModuleInit {
         targetID: info.targetID,
         chatRoomID: info.chatRoomID,
       });
+      info.inviteInfo.chatHasPassword =
+        await this.chatsService.fetchChatHasPasswordByID(info.chatRoomID);
       info.inviteInfo = invite;
       info.token = '';
       this.server

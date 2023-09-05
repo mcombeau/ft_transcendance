@@ -566,13 +566,23 @@ export const Chat = () => {
     socket.on("set password", (info: ReceivedInfo) => {
       console.log("RECEIVED", "set password", info);
 
-      setPublicChats((prev) => {
+      setPublicChats((prev: PublicChatRoom[]) => {
         const temp = [...prev];
         return temp.map((chat: PublicChatRoom) => {
           if (chat.chatRoomID === info.chatRoomID) {
             chat.hasPassword = info.chatInfo.hasPassword;
           }
           return chat;
+        });
+      });
+
+      setInvites((prev: Invite[]) => {
+        const temp = [...prev];
+        return temp.map((invite: Invite) => {
+          if (invite.chatRoomID === info.chatRoomID) {
+            invite.chatHasPassword = info.chatInfo.hasPassword;
+          }
+          return invite;
         });
       });
 

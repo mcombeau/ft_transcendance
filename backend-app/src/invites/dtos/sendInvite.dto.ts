@@ -29,6 +29,8 @@ export class sendInviteDto {
   @ApiProperty()
   chatRoomName?: string;
 
+  @ApiProperty()
+  chatHasPassword?: boolean;
   // @ApiProperty()
   // gameRoomID: number;
 }

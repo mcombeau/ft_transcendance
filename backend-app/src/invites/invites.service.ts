@@ -20,7 +20,9 @@ export class InvitesService {
     private userService: UsersService,
   ) {}
 
-  private formatInviteForSending(invite: InviteEntity): sendInviteDto {
+  private async formatInviteForSending(
+    invite: InviteEntity,
+  ): Promise<sendInviteDto> {
     const sendInvite: sendInviteDto = {
       id: invite.id,
       type: invite.type,
@@ -30,17 +32,19 @@ export class InvitesService {
       invitedID: invite.invitedUser.id,
       invitedUsername: invite.invitedUser.username,
     };
-    if (invite.chatRoom) {
+    if (invite.type === inviteType.CHAT) {
       sendInvite.chatRoomID = invite.chatRoom.id;
       sendInvite.chatRoomName = invite.chatRoom.name;
+      sendInvite.chatHasPassword =
+        await this.chatService.fetchChatHasPasswordByID(invite.chatRoom.id);
     }
     return sendInvite;
   }
 
-  private formatInvitesArrayForSending(
+  private async formatInvitesArrayForSending(
     invites: InviteEntity[],
-  ): sendInviteDto[] {
-    return invites.map(this.formatInviteForSending);
+  ): Promise<sendInviteDto[]> {
+    return invites.map(async () => await this.formatInviteForSending);
   }
 
   async fetchAllInvites(): Promise<sendInviteDto[]> {

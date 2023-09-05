@@ -90,6 +90,22 @@ export const Messages = (
         <button
           id="accept"
           onClick={(e) => {
+            if (chat.hasPassword) {
+              var getPassword = prompt(
+                `${chat.name} is password protected. Please enter password:`
+              );
+            } else {
+              var getPassword = "";
+            }
+            var info: ReceivedInfo = {
+              chatRoomID: parseInt(
+                (e.target as HTMLInputElement).getAttribute("value")
+              ),
+              token: cookies["token"],
+              chatInfo: {
+                password: getPassword,
+              },
+            };
             const info = {
               token: cookies["token"],
               inviteInfo: invite,

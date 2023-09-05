@@ -85,6 +85,7 @@ export type Invite = {
   type: typeInvite;
   chatRoomID?: number;
   chatRoomName?: string;
+  chatHasPassword?: boolean;
   expiresAt: number;
 };
 
