@@ -1,10 +1,9 @@
 - validation channel name
 
-- invite display (it's almost there !)
-
 - passwords:
   - chat has password
   - field popup to enter said password
+  - hide password as they are typed
 
 # Authentication - cookies
 
