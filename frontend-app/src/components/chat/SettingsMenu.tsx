@@ -17,6 +17,18 @@ export const SettingsMenu = (
 ) => {
   const [newPassword, setNewPassword] = useState("");
 
+  function removePassword() {
+    console.log("Removing password");
+    var info: ReceivedInfo = {
+      token: cookies["token"],
+      chatRoomID: currentChatRoom.chatRoomID,
+      chatInfo: {
+        password: "",
+      },
+    };
+    socket.emit("set password", info);
+  }
+
   function submitNewPassword(e: any) {
     console.log("Setting new password");
     e.preventDefault();
@@ -70,16 +82,23 @@ export const SettingsMenu = (
         </button>
       );
       password_form = (
-        <form className="set_password" onSubmit={submitNewPassword}>
-          <input
-            type="text"
-            value={newPassword}
-            onChange={(e) => {
-              setNewPassword(e.target.value);
-            }}
-          />
-          <button>{currentChatRoom.hasPassword ? "Update" : "Set"}</button>
-        </form>
+        <div>
+          <form className="set_password" onSubmit={submitNewPassword}>
+            <input
+              type="text"
+              value={newPassword}
+              onChange={(e) => {
+                setNewPassword(e.target.value);
+              }}
+            />
+            <button>{currentChatRoom.hasPassword ? "Update" : "Set"}</button>
+          </form>
+          {currentChatRoom.hasPassword ? (
+            <button onClick={removePassword}>Remove password</button>
+          ) : (
+            <div></div>
+          )}
+        </div>
       );
       // TODO: fix this button
       var private_public = (
