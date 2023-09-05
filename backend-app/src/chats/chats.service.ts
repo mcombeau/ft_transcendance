@@ -165,10 +165,7 @@ export class ChatsService {
         chatDetails.password,
       );
     }
-    const update = await this.chatRepository.update(
-      { id },
-      { isPrivate: chatDetails.isPrivate },
-    );
+    const update = await this.chatRepository.update({ id }, chatDetails);
     return update;
   }
 

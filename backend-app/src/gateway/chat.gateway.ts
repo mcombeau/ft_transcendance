@@ -665,6 +665,33 @@ export class ChatGateway implements OnModuleInit {
     }
   }
 
+  @SubscribeMessage('set password')
+  async onSetPassword(@MessageBody() info: ReceivedInfoDto): Promise<void> {
+    try {
+      info.userID = await this.checkIdentity(info.token);
+
+      await this.setPassword(
+        {
+          userID: info.userID,
+          chatRoomID: info.chatRoomID,
+        },
+        info.chatInfo.password,
+      );
+
+      info.token = '';
+      info.chatInfo.password = '';
+      this.server
+        .to(this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat))
+        .emit('set password', info);
+    } catch (e) {
+      const err_msg = '[Chat Gateway]: User set password error:' + e.message;
+      console.log(err_msg);
+      this.server
+        .to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
+        .emit('error', err_msg);
+    }
+  }
+
   // --------------------  PERMISSION CHECKS
 
   private async getChatRoomOrFail(chatRoomID: number): Promise<ChatEntity> {
@@ -1050,6 +1077,19 @@ export class ChatGateway implements OnModuleInit {
     await this.chatsService.removeParticipantFromChatByUsername({
       userID: info.userID,
       chatRoomID: info.chatRoomID,
+    });
+  }
+
+  private async setPassword(
+    info: UserChatInfo,
+    password: string,
+  ): Promise<void> {
+    await this.getChatRoomOrFail(info.chatRoomID);
+    const user = await this.getParticipantOrFail(info);
+
+    await this.checkUserIsOwner(user);
+    this.chatsService.updateChatByID(info.chatRoomID, {
+      password: password,
     });
   }
 
