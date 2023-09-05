@@ -18,9 +18,9 @@ export type createChatMessageParams = {
 };
 
 export type createChatParams = {
-  name: string;
-  password: string;
-  isPrivate: boolean;
+  name?: string;
+  password?: string;
+  isPrivate?: boolean;
 };
 
 export type updateParticipantParams = {

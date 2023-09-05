@@ -1,7 +1,7 @@
 import { Status, ChatRoom, ReceivedInfo } from "./types";
 import { checkStatus } from "./Chat";
 import { Socket } from "socket.io-client";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { ListParticipants } from "./ListParticipants";
 import { NavigateFunction } from "react-router-dom";
 import { getUserID } from "../../cookies";
@@ -15,6 +15,21 @@ export const SettingsMenu = (
   navigate: NavigateFunction,
   cookies: any
 ) => {
+  const [newPassword, setNewPassword] = useState("");
+
+  function submitNewPassword(e: any) {
+    e.preventDefault();
+    var info: ReceivedInfo = {
+      token: cookies["token"],
+      chatRoomID: currentChatRoom.chatRoomID,
+      chatInfo: {
+        password: newPassword,
+      },
+    };
+    socket.emit("set password", info);
+    setNewPassword("");
+  }
+
   if (settings && currentChatRoom) {
     var leave_button = (
       <button
@@ -32,6 +47,7 @@ export const SettingsMenu = (
         Leave channel
       </button>
     );
+    var password_form = <div></div>;
     if (currentChatRoom.isDM) {
       var leave_button = <br></br>;
     }
@@ -51,6 +67,18 @@ export const SettingsMenu = (
         >
           Delete channel
         </button>
+      );
+      password_form = (
+        <form className="set_password" onSubmit={submitNewPassword}>
+          <input
+            type="text"
+            value={newPassword}
+            onChange={(e) => {
+              setNewPassword(e.target.value);
+            }}
+          />
+          <button>+</button>
+        </form>
       );
       // TODO: fix this button
       var private_public = (
@@ -80,6 +108,7 @@ export const SettingsMenu = (
           {currentChatRoom.isPrivate ? "private" : "public"})
         </h3>
         {leave_button} <br></br>
+        {password_form}
         {private_public}
         <h3>Channel members</h3>
         {ListParticipants(currentChatRoom, navigate, socket, cookies)}
