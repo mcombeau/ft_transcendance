@@ -78,7 +78,7 @@ export const SettingsMenu = (
               setNewPassword(e.target.value);
             }}
           />
-          <button>+</button>
+          <button>{currentChatRoom.hasPassword ? "Update" : "Set"}</button>
         </form>
       );
       // TODO: fix this button
@@ -108,14 +108,13 @@ export const SettingsMenu = (
           Settings for {currentChatRoom.name} (
           {currentChatRoom.isPrivate ? "private" : "public"})
         </h3>
-        <p>
-          {currentChatRoom.hasPassword
-            ? "Password protected"
-            : "Not password protected"}
-        </p>
         {leave_button} <br></br>
-        {password_form}
         {private_public}
+        <h3>Password settings</h3>
+        {currentChatRoom.hasPassword
+          ? "Password protected"
+          : "Not password protected"}
+        {password_form}
         <h3>Channel members</h3>
         {ListParticipants(currentChatRoom, navigate, socket, cookies)}
         <button
