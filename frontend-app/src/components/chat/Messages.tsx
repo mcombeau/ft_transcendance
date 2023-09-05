@@ -140,11 +140,21 @@ export const Messages = (
         className="joinchan"
         value={chat.chatRoomID}
         onClick={(e) => {
+          if (chat.hasPassword) {
+            var getPassword = prompt(
+              `${chat.name} is password protected. Please enter password:`
+            );
+          } else {
+            var getPassword = "";
+          }
           var info: ReceivedInfo = {
             chatRoomID: parseInt(
               (e.target as HTMLInputElement).getAttribute("value")
             ),
             token: cookies["token"],
+            chatInfo: {
+              password: getPassword,
+            },
           };
           socket.emit("join chat", info);
         }}

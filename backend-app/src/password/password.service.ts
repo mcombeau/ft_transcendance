@@ -31,6 +31,7 @@ export class PasswordService {
 
   async checkPasswordChat(password: string, chat: ChatEntity) {
     const hash = await this.chatService.getChatRoomPasswordHash(chat.id);
+    if (hash === '' || hash === null || hash === undefined) return true;
     const isMatch = await bcrypt.compare(password, hash);
     return isMatch;
   }
