@@ -21,6 +21,7 @@ export type createChatParams = {
   name?: string;
   password?: string;
   isPrivate?: boolean;
+  hasPassword?: boolean;
 };
 
 export type updateParticipantParams = {
@@ -66,6 +67,7 @@ export type ChatRoom = {
 export type PublicChatRoom = {
   chatRoomID: number;
   name: string;
+  hasPassword: boolean;
 };
 
 export enum typeInvite {

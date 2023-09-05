@@ -89,9 +89,9 @@ export async function fetchChatData(
   isDirectMessage: boolean,
   request: any
 ): Promise<ChatRoom> {
-  var participant_list = await fetchChatParticipants(chatRoomID, request);
-  var message_list = await fetchChatMessages(chatRoomID, request);
-  // TODO: get password and put in chatroom
+  const participant_list = await fetchChatParticipants(chatRoomID, request);
+  const message_list = await fetchChatMessages(chatRoomID, request);
+  const hasPassword = await fetchHasPassword(chatRoomID, request);
   var chan: ChatRoom = {
     chatRoomID: chatRoomID,
     name: chatRoomName,
@@ -108,6 +108,7 @@ export async function fetchChatData(
     ),
     isDM: isDirectMessage,
     messages: message_list,
+    hasPassword: hasPassword,
   };
   return chan;
 }
@@ -169,6 +170,23 @@ export async function fetchChatMessages(
     return messages;
   });
   return message_list;
+}
+
+export async function fetchHasPassword(
+  chatRoomID: number,
+  request: any
+): Promise<boolean> {
+  return await fetch(
+    `http://localhost:3001/chats/${chatRoomID}/has_password`,
+    request
+  ).then(async (response) => {
+    const hasPassword = await response.json();
+    if (!response.ok) {
+      console.log("error response load has password");
+      return null;
+    }
+    return hasPassword;
+  });
 }
 
 export const Chat = () => {
@@ -258,6 +276,7 @@ export const Chat = () => {
         const newPublicChat: PublicChatRoom = {
           chatRoomID: info.chatRoomID,
           name: info.chatInfo.name,
+          hasPassword: info.chatInfo.hasPassword,
         };
 
         setPublicChats((prev) => [...prev, newPublicChat]);
@@ -294,6 +313,7 @@ export const Chat = () => {
       var publicChatRoom: PublicChatRoom = {
         chatRoomID: info.chatRoomID,
         name: info.chatInfo.name,
+        hasPassword: info.chatInfo.hasPassword,
       };
 
       setPublicChats((prev) => [...prev, publicChatRoom]);
@@ -319,6 +339,7 @@ export const Chat = () => {
           isPrivate: info.chatInfo.isPrivate,
           ownerID: info.userID,
           isDM: false,
+          hasPassword: info.chatInfo.hasPassword,
         };
         setMyChats((prev) => [...prev, chatRoom]);
       }
@@ -542,6 +563,42 @@ export const Chat = () => {
       );
     });
 
+    socket.on("set password", (info: ReceivedInfo) => {
+      console.log("RECEIVED", "set password", info);
+
+      setPublicChats((prev) => {
+        const temp = [...prev];
+        return temp.map((chat: PublicChatRoom) => {
+          if (chat.chatRoomID === info.chatRoomID) {
+            chat.hasPassword = info.chatInfo.hasPassword;
+          }
+          return chat;
+        });
+      });
+
+      setMyChats((prev) => {
+        const temp = [...prev];
+        return temp.map((chat: ChatRoom) => {
+          if (chat.chatRoomID === info.chatRoomID) {
+            if (info.chatInfo.hasPassword) {
+              chat.hasPassword = true;
+              serviceAnnouncement(
+                "This chatroom now has a password",
+                chat.chatRoomID
+              );
+            } else {
+              chat.hasPassword = false;
+              serviceAnnouncement(
+                "This chatroom doesn't have a password anymore",
+                chat.chatRoomID
+              );
+            }
+          }
+          return chat;
+        });
+      });
+    });
+
     socket.on("kick", (info: ReceivedInfo) => {
       console.log("RECEIVED", "kick", info);
       // For everybody in the chat, update participants
@@ -634,6 +691,7 @@ export const Chat = () => {
         isPrivate: true,
         ownerID: null,
         isDM: true,
+        hasPassword: false,
       };
       info.token = cookies["token"];
       socket.emit("join socket room", info);
@@ -685,6 +743,7 @@ export const Chat = () => {
             const newPublicChat: PublicChatRoom = {
               chatRoomID: chatRoom.id,
               name: chatRoom.name,
+              hasPassword: await fetchHasPassword(chatRoom.id, request),
             };
             setPublicChats((prev) => [...prev, newPublicChat]);
             return chatRoom;
@@ -726,6 +785,8 @@ export const Chat = () => {
       socket.off("invite");
       socket.off("accept invite");
       socket.off("dm");
+      socket.off("refuse invite");
+      socket.off("set password");
     };
   }, []);
 

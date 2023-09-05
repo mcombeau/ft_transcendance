@@ -40,6 +40,12 @@ export class createChatDto {
   @IsNotEmpty()
   @IsBoolean()
   isDirectMessage?: boolean;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsNotEmpty()
+  @IsBoolean()
+  hasPassword?: boolean;
 }
 
 export class createChatDMDto {

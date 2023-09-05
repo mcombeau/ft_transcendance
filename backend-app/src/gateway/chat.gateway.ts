@@ -179,6 +179,8 @@ export class ChatGateway implements OnModuleInit {
       info.username = owner.username;
       const chat = await this.chatsService.createChat(info.chatInfo);
       info.chatRoomID = chat.id;
+      info.chatInfo.hasPassword =
+        await this.chatsService.fetchChatHasPasswordByID(info.chatRoomID);
 
       if (socket.data.userID === info.userID) {
         // Making the owner join the socket room
@@ -457,6 +459,9 @@ export class ChatGateway implements OnModuleInit {
           }),
           name: chat.name,
           isDirectMessage: chat.isDirectMessage, // Useful ?
+          hasPassword: await this.chatsService.fetchChatHasPasswordByID(
+            info.chatRoomID,
+          ),
         },
       };
 
@@ -668,6 +673,7 @@ export class ChatGateway implements OnModuleInit {
   @SubscribeMessage('set password')
   async onSetPassword(@MessageBody() info: ReceivedInfoDto): Promise<void> {
     try {
+      console.log('[Chat Gateway]: set password:', info);
       info.userID = await this.checkIdentity(info.token);
 
       await this.setPassword(
@@ -678,11 +684,13 @@ export class ChatGateway implements OnModuleInit {
         info.chatInfo.password,
       );
 
+      info.chatInfo.hasPassword =
+        await this.chatsService.fetchChatHasPasswordByID(info.chatRoomID);
+
+      console.log('[Chat Gateway]: After setting password', info);
       info.token = '';
       info.chatInfo.password = '';
-      this.server
-        .to(this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat))
-        .emit('set password', info);
+      this.server.emit('set password', info);
     } catch (e) {
       const err_msg = '[Chat Gateway]: User set password error:' + e.message;
       console.log(err_msg);
@@ -1088,7 +1096,7 @@ export class ChatGateway implements OnModuleInit {
     const user = await this.getParticipantOrFail(info);
 
     await this.checkUserIsOwner(user);
-    this.chatsService.updateChatByID(info.chatRoomID, {
+    await this.chatsService.updateChatByID(info.chatRoomID, {
       password: password,
     });
   }

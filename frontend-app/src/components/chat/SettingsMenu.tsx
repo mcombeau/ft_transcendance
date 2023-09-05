@@ -18,6 +18,7 @@ export const SettingsMenu = (
   const [newPassword, setNewPassword] = useState("");
 
   function submitNewPassword(e: any) {
+    console.log("Setting new password");
     e.preventDefault();
     var info: ReceivedInfo = {
       token: cookies["token"],
@@ -107,6 +108,11 @@ export const SettingsMenu = (
           Settings for {currentChatRoom.name} (
           {currentChatRoom.isPrivate ? "private" : "public"})
         </h3>
+        <p>
+          {currentChatRoom.hasPassword
+            ? "Password protected"
+            : "Not password protected"}
+        </p>
         {leave_button} <br></br>
         {password_form}
         {private_public}
