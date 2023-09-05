@@ -25,6 +25,11 @@ export class PasswordService {
     return isMatch;
   }
 
+  async checkPasswordString(password: string, hash: string) {
+    const isMatch = await bcrypt.compare(password, hash);
+    return isMatch;
+  }
+
   // public async checkPasswordForChatByName(password: string, chatName: string) {
   //   const chatRoom = await this.fetchChatByName(chatName);
   //   if (!chatRoom) {

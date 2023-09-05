@@ -91,6 +91,7 @@ export async function fetchChatData(
 ): Promise<ChatRoom> {
   var participant_list = await fetchChatParticipants(chatRoomID, request);
   var message_list = await fetchChatMessages(chatRoomID, request);
+  // TODO: get password and put in chatroom
   var chan: ChatRoom = {
     chatRoomID: chatRoomID,
     name: chatRoomName,

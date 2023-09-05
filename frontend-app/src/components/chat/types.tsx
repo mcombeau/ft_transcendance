@@ -60,6 +60,7 @@ export type ChatRoom = {
   banned: User[];
   isPrivate: boolean;
   isDM: boolean;
+  hasPassword: boolean;
 };
 
 export type PublicChatRoom = {

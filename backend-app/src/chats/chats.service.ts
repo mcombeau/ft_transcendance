@@ -57,6 +57,11 @@ export class ChatsService {
     });
   }
 
+  async fetchChatHasPasswordByID(id: number): Promise<boolean> {
+    const password = await this.getChatRoomPasswordHash(id);
+    return !this.passwordService.checkPasswordString('', password);
+  }
+
   async fetchChatParticipantsByChatID(
     id: number,
   ): Promise<sendParticipantDto[]> {

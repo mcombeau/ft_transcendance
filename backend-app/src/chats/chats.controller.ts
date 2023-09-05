@@ -76,6 +76,18 @@ export class ChatsController {
     return chat;
   }
 
+  @Get(':id/has_password')
+  @ApiOkResponse({
+    description: 'Get passowrd info for chat by id',
+  })
+  async getChatHasPasswordByID(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<boolean> {
+    const chat = await this.chatService.fetchChatByID(id);
+    if (!chat) throw new ChatNotFoundException(id.toString());
+    return this.chatService.fetchChatHasPasswordByID(id);
+  }
+
   @Get()
   @ApiOkResponse({
     type: ChatEntity,
