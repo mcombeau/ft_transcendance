@@ -1,9 +1,8 @@
 - validation channel name
 
 - passwords:
-  - chat has password
-  - field popup to enter said password
   - hide password as they are typed
+  - limit number of password retries on join/accept invite
 
 # Authentication - cookies
 

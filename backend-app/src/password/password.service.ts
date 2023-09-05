@@ -29,10 +29,18 @@ export class PasswordService {
     return isMatch;
   }
 
-  async checkPasswordChat(password: string, chat: ChatEntity) {
+  async checkPasswordChat(
+    password: string,
+    chat: ChatEntity,
+  ): Promise<boolean> {
     const hash = await this.chatService.getChatRoomPasswordHash(chat.id);
-    if (hash === '' || hash === null || hash === undefined) return true;
+    console.log('HASH:', hash);
+    if (hash === '' || hash === null || hash === undefined) {
+      console.log('HASH IS EMPTYYYYYYY:', hash);
+      return true;
+    }
     const isMatch = await bcrypt.compare(password, hash);
+    console.log('password is match?', isMatch);
     return isMatch;
   }
 

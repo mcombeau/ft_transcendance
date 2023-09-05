@@ -312,8 +312,8 @@ export class ChatGateway implements OnModuleInit {
   ): Promise<void> {
     // TODO: good error message "You have been banned"
     try {
-      info.userID = await this.checkIdentity(info.token);
       console.log('[Chat Gateway]: Join chat', info);
+      info.userID = await this.checkIdentity(info.token);
       const user = await this.userService.fetchUserByID(info.userID);
       await this.checkChatRoomPassword(info.chatInfo.password, info.chatRoomID);
       await this.addUserToChat({
@@ -489,9 +489,9 @@ export class ChatGateway implements OnModuleInit {
         targetID: info.targetID,
         chatRoomID: info.chatRoomID,
       });
+      info.inviteInfo = invite;
       info.inviteInfo.chatHasPassword =
         await this.chatsService.fetchChatHasPasswordByID(info.chatRoomID);
-      info.inviteInfo = invite;
       info.token = '';
       this.server
         .to(
@@ -522,12 +522,15 @@ export class ChatGateway implements OnModuleInit {
       console.log('[Chat Gateway]: accept invite', info);
       info.userID = await this.checkIdentity(info.token);
       const user = await this.userService.fetchUserByID(info.userID);
-      await this.checkChatRoomPassword(info.chatInfo.password, info.chatRoomID);
-      info.username = user.username;
+      await this.checkChatRoomPassword(
+        info.chatInfo.password,
+        info.inviteInfo.chatRoomID,
+      );
       await this.acceptUserInvite({
         userID: info.userID,
         chatRoomID: info.inviteInfo.chatRoomID,
       });
+      info.username = user.username;
       info.token = '';
       const chat = await this.chatsService.fetchChatByID(
         info.inviteInfo.chatRoomID,
@@ -869,8 +872,15 @@ export class ChatGateway implements OnModuleInit {
     password: string,
     chatRoomID: number,
   ): Promise<void> {
+    console.log('Check Chat Room Pass', password, chatRoomID);
     const chat = await this.getChatRoomOrFail(chatRoomID);
-    if (!(await this.passwordService.checkPasswordChat(password, chat))) {
+    const passwordOK = await this.passwordService.checkPasswordChat(
+      password,
+      chat,
+    );
+    console.log('[Chat Gateway]: password is OK ?', passwordOK);
+    console.log('[Chat Gateway]: inputted password', password);
+    if (!passwordOK) {
       throw new ChatPermissionError(
         `Invalid password for chatroom ${chat.name}`,
       );

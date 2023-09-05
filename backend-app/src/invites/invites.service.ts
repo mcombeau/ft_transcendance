@@ -44,7 +44,11 @@ export class InvitesService {
   private async formatInvitesArrayForSending(
     invites: InviteEntity[],
   ): Promise<sendInviteDto[]> {
-    return invites.map(async () => await this.formatInviteForSending);
+    return await Promise.all(
+      invites.map(async (e: InviteEntity) => {
+        return await this.formatInviteForSending(e);
+      }),
+    );
   }
 
   async fetchAllInvites(): Promise<sendInviteDto[]> {

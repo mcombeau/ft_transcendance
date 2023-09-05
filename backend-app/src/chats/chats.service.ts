@@ -243,10 +243,12 @@ export class ChatsService {
   }
 
   async getChatRoomPasswordHash(chatRoomID: number): Promise<string> {
-    const user = await this.chatRepository.findOne({
+    const chat = await this.chatRepository.findOne({
       where: { id: chatRoomID },
-      select: ['password'],
+      select: ['password', 'name'],
     });
-    return user.password;
+    console.log('Chat', chat);
+    console.log('Chat password hash:', chat.password);
+    return chat.password;
   }
 }
