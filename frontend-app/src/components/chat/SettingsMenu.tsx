@@ -62,11 +62,11 @@ export const SettingsMenu = (
     );
     var password_form = <div></div>;
     if (currentChatRoom.isDM) {
-      var leave_button = <br></br>;
+      leave_button = <br></br>;
     }
     // if (settings && currentChatRoom && currentChatRoom.isDM)
     //   var leave_button = <br></br>;
-    if (checkStatus(currentChatRoom, getUserID(cookies)) == Status.Owner) {
+    if (checkStatus(currentChatRoom, getUserID(cookies)) === Status.Owner) {
       leave_button = (
         <button
           onClick={() => {
