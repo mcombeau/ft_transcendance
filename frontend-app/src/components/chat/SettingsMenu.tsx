@@ -100,7 +100,6 @@ export const SettingsMenu = (
           )}
         </div>
       );
-      // TODO: fix this button
       var private_public = (
         <div>
           <label className="switch">
