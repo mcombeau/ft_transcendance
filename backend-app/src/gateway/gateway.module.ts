@@ -10,6 +10,7 @@ import { InvitesModule } from 'src/invites/invites.module';
 import { AuthService } from 'src/auth/auth.service';
 import { PasswordService } from 'src/password/password.service';
 import { JwtService } from '@nestjs/jwt';
+import { PasswordModule } from 'src/password/password.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { JwtService } from '@nestjs/jwt';
     forwardRef(() => ChatParticipantsModule),
     forwardRef(() => GamesModule),
     forwardRef(() => InvitesModule),
+    forwardRef(() => PasswordModule),
   ],
   providers: [
     ChatGateway,

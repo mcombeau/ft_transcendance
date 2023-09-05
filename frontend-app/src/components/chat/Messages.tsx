@@ -2,14 +2,7 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { NavigateFunction } from "react-router-dom";
 import { Socket } from "socket.io-client";
 import { getUserID } from "../../cookies";
-import {
-  Message,
-  ChatRoom,
-  Invite,
-  User,
-  PublicChatRoom,
-  typeInvite,
-} from "./types";
+import { Message, ChatRoom, Invite, PublicChatRoom } from "./types";
 import { ContextMenuEl } from "./ContextMenu";
 import { ReceivedInfo } from "./types";
 
@@ -142,7 +135,6 @@ export const Messages = (
   }
 
   function displayPublicChat(chat: PublicChatRoom) {
-    // TODO: check if the public chat is also in mychats
     var joinButton = (
       <button
         className="joinchan"

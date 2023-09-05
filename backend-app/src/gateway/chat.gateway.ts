@@ -26,6 +26,7 @@ import { UserChatInfo } from 'src/chat-participants/utils/types';
 import { ReceivedInfoDto } from './dtos/chatGateway.dto';
 import { ChatEntity } from 'src/chats/entities/chat.entity';
 import { Socket } from 'socket.io';
+import { PasswordService } from 'src/password/password.service';
 
 type UserTargetChat = {
   userID: number;
@@ -60,6 +61,8 @@ export class ChatGateway implements OnModuleInit {
     private inviteService: InvitesService,
     @Inject(forwardRef(() => AuthService))
     private authService: AuthService,
+    @Inject(forwardRef(() => PasswordService))
+    private passwordService: PasswordService,
   ) {}
   @WebSocketServer()
   server: Server;
@@ -312,6 +315,7 @@ export class ChatGateway implements OnModuleInit {
       info.userID = await this.checkIdentity(info.token);
       console.log('[Chat Gateway]: Join chat', info);
       const user = await this.userService.fetchUserByID(info.userID);
+      await this.checkChatRoomPassword(info.chatInfo.password, info.chatRoomID);
       await this.addUserToChat({
         userID: info.userID,
         chatRoomID: info.chatRoomID,
@@ -516,6 +520,7 @@ export class ChatGateway implements OnModuleInit {
       console.log('[Chat Gateway]: accept invite', info);
       info.userID = await this.checkIdentity(info.token);
       const user = await this.userService.fetchUserByID(info.userID);
+      await this.checkChatRoomPassword(info.chatInfo.password, info.chatRoomID);
       info.username = user.username;
       await this.acceptUserInvite({
         userID: info.userID,
@@ -854,6 +859,18 @@ export class ChatGateway implements OnModuleInit {
     if (user) {
       throw new ChatPermissionError(
         `User '${user.user.username}' has already accepted invite to chat '${user.chatRoom.name}'.`,
+      );
+    }
+  }
+
+  private async checkChatRoomPassword(
+    password: string,
+    chatRoomID: number,
+  ): Promise<void> {
+    const chat = await this.getChatRoomOrFail(chatRoomID);
+    if (!(await this.passwordService.checkPasswordChat(password, chat))) {
+      throw new ChatPermissionError(
+        `Invalid password for chatroom ${chat.name}`,
       );
     }
   }
