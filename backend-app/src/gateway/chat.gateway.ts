@@ -1,4 +1,10 @@
-import { OnModuleInit, Inject, forwardRef } from '@nestjs/common';
+import {
+  OnModuleInit,
+  Inject,
+  forwardRef,
+  ValidationPipe,
+  UsePipes,
+} from '@nestjs/common';
 import { sendInviteDto } from 'src/invites/dtos/sendInvite.dto';
 import { createChatMessageParams } from 'src/chat-messages/utils/types';
 import {
@@ -41,7 +47,6 @@ enum RoomType {
 
 // TODO [mcombeau]: Make WSExceptionFilter to translate HTTP exceptions
 //                  to Websocket exceptions
-// TODO: don't send everyone's token around
 @WebSocketGateway({
   cors: {
     origin: ['http://localhost:3000', 'http://localhost'],
