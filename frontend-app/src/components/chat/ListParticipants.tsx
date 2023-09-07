@@ -26,7 +26,7 @@ export const ListParticipants = (
     return (
       <li
         onClick={() => {
-          navigate("/user/" + participant);
+          navigate("/user/" + participant.userID);
         }}
         style={style}
       >
@@ -40,9 +40,9 @@ export const ListParticipants = (
         return (
           <div>
             {displayUser(participant)}
-            {checkStatus(channel, getUserID(cookies)) != Status.Normal &&
-            checkStatus(channel, participant.userID) != Status.Owner &&
-            getUserID(cookies) != participant.userID ? (
+            {checkStatus(channel, getUserID(cookies)) !== Status.Normal &&
+            checkStatus(channel, participant.userID) !== Status.Owner &&
+            getUserID(cookies) !== participant.userID ? (
               <div>
                 {isUserMuted(participant) ? (
                   <button
