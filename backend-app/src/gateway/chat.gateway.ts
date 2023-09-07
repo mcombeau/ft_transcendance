@@ -4,6 +4,7 @@ import {
   forwardRef,
   ValidationPipe,
   UsePipes,
+  UseFilters,
 } from '@nestjs/common';
 import { sendInviteDto } from 'src/invites/dtos/sendInvite.dto';
 import { createChatMessageParams } from 'src/chat-messages/utils/types';
@@ -33,6 +34,7 @@ import { ReceivedInfoDto } from './dtos/chatGateway.dto';
 import { ChatEntity } from 'src/chats/entities/chat.entity';
 import { Socket } from 'socket.io';
 import { PasswordService } from 'src/password/password.service';
+import { WebsocketExceptionsFilter } from 'src/exceptions/websocket-exception.filter';
 
 type UserTargetChat = {
   userID: number;
@@ -52,6 +54,8 @@ enum RoomType {
     origin: ['http://localhost:3000', 'http://localhost'],
   },
 })
+@UseFilters(WebsocketExceptionsFilter)
+@UsePipes(new ValidationPipe({ whitelist: true }))
 export class ChatGateway implements OnModuleInit {
   constructor(
     @Inject(forwardRef(() => ChatMessagesService))
