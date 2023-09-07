@@ -27,7 +27,6 @@ export const SidePannel = (
     var info: ReceivedInfo = {
       chatInfo: {
         name: newchannel,
-        password: "",
         isPrivate: false,
       },
       token: cookies["token"],
