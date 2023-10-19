@@ -14,7 +14,7 @@ import { school42Strategy } from './strategies/school42.strategy';
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    UsersModule,
+    forwardRef(() => UsersModule),
     forwardRef(() => PasswordModule),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({

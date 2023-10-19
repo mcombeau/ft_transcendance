@@ -4,6 +4,8 @@ import { PasswordService } from 'src/password/password.service';
 import { JwtService } from '@nestjs/jwt';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { jwtConstants } from './constants';
+import { toDataURL } from 'qrcode';
+import { authenticator } from 'otplib';
 
 // TODO: Do not store JWT token in cookie or local storage??? Store as cookie with 'HTTP only' !
 // prevent CSRF XSS.
@@ -55,5 +57,50 @@ export class AuthService {
     const access_token = this.login(user);
     res.cookie('token', access_token.access_token);
     res.redirect(302, `http://localhost:3000/user/${user.id}`);
+  }
+
+  async generateTwoFactorAuthenticationSecret(user: UserEntity) {
+    const secret = authenticator.generateSecret();
+
+    const otpAuthUrl = authenticator.keyuri(
+      user.email,
+      'ft_transcendance',
+      secret,
+    );
+
+    await this.usersService.setTwoFactorAuthenticationSecret(secret, user.id);
+
+    return {
+      secret,
+      otpAuthUrl,
+    };
+  }
+
+  async generateQrCodeDataURL(otpAuthUrl: string) {
+    return toDataURL(otpAuthUrl);
+  }
+
+  isTwoFactorAuthenticationCodeValid(
+    twoFactorAuthenticationCode: string,
+    user: UserEntity,
+  ) {
+    return authenticator.verify({
+      token: twoFactorAuthenticationCode,
+      secret: user.twoFactorAuthenticationSecret,
+    });
+  }
+
+  async loginWith2fa(userWithoutPsw: Partial<UserEntity>) {
+    const payload = {
+      email: userWithoutPsw.email,
+      isTwoFactorAuthenticationEnabled:
+        !!userWithoutPsw.isTwoFactorAuthenticationEnabled,
+      isTwoFactorAuthenticated: true,
+    };
+
+    return {
+      email: payload.email,
+      access_token: this.jwtService.sign(payload),
+    };
   }
 }

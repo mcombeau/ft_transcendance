@@ -92,6 +92,8 @@ export class UsersService {
     console.log('[User Service]: creating user', userDetails);
     const newUserInfo = this.userRepository.create({
       ...userDetails,
+      isTwoFactorAuthenticationEnabled: false,
+      twoFactorAuthenticationSecret: '',
       createdAt: new Date(),
     });
     await this.userRepository.save(newUserInfo);
@@ -111,6 +113,27 @@ export class UsersService {
     userDetails: updateUserParams,
   ): Promise<UpdateResult> {
     return this.userRepository.update({ id }, { ...userDetails });
+  }
+
+  async setTwoFactorAuthenticationSecret(secret: string, id: number) {
+    // this.userRepository.find(
+    //   (user) => user.id === id,
+    // ).twoFactorAuthenticationSecret = secret;
+    // user = await this.fetchUserByID(id);
+    return this.userRepository.update(
+      { id },
+      { twoFactorAuthenticationSecret: secret },
+    );
+  }
+
+  async turnOnTwoFactorAuthentication(id: number) {
+    return this.userRepository.update(
+      { id },
+      { isTwoFactorAuthenticationEnabled: true },
+    );
+    // await this.userRepository.find(
+    //   (user) => user.id === id,
+    // ).isTwoFactorAuthenticationEnabled = true;
   }
 
   deleteUserByID(id: number): Promise<DeleteResult> {
