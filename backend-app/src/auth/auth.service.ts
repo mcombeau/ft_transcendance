@@ -38,7 +38,12 @@ export class AuthService {
 
   login(user: UserEntity): any {
     console.log('[Auth Service]: login user');
-    const payload = { username: user.username, userID: user.id };
+    const payload = {
+      username: user.username,
+      userID: user.id,
+      isTwoFactorAuthenticationEnabled: user.isTwoFactorAuthenticationEnabled,
+      isTwoFactorAuthenticated: false,
+    };
     return {
       access_token: this.jwtService.sign(payload),
     };
