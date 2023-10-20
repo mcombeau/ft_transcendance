@@ -122,17 +122,11 @@ export class UsersService {
     );
   }
 
-  async turnOnTwoFactorAuthentication(id: number) {
-    return this.userRepository.update(
-      { id },
-      { isTwoFactorAuthenticationEnabled: true },
-    );
-  }
-
-  async turnOffTwoFactorAuthentication(id: number) {
-    return this.userRepository.update(
-      { id },
-      { isTwoFactorAuthenticationEnabled: false },
+  async setTwoFactorAuthentication(username: string, state: boolean) {
+    const user = await this.fetchUserByUsername(username);
+    await this.userRepository.update(
+      { id: user.id },
+      { isTwoFactorAuthenticationEnabled: state },
     );
   }
 

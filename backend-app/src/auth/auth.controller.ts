@@ -72,27 +72,28 @@ export class AuthController {
   @Post('auth/2fa/turn-on')
   @UseGuards(JwtAuthGuard)
   async turnOnTwoFactorAuthentication(@Req() request, @Body() body) {
-    console.log('---- TURN ON 2FA ----');
-    console.log('BODY:', body);
-    console.log('Request user:', request.user);
-    const isCodeValid = this.authService.isTwoFactorAuthenticationCodeValid(
-      body.twoFactorAuthenticationCode,
-      request.user,
-    );
+    const isCodeValid =
+      await this.authService.isTwoFactorAuthenticationCodeValid(
+        body.twoFactorAuthenticationCode,
+        request.user,
+      );
     if (!isCodeValid) {
       throw new UnauthorizedException('Wrong authentication code');
     }
-    const user = await this.userService.fetchUserByUsername(
+    let user = await this.userService.fetchUserByUsername(
       request.user.username,
     );
-    await this.userService.turnOnTwoFactorAuthentication(user.id);
-    console.log('AUTH TURNED ON FOR USER:', user);
+    await this.userService.setTwoFactorAuthentication(user.username, true);
+    user = await this.userService.fetchUserByUsername(request.user.username);
   }
 
   @Post('auth/2fa/turn-off')
   @UseGuards(JwtAuthGuard)
   async turnOffTwoFactorAuthentication(@Req() request) {
-    await this.userService.turnOffTwoFactorAuthentication(request.user.id);
+    await this.userService.setTwoFactorAuthentication(
+      request.user.username,
+      false,
+    );
   }
 
   @Post('auth/2fa/authenticate')

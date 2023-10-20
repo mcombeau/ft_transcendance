@@ -62,10 +62,7 @@ export class AuthService {
   async generateTwoFactorAuthenticationSecret(userInfo: any) {
     const secret = authenticator.generateSecret();
 
-    console.log('---- GENERATE QR CODE ----');
-    console.log('USER INFO:', userInfo);
     const user = await this.userService.fetchUserByUsername(userInfo.username);
-    console.log('USER:', user);
     const otpAuthUrl = authenticator.keyuri(
       user.email,
       'ft_transcendance',
@@ -84,10 +81,11 @@ export class AuthService {
     return toDataURL(otpAuthUrl);
   }
 
-  isTwoFactorAuthenticationCodeValid(
+  async isTwoFactorAuthenticationCodeValid(
     twoFactorAuthenticationCode: string,
-    user: UserEntity,
+    userInfo: any,
   ) {
+    const user = await this.userService.fetchUserByUsername(userInfo.username);
     return authenticator.verify({
       token: twoFactorAuthenticationCode,
       secret: user.twoFactorAuthenticationSecret,
