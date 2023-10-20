@@ -19,7 +19,25 @@ function UserPage() {
   const [cookies] = useCookies(["cookie-name"]);
   const socket = useContext(WebSocketContext);
 
-  function enable2Fa() {
+  async function enable2Fa() {
+    var request = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${cookies["token"]}`,
+      },
+    };
+    await fetch("http://localhost:3001/auth/2fa/generate", request).then(
+      async (response) => {
+        const data = await response.json();
+        if (!response.ok) {
+          console.log("error QR code generation");
+          return;
+        }
+		// TODO display QR code somehow
+		console.log(response);
+      }
+    );
     // TODO: post request to generate
     // TODO: display QR code + field for code with submit
     // TODO: post it to turn on and if it works close everything
@@ -59,7 +77,7 @@ function UserPage() {
         console.log(data);
       }
     );
-  }, []);
+  }, [cookies, socket, userID]);
   if (!userExists) {
     return <h1>No such user</h1>;
   }
