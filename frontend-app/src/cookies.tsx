@@ -36,6 +36,24 @@ export function getUserID(cookies: any): number {
   }
 }
 
+export function getIs2faEnabled(cookies: any): boolean {
+  var authInfo: AuthCookie = getAuthInfo(cookies);
+  if (authInfo) {
+    return getAuthInfo(cookies)["isTwoFactorAuthenticationEnabled"];
+  } else {
+    return null;
+  }
+}
+
+export function getIs2faAuthenticated(cookies: any): boolean {
+  var authInfo: AuthCookie = getAuthInfo(cookies);
+  if (authInfo) {
+    return getAuthInfo(cookies)["isTwoFactorAuthenticated"];
+  } else {
+    return null;
+  }
+}
+
 export function getUserIDFromToken(token: string): number {
   var authInfo: AuthCookie = getAuthInfoFromToken(token);
   if (authInfo) {
