@@ -12,7 +12,7 @@ import { authenticator } from 'otplib';
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UsersService,
+    private userService: UsersService,
     private passwordService: PasswordService,
     private jwtService: JwtService,
   ) {}
@@ -23,7 +23,7 @@ export class AuthService {
   ): Promise<null | UserEntity> {
     console.log('[Auth Service]: validate local user');
     console.log('[Auth Service]: username', username, 'password', password);
-    const user = await this.usersService.fetchUserByUsername(username);
+    const user = await this.userService.fetchUserByUsername(username);
     console.log('[Auth Service]: User', user);
     if (!user) {
       console.log('[Auth Service]: user not found.');
@@ -59,16 +59,20 @@ export class AuthService {
     res.redirect(302, `http://localhost:3000/user/${user.id}`);
   }
 
-  async generateTwoFactorAuthenticationSecret(user: UserEntity) {
+  async generateTwoFactorAuthenticationSecret(userInfo: any) {
     const secret = authenticator.generateSecret();
 
+    console.log('---- GENERATE QR CODE ----');
+    console.log('USER INFO:', userInfo);
+    const user = await this.userService.fetchUserByUsername(userInfo.username);
+    console.log('USER:', user);
     const otpAuthUrl = authenticator.keyuri(
       user.email,
       'ft_transcendance',
       secret,
     );
 
-    await this.usersService.setTwoFactorAuthenticationSecret(secret, user.id);
+    await this.userService.setTwoFactorAuthenticationSecret(secret, user.id);
 
     return {
       secret,

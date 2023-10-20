@@ -116,10 +116,6 @@ export class UsersService {
   }
 
   async setTwoFactorAuthenticationSecret(secret: string, id: number) {
-    // this.userRepository.find(
-    //   (user) => user.id === id,
-    // ).twoFactorAuthenticationSecret = secret;
-    // user = await this.fetchUserByID(id);
     return this.userRepository.update(
       { id },
       { twoFactorAuthenticationSecret: secret },
@@ -131,9 +127,13 @@ export class UsersService {
       { id },
       { isTwoFactorAuthenticationEnabled: true },
     );
-    // await this.userRepository.find(
-    //   (user) => user.id === id,
-    // ).isTwoFactorAuthenticationEnabled = true;
+  }
+
+  async turnOffTwoFactorAuthentication(id: number) {
+    return this.userRepository.update(
+      { id },
+      { isTwoFactorAuthenticationEnabled: false },
+    );
   }
 
   deleteUserByID(id: number): Promise<DeleteResult> {

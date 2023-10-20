@@ -56,7 +56,7 @@ export class AuthController {
     return this.authService.school42Login(req, res);
   }
 
-  @Post('2fa/generate')
+  @Post('auth/2fa/generate')
   @UseGuards(JwtAuthGuard)
   async register(@Response() response, @Request() request) {
     const { otpAuthUrl } =
@@ -69,9 +69,12 @@ export class AuthController {
     );
   }
 
-  @Post('2fa/turn-on')
+  @Post('auth/2fa/turn-on')
   @UseGuards(JwtAuthGuard)
   async turnOnTwoFactorAuthentication(@Req() request, @Body() body) {
+    console.log('---- TURN ON 2FA ----');
+    console.log('BODY:', body);
+    console.log('Request user:', request.user);
     const isCodeValid = this.authService.isTwoFactorAuthenticationCodeValid(
       body.twoFactorAuthenticationCode,
       request.user,
@@ -79,10 +82,20 @@ export class AuthController {
     if (!isCodeValid) {
       throw new UnauthorizedException('Wrong authentication code');
     }
-    await this.userService.turnOnTwoFactorAuthentication(request.user.id);
+    const user = await this.userService.fetchUserByUsername(
+      request.user.username,
+    );
+    await this.userService.turnOnTwoFactorAuthentication(user.id);
+    console.log('AUTH TURNED ON FOR USER:', user);
   }
 
-  @Post('2fa/authenticate')
+  @Post('auth/2fa/turn-off')
+  @UseGuards(JwtAuthGuard)
+  async turnOffTwoFactorAuthentication(@Req() request) {
+    await this.userService.turnOffTwoFactorAuthentication(request.user.id);
+  }
+
+  @Post('auth/2fa/authenticate')
   @HttpCode(200)
   @UseGuards(JwtAuthGuard)
   async authenticate(@Request() request, @Body() body) {
