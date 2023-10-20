@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useCookies } from "react-cookie";
 import { getIs2faEnabled, getUserID } from "../../cookies";
 import { WebSocketContext } from "../../contexts/WebsocketContext";
+import { QRCodeRaw } from "@cheprasov/qrcode";
 
 type User = {
   username: string;
@@ -20,6 +21,7 @@ function UserPage() {
   const socket = useContext(WebSocketContext);
 
   async function enable2Fa() {
+    var result: Uint8Array;
     var request = {
       method: "POST",
       headers: {
@@ -34,8 +36,10 @@ function UserPage() {
           console.log("error QR code generation");
           return;
         }
-		// TODO display QR code somehow
-		console.log(response);
+        // TODO display QR code somehow
+        console.log("GENERATE");
+        const code = new QRCodeRaw(response["body"]);
+        console.log(code);
       }
     );
     // TODO: post request to generate
@@ -86,7 +90,13 @@ function UserPage() {
       <div>
         <h1>My user page ({user.username})</h1>
         <p> My email is : {user.email}</p>
-        <input type="checkbox" checked={is2faEnabled} onChange={() => {}} />
+        <input
+          type="checkbox"
+          checked={is2faEnabled}
+          onChange={() => {
+            enable2Fa();
+          }}
+        />
       </div>
     );
   }
