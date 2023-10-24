@@ -31,6 +31,14 @@ export class UserEntity {
   @Column()
   createdAt: Date;
 
+  @ApiProperty()
+  @Column()
+  isTwoFactorAuthenticationEnabled: boolean;
+
+  @ApiProperty()
+  @Column()
+  twoFactorAuthenticationSecret: string;
+
   // @ApiProperty({ type: () => ChatMessageEntity, isArray: true })
   @OneToMany(() => ChatMessageEntity, (chatMessage) => chatMessage.sender, {
     nullable: true,

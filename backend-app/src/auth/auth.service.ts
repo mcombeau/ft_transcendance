@@ -4,13 +4,15 @@ import { PasswordService } from 'src/password/password.service';
 import { JwtService } from '@nestjs/jwt';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { jwtConstants } from './constants';
+import { toDataURL } from 'qrcode';
+import { authenticator } from 'otplib';
 
 // TODO: Do not store JWT token in cookie or local storage??? Store as cookie with 'HTTP only' !
 // prevent CSRF XSS.
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UsersService,
+    private userService: UsersService,
     private passwordService: PasswordService,
     private jwtService: JwtService,
   ) {}
@@ -21,7 +23,7 @@ export class AuthService {
   ): Promise<null | UserEntity> {
     console.log('[Auth Service]: validate local user');
     console.log('[Auth Service]: username', username, 'password', password);
-    const user = await this.usersService.fetchUserByUsername(username);
+    const user = await this.userService.fetchUserByUsername(username);
     console.log('[Auth Service]: User', user);
     if (!user) {
       console.log('[Auth Service]: user not found.');
@@ -36,7 +38,12 @@ export class AuthService {
 
   login(user: UserEntity): any {
     console.log('[Auth Service]: login user');
-    const payload = { username: user.username, userID: user.id };
+    const payload = {
+      username: user.username,
+      userID: user.id,
+      isTwoFactorAuthenticationEnabled: user.isTwoFactorAuthenticationEnabled,
+      isTwoFactorAuthenticated: false,
+    };
     return {
       access_token: this.jwtService.sign(payload),
     };
@@ -55,5 +62,52 @@ export class AuthService {
     const access_token = this.login(user);
     res.cookie('token', access_token.access_token);
     res.redirect(302, `http://localhost:3000/user/${user.id}`);
+  }
+
+  async generateTwoFactorAuthenticationSecret(userInfo: any) {
+    const secret = authenticator.generateSecret();
+
+    const user = await this.userService.fetchUserByUsername(userInfo.username);
+    const otpAuthUrl = authenticator.keyuri(
+      user.email,
+      'ft_transcendance',
+      secret,
+    );
+
+    await this.userService.setTwoFactorAuthenticationSecret(secret, user.id);
+
+    return {
+      secret,
+      otpAuthUrl,
+    };
+  }
+
+  async generateQrCodeDataURL(otpAuthUrl: string) {
+    return toDataURL(otpAuthUrl);
+  }
+
+  async isTwoFactorAuthenticationCodeValid(
+    twoFactorAuthenticationCode: string,
+    userInfo: any,
+  ) {
+    const user = await this.userService.fetchUserByUsername(userInfo.username);
+    return authenticator.verify({
+      token: twoFactorAuthenticationCode,
+      secret: user.twoFactorAuthenticationSecret,
+    });
+  }
+
+  async loginWith2fa(userWithoutPsw: Partial<UserEntity>) {
+    const payload = {
+      email: userWithoutPsw.email,
+      isTwoFactorAuthenticationEnabled:
+        !!userWithoutPsw.isTwoFactorAuthenticationEnabled,
+      isTwoFactorAuthenticated: true,
+    };
+
+    return {
+      email: payload.email,
+      access_token: this.jwtService.sign(payload),
+    };
   }
 }
