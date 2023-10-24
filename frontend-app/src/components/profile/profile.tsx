@@ -9,6 +9,7 @@ import { QRCodeRaw } from "@cheprasov/qrcode";
 type User = {
   username: string;
   email: string;
+  login42: string;
 };
 
 function Profile() {
@@ -77,7 +78,11 @@ function Profile() {
           return <h1>No such user</h1>;
         }
         setUserExists(true);
-        setUser({ username: data.username, email: data.email });
+        setUser({
+          username: data.username,
+          email: data.email,
+          login42: data.login42 ? data.login42 : "",
+        });
         console.log(data);
       }
     );
@@ -88,7 +93,10 @@ function Profile() {
   if (isMyPage) {
     return (
       <div>
-        <h1>My user page ({user.username})</h1>
+        <h1>
+          My user page ({user.username}
+          {user.login42 ? " aka " + user.login42 : ""})
+        </h1>
         <p> My email is : {user.email}</p>
         <input
           type="checkbox"
@@ -102,8 +110,11 @@ function Profile() {
   }
   return (
     <div>
-      <h1>User page for {user.username}</h1>
-      <p> My email is : {user.email}</p>
+      <h1>
+        User page for {user.username}
+        {user.login42 ? " (aka " + user.login42 + ")" : ""}
+      </h1>
+      <p> Email is : {user.email}</p>
     </div>
   );
 }
