@@ -8,6 +8,7 @@ import defaultProfilePicture from "./profilePicture.jpg";
 import FriendsList from "./friendsList";
 import Stats from "./stats";
 import History from "./history";
+import ProfileSettings from "./profileSettings";
 
 export type User = {
   username: string;
@@ -30,9 +31,23 @@ function userDetails(isMyPage: boolean, user: User) {
   );
 }
 
-function editProfile(isMyPage: boolean, user: User) {
+function editProfile(
+  isMyPage: boolean,
+  user: User,
+  isEditingProfile,
+  setIsEditingProfile
+) {
   if (!isMyPage) return <div></div>;
-  return <button>Edit profile</button>;
+  if (isEditingProfile) return <div></div>;
+  return (
+    <button
+      onClick={() => {
+        setIsEditingProfile(true);
+      }}
+    >
+      Edit profile
+    </button>
+  );
 }
 
 function interactWithUser(isMyPage: boolean, user: User) {
@@ -55,6 +70,7 @@ function Profile() {
   const [is2faEnabled, setIs2faEnabled] = useState(false);
   const [cookies] = useCookies(["cookie-name"]);
   const socket = useContext(WebSocketContext);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
 
   useEffect(() => {
     var request = {
@@ -89,6 +105,7 @@ function Profile() {
       }
     );
   }, [cookies, socket, userID]);
+
   if (!userExists) {
     return <h1>No such user</h1>;
   }
@@ -99,7 +116,8 @@ function Profile() {
       {titleProfile(isMyPage, user)}
       {userDetails(isMyPage, user)}
       {interactWithUser(isMyPage, user)}
-      {editProfile(isMyPage, user)}
+      {editProfile(isMyPage, user, isEditingProfile, setIsEditingProfile)}
+      {ProfileSettings(user, cookies, isEditingProfile, setIsEditingProfile)}
       {FriendsList(isMyPage, user)}
       {Stats(isMyPage, user)}
       {History(isMyPage, user)}
