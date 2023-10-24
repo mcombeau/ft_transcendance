@@ -22,6 +22,7 @@
 	- challenge button
 	- ( dm button )
 
+- Remove 2fa secret from fetch users/userid (userEntity) mmcombeau
 
 -------------------------------------------------------------------------------------
 - validation:
