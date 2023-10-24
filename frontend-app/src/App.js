@@ -19,7 +19,7 @@ function App() {
           <Route path="/chat" element={<Chat />} />
           <Route path="/play" element={<Play />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
-          <Route path="/user/:name" element={<Profile />} />
+          <Route path="/user/:id" element={<Profile />} />
         </Routes>
       </Router>
     </>

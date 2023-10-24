@@ -14,7 +14,7 @@ type User = {
 
 function Profile() {
   const [userExists, setUserExists] = useState(false);
-  var userID = useParams().name;
+  var userID = useParams().id;
   const [user, setUser] = useState<User>();
   const [isMyPage, setIsMyPage] = useState(false);
   const [is2faEnabled, setIs2faEnabled] = useState(false);

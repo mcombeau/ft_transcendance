@@ -45,7 +45,7 @@ function Navbar() {
             <NavbarLink to="/chat"> Chat</NavbarLink>
             <NavbarLink to="/play"> Play Game</NavbarLink>
             <NavbarLink to="/leaderboard"> Leaderboard</NavbarLink>
-            <NavbarLink to={`/user/${username}`}> {username}</NavbarLink>
+            <NavbarLink to={"/user/" + getUserID(cookies)}>Profile</NavbarLink>
             <OpenLinksButton
               onClick={() => {
                 setExtendNavbar((curr) => !curr);
@@ -69,9 +69,8 @@ function Navbar() {
             {" "}
             Leaderboard
           </NavbarLinkExtended>
-          <NavbarLinkExtended to={`/user/${username}`}>
-            {" "}
-            {username}
+          <NavbarLinkExtended to={"/user/" + getUserID(cookies)}>
+            Profile
           </NavbarLinkExtended>
         </NavbarExtendedContainer>
       )}
