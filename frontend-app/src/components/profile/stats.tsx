@@ -1,6 +1,6 @@
 import { User } from "./profile";
 function Stats(isMyPage: boolean, user: User) {
-  return <h2>Stats:</h2>;
+  return <h3>Stats:</h3>;
 }
 
 export default Stats;

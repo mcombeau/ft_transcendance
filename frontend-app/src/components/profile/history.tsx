@@ -1,6 +1,6 @@
 import { User } from "./profile";
 function History(isMyPage: boolean, user: User) {
-  return <h2>History:</h2>;
+  return <h3>History:</h3>;
 }
 
 export default History;
