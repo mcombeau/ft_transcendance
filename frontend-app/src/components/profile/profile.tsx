@@ -1,5 +1,5 @@
 import { useContext, useEffect } from "react";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useState } from "react";
 import { useCookies } from "react-cookie";
 import { getIs2faEnabled, getUserID } from "../../cookies";
@@ -16,7 +16,7 @@ export type User = {
 };
 
 function titleProfile(isMyPage: boolean, user: User) {
-  if (isMyPage) return <h2>My user page ({user.username}</h2>;
+  if (isMyPage) return <h2>My user page ({user.username})</h2>;
 
   return <h2>User page for {user.username}</h2>;
 }
@@ -33,6 +33,18 @@ function userDetails(isMyPage: boolean, user: User) {
 function editProfile(isMyPage: boolean, user: User) {
   if (!isMyPage) return <div></div>;
   return <button>Edit profile</button>;
+}
+
+function interactWithUser(isMyPage: boolean, user: User) {
+  if (isMyPage) return <p></p>;
+  // TODO: add unfriend logic
+  return (
+    <p>
+      <button>Add friend</button>
+      <button>Block user</button>
+      <button>Send DM</button>
+    </p>
+  );
 }
 
 function Profile() {
@@ -86,6 +98,7 @@ function Profile() {
       <img src={defaultProfilePicture} width="100" height="100"></img>
       {titleProfile(isMyPage, user)}
       {userDetails(isMyPage, user)}
+      {interactWithUser(isMyPage, user)}
       {editProfile(isMyPage, user)}
       {FriendsList(isMyPage, user)}
       {Stats(isMyPage, user)}
