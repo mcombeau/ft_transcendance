@@ -11,7 +11,7 @@ type User = {
   email: string;
 };
 
-function UserPage() {
+function Profile() {
   const [userExists, setUserExists] = useState(false);
   var userID = useParams().name;
   const [user, setUser] = useState<User>();
@@ -108,4 +108,4 @@ function UserPage() {
   );
 }
 
-export default UserPage;
+export default Profile;
