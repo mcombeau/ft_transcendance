@@ -1,8 +1,8 @@
 # PROFILE 
 
 - User profile
-	- display username + 42 login
-	- display avatar
+	- display username + 42 login X
+	- display avatar X
 	- friends list
 		- status (online, offline, in a game ... )
 	- stats (wins and losses, ladder level, achievements ...)
@@ -24,6 +24,8 @@
 
 - Remove 2fa secret from fetch users/userid (userEntity) mmcombeau
 - fix validation
+- dont display profile button if not connected
+- 404 if page not exist (not tostring business)
 
 -------------------------------------------------------------------------------------
 - validation:
