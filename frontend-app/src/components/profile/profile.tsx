@@ -5,12 +5,36 @@ import { useCookies } from "react-cookie";
 import { getIs2faEnabled, getUserID } from "../../cookies";
 import { WebSocketContext } from "../../contexts/WebsocketContext";
 import { QRCodeRaw } from "@cheprasov/qrcode";
+import defaultProfilePicture from "./profilePicture.jpg";
+import FriendsList from "./friendsList";
+import Stats from "./stats";
+import History from "./history";
 
-type User = {
+export type User = {
   username: string;
   email: string;
   login42: string;
 };
+
+function titleProfile(isMyPage: boolean, user: User) {
+  if (isMyPage) return <h2>My user page ({user.username}</h2>;
+
+  return <h2>User page for {user.username}</h2>;
+}
+
+function userDetails(isMyPage: boolean, user: User) {
+  return (
+    <p>
+      {user.login42 ? " aka " + user.login42 : ""}
+      <br /> Email is : {user.email}
+    </p>
+  );
+}
+
+function editProfile(isMyPage: boolean, user: User) {
+  if (!isMyPage) return <div></div>;
+  return <button>Edit profile</button>;
+}
 
 function Profile() {
   const [userExists, setUserExists] = useState(false);
@@ -90,31 +114,23 @@ function Profile() {
   if (!userExists) {
     return <h1>No such user</h1>;
   }
-  if (isMyPage) {
-    return (
-      <div>
-        <h1>
-          My user page ({user.username}
-          {user.login42 ? " aka " + user.login42 : ""})
-        </h1>
-        <p> My email is : {user.email}</p>
-        <input
-          type="checkbox"
-          checked={is2faEnabled}
-          onChange={() => {
-            enable2Fa();
-          }}
-        />
-      </div>
-    );
-  }
+
+  // TODO: put 2fa checkbox in edit profile menu
+  // <input
+  //   type="checkbox"
+  //   checked={is2faEnabled}
+  //   onChange={() => {
+  //     enable2Fa();
+  //   }} />
   return (
     <div>
-      <h1>
-        User page for {user.username}
-        {user.login42 ? " (aka " + user.login42 + ")" : ""}
-      </h1>
-      <p> Email is : {user.email}</p>
+      <img src={defaultProfilePicture} width="100" height="100"></img>
+      {titleProfile(isMyPage, user)}
+      {userDetails(isMyPage, user)}
+      {editProfile(isMyPage, user)}
+      {FriendsList(isMyPage, user)}
+      {Stats(isMyPage, user)}
+      {History(isMyPage, user)}
     </div>
   );
 }
