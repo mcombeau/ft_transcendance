@@ -102,6 +102,8 @@ export class UsersController {
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: updateUsersDto,
   ): Promise<UpdateResult> {
+    console.log('-------------------------------------------------controller');
+    console.log(updateUserDto);
     return this.userService.updateUserByID(id, updateUserDto);
   }
 
