@@ -1,6 +1,6 @@
 import { QRCodeRaw } from "@cheprasov/qrcode";
 import { User } from "./profile";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getUserID } from "../../cookies";
 
 function ProfileSettings(
@@ -16,7 +16,11 @@ function ProfileSettings(
   //   onChange={() => {
   //     enable2Fa();
   //   }} />
-  const [username, setUsername] = useState(user.username);
+  const [username, setUsername] = useState("");
+
+  useEffect(() => {
+    if (user !== undefined) setUsername(user.username);
+  }, []);
 
   async function enable2Fa() {
     var result: Uint8Array;
@@ -68,6 +72,7 @@ function ProfileSettings(
     );
   }
 
+  // if (user !== undefined) setUsername(user.username);
   if (!isEditingProfile) return <div></div>;
 
   return (

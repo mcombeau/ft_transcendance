@@ -17,16 +17,31 @@ export type User = {
 };
 
 function titleProfile(isMyPage: boolean, user: User) {
+  if (user === undefined) return <h2>User not found</h2>;
   if (isMyPage) return <h2>My user page ({user.username})</h2>;
 
   return <h2>User page for {user.username}</h2>;
 }
 
 function userDetails(isMyPage: boolean, user: User) {
+  if (user === undefined) return <div />;
   return (
     <p>
       {user.login42 ? " aka " + user.login42 : ""}
       <br /> Email is : {user.email}
+    </p>
+  );
+}
+
+function interactWithUser(isMyPage: boolean, user: User) {
+  if (user === undefined) return <div />;
+  if (isMyPage) return <p></p>;
+  // TODO: add unfriend logic
+  return (
+    <p>
+      <button>Add friend</button>
+      <button>Block user</button>
+      <button>Send DM</button>
     </p>
   );
 }
@@ -37,6 +52,7 @@ function editProfile(
   isEditingProfile,
   setIsEditingProfile
 ) {
+  if (user === undefined) return <div />;
   if (!isMyPage) return <div></div>;
   if (isEditingProfile) return <div></div>;
   return (
@@ -47,18 +63,6 @@ function editProfile(
     >
       Edit profile
     </button>
-  );
-}
-
-function interactWithUser(isMyPage: boolean, user: User) {
-  if (isMyPage) return <p></p>;
-  // TODO: add unfriend logic
-  return (
-    <p>
-      <button>Add friend</button>
-      <button>Block user</button>
-      <button>Send DM</button>
-    </p>
   );
 }
 
@@ -106,13 +110,10 @@ function Profile() {
     );
   }, [cookies, socket, userID]);
 
-  if (!userExists) {
-    return <h1>No such user</h1>;
-  }
-
   return (
     <div>
       <img src={defaultProfilePicture} width="100" height="100"></img>
+      {!userExists ? "User is not logged in" : ""}
       {titleProfile(isMyPage, user)}
       {userDetails(isMyPage, user)}
       {interactWithUser(isMyPage, user)}
