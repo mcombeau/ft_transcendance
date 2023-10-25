@@ -108,12 +108,32 @@ export class UsersService {
     return user.password;
   }
 
-  updateUserByID(
+  async updateUserByID(
     id: number,
     userDetails: updateUserParams,
   ): Promise<UpdateResult> {
     console.log('User details');
     console.log(userDetails);
+
+    const updatedInfo: updateUserParams = {
+      username: userDetails.username,
+      email: userDetails.email,
+    };
+
+    if (userDetails.currentPassword) {
+      const user = await this.fetchUserByID(id);
+      const isValidCurrentPassword = await this.passwordService.checkPassword(
+        userDetails.currentPassword,
+        user,
+      );
+      if (isValidCurrentPassword) {
+        const hashedPassword = await this.passwordService.hashPassword(
+          userDetails.newPassword,
+        );
+
+        updatedInfo.newPassword = hashedPassword;
+      }
+    }
     return this.userRepository.update({ id }, { ...userDetails });
   }
 
