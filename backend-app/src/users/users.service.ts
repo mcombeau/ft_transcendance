@@ -112,9 +112,6 @@ export class UsersService {
     id: number,
     userDetails: updateUserParams,
   ): Promise<UpdateResult> {
-    console.log('User details');
-    console.log(userDetails);
-
     const updatedInfo: updateUserParams = {
       username: userDetails.username,
       email: userDetails.email,
