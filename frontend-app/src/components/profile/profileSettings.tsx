@@ -16,11 +16,11 @@ function ProfileSettings(
   //   onChange={() => {
   //     enable2Fa();
   //   }} />
-  const [username, setUsername] = useState("");
+  const [newUsername, setNewUsername] = useState("");
 
   useEffect(() => {
-    if (user !== undefined) setUsername(user.username);
-  }, []);
+    if (user !== undefined) setNewUsername(user.username);
+  }, [user]);
 
   async function enable2Fa() {
     var result: Uint8Array;
@@ -64,7 +64,7 @@ function ProfileSettings(
       },
     };
     e.preventDefault();
-    console.log("Submitting username " + username);
+    console.log("Submitting username " + newUsername);
     fetch(`http://localhost:3001/users/${getUserID(cookies)}`, request).then(
       async (response) => {
         if (!response.ok) alert("There was a problem with updating settings");
@@ -72,7 +72,6 @@ function ProfileSettings(
     );
   }
 
-  // if (user !== undefined) setUsername(user.username);
   if (!isEditingProfile) return <div></div>;
 
   return (
@@ -86,9 +85,9 @@ function ProfileSettings(
       </button>
       <form className="edit_field" onSubmit={submitUsername}>
         <input
-          value={username}
+          value={newUsername}
           onChange={(e) => {
-            setUsername(e.target.value);
+            setNewUsername(e.target.value);
           }}
         />
         <button>Save changes</button>

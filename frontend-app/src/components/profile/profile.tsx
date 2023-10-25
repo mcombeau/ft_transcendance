@@ -76,21 +76,13 @@ function Profile() {
   const socket = useContext(WebSocketContext);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
 
-  useEffect(() => {
+  async function fetchUser() {
     var request = {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${cookies["token"]}`,
       },
     };
-
-    if (getUserID(cookies).toString() === userID) {
-      socket.emit("login", cookies["token"]);
-      setIsMyPage(true);
-      if (getIs2faEnabled(cookies)) {
-        setIs2faEnabled(true);
-      }
-    }
 
     fetch(`http://localhost:3001/users/${userID}`, request).then(
       async (response) => {
@@ -105,9 +97,22 @@ function Profile() {
           email: data.email,
           login42: data.login42 ? data.login42 : "",
         });
+        console.log("fetching user");
         console.log(data);
       }
     );
+  }
+
+  useEffect(() => {
+    if (getUserID(cookies).toString() === userID) {
+      socket.emit("login", cookies["token"]);
+      setIsMyPage(true);
+      if (getIs2faEnabled(cookies)) {
+        setIs2faEnabled(true);
+      }
+    }
+
+    fetchUser();
   }, [cookies, socket, userID]);
 
   return (
