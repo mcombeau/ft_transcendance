@@ -12,24 +12,22 @@ import {
 export class createMessageDto {
   @ApiProperty()
   @IsNotEmpty()
-  @IsAlphanumeric()
   @MinLength(1)
   message: string;
 
   @ApiProperty()
+  @IsOptional()
   @IsNotEmpty()
   @IsInt()
-  @IsPositive()
   senderID: number;
 
   @ApiProperty()
+  @IsOptional()
   @IsNotEmpty()
   @IsInt()
-  @IsPositive()
   chatRoomID: number;
 
   @ApiProperty()
   @IsOptional()
-  @IsDate()
   sentAt: Date;
 }

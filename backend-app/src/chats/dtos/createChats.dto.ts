@@ -11,6 +11,7 @@ import {
 
 export class createChatDto {
   @ApiProperty()
+  @IsOptional()
   @IsNotEmpty()
   @IsAlphanumeric()
   @Length(3, 20)

@@ -39,6 +39,10 @@ export class PasswordService {
       console.log('HASH IS EMPTYYYYYYY:', hash);
       return true;
     }
+    if (password == null || password == undefined) {
+      console.log('PASSWORD IS UNDEFINED:', password);
+      return false;
+    }
     const isMatch = await bcrypt.compare(password, hash);
     console.log('password is match?', isMatch);
     return isMatch;

@@ -154,17 +154,19 @@ export const Messages = (
               `${chat.name} is password protected. Please enter password:`
             );
           } else {
-            var getPassword = "";
+            getPassword = "";
           }
           var info: ReceivedInfo = {
             chatRoomID: parseInt(
               (e.target as HTMLInputElement).getAttribute("value")
             ),
             token: cookies["token"],
-            chatInfo: {
-              password: getPassword,
-            },
           };
+			if (getPassword !== "") {
+				info.chatInfo = {
+				password: getPassword,
+				}
+			}
           socket.emit("join chat", info);
         }}
       >
