@@ -18,6 +18,8 @@ function ProfileSettings(
   //   }} />
   const [newUsername, setNewUsername] = useState("");
   const [newEmail, setNewEmail] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
 
   useEffect(() => {
     if (user !== undefined) setNewUsername(user.username);
@@ -70,15 +72,35 @@ function ProfileSettings(
       }),
     };
     e.preventDefault();
-    console.log("Submitting username " + newUsername);
-    console.log("Submitting email " + newEmail);
-    console.log("request", request);
     fetch(`http://localhost:3001/users/${getUserID(cookies)}`, request).then(
       async (response) => {
         if (!response.ok) {
-			const error = await response.json();
-			alert("Error: " + error.error + ": " + error.message);
-		}
+          const error = await response.json();
+          alert("Error: " + error.error + ": " + error.message);
+        }
+      }
+    );
+  }
+
+  function submitNewPassword(e: any) {
+    var request = {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${cookies["token"]}`,
+      },
+      body: JSON.stringify({
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      }),
+    };
+    e.preventDefault();
+    fetch(`http://localhost:3001/users/${getUserID(cookies)}`, request).then(
+      async (response) => {
+        if (!response.ok) {
+          const error = await response.json();
+          alert("Error: " + error.error + ": " + error.message);
+        }
       }
     );
   }
@@ -109,6 +131,29 @@ function ProfileSettings(
         />
         <button>Save changes</button>
       </form>
+      {user.login42 === "" ? (
+        <form className="edit_field" onSubmit={submitNewPassword}>
+          <input
+            placeholder="Current password"
+            type="password"
+            value={currentPassword}
+            onChange={(e) => {
+              setCurrentPassword(e.target.value);
+            }}
+          />
+          <input
+            placeholder="New password"
+            type="password"
+            value={newPassword}
+            onChange={(e) => {
+              setNewPassword(e.target.value);
+            }}
+          />
+          <button>Change password</button>
+        </form>
+      ) : (
+        <div />
+      )}
     </div>
   );
 }
