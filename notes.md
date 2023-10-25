@@ -40,8 +40,8 @@
 
 # Authentication - cookies
 
-- logout
-- pretty navbar login/logout/profile
+- !logout
+- !pretty navbar login/logout/profile
 - remove chat (+game ...) from navbar if not logged in
 
 - mot de passe update
