@@ -112,6 +112,8 @@ export class UsersService {
     id: number,
     userDetails: updateUserParams,
   ): Promise<UpdateResult> {
+    console.log('User details');
+    console.log(userDetails);
     return this.userRepository.update({ id }, { ...userDetails });
   }
 
