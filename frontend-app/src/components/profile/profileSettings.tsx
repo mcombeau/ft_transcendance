@@ -75,7 +75,10 @@ function ProfileSettings(
     console.log("request", request);
     fetch(`http://localhost:3001/users/${getUserID(cookies)}`, request).then(
       async (response) => {
-        if (!response.ok) alert("There was a problem with updating settings");
+        if (!response.ok) {
+			const error = await response.json();
+			alert("Error: " + error.error + ": " + error.message);
+		}
       }
     );
   }

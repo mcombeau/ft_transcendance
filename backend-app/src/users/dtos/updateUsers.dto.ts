@@ -18,6 +18,6 @@ export class updateUsersDto {
 
   @ApiProperty()
   @IsOptional()
-  @IsAlphanumeric()
+  @IsEmail()
   email?: string;
 }
