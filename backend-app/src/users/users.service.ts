@@ -9,6 +9,7 @@ import { updateUserParams } from 'src/users/utils/types';
 import { Repository, UpdateResult, DeleteResult } from 'typeorm';
 import { ChatsService } from 'src/chats/chats.service';
 import { sendParticipantDto } from 'src/chat-participants/dtos/sendChatParticipant.dto';
+import { BadRequestException } from '@nestjs/common';
 
 @Injectable()
 export class UsersService {
@@ -112,10 +113,9 @@ export class UsersService {
     id: number,
     userDetails: updateUserParams,
   ): Promise<UpdateResult> {
-    const updatedInfo: updateUserParams = {
-      username: userDetails.username,
-      email: userDetails.email,
-    };
+    const updatedInfo: updateUserParams = {};
+    if (userDetails.username) updatedInfo.username = userDetails.username;
+    if (userDetails.email) updatedInfo.email = userDetails.email;
 
     if (userDetails.currentPassword) {
       const user = await this.fetchUserByID(id);
@@ -127,11 +127,12 @@ export class UsersService {
         const hashedPassword = await this.passwordService.hashPassword(
           userDetails.newPassword,
         );
-
-        updatedInfo.newPassword = hashedPassword;
+        updatedInfo.password = hashedPassword;
+      } else {
+        throw new BadRequestException('Invalid password');
       }
     }
-    return this.userRepository.update({ id }, { ...userDetails });
+    return this.userRepository.update({ id }, { ...updatedInfo });
   }
 
   async setTwoFactorAuthenticationSecret(secret: string, id: number) {
