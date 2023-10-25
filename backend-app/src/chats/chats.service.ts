@@ -77,6 +77,7 @@ export class ChatsService {
   }
 
   async createChat(chatDetails: createChatParams): Promise<ChatEntity> {
+    console.log('CREATE CHAT DETAILS =', chatDetails);
     const user = await this.getUserToCreateChatRoomOrFail(chatDetails.ownerID);
     await this.checkChatRoomWithNameCanBeCreated(chatDetails.name, false);
 
@@ -91,6 +92,7 @@ export class ChatsService {
       isDirectMessage: false,
       createdAt: new Date(),
     });
+    console.log('CREATE NEW CHAT DETAILS =', newChat);
     const newSavedChat = await this.chatRepository
       .save(newChat)
       .catch((err: any) => {

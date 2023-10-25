@@ -324,7 +324,12 @@ export class ChatGateway implements OnModuleInit {
       console.log('[Chat Gateway]: Join chat', info);
       info.userID = await this.checkIdentity(info.token);
       const user = await this.userService.fetchUserByID(info.userID);
-      await this.checkChatRoomPassword(info.chatInfo.password, info.chatRoomID);
+      if (info.chatInfo && info.chatInfo.password !== undefined) {
+        await this.checkChatRoomPassword(
+          info.chatInfo.password,
+          info.chatRoomID,
+        );
+      }
       await this.addUserToChat({
         userID: info.userID,
         chatRoomID: info.chatRoomID,

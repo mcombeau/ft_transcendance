@@ -84,6 +84,7 @@ export class ChatMessagesService {
       chatRoom: chat,
       sentAt: new Date(),
     });
+    console.log('CREATE CHAT MESSAGE DETAILS =', newMessage);
     return this.chatMessagesRepository.save(newMessage);
   }
 
