@@ -23,6 +23,7 @@ import { updateUsersDto } from 'src/users/dtos/updateUsers.dto';
 import { UsersService } from 'src/users/users.service';
 import { UserEntity } from './entities/user.entity';
 import { ChatEntity } from 'src/chats/entities/chat.entity';
+import { GameEntity } from 'src/games/entities/game.entity';
 import { UpdateResult, DeleteResult } from 'typeorm';
 
 @ApiTags('users')
@@ -68,6 +69,20 @@ export class UsersController {
     @Param('id', ParseIntPipe) id: number,
   ): Promise<ChatEntity[]> {
     return this.userService.fetchUserChatDMsByUserID(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id/games')
+  @ApiOkResponse({
+    type: GameEntity,
+    isArray: true,
+    description: 'Get user games by user ID.',
+  })
+  async getUserGamesByUserID(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<GameEntity[]> {
+    console.log('[User Controller]: fetching games');
+    return this.userService.fetchUserGamesByUserID(id);
   }
 
   // @UseGuards(JwtAuthGuard)

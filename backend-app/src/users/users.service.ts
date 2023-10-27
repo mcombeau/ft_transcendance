@@ -1,6 +1,7 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatEntity } from 'src/chats/entities/chat.entity';
+import { GameEntity } from 'src/games/entities/game.entity';
 import { UserNotFoundError } from 'src/exceptions/not-found.interceptor';
 import { PasswordService } from 'src/password/password.service';
 import { UserEntity } from 'src/users/entities/user.entity';
@@ -69,6 +70,19 @@ export class UsersService {
       }
     }
     return userChatRooms;
+  }
+
+  async fetchUserGamesByUserID(userID: number): Promise<GameEntity[]> {
+    const user = await this.userRepository
+      .findOne({
+        where: { id: userID },
+        relations: ['wonGames', 'lostGames'],
+      })
+      .catch((e) => {
+        console.log('[User Service]: ', e);
+        throw new UserNotFoundError();
+      });
+    return [...user.wonGames, ...user.lostGames];
   }
 
   async fetchUserChatDMsByUserID(id: number): Promise<ChatEntity[]> {

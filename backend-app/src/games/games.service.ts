@@ -1,14 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GameEntity } from 'src/games/entities/game.entity';
 import { Repository } from 'typeorm';
 import { createGameParams, updateGameParams } from './utils/types';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class GamesService {
   constructor(
     @InjectRepository(GameEntity)
     private gameRepository: Repository<GameEntity>,
+    @Inject(forwardRef(() => UsersService))
+    private userService: UsersService,
   ) {}
 
   fetchGames() {
@@ -16,8 +19,14 @@ export class GamesService {
   }
 
   async createGame(gameDetails: createGameParams) {
-    const newGame = this.gameRepository.create({
-      ...gameDetails,
+    const winner = await this.userService.fetchUserByID(gameDetails.winnerID);
+    const loser = await this.userService.fetchUserByID(gameDetails.loserID);
+
+    const newGame = await this.gameRepository.create({
+      winner: winner,
+      loser: loser,
+      winnerScore: gameDetails.winnerScore,
+      loserScore: gameDetails.loserScore,
       createdAt: new Date(),
     });
     return this.gameRepository.save(newGame);

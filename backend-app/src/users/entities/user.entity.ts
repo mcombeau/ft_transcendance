@@ -64,6 +64,10 @@ export class UserEntity {
   sentInvites: InviteEntity[];
 
   // @ApiProperty({ type: () => GameEntity, isArray: true })
-  @OneToMany(() => GameEntity, (game) => game.winnerID, { nullable: true })
+  @OneToMany(() => GameEntity, (game) => game.winner, { nullable: true })
   wonGames: GameEntity[];
+
+  // @ApiProperty({ type: () => GameEntity, isArray: true })
+  @OneToMany(() => GameEntity, (game) => game.loser, { nullable: true })
+  lostGames: GameEntity[];
 }
