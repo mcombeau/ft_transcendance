@@ -11,6 +11,7 @@ import History from "./history";
 import ProfileSettings from "./profileSettings";
 
 export type User = {
+  id: number;
   username: string;
   email: string;
   login42: string;
@@ -93,6 +94,7 @@ function Profile() {
         }
         setUserExists(true);
         setUser({
+          id: data.id,
           username: data.username,
           email: data.email,
           login42: data.login42 ? data.login42 : "",
@@ -126,7 +128,7 @@ function Profile() {
       {ProfileSettings(user, cookies, isEditingProfile, setIsEditingProfile)}
       {FriendsList(isMyPage, user)}
       {Stats(isMyPage, user)}
-      {History(isMyPage, user)}
+      {History(isMyPage, user, cookies)}
     </div>
   );
 }
