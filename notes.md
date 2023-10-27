@@ -3,14 +3,14 @@
 - User profile
 	- display username + 42 login X
 	- display avatar X
+	- match history (1v1 game, ladder) X
 	- friends list
 		- status (online, offline, in a game ... )
 	- stats (wins and losses, ladder level, achievements ...)
-	- match history (1v1 game, ladder)
 
 - My profile
-	- change username
-	- change password
+	- change username X
+	- change password X
 	- change 2fa activation
 	- change avatar
 	- friends list
