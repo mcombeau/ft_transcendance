@@ -9,8 +9,10 @@ import { createUserParams } from 'src/users/utils/types';
 import { updateUserParams } from 'src/users/utils/types';
 import { Repository, UpdateResult, DeleteResult } from 'typeorm';
 import { ChatsService } from 'src/chats/chats.service';
+import { GamesService } from 'src/games/games.service';
 import { sendParticipantDto } from 'src/chat-participants/dtos/sendChatParticipant.dto';
 import { BadRequestException } from '@nestjs/common';
+import { sendGameDto } from 'src/games/dtos/sendGame.dto';
 
 @Injectable()
 export class UsersService {
@@ -21,6 +23,8 @@ export class UsersService {
     private passwordService: PasswordService,
     @Inject(forwardRef(() => ChatsService))
     private chatsService: ChatsService,
+    @Inject(forwardRef(() => GamesService))
+    private gameService: GamesService,
   ) {}
 
   fetchUsers(): Promise<UserEntity[]> {
@@ -72,17 +76,18 @@ export class UsersService {
     return userChatRooms;
   }
 
-  async fetchUserGamesByUserID(userID: number): Promise<GameEntity[]> {
-    const user = await this.userRepository
-      .findOne({
-        where: { id: userID },
-        relations: ['wonGames', 'lostGames'],
-      })
-      .catch((e) => {
-        console.log('[User Service]: ', e);
-        throw new UserNotFoundError();
-      });
-    return [...user.wonGames, ...user.lostGames];
+  async fetchUserGamesByUserID(userID: number): Promise<sendGameDto[]> {
+    return this.gameService.fetchGamesByUserID(userID);
+    // const user = await this.userRepository
+    //   .findOne({
+    //     where: { id: userID },
+    //     relations: ['wonGames', 'lostGames'],
+    //   })
+    //   .catch((e) => {
+    //     console.log('[User Service]: ', e);
+    //     throw new UserNotFoundError();
+    //   });
+    // return [...user.wonGames, ...user.lostGames];
   }
 
   async fetchUserChatDMsByUserID(id: number): Promise<ChatEntity[]> {

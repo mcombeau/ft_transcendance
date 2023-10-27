@@ -8,14 +8,6 @@ export class GameEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  // @ApiProperty()
-  // @Column()
-  // winnerID: number;
-
-  // @ApiProperty()
-  // @Column()
-  // loserID: number;
-
   @ApiProperty({ type: () => UserEntity, isArray: true })
   @ManyToOne(() => UserEntity, (user) => user.lostGames, { cascade: true })
   loser: UserEntity;
