@@ -89,14 +89,17 @@ async function checkIfIsMyFriend(user: User, cookies: any, setIsMyFriend: any) {
       userID2: user.id,
     }),
   };
-  return await fetch(`http://localhost:3001/friends/friend`, request).then(
+  await fetch(`http://localhost:3001/friends/friend`, request).then(
     async (response) => {
       console.log("is MY friend response");
       console.log(response);
       if (!response.ok) {
         setIsMyFriend(false);
+        console.log("WE ARE ENNEMIES");
+      } else {
+        console.log("WE ARE FRIENDS");
+        setIsMyFriend(true);
       }
-      setIsMyFriend(true);
     }
   );
 }
@@ -193,6 +196,10 @@ function Profile() {
     fetchUser();
     checkIfIsMyFriend(user, cookies, setIsMyFriend);
   }, [cookies, socket, userID]);
+
+  useEffect(() => {
+    checkIfIsMyFriend(user, cookies, setIsMyFriend);
+  }, [user]);
 
   // TODO: add friendship invite section
   return (
