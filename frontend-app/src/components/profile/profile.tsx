@@ -95,9 +95,7 @@ async function checkIfIsMyFriend(user: User, cookies: any, setIsMyFriend: any) {
       console.log(response);
       if (!response.ok) {
         setIsMyFriend(false);
-        console.log("WE ARE ENNEMIES");
       } else {
-        console.log("WE ARE FRIENDS");
         setIsMyFriend(true);
       }
     }
