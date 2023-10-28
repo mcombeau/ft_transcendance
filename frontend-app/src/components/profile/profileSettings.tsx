@@ -151,13 +151,16 @@ function ProfileSettings(
       ) : (
         <div />
       )}
-      <input
-        type="checkbox"
-        checked={is2faEnabled}
-        onChange={() => {
-          enable2Fa();
-        }}
-      />
+      <div>
+        <input
+          type="checkbox"
+          checked={is2faEnabled}
+          onChange={() => {
+            enable2Fa();
+          }}
+        />
+        <label> Enable two-factor authentication</label>
+      </div>
     </div>
   );
 }
