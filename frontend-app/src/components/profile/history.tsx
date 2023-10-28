@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { getUserID } from "../../cookies";
 import { User } from "./profile";
 
 export type Game = {
@@ -16,7 +15,8 @@ function displayGame(game: Game) {
   const dateString = splitDate[0] + " " + splitDate[1].split(".")[0];
   return (
     <p>
-      {game.didIWin ? "Won" : "Lost"} game against {game.otherPlayerName} :{" "}
+      {game.didIWin ? "Won" : "Lost"} game against{" "}
+      <a href={"/user/" + game.otherPlayerID}>{game.otherPlayerName}</a> :{" "}
       {game.myScore} - {game.otherPlayerScore} ({dateString})
     </p>
   );
@@ -31,18 +31,19 @@ function displayStats(games: Game[]) {
   if (games === undefined) return <div></div>;
   const nbWins = games.filter((game: Game) => game.didIWin === true).length;
   const nbLose = games.filter((game: Game) => game.didIWin === false).length;
-  const winrate = (nbWins / games.length).toFixed(2);
-  const averageScore = (
+  const winrate = nbWins / games.length;
+  const averageScore =
     games.map((game: Game) => game.myScore).reduce((p, c) => p + c, 0) /
-    games.length
-  ).toFixed(2);
+    games.length;
   return (
     <div>
       <p>Played games : {games.length}</p>
       <p>Won games : {nbWins}</p>
       <p>Lost games : {nbLose}</p>
-      <p>Win Rate : {winrate}</p>
-      <p>Average Score : {averageScore}</p>
+      <p>Win Rate : {isNaN(winrate) ? "-" : winrate.toFixed(2)}</p>
+      <p>
+        Average Score : {isNaN(averageScore) ? "-" : averageScore.toFixed(2)}
+      </p>
     </div>
   );
 }
@@ -91,12 +92,8 @@ function GameHistory(isMyPage: boolean, user: User, cookies: any) {
     }
   }, [user]);
 
-  useEffect(() => {
-    console.log("Games", games);
-  }, [games]);
-
   if (user === undefined) {
-    return <div>USER IS UNDEFINED</div>;
+    return <div></div>;
   }
 
   return (

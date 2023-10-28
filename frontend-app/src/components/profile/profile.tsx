@@ -2,11 +2,10 @@ import { useContext, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useState } from "react";
 import { useCookies } from "react-cookie";
-import { getIs2faEnabled, getUserID } from "../../cookies";
+import { getUserID } from "../../cookies";
 import { WebSocketContext } from "../../contexts/WebsocketContext";
 import defaultProfilePicture from "./profilePicture.jpg";
 import FriendsList from "./friendsList";
-import Stats from "./stats";
 import GameHistory from "./history";
 import ProfileSettings from "./profileSettings";
 
@@ -50,8 +49,8 @@ function interactWithUser(isMyPage: boolean, user: User) {
 function editProfile(
   isMyPage: boolean,
   user: User,
-  isEditingProfile,
-  setIsEditingProfile
+  isEditingProfile: any,
+  setIsEditingProfile: any
 ) {
   if (user === undefined) return <div />;
   if (!isMyPage) return <div></div>;
@@ -72,7 +71,6 @@ function Profile() {
   var userID = useParams().id;
   const [user, setUser] = useState<User>();
   const [isMyPage, setIsMyPage] = useState(false);
-  const [is2faEnabled, setIs2faEnabled] = useState(false);
   const [cookies] = useCookies(["cookie-name"]);
   const socket = useContext(WebSocketContext);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -99,8 +97,6 @@ function Profile() {
           email: data.email,
           login42: data.login42 ? data.login42 : "",
         });
-        console.log("fetching user");
-        console.log(data);
       }
     );
   }
@@ -109,9 +105,6 @@ function Profile() {
     if (getUserID(cookies).toString() === userID) {
       socket.emit("login", cookies["token"]);
       setIsMyPage(true);
-      if (getIs2faEnabled(cookies)) {
-        setIs2faEnabled(true);
-      }
     }
 
     fetchUser();
@@ -126,7 +119,7 @@ function Profile() {
       {interactWithUser(isMyPage, user)}
       {editProfile(isMyPage, user, isEditingProfile, setIsEditingProfile)}
       {ProfileSettings(user, cookies, isEditingProfile, setIsEditingProfile)}
-      {FriendsList(isMyPage, user)}
+      {FriendsList(isMyPage, user, cookies)}
       {GameHistory(isMyPage, user, cookies)}
     </div>
   );
