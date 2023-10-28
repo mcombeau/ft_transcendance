@@ -6,7 +6,7 @@
 	- match history (1v1 game, ladder) X
 	- friends list
 		- status (online, offline, in a game ... )
-	- stats (wins and losses, ladder level, achievements ...)
+	- stats (wins and losses, ladder level, achievements ...) X
 
 - My profile
 	- change username X
@@ -51,3 +51,7 @@ Nice to have:
 
 - notifs dans la navbar
 - pop up de notification
+
+Bonus: 
+
+- achievements (display in profile)
