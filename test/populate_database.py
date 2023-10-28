@@ -25,24 +25,21 @@ def print_header() -> None:
 # ---------------------------
 # Requests
 # ---------------------------
-def get_url_content(url: str, verbose: bool = False) -> bytes:
+def get_from_url(url: str, verbose: bool = False) -> Res:
     header: dict[str, str] = {"User-Agent":USER_AGENT}
     r: Res = requests.get(url, headers = header, timeout = 5)
     r.raise_for_status()
     if verbose:
-        print(f'{color.SUCCESS}URL OK ({r.status_code} response): {url}{color.RESET}')
-    return r.content
+        print(f'{color.SUCCESS}OK ({r.status_code} response): {url}{color.RESET}')
+    return r
 
-def post_to_url(url: str, body: dict[str, str], verbose: bool = False) -> bytes:
+def post_to_url(url: str, body: dict[str, str]) -> Res:
     header: dict[str, str] = {"User-Agent":USER_AGENT}
     r: Res = requests.post(url, headers = header, json = body, timeout = 5)
     r.raise_for_status()
-    if verbose:
-        print(f'{color.SUCCESS}URL OK ({r.status_code} response): {url}{color.RESET}')
-    return r.content
+    return r
 
 def create_user(username: str, password: str) -> None:
-    print(f'Creating user: {username} (password: {password}):{color.RESET}')
     try:
         url: str = 'http://localhost:3001/users'
         body: dict[str, str] = {
@@ -50,18 +47,22 @@ def create_user(username: str, password: str) -> None:
             "password": password,
             "email": username + '@mail.com'
         }
-        post_to_url(url, body, True)
-        print(f'{color.SUCCESS}Created user: {username} (password: {password}){color.RESET}')
+        print(f'Creating user: {body}{color.RESET}')
+        r: Res = post_to_url(url, body)
+        print(f'{color.SUCCESS}+ Status OK ({r.status_code} response): {url}{color.RESET}')
     except Exception as e:
-        print(f'{color.ERROR}Could not create user: {username} with password {password}: {e}{color.RESET}')
+        print(f'{color.ERROR}+ Error: {e}{color.RESET}')
 
 # ---------------------------
 # Main
 # ---------------------------
 def populate_database() -> None:
     try:
-        get_url_content('http://localhost:3001', True)
-        create_user('xxx', 'pass')
+        get_from_url('http://localhost:3001', True)
+        create_user('alice', 'pass')
+        create_user('bob', 'pass')
+        create_user('chloe', 'pass')
+        create_user('dante', 'pass')
     except Exception as e:
         print(f'{color.ERROR}Error: {e}{color.RESET}')
 
