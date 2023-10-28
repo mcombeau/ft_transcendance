@@ -4,8 +4,9 @@
 	- display username + 42 login X
 	- display avatar X
 	- match history (1v1 game, ladder) X
-	- friends list
+	- friends list X
 		- status (online, offline, in a game ... )
+		- invites (buttons)
 	- stats (wins and losses, ladder level, achievements ...) X
 
 - My profile
