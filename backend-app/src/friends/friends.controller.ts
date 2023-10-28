@@ -50,6 +50,20 @@ export class FriendsController {
     return this.friendService.fetchFriends();
   }
 
+  @Get()
+  @ApiOkResponse({
+    type: sendFriendDto,
+    description: 'Get one friend relationship.',
+  })
+  getOneFriendByUserIDs(
+    @Body() friendDto: createFriendDto,
+  ): Promise<sendFriendDto> {
+    return this.friendService.fetchFriendByUserIDs(
+      friendDto.userID1,
+      friendDto.userID2,
+    );
+  }
+
   @Post()
   @ApiCreatedResponse({
     type: FriendEntity,

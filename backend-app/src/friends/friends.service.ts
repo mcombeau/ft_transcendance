@@ -55,7 +55,10 @@ export class FriendsService {
     return this.formatFriendArrayForSending(friends);
   }
 
-  async fetchFriendByUserIDs(userID1: number, userID2): Promise<FriendEntity> {
+  async fetchFriendEntityByUserIDs(
+    userID1: number,
+    userID2: number,
+  ): Promise<FriendEntity> {
     const user1 = await this.userService.fetchUserByID(userID1);
     const user2 = await this.userService.fetchUserByID(userID2);
     if (!user1 || !user2) throw new BadRequestException('User not found');
@@ -73,6 +76,15 @@ export class FriendsService {
       relations: ['user1', 'user2'],
     });
     return foundRecord;
+  }
+
+  async fetchFriendByUserIDs(
+    userID1: number,
+    userID2: number,
+  ): Promise<sendFriendDto> {
+    return this.formatFriendForSending(
+      await this.fetchFriendEntityByUserIDs(userID1, userID2),
+    );
   }
 
   async createFriend(friendDetails: createFriendParams): Promise<FriendEntity> {
@@ -120,7 +132,7 @@ export class FriendsService {
   async deleteFriendByUserIDs(
     friendDetails: updateFriendParams,
   ): Promise<DeleteResult> {
-    const friend_relationship = await this.fetchFriendByUserIDs(
+    const friend_relationship = await this.fetchFriendEntityByUserIDs(
       friendDetails.userID1,
       friendDetails.userID2,
     );
