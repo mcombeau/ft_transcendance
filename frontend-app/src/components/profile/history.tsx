@@ -31,10 +31,11 @@ function displayStats(games: Game[]) {
   if (games === undefined) return <div></div>;
   const nbWins = games.filter((game: Game) => game.didIWin === true).length;
   const nbLose = games.filter((game: Game) => game.didIWin === false).length;
-  const winrate = nbWins / nbLose;
-  const averageScore =
+  const winrate = (nbWins / games.length).toFixed(2);
+  const averageScore = (
     games.map((game: Game) => game.myScore).reduce((p, c) => p + c, 0) /
-    games.length;
+    games.length
+  ).toFixed(2);
   return (
     <div>
       <p>Played games : {games.length}</p>
