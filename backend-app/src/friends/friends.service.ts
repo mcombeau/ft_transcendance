@@ -82,9 +82,14 @@ export class FriendsService {
     userID1: number,
     userID2: number,
   ): Promise<sendFriendDto> {
-    return this.formatFriendForSending(
-      await this.fetchFriendEntityByUserIDs(userID1, userID2),
+    const friendEntity = await this.fetchFriendEntityByUserIDs(
+      userID1,
+      userID2,
     );
+    if (!friendEntity) {
+      throw new BadRequestException('Could not find friend relation');
+    }
+    return this.formatFriendForSending(friendEntity);
   }
 
   async createFriend(friendDetails: createFriendParams): Promise<FriendEntity> {
