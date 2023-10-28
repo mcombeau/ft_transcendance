@@ -33,10 +33,18 @@ function FriendsList(isMyPage: boolean, user: User, cookies: any) {
           return <h1>No Friends loaded</h1>;
         }
         var fetchedFriends = friendsData.map((fetchedFriend: any) => {
-          var newFriend: Friend = {
-            id: fetchedFriend.userID,
-            username: fetchedFriend.username,
-          };
+          const amIUser1 = fetchedFriend.userID1 === user.id;
+          if (!amIUser1) {
+            var newFriend: Friend = {
+              id: fetchedFriend.userID1,
+              username: fetchedFriend.username1,
+            };
+          } else {
+            var newFriend: Friend = {
+              id: fetchedFriend.userID2,
+              username: fetchedFriend.username2,
+            };
+          }
           return newFriend;
         });
         setFriends([...fetchedFriends]);

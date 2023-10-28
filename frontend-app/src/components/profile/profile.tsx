@@ -33,13 +33,35 @@ function userDetails(isMyPage: boolean, user: User) {
   );
 }
 
-function interactWithUser(isMyPage: boolean, user: User) {
+function befriend(user: User, cookies: any) {
+  console.log("Befriending");
+  var request = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${cookies["token"]}`,
+    },
+    body: JSON.stringify({
+      userID1: getUserID(cookies),
+      userID2: user.id,
+    }),
+  };
+  fetch(`http://localhost:3001/friends`, request).then(async (response) => {
+    console.log("response");
+    console.log(response);
+    if (!response.ok) {
+      console.log("Error adding friend");
+    }
+  });
+}
+
+function interactWithUser(isMyPage: boolean, user: User, cookies: any) {
   if (user === undefined) return <div />;
   if (isMyPage) return <p></p>;
   // TODO: add unfriend logic
   return (
     <p>
-      <button>Add friend</button>
+      <button onClick={() => befriend(user, cookies)}>Add friend</button>
       <button>Block user</button>
       <button>Send DM</button>
     </p>
@@ -116,7 +138,7 @@ function Profile() {
       {!userExists ? "User is not logged in" : ""}
       {titleProfile(isMyPage, user)}
       {userDetails(isMyPage, user)}
-      {interactWithUser(isMyPage, user)}
+      {interactWithUser(isMyPage, user, cookies)}
       {editProfile(isMyPage, user, isEditingProfile, setIsEditingProfile)}
       {ProfileSettings(user, cookies, isEditingProfile, setIsEditingProfile)}
       {FriendsList(isMyPage, user, cookies)}
