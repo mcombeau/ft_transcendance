@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { getUserID } from "../../cookies";
 import { User } from "./profile";
 
 export type Game = {
@@ -16,7 +15,8 @@ function displayGame(game: Game) {
   const dateString = splitDate[0] + " " + splitDate[1].split(".")[0];
   return (
     <p>
-      {game.didIWin ? "Won" : "Lost"} game against {game.otherPlayerName} :{" "}
+      {game.didIWin ? "Won" : "Lost"} game against{" "}
+      <a href={"/user/" + game.otherPlayerID}>{game.otherPlayerName}</a> :{" "}
       {game.myScore} - {game.otherPlayerScore} ({dateString})
     </p>
   );
