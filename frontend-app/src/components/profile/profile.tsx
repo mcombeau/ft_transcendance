@@ -99,8 +99,6 @@ function Profile() {
           email: data.email,
           login42: data.login42 ? data.login42 : "",
         });
-        console.log("fetching user");
-        console.log(data);
       }
     );
   }
@@ -126,7 +124,7 @@ function Profile() {
       {interactWithUser(isMyPage, user)}
       {editProfile(isMyPage, user, isEditingProfile, setIsEditingProfile)}
       {ProfileSettings(user, cookies, isEditingProfile, setIsEditingProfile)}
-      {FriendsList(isMyPage, user)}
+      {FriendsList(isMyPage, user, cookies)}
       {GameHistory(isMyPage, user, cookies)}
     </div>
   );

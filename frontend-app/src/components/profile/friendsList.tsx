@@ -1,7 +1,65 @@
+import { useEffect, useState } from "react";
 import { User } from "./profile";
 
-function FriendsList(isMyPage: boolean, user: User) {
-  return <h3>Friend list:</h3>;
+export type Friend = {
+  id: number;
+  username: string;
+};
+
+function displayFriend(friend: Friend) {
+  return <a href={"/users/" + friend.id}>{friend.username}</a>;
+}
+
+function displayFriends(friends: Friend[]) {
+  if (friends === undefined) return <p>No friends</p>;
+  return friends.map(displayFriend);
+}
+
+function FriendsList(isMyPage: boolean, user: User, cookies: any) {
+  const [friends, setFriends] = useState<Friend[]>();
+
+  async function fetchFriends(userID: number, cookies: any) {
+    var request = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${cookies["token"]}`,
+      },
+    };
+    fetch(`http://localhost:3001/users/${userID}/friends`, request).then(
+      async (response) => {
+        const friendsData = await response.json();
+        if (!response.ok) {
+          console.log("error response loading friends list");
+          return <h1>No Friends loaded</h1>;
+        }
+        var fetchedFriends = friendsData.map((fetchedFriend: any) => {
+          var newFriend: Friend = {
+            id: fetchedFriend.userID,
+            username: fetchedFriend.username,
+          };
+          return newFriend;
+        });
+        setFriends([...fetchedFriends]);
+      }
+    );
+  }
+
+  useEffect(() => {
+    if (user !== undefined) {
+      fetchFriends(user.id, cookies);
+    }
+  }, [user]);
+
+  if (user === undefined) {
+    return <div></div>;
+  }
+
+  return (
+    <div>
+      <h3>Friends list:</h3>
+      {displayFriends(friends)}
+    </div>
+  );
 }
 
 export default FriendsList;
