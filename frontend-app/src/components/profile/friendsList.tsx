@@ -7,7 +7,7 @@ export type Friend = {
 };
 
 function displayFriend(friend: Friend) {
-  return <a href={"/users/" + friend.id}>{friend.username}</a>;
+  return <a href={"/user/" + friend.id}>{friend.username}</a>;
 }
 
 function displayFriends(friends: Friend[]) {
