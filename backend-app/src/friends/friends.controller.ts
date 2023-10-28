@@ -30,6 +30,20 @@ import { FriendEntity } from 'src/friends/entities/Friend.entity';
 export class FriendsController {
   constructor(private friendService: FriendsService) {}
 
+  @Get('friend')
+  @ApiOkResponse({
+    type: sendFriendDto,
+    description: 'Get one friend relationship.',
+  })
+  getOneFriendByUserIDs(
+    @Body() friendDto: createFriendDto,
+  ): Promise<sendFriendDto> {
+    return this.friendService.fetchFriendByUserIDs(
+      friendDto.userID1,
+      friendDto.userID2,
+    );
+  }
+
   @Get(':id')
   @ApiOkResponse({
     type: sendFriendDto,
@@ -48,20 +62,6 @@ export class FriendsController {
   })
   getAllFriends(): Promise<sendFriendDto[]> {
     return this.friendService.fetchFriends();
-  }
-
-  @Get()
-  @ApiOkResponse({
-    type: sendFriendDto,
-    description: 'Get one friend relationship.',
-  })
-  getOneFriendByUserIDs(
-    @Body() friendDto: createFriendDto,
-  ): Promise<sendFriendDto> {
-    return this.friendService.fetchFriendByUserIDs(
-      friendDto.userID1,
-      friendDto.userID2,
-    );
   }
 
   @Post()
