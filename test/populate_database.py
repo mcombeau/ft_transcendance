@@ -1,4 +1,6 @@
+from typing import Dict
 import requests
+import time
 
 Res = requests.Response
 
@@ -25,6 +27,17 @@ def print_header() -> None:
 # ---------------------------
 # Requests
 # ---------------------------
+def wait_for_database(url: str) -> None:
+    while 1:
+        try:
+            get_from_url(url)
+            print(f'{color.SUCCESS}+ Database connection established on {url}.{color.RESET}')
+            break
+        except Exception or ConnectionResetError:
+            print(f'Waiting for database connection...')
+            time.sleep(2)
+            continue
+
 def get_from_url(url: str, verbose: bool = False) -> Res:
     header: dict[str, str] = {"User-Agent":USER_AGENT}
     r: Res = requests.get(url, headers = header, timeout = 5)
@@ -53,16 +66,36 @@ def create_user(username: str, password: str) -> None:
     except Exception as e:
         print(f'{color.ERROR}+ Error: {e}{color.RESET}')
 
+def login_user(username: str, password: str) -> str:
+    try:
+        url: str = 'http://localhost:3001/auth/login'
+        body: dict[str, str] = {
+            "username": username,
+            "password": password,
+        }
+        print(f'Logging in with user: {body}{color.RESET}')
+        r: Res = post_to_url(url, body)
+        print(f'{color.SUCCESS}+ Status OK ({r.status_code} response): {url}{color.RESET}')
+        return r.json()['access_token']
+    except Exception as e:
+        print(f'{color.ERROR}+ Error: {e}{color.RESET}')
+        return ''
+
+def create_users() -> None:
+    create_user('alice', 'pass')
+    create_user('bob', 'pass')
+    create_user('chloe', 'pass')
+    create_user('dante', 'pass')
+
 # ---------------------------
 # Main
 # ---------------------------
 def populate_database() -> None:
     try:
-        get_from_url('http://localhost:3001', True)
-        create_user('alice', 'pass')
-        create_user('bob', 'pass')
-        create_user('chloe', 'pass')
-        create_user('dante', 'pass')
+        wait_for_database('http://localhost:3000')
+        create_users()
+        token: str = login_user('alice', 'pass')
+        print(f'Token = {token}')
     except Exception as e:
         print(f'{color.ERROR}Error: {e}{color.RESET}')
 
