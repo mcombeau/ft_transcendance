@@ -1,7 +1,7 @@
 import { QRCodeRaw } from "@cheprasov/qrcode";
 import { User } from "./profile";
 import { useEffect, useState } from "react";
-import { getUserID } from "../../cookies";
+import { getIs2faEnabled, getUserID } from "../../cookies";
 
 function ProfileSettings(
   user: User,
@@ -9,21 +9,18 @@ function ProfileSettings(
   isEditingProfile,
   setIsEditingProfile
 ) {
-  // TODO: put 2fa checkbox in edit profile menu
-  // <input
-  //   type="checkbox"
-  //   checked={is2faEnabled}
-  //   onChange={() => {
-  //     enable2Fa();
-  //   }} />
   const [newUsername, setNewUsername] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [is2faEnabled, setIs2faEnabled] = useState(false);
 
   useEffect(() => {
     if (user !== undefined) setNewUsername(user.username);
     if (user !== undefined) setNewEmail(user.email);
+    if (getIs2faEnabled(cookies)) {
+      setIs2faEnabled(true);
+    }
   }, [user]);
 
   async function enable2Fa() {
@@ -154,6 +151,13 @@ function ProfileSettings(
       ) : (
         <div />
       )}
+      <input
+        type="checkbox"
+        checked={is2faEnabled}
+        onChange={() => {
+          enable2Fa();
+        }}
+      />
     </div>
   );
 }
