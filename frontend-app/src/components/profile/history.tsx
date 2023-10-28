@@ -12,10 +12,12 @@ export type Game = {
 };
 
 function displayGame(game: Game) {
+  const splitDate = game.date.toString().split("T");
+  const dateString = splitDate[0] + " " + splitDate[1].split(".")[0];
   return (
     <p>
       {game.didIWin ? "Won" : "Lost"} game against {game.otherPlayerName} :{" "}
-      {game.myScore} - {game.otherPlayerScore} ({game.date.toString()})
+      {game.myScore} - {game.otherPlayerScore} ({dateString})
     </p>
   );
 }
@@ -25,7 +27,26 @@ function displayGames(games: Game[]) {
   return games.map(displayGame);
 }
 
-function History(isMyPage: boolean, user: User, cookies: any) {
+function displayStats(games: Game[]) {
+  if (games === undefined) return <div></div>;
+  const nbWins = games.filter((game: Game) => game.didIWin === true).length;
+  const nbLose = games.filter((game: Game) => game.didIWin === false).length;
+  const winrate = nbWins / nbLose;
+  const averageScore =
+    games.map((game: Game) => game.myScore).reduce((p, c) => p + c, 0) /
+    games.length;
+  return (
+    <div>
+      <p>Played games : {games.length}</p>
+      <p>Won games : {nbWins}</p>
+      <p>Lost games : {nbLose}</p>
+      <p>Win Rate : {winrate}</p>
+      <p>Average Score : {averageScore}</p>
+    </div>
+  );
+}
+
+function GameHistory(isMyPage: boolean, user: User, cookies: any) {
   const [games, setGames] = useState<Game[]>();
 
   async function fetchGames(userID: number, cookies: any) {
@@ -35,7 +56,6 @@ function History(isMyPage: boolean, user: User, cookies: any) {
         Authorization: `Bearer ${cookies["token"]}`,
       },
     };
-    console.log("FETCH");
     fetch(`http://localhost:3001/users/${userID}/games`, request).then(
       async (response) => {
         const gamesData = await response.json();
@@ -82,8 +102,10 @@ function History(isMyPage: boolean, user: User, cookies: any) {
     <div>
       <h3>History:</h3>
       {displayGames(games)}
+      <h3>Stats:</h3>
+      {displayStats(games)}
     </div>
   );
 }
 
-export default History;
+export default GameHistory;

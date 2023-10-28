@@ -7,7 +7,7 @@ import { WebSocketContext } from "../../contexts/WebsocketContext";
 import defaultProfilePicture from "./profilePicture.jpg";
 import FriendsList from "./friendsList";
 import Stats from "./stats";
-import History from "./history";
+import GameHistory from "./history";
 import ProfileSettings from "./profileSettings";
 
 export type User = {
@@ -127,8 +127,7 @@ function Profile() {
       {editProfile(isMyPage, user, isEditingProfile, setIsEditingProfile)}
       {ProfileSettings(user, cookies, isEditingProfile, setIsEditingProfile)}
       {FriendsList(isMyPage, user)}
-      {Stats(isMyPage, user)}
-      {History(isMyPage, user, cookies)}
+      {GameHistory(isMyPage, user, cookies)}
     </div>
   );
 }
