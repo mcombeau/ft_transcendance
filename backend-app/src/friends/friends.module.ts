@@ -12,5 +12,6 @@ import { UsersModule } from 'src/users/users.module';
   ],
   controllers: [FriendsController],
   providers: [FriendsService],
+  exports: [FriendsService],
 })
 export class FriendsModule {}

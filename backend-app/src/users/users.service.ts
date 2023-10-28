@@ -10,9 +10,11 @@ import { updateUserParams } from 'src/users/utils/types';
 import { Repository, UpdateResult, DeleteResult } from 'typeorm';
 import { ChatsService } from 'src/chats/chats.service';
 import { GamesService } from 'src/games/games.service';
+import { FriendsService } from 'src/friends/friends.service';
 import { sendParticipantDto } from 'src/chat-participants/dtos/sendChatParticipant.dto';
 import { BadRequestException } from '@nestjs/common';
 import { sendGameDto } from 'src/games/dtos/sendGame.dto';
+import { sendFriendDto } from 'src/friends/dtos/sendFriend.dto';
 
 @Injectable()
 export class UsersService {
@@ -25,6 +27,8 @@ export class UsersService {
     private chatsService: ChatsService,
     @Inject(forwardRef(() => GamesService))
     private gameService: GamesService,
+    @Inject(forwardRef(() => FriendsService))
+    private friendService: FriendsService,
   ) {}
 
   fetchUsers(): Promise<UserEntity[]> {
@@ -78,16 +82,10 @@ export class UsersService {
 
   async fetchUserGamesByUserID(userID: number): Promise<sendGameDto[]> {
     return this.gameService.fetchGamesByUserID(userID);
-    // const user = await this.userRepository
-    //   .findOne({
-    //     where: { id: userID },
-    //     relations: ['wonGames', 'lostGames'],
-    //   })
-    //   .catch((e) => {
-    //     console.log('[User Service]: ', e);
-    //     throw new UserNotFoundError();
-    //   });
-    // return [...user.wonGames, ...user.lostGames];
+  }
+
+  async fetchUserFriendsByUserID(userID: number): Promise<sendFriendDto[]> {
+    return this.friendService.fetchFriendsByUserID(userID);
   }
 
   async fetchUserChatDMsByUserID(id: number): Promise<ChatEntity[]> {

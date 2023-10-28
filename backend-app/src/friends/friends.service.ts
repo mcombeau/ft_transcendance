@@ -60,7 +60,7 @@ export class FriendsService {
       throw new BadRequestException('Cannot friend yourself !');
     const user1 = await this.userService.fetchUserByID(friendDetails.userID1);
     const user2 = await this.userService.fetchUserByID(friendDetails.userID2);
-    // if (!user1 || !user2) throw new BadRequestException('User not found');
+    if (!user1 || !user2) throw new BadRequestException('User not found');
     const foundRecord = await this.friendRepository.find({
       where: [
         {
