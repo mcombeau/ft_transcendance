@@ -34,7 +34,7 @@ function userDetails(isMyPage: boolean, user: User) {
 }
 
 function befriend(user: User, cookies: any) {
-  console.log("Befriending");
+  // TODO: rather create friendship invite
   var request = {
     method: "POST",
     headers: {
@@ -55,13 +55,47 @@ function befriend(user: User, cookies: any) {
   });
 }
 
+function unfriend(user: User, cookies: any) {}
+
+function checkIfIsMyFriend(user: User, cookies: any) {
+  var request = {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${cookies["token"]}`,
+    },
+    body: JSON.stringify({
+      userID1: getUserID(cookies),
+      userID2: user.id,
+    }),
+  };
+  return fetch(`http://localhost:3001/friends/friend`, request).then(
+    async (response) => {
+      if (!response.ok) {
+        return false;
+      }
+      return true;
+    }
+  );
+}
+
 function interactWithUser(isMyPage: boolean, user: User, cookies: any) {
   if (user === undefined) return <div />;
   if (isMyPage) return <p></p>;
-  // TODO: add unfriend logic
+  const isMyFriend = checkIfIsMyFriend(user, cookies);
+  var friendshipButton: any;
+  if (isMyFriend) {
+    friendshipButton = (
+      <button onClick={() => unfriend(user, cookies)}>Unfriend</button>
+    );
+  } else {
+    friendshipButton = (
+      <button onClick={() => befriend(user, cookies)}>Add friend</button>
+    );
+  }
   return (
     <p>
-      <button onClick={() => befriend(user, cookies)}>Add friend</button>
+      {friendshipButton}
       <button>Block user</button>
       <button>Send DM</button>
     </p>
@@ -132,6 +166,7 @@ function Profile() {
     fetchUser();
   }, [cookies, socket, userID]);
 
+  // TODO: add friendship invite section
   return (
     <div>
       <img src={defaultProfilePicture} width="100" height="100"></img>
