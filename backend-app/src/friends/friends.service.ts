@@ -55,6 +55,26 @@ export class FriendsService {
     return this.formatFriendArrayForSending(friends);
   }
 
+  async fetchFriendByUserIDs(userID1: number, userID2): Promise<FriendEntity> {
+    const user1 = await this.userService.fetchUserByID(userID1);
+    const user2 = await this.userService.fetchUserByID(userID2);
+    if (!user1 || !user2) throw new BadRequestException('User not found');
+    const foundRecord = await this.friendRepository.findOne({
+      where: [
+        {
+          user1: { id: user1.id },
+          user2: { id: user2.id },
+        },
+        {
+          user1: { id: user2.id },
+          user2: { id: user1.id },
+        },
+      ],
+      relations: ['user1', 'user2'],
+    });
+    return foundRecord;
+  }
+
   async createFriend(friendDetails: createFriendParams): Promise<FriendEntity> {
     if (friendDetails.userID1 === friendDetails.userID2)
       throw new BadRequestException('Cannot friend yourself !');
@@ -95,5 +115,16 @@ export class FriendsService {
 
   async deleteFriendByID(id: number): Promise<DeleteResult> {
     return this.friendRepository.delete({ id });
+  }
+
+  async deleteFriendByUserIDs(
+    friendDetails: updateFriendParams,
+  ): Promise<DeleteResult> {
+    const friend_relationship = await this.fetchFriendByUserIDs(
+      friendDetails.userID1,
+      friendDetails.userID2,
+    );
+    if (friend_relationship)
+      return this.deleteFriendByID(friend_relationship.id);
   }
 }

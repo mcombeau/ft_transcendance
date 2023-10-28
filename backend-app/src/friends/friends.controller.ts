@@ -76,6 +76,18 @@ export class FriendsController {
     return this.friendService.updateFriendByID(id, updateFriendDto);
   }
 
+  @Delete()
+  @ApiOkResponse({ description: 'Record deleted by user IDs.' })
+  @ApiBadRequestResponse({ description: 'Bad request' })
+  @ApiUnprocessableEntityResponse({
+    description: 'Database error. (Unprocessable entity)',
+  })
+  deleteFriendByUserIDs(
+    @Body() updateFriendDto: updateFriendDto,
+  ): Promise<DeleteResult> {
+    return this.friendService.deleteFriendByUserIDs(updateFriendDto);
+  }
+
   @Delete(':id')
   @ApiOkResponse({ description: 'Record deleted by ID.' })
   @ApiBadRequestResponse({ description: 'Bad request' })
