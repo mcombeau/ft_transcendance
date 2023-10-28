@@ -92,12 +92,8 @@ function GameHistory(isMyPage: boolean, user: User, cookies: any) {
     }
   }, [user]);
 
-  useEffect(() => {
-    console.log("Games", games);
-  }, [games]);
-
   if (user === undefined) {
-    return <div>USER IS UNDEFINED</div>;
+    return <div></div>;
   }
 
   return (
