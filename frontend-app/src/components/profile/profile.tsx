@@ -59,7 +59,7 @@ function unfriend(user: User, cookies: any) {}
 
 function checkIfIsMyFriend(user: User, cookies: any) {
   var request = {
-    method: "GET",
+    method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${cookies["token"]}`,

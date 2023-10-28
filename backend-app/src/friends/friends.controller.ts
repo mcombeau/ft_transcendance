@@ -30,7 +30,7 @@ import { FriendEntity } from 'src/friends/entities/Friend.entity';
 export class FriendsController {
   constructor(private friendService: FriendsService) {}
 
-  @Get('friend')
+  @Post('friend')
   @ApiOkResponse({
     type: sendFriendDto,
     description: 'Get one friend relationship.',
