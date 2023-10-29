@@ -7,6 +7,7 @@ import Chat from "./components/chat/Chat";
 import Play from "./components/play/play";
 import Leaderboard from "./components/leaderboard/leaderboard";
 import Profile from "./components/profile/profile";
+import Logout from "./components/logout";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/play" element={<Play />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/user/:id" element={<Profile />} />
+          <Route path="/logout" element={<Logout />} />
         </Routes>
       </Router>
     </>
