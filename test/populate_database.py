@@ -173,7 +173,7 @@ def create_friendship(users: dict[str, dict[str, str]],
         "userID1": users[user1]['id'],
         "userID2": users[user2]['id']
     }
-    print(f'{body}')
+    print(f'Creating friendship {body}')
     post_to_url('http://localhost:3001/friends', body, users[user1]['token'])
 
 def create_friends(users: dict[str, dict[str, str]]) -> None:
@@ -181,6 +181,25 @@ def create_friends(users: dict[str, dict[str, str]]) -> None:
     create_friendship(users, 'alice', 'bob')
     create_friendship(users, 'chloe', 'bob')
     create_friendship(users, 'dante', 'chloe')
+
+# ---------------------------
+# Chat Room Creation
+# ---------------------------
+def create_chat_room(users: dict[str, dict[str, str]],
+                chat_room_name: str,
+                owner: str) -> None:
+    body: dict[str, Any] = {
+        "name": chat_room_name,
+        "ownerID": users[owner]['id']
+    }
+    print(f'Creating chat room {body}')
+    post_to_url('http://localhost:3001/chats', body, users[owner]['token'])
+
+def create_chats(users: dict[str, dict[str, str]]) -> None:
+    print_header('Creating chat rooms')
+    create_chat_room(users, 'ooo', 'alice')
+    create_chat_room(users, 'YOLO', 'bob')
+    create_chat_room(users, 'ClapClap', 'alice')
 
 # ---------------------------
 # Main
@@ -193,6 +212,7 @@ def populate_database() -> None:
         print_users(userInfo)
         create_friends(userInfo)
         create_games(userInfo)
+        create_chats(userInfo)
     except Exception as e:
         print(f"{color.ERROR}Error: {e}{color.RESET}")
 
