@@ -1,7 +1,18 @@
-import { QRCodeRaw } from "@cheprasov/qrcode";
 import { User } from "./profile";
 import { useEffect, useState } from "react";
 import { getIs2faEnabled, getUserID } from "../../cookies";
+
+async function readStream(response: any) {
+  const reader = response.body.getReader();
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) {
+      // Do something with last chunk of data then exit reader
+      return value;
+    }
+    // Otherwise do something here to process current chunk
+  }
+}
 
 function ProfileSettings(
   user: User,
@@ -14,6 +25,7 @@ function ProfileSettings(
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [is2faEnabled, setIs2faEnabled] = useState(false);
+  const [qrcode, setQrcode] = useState();
 
   useEffect(() => {
     if (user !== undefined) setNewUsername(user.username);
@@ -32,21 +44,18 @@ function ProfileSettings(
         Authorization: `Bearer ${cookies["token"]}`,
       },
     };
-    await fetch("http://localhost:3001/auth/2fa/generate", request).then(
+    return await fetch("http://localhost:3001/auth/2fa/generate", request).then(
       async (response) => {
         const data = await response.json();
         if (!response.ok) {
           console.log("error QR code generation");
           return;
         }
-        // TODO display QR code somehow
-        console.log("GENERATE");
-        const code = new QRCodeRaw(response["body"]);
-        console.log(code);
+        console.log(data);
+        setQrcode(data);
       }
     );
-    // TODO: post request to generate
-    // TODO: display QR code + field for code with submit
+    // TODO: field for code with submit
     // TODO: post it to turn on and if it works close everything
   }
 
@@ -160,7 +169,10 @@ function ProfileSettings(
           }}
         />
         <label> Enable two-factor authentication</label>
+        <br />
+        {qrcode && <img src={qrcode}></img>}
       </div>
+      <canvas id="canvas"></canvas>
     </div>
   );
 }
