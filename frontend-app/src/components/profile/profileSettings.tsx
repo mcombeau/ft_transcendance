@@ -18,7 +18,8 @@ function ProfileSettings(
   user: User,
   cookies: any,
   isEditingProfile,
-  setIsEditingProfile
+  setIsEditingProfile,
+  setCookie
 ) {
   const [newUsername, setNewUsername] = useState("");
   const [newEmail, setNewEmail] = useState("");
@@ -29,12 +30,17 @@ function ProfileSettings(
   const [twoFaValidationCode, setTwoFaValidationCode] = useState("");
 
   useEffect(() => {
-    if (user !== undefined) setNewUsername(user.username);
-    if (user !== undefined) setNewEmail(user.email);
-    if (getIs2faEnabled(cookies)) {
-      setIs2faEnabled(true);
+    if (user !== undefined) {
+      setNewUsername(user.username);
+      setNewEmail(user.email);
+      setIs2faEnabled(user.isTwoFaEnabled);
     }
   }, [user]);
+
+  useEffect(() => {
+    console.log("Changing 2fa status");
+    setIs2faEnabled(getIs2faEnabled(cookies));
+  }, [cookies]);
 
   async function enable2Fa() {
     var result: Uint8Array;
@@ -67,24 +73,23 @@ function ProfileSettings(
         Authorization: `Bearer ${cookies["token"]}`,
       },
       body: JSON.stringify({
-        twoFactorAuthenticationCode: twoFaValidationCode,
+        twoFactorAuthenticationCode: twoFaValidationCode.toString(),
       }),
     };
 
     fetch(`http://localhost:3001/auth/2fa/turn-on`, request).then(
       async (response) => {
+        const data = await response.json();
         if (!response.ok) {
-          const error = await response.json();
-          alert(
-            "Error with enabling 2fa: " + error.error + ": " + error.message
-          );
+          alert("Error with enabling 2fa: " + data.error + ": " + data.message);
+          return;
         }
-        console.log("Enabling 2fa");
-        console.log(response.body);
       }
     );
-    // setTwoFaValidationCode("");
-    // setQrcode(null);
+
+    setTwoFaValidationCode("");
+    setQrcode(null);
+    setIs2faEnabled(true);
   }
 
   function disable2Fa() {

@@ -98,10 +98,14 @@ export class AuthService {
   }
 
   async loginWith2fa(userWithoutPsw: Partial<UserEntity>) {
+    const user = await this.userService.fetchUserByUsername(
+      userWithoutPsw.username,
+    );
     const payload = {
-      email: userWithoutPsw.email,
-      isTwoFactorAuthenticationEnabled:
-        !!userWithoutPsw.isTwoFactorAuthenticationEnabled,
+      userID: user.id,
+      username: user.username,
+      email: user.email,
+      isTwoFactorAuthenticationEnabled: user.isTwoFactorAuthenticationEnabled,
       isTwoFactorAuthenticated: true,
     };
 

@@ -14,6 +14,7 @@ export type User = {
   username: string;
   email: string;
   login42: string;
+  isTwoFaEnabled: boolean;
 };
 
 function titleProfile(isMyPage: boolean, user: User) {
@@ -154,7 +155,7 @@ function Profile() {
   var userID = useParams().id;
   const [user, setUser] = useState<User>();
   const [isMyPage, setIsMyPage] = useState(false);
-  const [cookies] = useCookies(["cookie-name"]);
+  const [cookies, setCookie, removeCookie] = useCookies(["cookie-name"]);
   const socket = useContext(WebSocketContext);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isMyFriend, setIsMyFriend] = useState(false);
@@ -180,6 +181,7 @@ function Profile() {
           username: data.username,
           email: data.email,
           login42: data.login42 ? data.login42 : "",
+          isTwoFaEnabled: data.isTwoFactorAuthenticationEnabled,
         });
       }
     );
@@ -208,7 +210,13 @@ function Profile() {
       {userDetails(isMyPage, user)}
       {interactWithUser(isMyPage, isMyFriend, user, cookies)}
       {editProfile(isMyPage, user, isEditingProfile, setIsEditingProfile)}
-      {ProfileSettings(user, cookies, isEditingProfile, setIsEditingProfile)}
+      {ProfileSettings(
+        user,
+        cookies,
+        isEditingProfile,
+        setIsEditingProfile,
+        setCookie
+      )}
       {FriendsList(isMyPage, user, cookies)}
       {GameHistory(isMyPage, user, cookies)}
     </div>
