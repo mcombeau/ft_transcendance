@@ -17,7 +17,7 @@ function Login() {
   const [newUsername, setNewUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [email, setEmail] = useState("");
-  const [cookies, setCookie, removeCookie] = useCookies(["cookie-name"]);
+  const [cookies, setCookie, removeCookie] = useCookies();
   const socket = useContext(WebSocketContext);
   let navigate = useNavigate();
 

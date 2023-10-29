@@ -16,12 +16,14 @@ import {
 } from "./NavBar.style";
 import LogoImg from "./../../ping.svg";
 import { WebSocketContext } from "../../contexts/WebsocketContext";
+import { useNavigate } from "react-router-dom";
 
 function Navbar() {
   const [extendNavbar, setExtendNavbar] = useState(false);
-  const [cookies] = useCookies(["cookie-name"]);
+  const [cookies, setCookie, removeCookie] = useCookies(["cookie-name"]);
   const [username, setUsername] = useState(getUsername(cookies));
   const socket = useContext(WebSocketContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (getUsername(cookies) != null) {
@@ -36,7 +38,7 @@ function Navbar() {
   }, []);
 
   return (
-    <NavbarContainer extendnavbar={extendNavbar.toString()}>
+    <NavbarContainer>
       <NavbarInnerContainer>
         <LeftContainer>
           <NavbarLinkContainer>
@@ -45,7 +47,12 @@ function Navbar() {
             <NavbarLink to="/chat"> Chat</NavbarLink>
             <NavbarLink to="/play"> Play Game</NavbarLink>
             <NavbarLink to="/leaderboard"> Leaderboard</NavbarLink>
-            <NavbarLink to={"/user/" + getUserID(cookies)}>Profile</NavbarLink>
+            {username && (
+              <NavbarLink to={"/user/" + getUserID(cookies)}>
+                Profile
+              </NavbarLink>
+            )}
+            {username && <NavbarLink to="/logout">Logout</NavbarLink>}
             <OpenLinksButton
               onClick={() => {
                 setExtendNavbar((curr) => !curr);
