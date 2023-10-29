@@ -216,7 +216,7 @@ def create_chats(users: dict[str, dict[str, str]]) -> None:
     create_chat_room(users, 'Coucou', 'alice')
     create_chat_room(users, 'YOLO', 'bob')
     create_chat_room(users, 'ClapTrap', 'alice')
-    create_chat_room(users, 'Hello World', 'dante')
+    create_chat_room(users, 'HelloWorld', 'dante')
     create_dm_room(users, 'alice', 'dante')
     create_dm_room(users, 'bob', 'chloe')
 
