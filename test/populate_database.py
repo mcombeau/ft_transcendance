@@ -148,7 +148,7 @@ def create_game(
         "winnerScore": winScore,
         "loserScore": loseScore,
     }
-    print(f"{body}")
+    print(f"Creating game {body}")
     post_to_url("http://localhost:3001/games", body, users[winner]["token"])
 
 
@@ -188,18 +188,37 @@ def create_friends(users: dict[str, dict[str, str]]) -> None:
 def create_chat_room(users: dict[str, dict[str, str]],
                 chat_room_name: str,
                 owner: str) -> None:
-    body: dict[str, Any] = {
-        "name": chat_room_name,
-        "ownerID": users[owner]['id']
-    }
-    print(f'Creating chat room {body}')
-    post_to_url('http://localhost:3001/chats', body, users[owner]['token'])
+    try:
+        body: dict[str, Any] = {
+            "name": chat_room_name,
+            "ownerID": users[owner]['id']
+        }
+        print(f'Creating chat room {body}')
+        post_to_url('http://localhost:3001/chats', body, users[owner]['token'])
+    except Exception:
+        return
+
+def create_dm_room(users: dict[str, dict[str, str]],
+                user1: str,
+                user2: str) -> None:
+    try:
+        body: dict[str, Any] = {
+            "userID1": users[user1]['id'],
+            "userID2": users[user2]['id']
+        }
+        print(f'Creating DM {body}')
+        post_to_url('http://localhost:3001/chats/dm', body, users[user1]['token'])
+    except Exception:
+        return
 
 def create_chats(users: dict[str, dict[str, str]]) -> None:
     print_header('Creating chat rooms')
-    create_chat_room(users, 'ooo', 'alice')
+    create_chat_room(users, 'Coucou', 'alice')
     create_chat_room(users, 'YOLO', 'bob')
-    create_chat_room(users, 'ClapClap', 'alice')
+    create_chat_room(users, 'ClapTrap', 'alice')
+    create_chat_room(users, 'Hello World', 'dante')
+    create_dm_room(users, 'alice', 'dante')
+    create_dm_room(users, 'bob', 'chloe')
 
 # ---------------------------
 # Main
