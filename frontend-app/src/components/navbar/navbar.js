@@ -36,7 +36,7 @@ function Navbar() {
   }, []);
 
   return (
-    <NavbarContainer extendNavbar={extendNavbar}>
+    <NavbarContainer extendnavbar={extendNavbar.toString()}>
       <NavbarInnerContainer>
         <LeftContainer>
           <NavbarLinkContainer>
