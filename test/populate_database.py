@@ -1,9 +1,11 @@
 import time
-from tqdm.auto import tqdm
+import typing
 
 import requests
+from tqdm.auto import tqdm
 
 Res = requests.Response
+Any = typing.Any
 
 USER_AGENT = "user_agent"
 URL_USER_CREATION = "http://localhost:3001/users"
@@ -63,9 +65,11 @@ def get_from_url(url: str, verbose: bool = False) -> Res:
     return r
 
 
-def post_to_url(url: str, body: dict[str, str]) -> Res:
+def post_to_url(url: str, body: dict[str, str], token: str = "") -> Res:
     try:
         header: dict[str, str] = {"User-Agent": USER_AGENT}
+        if token != "":
+            header["Authorization"] = "Bearer " + token
         r: Res = requests.post(url, headers=header, json=body, timeout=5)
         r.raise_for_status()
         print(
@@ -77,6 +81,9 @@ def post_to_url(url: str, body: dict[str, str]) -> Res:
         raise Exception(e)
 
 
+# ---------------------------
+# User Creation
+# ---------------------------
 def add_user_to_db(body: dict[str, str]) -> str:
     try:
         print(f"Creating user: {body}{color.RESET}")
@@ -126,6 +133,37 @@ def create_users() -> dict[str, dict[str, str]]:
 
 
 # ---------------------------
+# Games Creation
+# ---------------------------
+def create_game(
+    users: dict[str, dict[str, str]],
+    winner: str,
+    loser: str,
+    winScore: int,
+    loseScore: int,
+) -> None:
+    body: dict[str, Any] = {
+        "winnerID": users[winner]["id"],
+        "loserID": users[loser]["id"],
+        "winnerScore": winScore,
+        "loserScore": loseScore,
+    }
+    print(f"{body}")
+    post_to_url("http://localhost:3001/games", body, users[winner]["token"])
+
+
+def create_games(users: dict[str, dict[str, str]]) -> None:
+    print_header("Creating games")
+    create_game(users, "alice", "bob", 10, 5)
+    create_game(users, "dante", "bob", 7, 1)
+    create_game(users, "chloe", "dante", 9, 2)
+    create_game(users, "dante", "chloe", 5, 0)
+    create_game(users, "alice", "dante", 9, 3)
+    create_game(users, "chloe", "alice", 5, 1)
+    create_game(users, "bob", "dante", 1, 0)
+
+
+# ---------------------------
 # Main
 # ---------------------------
 def populate_database() -> None:
@@ -134,6 +172,7 @@ def populate_database() -> None:
         userInfo: dict[str, dict[str, str]] = create_users()
         print()
         print_users(userInfo)
+        create_games(userInfo)
     except Exception as e:
         print(f"{color.ERROR}Error: {e}{color.RESET}")
 
