@@ -56,8 +56,10 @@ def wait_for_database(url: str) -> None:
             continue
 
 
-def get_from_url(url: str, verbose: bool = False) -> Res:
+def get_from_url(url: str, token: str = '', verbose: bool = False) -> Res:
     header: dict[str, str] = {"User-Agent": USER_AGENT}
+    if token != "":
+        header["Authorization"] = "Bearer " + token
     r: Res = requests.get(url, headers=header, timeout=5)
     r.raise_for_status()
     if verbose:
@@ -186,6 +188,7 @@ def create_friends(users: dict[str, dict[str, str]]) -> None:
 # Chat Room Creation
 # ---------------------------
 def create_chat_room(users: dict[str, dict[str, str]],
+                     chat_rooms: dict[str, str],
                 chat_room_name: str,
                 owner: str) -> None:
     try:
@@ -194,11 +197,20 @@ def create_chat_room(users: dict[str, dict[str, str]],
             "ownerID": users[owner]['id']
         }
         print(f'Creating chat room {body}')
-        post_to_url('http://localhost:3001/chats', body, users[owner]['token'])
+        r: Res = post_to_url('http://localhost:3001/chats', body, users[owner]['token'])
+        chat_rooms[chat_room_name] = r.json()['id']
     except Exception:
+        r: Res = get_from_url('http://localhost:3001/chats', users[owner]['token'])
+        for chat in r.json():
+            if chat["name"] == chat_room_name:
+                print(
+                    f"{color.INFO}+ User '{chat_room_name}' already exists in database{color.RESET}"
+                )
+                chat_rooms[chat_room_name] = chat['id']
         return
 
 def create_dm_room(users: dict[str, dict[str, str]],
+                chat_rooms: dict[str, str],
                 user1: str,
                 user2: str) -> None:
     try:
@@ -207,18 +219,29 @@ def create_dm_room(users: dict[str, dict[str, str]],
             "userID2": users[user2]['id']
         }
         print(f'Creating DM {body}')
-        post_to_url('http://localhost:3001/chats/dm', body, users[user1]['token'])
+        r: Res = post_to_url('http://localhost:3001/chats/dm', body, users[user1]['token'])
+        chat_rooms[r.json()['name']] = r.json()['id']
     except Exception:
+        # r: Res = get_from_url('http://localhost:3001/chats', users[user1]['token'])
+        # for chat in r.json():
+        #     if (chat["userID1"] == users[user1]['id'] or chat["userID1"] == users[user2]['id']) and (chat["userID2"] == users[user2]['id'] or chat["userID2"] == users[user1]['id']):
+        #         print(
+        #             f"{color.INFO}+ User '{chat['name']}' already exists in database{color.RESET}"
+        #         )
+        #         return chat["id"]
         return
 
 def create_chats(users: dict[str, dict[str, str]]) -> None:
     print_header('Creating chat rooms')
-    create_chat_room(users, 'Coucou', 'alice')
-    create_chat_room(users, 'YOLO', 'bob')
-    create_chat_room(users, 'ClapTrap', 'alice')
-    create_chat_room(users, 'HelloWorld', 'dante')
-    create_dm_room(users, 'alice', 'dante')
-    create_dm_room(users, 'bob', 'chloe')
+    chat_rooms: dict[str, str] = {}
+    create_chat_room(users, chat_rooms, 'Coucou', 'alice')
+    create_chat_room(users, chat_rooms, 'YOLO', 'bob')
+    create_chat_room(users, chat_rooms, 'ClapTrap', 'alice')
+    create_chat_room(users, chat_rooms, 'HelloWorld', 'dante')
+    print(f'Chat rooms {chat_rooms}')
+    create_dm_room(users, chat_rooms, 'alice', 'dante')
+    create_dm_room(users, chat_rooms, 'bob', 'chloe')
+    print(f'Chat rooms {chat_rooms}')
 
 # ---------------------------
 # Main
