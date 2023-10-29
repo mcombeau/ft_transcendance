@@ -164,6 +164,25 @@ def create_games(users: dict[str, dict[str, str]]) -> None:
 
 
 # ---------------------------
+# Friend Relations Creation
+# ---------------------------
+def create_friendship(users: dict[str, dict[str, str]],
+                user1: str,
+                user2: str) -> None:
+    body: dict[str, Any] = {
+        "userID1": users[user1]['id'],
+        "userID2": users[user2]['id']
+    }
+    print(f'{body}')
+    post_to_url('http://localhost:3001/friends', body, users[user1]['token'])
+
+def create_friends(users: dict[str, dict[str, str]]) -> None:
+    print_header('Creating friend relations')
+    create_friendship(users, 'alice', 'bob')
+    create_friendship(users, 'chloe', 'bob')
+    create_friendship(users, 'dante', 'chloe')
+
+# ---------------------------
 # Main
 # ---------------------------
 def populate_database() -> None:
@@ -172,6 +191,7 @@ def populate_database() -> None:
         userInfo: dict[str, dict[str, str]] = create_users()
         print()
         print_users(userInfo)
+        create_friends(userInfo)
         create_games(userInfo)
     except Exception as e:
         print(f"{color.ERROR}Error: {e}{color.RESET}")
