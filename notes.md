@@ -1,5 +1,10 @@
 # PROFILE 
 
+- Misc
+	- logout
+	- fix cookie referring to user that does not exist
+	- fix going to page for user that does not exist
+
 - User profile
 	- display username + 42 login X
 	- display avatar X
@@ -13,6 +18,8 @@
 	- change username X
 	- change password X
 	- change 2fa activation
+		- enable X
+		- disable
 	- change avatar
 	- friends list
 		- unfriend 
