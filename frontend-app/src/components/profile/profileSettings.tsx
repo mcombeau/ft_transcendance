@@ -26,6 +26,7 @@ function ProfileSettings(
   const [newPassword, setNewPassword] = useState("");
   const [is2faEnabled, setIs2faEnabled] = useState(false);
   const [qrcode, setQrcode] = useState();
+  const [twoFaValidationCode, setTwoFaValidationCode] = useState("");
 
   useEffect(() => {
     if (user !== undefined) setNewUsername(user.username);
@@ -51,12 +52,39 @@ function ProfileSettings(
           console.log("error QR code generation");
           return;
         }
-        console.log(data);
         setQrcode(data);
       }
     );
-    // TODO: field for code with submit
     // TODO: post it to turn on and if it works close everything
+  }
+
+  function submitTwoFaValidationCode(e: any) {
+    e.preventDefault();
+    var request = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${cookies["token"]}`,
+      },
+      body: JSON.stringify({
+        twoFactorAuthenticationCode: twoFaValidationCode,
+      }),
+    };
+
+    fetch(`http://localhost:3001/auth/2fa/turn-on`, request).then(
+      async (response) => {
+        if (!response.ok) {
+          const error = await response.json();
+          alert(
+            "Error with enabling 2fa: " + error.error + ": " + error.message
+          );
+        }
+        console.log("Enabling 2fa");
+        console.log(response.body);
+      }
+    );
+    // setTwoFaValidationCode("");
+    // setQrcode(null);
   }
 
   function disable2Fa() {
@@ -169,9 +197,23 @@ function ProfileSettings(
           }}
         />
         <label> Enable two-factor authentication</label>
-        <br />
-        {qrcode && <img src={qrcode}></img>}
       </div>
+      {qrcode && (
+        <div>
+          <img src={qrcode}></img>
+
+          <form onSubmit={submitTwoFaValidationCode}>
+            <input
+              placeholder="2fa validation code"
+              value={twoFaValidationCode}
+              onChange={(e) => {
+                setTwoFaValidationCode(e.target.value);
+              }}
+            />
+            <button>Submit</button>
+          </form>
+        </div>
+      )}
       <canvas id="canvas"></canvas>
     </div>
   );
