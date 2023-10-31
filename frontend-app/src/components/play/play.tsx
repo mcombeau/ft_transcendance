@@ -22,14 +22,18 @@ type State = {
   move: Step;
 };
 
-function Game() {
+function Play() {
+  const [defaultBallPosition, setDefaultBallPosition] = useState<Position>({
+    x: 249,
+    y: 225,
+  });
   const [state, setState] = useState<State>({
     result: [0, 0],
     p1: 160,
     p2: 160,
     live: true,
     isPaused: false,
-    ballPosition: this.defaultBallPosition,
+    ballPosition: defaultBallPosition,
     move: {
       stepX: -1,
       stepY: 1,
@@ -51,10 +55,6 @@ function Game() {
   const [topBoundary, setTopBoundary] = useState<number>(10);
   const [leftBoundary, setLeftBoundary] = useState<number>(5);
   const [rightBoundary, setRightBoundary] = useState<number>(710);
-  const [defaultBallPosition, setDefaultBallPosition] = useState<Position>({
-    x: 249,
-    y: 225,
-  });
   const [timer, setTimer] = useState<NodeJS.Timeout>();
   const socket = useContext(WebSocketContext);
   const moves = [
@@ -150,7 +150,7 @@ function Game() {
   }
 
   function check() {
-    // this.socket.emit("tick", this.state);
+    this.socket.emit("tick", this.state);
     this.checkPlayers();
     this.checkGoals();
     this.checkBallBoundaries();
@@ -326,4 +326,4 @@ function Game() {
   );
 }
 
-export default Game;
+export default Play;

@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
-import { getUsername, getUserID } from "../../cookies";
+import { getUsername } from "../../cookies";
 
 import {
   NavbarContainer,
