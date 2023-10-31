@@ -137,7 +137,8 @@ export const Messages = (
           socket,
           currentChatRoom,
           cookies,
-          myChats
+          myChats,
+          authenticatedUserID
         )}
       </div>
     );
@@ -209,7 +210,8 @@ export const Messages = (
         socket,
         currentChatRoom,
         cookies,
-        myChats
+        myChats,
+        authenticatedUserID
       )}
     </div>
   );

@@ -134,7 +134,13 @@ export const SettingsMenu = (
           : "Not password protected"}
         {password_form}
         <h3>Channel members</h3>
-        {ListParticipants(currentChatRoom, navigate, socket, cookies)}
+        {ListParticipants(
+          currentChatRoom,
+          navigate,
+          socket,
+          cookies,
+          authenticatedUserID
+        )}
         <button
           className="closesettings"
           onClick={() => {

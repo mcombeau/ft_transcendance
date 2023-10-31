@@ -3,13 +3,13 @@ import { NavigateFunction } from "react-router-dom";
 import { Socket } from "socket.io-client";
 import { ChangeStatus, isUserMuted } from "./Chat";
 import { checkStatus } from "./Chat";
-import { getUserID } from "../../cookies";
 
 export const ListParticipants = (
   channel: ChatRoom,
   navigate: NavigateFunction,
   socket: Socket,
-  cookies: any
+  cookies: any,
+  authenticatedUserID: number
 ) => {
   function displayUser(participant: User) {
     var name = participant.username;
@@ -40,9 +40,9 @@ export const ListParticipants = (
         return (
           <div>
             {displayUser(participant)}
-            {checkStatus(channel, getUserID(cookies)) !== Status.Normal &&
+            {checkStatus(channel, authenticatedUserID) !== Status.Normal &&
             checkStatus(channel, participant.userID) !== Status.Owner &&
-            getUserID(cookies) !== participant.userID ? (
+            authenticatedUserID !== participant.userID ? (
               <div>
                 {isUserMuted(participant) ? (
                   <button
@@ -121,9 +121,9 @@ export const ListParticipants = (
             ) : (
               <div></div>
             )}
-            {checkStatus(channel, getUserID(cookies)) === Status.Owner &&
+            {checkStatus(channel, authenticatedUserID) === Status.Owner &&
             checkStatus(channel, participant.userID) !== Status.Owner &&
-            getUserID(cookies) !== participant.userID ? (
+            authenticatedUserID !== participant.userID ? (
               <div>
                 <button
                   onClick={() => {
@@ -152,7 +152,7 @@ export const ListParticipants = (
         return (
           <div>
             <li>{participant.username}</li>
-            {checkStatus(channel, getUserID(cookies)) !== Status.Normal ? (
+            {checkStatus(channel, authenticatedUserID) !== Status.Normal ? (
               <button
                 onClick={() => {
                   console.log("unban " + participant.username);
