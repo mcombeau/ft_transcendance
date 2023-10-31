@@ -26,9 +26,6 @@
 - fix validation
 - 404 if page not exist (not tostring business)
 
-- make login page disappear if you are logged out
-- remove chat (+game ...) from navbar if not logged in
-
 -------------------------------------------------------------------------------------
 - validation:
 

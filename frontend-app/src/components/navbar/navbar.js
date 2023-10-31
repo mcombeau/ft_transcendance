@@ -17,9 +17,7 @@ import LogoImg from "./../../ping.svg";
 
 function Navbar() {
   const [extendNavbar, setExtendNavbar] = useState(false);
-  const { authenticatedUserID, setAuthenticatedUserID } = useContext(
-    AuthenticationContext
-  );
+  const { authenticatedUserID } = useContext(AuthenticationContext);
 
   useEffect(() => {
     // TODO: adapt to incorrect cookie (user does not exist in db ...)
@@ -35,17 +33,19 @@ function Navbar() {
         <LeftContainer>
           <NavbarLinkContainer>
             <NavbarLink to="/"> Home</NavbarLink>
-            <NavbarLink to="/login"> Login</NavbarLink>
-            <NavbarLink to="/chat"> Chat</NavbarLink>
-            <NavbarLink to="/play"> Play Game</NavbarLink>
             <NavbarLink to="/leaderboard"> Leaderboard</NavbarLink>
             {authenticatedUserID && (
-              <NavbarLink to={"/user/" + authenticatedUserID}>
-                Profile
-              </NavbarLink>
+              <NavbarLinkContainer>
+                <NavbarLink to="/chat"> Chat</NavbarLink>
+                <NavbarLink to="/play"> Play</NavbarLink>
+                <NavbarLink to={"/user/" + authenticatedUserID}>
+                  Profile
+                </NavbarLink>
+                <NavbarLink to="/logout">Logout</NavbarLink>
+              </NavbarLinkContainer>
             )}
-            {authenticatedUserID && (
-              <NavbarLink to="/logout">Logout</NavbarLink>
+            {!authenticatedUserID && (
+              <NavbarLink to="/login"> Login</NavbarLink>
             )}
             <OpenLinksButton
               onClick={() => {
