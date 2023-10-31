@@ -10,6 +10,8 @@ import { WebSocketContext } from "../../contexts/WebsocketContext";
 import { useContext } from "react";
 import { getUserID, getUserIDFromToken } from "../../cookies";
 import { useNavigate } from "react-router-dom";
+import { AuthenticationContext } from "../authenticationState";
+import jwtDecode from "jwt-decode";
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -20,6 +22,7 @@ function Login() {
   const [cookies, setCookie, removeCookie] = useCookies();
   const socket = useContext(WebSocketContext);
   let navigate = useNavigate();
+  const { userID, setUserID } = useContext(AuthenticationContext);
 
   const InstagramBackground =
     "linear-gradient(to right, #A12AC4 0%, #ED586C 40%, #F0A853 100%)";
@@ -34,21 +37,24 @@ function Login() {
       },
       body: JSON.stringify({ username: username, password: password }),
     };
-    await fetch("http://localhost:3001/auth/login", request).then(
-      async (response) => {
-        const data = await response.json();
-        if (!response.ok) {
-          console.log("error user login");
-          return;
-        }
-        setCookie("token", data.access_token, { path: "/" }); // TODO: check if await is needed/if it does anything
-        console.log("Access Token " + data.access_token);
-        // socket.emit("login", data.access_token);
-        navigate(`/user/${getUserIDFromToken(data.access_token)}`);
+    const access_token = await fetch(
+      "http://localhost:3001/auth/login",
+      request
+    ).then(async (response) => {
+      const data = await response.json();
+      if (!response.ok) {
+        console.log("error user login");
+        return;
       }
-    );
+      setCookie("token", data.access_token, { path: "/" }); // TODO: check if await is needed/if it does anything
+      return data.access_token;
+    });
+    if (!access_token) return;
+    const loggedUserID = jwtDecode(access_token)["userID"];
+    setUserID(loggedUserID);
     setUsername("");
     setPassword("");
+    navigate(`/user/${loggedUserID}`);
   };
 
   const signIn = (e) => {

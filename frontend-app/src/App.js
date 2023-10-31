@@ -8,21 +8,31 @@ import Play from "./components/play/play";
 import Leaderboard from "./components/leaderboard/leaderboard";
 import Profile from "./components/profile/profile";
 import Logout from "./components/logout";
+import { useMemo, useState } from "react";
+import { useCookies } from "react-cookie";
+import { getUserID } from "./cookies";
+import { AuthenticationContext } from "./components/authenticationState";
 
 function App() {
+  const cookies = useCookies();
+  const [userID, setUserID] = useState(getUserID(cookies));
+  const value = useMemo(() => ({ userID, setUserID }), [userID]);
+
   return (
     <>
       <Router>
-        <NavBar class="Nav" />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/chat" element={<Chat />} />
-          <Route path="/play" element={<Play />} />
-          <Route path="/leaderboard" element={<Leaderboard />} />
-          <Route path="/user/:id" element={<Profile />} />
-          <Route path="/logout" element={<Logout />} />
-        </Routes>
+        <AuthenticationContext.Provider value={value}>
+          <NavBar className="Nav" />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/chat" element={<Chat />} />
+            <Route path="/play" element={<Play />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/user/:id" element={<Profile />} />
+            <Route path="/logout" element={<Logout />} />
+          </Routes>
+        </AuthenticationContext.Provider>
       </Router>
     </>
   );

@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
 import { getUsername, getUserID } from "../../cookies";
+import { AuthenticationContext } from "../authenticationState";
 
 import {
   NavbarContainer,
@@ -20,22 +21,26 @@ import { useNavigate } from "react-router-dom";
 
 function Navbar() {
   const [extendNavbar, setExtendNavbar] = useState(false);
-  const [cookies, setCookie, removeCookie] = useCookies(["cookie-name"]);
+  const [cookies, setCookie, removeCookie] = useCookies();
   const [username, setUsername] = useState(getUsername(cookies));
   const socket = useContext(WebSocketContext);
   const navigate = useNavigate();
+  const [isLogged, setIsLogged] = useState(false);
+  const { userID, setUserID } = useContext(AuthenticationContext);
 
   useEffect(() => {
-    if (getUsername(cookies) != null) {
-      setUsername(getUsername(cookies));
-    }
-  }, [cookies]);
+    // TODO: adapt to incorrect cookie (user does not exist in db ...)
+    // if (getUserID(cookies)) {
+    //   setIsLogged(true);
+    // }
+    console.log("USER ID ", userID);
+  }, [userID]);
 
-  useEffect(() => {
-    socket.on("login", (username) => {
-      setUsername(username);
-    });
-  }, []);
+  // useEffect(() => {
+  //   socket.on("login", (username) => {
+  //     setUsername(username);
+  //   });
+  // }, []);
 
   return (
     <NavbarContainer>
@@ -47,12 +52,12 @@ function Navbar() {
             <NavbarLink to="/chat"> Chat</NavbarLink>
             <NavbarLink to="/play"> Play Game</NavbarLink>
             <NavbarLink to="/leaderboard"> Leaderboard</NavbarLink>
-            {username && (
+            {userID && (
               <NavbarLink to={"/user/" + getUserID(cookies)}>
                 Profile
               </NavbarLink>
             )}
-            {username && <NavbarLink to="/logout">Logout</NavbarLink>}
+            {userID && <NavbarLink to="/logout">Logout</NavbarLink>}
             <OpenLinksButton
               onClick={() => {
                 setExtendNavbar((curr) => !curr);
