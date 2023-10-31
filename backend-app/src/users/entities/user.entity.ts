@@ -4,6 +4,7 @@ import { ChatParticipantEntity } from '../../chat-participants/entities/chat-par
 import { ApiProperty } from '@nestjs/swagger';
 import { GameEntity } from 'src/games/entities/game.entity';
 import { InviteEntity } from 'src/invites/entities/Invite.entity';
+import { FriendEntity } from 'src/friends/entities/Friend.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity {
@@ -64,6 +65,18 @@ export class UserEntity {
   sentInvites: InviteEntity[];
 
   // @ApiProperty({ type: () => GameEntity, isArray: true })
-  @OneToMany(() => GameEntity, (game) => game.winnerID, { nullable: true })
+  @OneToMany(() => GameEntity, (game) => game.winner, { nullable: true })
   wonGames: GameEntity[];
+
+  // @ApiProperty({ type: () => GameEntity, isArray: true })
+  @OneToMany(() => GameEntity, (game) => game.loser, { nullable: true })
+  lostGames: GameEntity[];
+
+  // @ApiProperty({ type: () => FriendEntity, isArray: true })
+  @OneToMany(() => FriendEntity, (friend) => friend.user1, { nullable: true })
+  friend_to: FriendEntity[];
+
+  // @ApiProperty({ type: () => FriendEntity, isArray: true })
+  @OneToMany(() => FriendEntity, (friend) => friend.user2, { nullable: true })
+  friend_of: FriendEntity[];
 }

@@ -17,7 +17,8 @@ export const SidePannel = (
   setInvitesPannel: Dispatch<SetStateAction<boolean>>,
   publicChatsPannel: boolean,
   setPublicChatsPannel: Dispatch<SetStateAction<boolean>>,
-  cookies: any
+  cookies: any,
+  authenticatedUserID: number
 ) => {
   const createChannel = (e: any) => {
     console.log(e); // TODO: maybe change any
@@ -32,11 +33,11 @@ export const SidePannel = (
       token: cookies["token"],
     };
     socket.emit("add chat", info);
-	setNewchannel("");
+    setNewchannel("");
   };
 
   function getDMChannelAlias(channel: ChatRoom) {
-    return channel.participants.find((p) => p.userID !== getUserID(cookies))
+    return channel.participants.find((p) => p.userID !== authenticatedUserID)
       .username;
   }
 

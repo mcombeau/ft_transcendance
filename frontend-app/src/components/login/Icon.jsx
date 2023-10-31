@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 export default function Icon({ color, children }) {
-  return <StyledIcon background={color}>{children}</StyledIcon>;
+  return <StyledIcon>{children}</StyledIcon>;
 }
 
 const StyledIcon = styled.div`

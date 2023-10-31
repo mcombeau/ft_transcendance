@@ -4,7 +4,6 @@ import { Dispatch, SetStateAction, useRef, useState } from "react";
 import { Socket } from "socket.io-client";
 import { checkStatus } from "./Chat";
 import { ReceivedInfo } from "./types";
-import { getUserID } from "../../cookies";
 
 export const ContextMenuEl = (
   contextMenu: boolean,
@@ -14,7 +13,8 @@ export const ContextMenuEl = (
   socket: Socket,
   channel: ChatRoom,
   cookies: any,
-  myChats: ChatRoom[]
+  myChats: ChatRoom[],
+  authenticatedUserID: number
 ) => {
   const menuRef = useRef<HTMLDivElement>(null);
   const [invitesMenu, setInvitesMenu] = useState(false);
@@ -79,7 +79,7 @@ export const ContextMenuEl = (
         >
           DM
         </li>
-        {checkStatus(channel, getUserID(cookies)) !== Status.Operator && // TODO: double check logic
+        {checkStatus(channel, authenticatedUserID) !== Status.Operator && // TODO: double check logic
         checkStatus(channel, target.id) !== Status.Owner ? (
           <div>
             <li
@@ -130,7 +130,7 @@ export const ContextMenuEl = (
         ) : (
           <div></div>
         )}
-        {checkStatus(channel, getUserID(cookies)) === Status.Owner ? ( // TODO: check if admin and switch button
+        {checkStatus(channel, authenticatedUserID) === Status.Owner ? ( // TODO: check if admin and switch button
           <div>
             <li
               onClick={() => {

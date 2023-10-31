@@ -34,9 +34,7 @@ export class PasswordService {
     chat: ChatEntity,
   ): Promise<boolean> {
     const hash = await this.chatService.getChatRoomPasswordHash(chat.id);
-    console.log('HASH:', hash);
     if (hash === '' || hash === null || hash === undefined) {
-      console.log('HASH IS EMPTYYYYYYY:', hash);
       return true;
     }
     if (password == null || password == undefined) {
@@ -44,7 +42,6 @@ export class PasswordService {
       return false;
     }
     const isMatch = await bcrypt.compare(password, hash);
-    console.log('password is match?', isMatch);
     return isMatch;
   }
 
