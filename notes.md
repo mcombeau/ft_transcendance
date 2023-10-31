@@ -1,24 +1,16 @@
 # PROFILE 
 
 - Misc
-	- logout
 	- fix cookie referring to user that does not exist
 	- fix going to page for user that does not exist
 
 - User profile
-	- display username + 42 login X
-	- display avatar X
-	- match history (1v1 game, ladder) X
 	- friends list X
 		- status (online, offline, in a game ... )
 		- invites (buttons)
-	- stats (wins and losses, ladder level, achievements ...) X
 
 - My profile
-	- change username X
-	- change password X
 	- change 2fa activation
-		- enable X
 		- disable
 	- change avatar
 	- friends list
@@ -32,8 +24,10 @@
 
 - Remove 2fa secret from fetch users/userid (userEntity) mmcombeau
 - fix validation
-- dont display profile button if not connected
 - 404 if page not exist (not tostring business)
+
+- make login page disappear if you are logged out
+- remove chat (+game ...) from navbar if not logged in
 
 -------------------------------------------------------------------------------------
 - validation:
@@ -48,9 +42,6 @@
 
 # Authentication - cookies
 
-- !logout
-- !pretty navbar login/logout/profile
-- remove chat (+game ...) from navbar if not logged in
 
 - mot de passe update
 - change police chat
