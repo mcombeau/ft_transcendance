@@ -4,12 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { AuthenticationContext } from "./authenticationState";
 
 function Logout() {
-  const [cookies, setCookie, removeCookie] = useCookies();
-  const { userID, setUserID } = useContext(AuthenticationContext);
+  const [, , removeCookie] = useCookies(["token"]);
+  const { authenticatedUserID, setAuthenticatedUserID } = useContext(
+    AuthenticationContext
+  );
   const navigate = useNavigate();
 
   useEffect(() => {
-    setUserID(null);
+    setAuthenticatedUserID(null);
     removeCookie("token", { path: "/" });
     navigate("/");
   }, []);

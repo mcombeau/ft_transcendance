@@ -2,12 +2,12 @@ import { useContext, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useState } from "react";
 import { useCookies } from "react-cookie";
-import { getUserID } from "../../cookies";
 import { WebSocketContext } from "../../contexts/WebsocketContext";
 import defaultProfilePicture from "./profilePicture.jpg";
 import FriendsList from "./friendsList";
 import GameHistory from "./history";
 import ProfileSettings from "./profileSettings";
+import { AuthenticationContext } from "../authenticationState";
 
 export type User = {
   id: number;
@@ -34,7 +34,7 @@ function userDetails(isMyPage: boolean, user: User) {
   );
 }
 
-function befriend(user: User, cookies: any) {
+function befriend(user: User, authenticatedUserID: number, cookies: any) {
   // TODO: rather create friendship invite
   var request = {
     method: "POST",
@@ -43,20 +43,18 @@ function befriend(user: User, cookies: any) {
       Authorization: `Bearer ${cookies["token"]}`,
     },
     body: JSON.stringify({
-      userID1: getUserID(cookies),
+      userID1: authenticatedUserID,
       userID2: user.id,
     }),
   };
   fetch(`http://localhost:3001/friends`, request).then(async (response) => {
-    console.log("response");
-    console.log(response);
     if (!response.ok) {
       console.log("Error adding friend");
     }
   });
 }
 
-function unfriend(user: User, cookies: any) {
+function unfriend(user: User, authenticatedUserID: number, cookies: any) {
   var request = {
     method: "DELETE",
     headers: {
@@ -64,7 +62,7 @@ function unfriend(user: User, cookies: any) {
       Authorization: `Bearer ${cookies["token"]}`,
     },
     body: JSON.stringify({
-      userID1: getUserID(cookies),
+      userID1: authenticatedUserID,
       userID2: user.id,
     }),
   };
@@ -77,7 +75,12 @@ function unfriend(user: User, cookies: any) {
   });
 }
 
-async function checkIfIsMyFriend(user: User, cookies: any, setIsMyFriend: any) {
+async function checkIfIsMyFriend(
+  user: User,
+  authenticatedUserID: number,
+  cookies: any,
+  setIsMyFriend: any
+) {
   if (user === undefined) return;
   var request = {
     method: "POST",
@@ -86,7 +89,7 @@ async function checkIfIsMyFriend(user: User, cookies: any, setIsMyFriend: any) {
       Authorization: `Bearer ${cookies["token"]}`,
     },
     body: JSON.stringify({
-      userID1: getUserID(cookies),
+      userID1: authenticatedUserID,
       userID2: user.id,
     }),
   };
@@ -107,6 +110,7 @@ function interactWithUser(
   isMyPage: boolean,
   isMyFriend: boolean,
   user: User,
+  authenticatedUserID: number,
   cookies: any
 ) {
   if (user === undefined) return <div />;
@@ -114,11 +118,15 @@ function interactWithUser(
   var friendshipButton: any;
   if (isMyFriend) {
     friendshipButton = (
-      <button onClick={() => unfriend(user, cookies)}>Unfriend</button>
+      <button onClick={() => unfriend(user, authenticatedUserID, cookies)}>
+        Unfriend
+      </button>
     );
   } else {
     friendshipButton = (
-      <button onClick={() => befriend(user, cookies)}>Add friend</button>
+      <button onClick={() => befriend(user, authenticatedUserID, cookies)}>
+        Add friend
+      </button>
     );
   }
   return (
@@ -152,13 +160,16 @@ function editProfile(
 
 function Profile() {
   const [userExists, setUserExists] = useState(false);
-  var userID = useParams().id;
+  var profileUserID = useParams().id;
   const [user, setUser] = useState<User>();
   const [isMyPage, setIsMyPage] = useState(false);
-  const [cookies, setCookie, removeCookie] = useCookies(["cookie-name"]);
+  const [cookies, setCookie] = useCookies(["token"]);
   const socket = useContext(WebSocketContext);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isMyFriend, setIsMyFriend] = useState(false);
+  const { authenticatedUserID, setAuthenticatedUserID } = useContext(
+    AuthenticationContext
+  );
 
   async function fetchUser() {
     var request = {
@@ -168,7 +179,7 @@ function Profile() {
       },
     };
 
-    fetch(`http://localhost:3001/users/${userID}`, request).then(
+    fetch(`http://localhost:3001/users/${profileUserID}`, request).then(
       async (response) => {
         const data = await response.json();
         if (!response.ok) {
@@ -188,17 +199,17 @@ function Profile() {
   }
 
   useEffect(() => {
-    if (getUserID(cookies).toString() === userID) {
+    if (authenticatedUserID == profileUserID) {
       socket.emit("login", cookies["token"]);
       setIsMyPage(true);
     }
 
     fetchUser();
-    checkIfIsMyFriend(user, cookies, setIsMyFriend);
-  }, [cookies, socket, userID]);
+    checkIfIsMyFriend(user, authenticatedUserID, cookies, setIsMyFriend);
+  }, [cookies, socket, profileUserID]);
 
   useEffect(() => {
-    checkIfIsMyFriend(user, cookies, setIsMyFriend);
+    checkIfIsMyFriend(user, authenticatedUserID, cookies, setIsMyFriend);
   }, [user]);
 
   // TODO: add friendship invite section
@@ -208,7 +219,13 @@ function Profile() {
       {!userExists ? "User is not logged in" : ""}
       {titleProfile(isMyPage, user)}
       {userDetails(isMyPage, user)}
-      {interactWithUser(isMyPage, isMyFriend, user, cookies)}
+      {interactWithUser(
+        isMyPage,
+        isMyFriend,
+        user,
+        authenticatedUserID,
+        cookies
+      )}
       {editProfile(isMyPage, user, isEditingProfile, setIsEditingProfile)}
       {ProfileSettings(
         user,

@@ -8,15 +8,26 @@ import Play from "./components/play/play";
 import Leaderboard from "./components/leaderboard/leaderboard";
 import Profile from "./components/profile/profile";
 import Logout from "./components/logout";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useCookies } from "react-cookie";
 import { getUserID } from "./cookies";
 import { AuthenticationContext } from "./components/authenticationState";
 
 function App() {
-  const cookies = useCookies();
-  const [userID, setUserID] = useState(getUserID(cookies));
-  const value = useMemo(() => ({ userID, setUserID }), [userID]);
+  const [cookies] = useCookies(["token"]);
+  const [authenticatedUserID, setAuthenticatedUserID] = useState(
+    getUserID(cookies)
+  );
+  const value = useMemo(
+    () => ({ authenticatedUserID, setAuthenticatedUserID }),
+    [authenticatedUserID]
+  );
+
+  useEffect(() => {
+    console.log("cookies", cookies);
+    console.log("set user id", getUserID(cookies));
+    setAuthenticatedUserID(getUserID(cookies));
+  }, []);
 
   return (
     <>

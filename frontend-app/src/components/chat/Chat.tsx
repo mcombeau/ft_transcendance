@@ -196,7 +196,7 @@ export const Chat = () => {
   const [newchannel, setNewchannel] = useState("");
   const [currentChatRoomID, setCurrentChatRoomID] = useState(null); // TODO: have screen if no channels
   const [settings, setSettings] = useState(false);
-  const [cookies] = useCookies(["cookie-name"]);
+  const [cookies] = useCookies(["token"]);
   const [contextMenu, setContextMenu] = useState(false);
   const [invitesPannel, setInvitesPannel] = useState(false);
   const [publicChatsPannel, setPublicChatsPannel] = useState(false);

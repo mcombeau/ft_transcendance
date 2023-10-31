@@ -8,7 +8,6 @@ import { useState } from "react";
 import { useCookies } from "react-cookie";
 import { WebSocketContext } from "../../contexts/WebsocketContext";
 import { useContext } from "react";
-import { getUserID, getUserIDFromToken } from "../../cookies";
 import { useNavigate } from "react-router-dom";
 import { AuthenticationContext } from "../authenticationState";
 import jwtDecode from "jwt-decode";
@@ -19,10 +18,12 @@ function Login() {
   const [newUsername, setNewUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [email, setEmail] = useState("");
-  const [cookies, setCookie, removeCookie] = useCookies();
+  const [cookies, setCookie, removeCookie] = useCookies(["token"]);
   const socket = useContext(WebSocketContext);
   let navigate = useNavigate();
-  const { userID, setUserID } = useContext(AuthenticationContext);
+  const { authenticatedUserID, setAuthenticatedUserID } = useContext(
+    AuthenticationContext
+  );
 
   const InstagramBackground =
     "linear-gradient(to right, #A12AC4 0%, #ED586C 40%, #F0A853 100%)";
@@ -51,7 +52,7 @@ function Login() {
     });
     if (!access_token) return;
     const loggedUserID = jwtDecode(access_token)["userID"];
-    setUserID(loggedUserID);
+    setAuthenticatedUserID(loggedUserID);
     setUsername("");
     setPassword("");
     navigate(`/user/${loggedUserID}`);

@@ -1,6 +1,4 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useCookies } from "react-cookie";
-import { getUsername, getUserID } from "../../cookies";
 import { AuthenticationContext } from "../authenticationState";
 
 import {
@@ -16,31 +14,20 @@ import {
   NavbarLinkExtended,
 } from "./NavBar.style";
 import LogoImg from "./../../ping.svg";
-import { WebSocketContext } from "../../contexts/WebsocketContext";
-import { useNavigate } from "react-router-dom";
 
 function Navbar() {
   const [extendNavbar, setExtendNavbar] = useState(false);
-  const [cookies, setCookie, removeCookie] = useCookies();
-  const [username, setUsername] = useState(getUsername(cookies));
-  const socket = useContext(WebSocketContext);
-  const navigate = useNavigate();
-  const [isLogged, setIsLogged] = useState(false);
-  const { userID, setUserID } = useContext(AuthenticationContext);
+  const { authenticatedUserID, setAuthenticatedUserID } = useContext(
+    AuthenticationContext
+  );
 
   useEffect(() => {
     // TODO: adapt to incorrect cookie (user does not exist in db ...)
     // if (getUserID(cookies)) {
     //   setIsLogged(true);
     // }
-    console.log("USER ID ", userID);
-  }, [userID]);
-
-  // useEffect(() => {
-  //   socket.on("login", (username) => {
-  //     setUsername(username);
-  //   });
-  // }, []);
+    console.log("USER ID ", authenticatedUserID);
+  }, [authenticatedUserID]);
 
   return (
     <NavbarContainer>
@@ -52,12 +39,14 @@ function Navbar() {
             <NavbarLink to="/chat"> Chat</NavbarLink>
             <NavbarLink to="/play"> Play Game</NavbarLink>
             <NavbarLink to="/leaderboard"> Leaderboard</NavbarLink>
-            {userID && (
-              <NavbarLink to={"/user/" + getUserID(cookies)}>
+            {authenticatedUserID && (
+              <NavbarLink to={"/user/" + authenticatedUserID}>
                 Profile
               </NavbarLink>
             )}
-            {userID && <NavbarLink to="/logout">Logout</NavbarLink>}
+            {authenticatedUserID && (
+              <NavbarLink to="/logout">Logout</NavbarLink>
+            )}
             <OpenLinksButton
               onClick={() => {
                 setExtendNavbar((curr) => !curr);
@@ -81,9 +70,14 @@ function Navbar() {
             {" "}
             Leaderboard
           </NavbarLinkExtended>
-          <NavbarLinkExtended to={"/user/" + getUserID(cookies)}>
-            Profile
-          </NavbarLinkExtended>
+          {authenticatedUserID && (
+            <NavbarLinkExtended to={"/user/" + authenticatedUserID}>
+              Profile
+            </NavbarLinkExtended>
+          )}
+          {authenticatedUserID && (
+            <NavbarLinkExtended to="/logout">Logout</NavbarLinkExtended>
+          )}
         </NavbarExtendedContainer>
       )}
     </NavbarContainer>
