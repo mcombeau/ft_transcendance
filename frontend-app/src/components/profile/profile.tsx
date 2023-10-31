@@ -24,7 +24,7 @@ function titleProfile(isMyPage: boolean, user: User) {
   return <h2>User page for {user.username}</h2>;
 }
 
-function userDetails(isMyPage: boolean, user: User) {
+function userDetails(user: User) {
   if (user === undefined) return <div />;
   return (
     <p>
@@ -160,16 +160,14 @@ function editProfile(
 
 function Profile() {
   const [userExists, setUserExists] = useState(false);
-  var profileUserID = useParams().id;
+  var profileUserID: number = Number(useParams().id);
   const [user, setUser] = useState<User>();
   const [isMyPage, setIsMyPage] = useState(false);
   const [cookies, setCookie] = useCookies(["token"]);
   const socket = useContext(WebSocketContext);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isMyFriend, setIsMyFriend] = useState(false);
-  const { authenticatedUserID, setAuthenticatedUserID } = useContext(
-    AuthenticationContext
-  );
+  const { authenticatedUserID } = useContext(AuthenticationContext);
 
   async function fetchUser() {
     var request = {
@@ -199,7 +197,7 @@ function Profile() {
   }
 
   useEffect(() => {
-    if (authenticatedUserID == profileUserID) {
+    if (authenticatedUserID === profileUserID) {
       socket.emit("login", cookies["token"]);
       setIsMyPage(true);
     }
@@ -218,7 +216,7 @@ function Profile() {
       <img src={defaultProfilePicture} width="100" height="100"></img>
       {!userExists ? "User is not logged in" : ""}
       {titleProfile(isMyPage, user)}
-      {userDetails(isMyPage, user)}
+      {userDetails(user)}
       {interactWithUser(
         isMyPage,
         isMyFriend,
