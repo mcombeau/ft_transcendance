@@ -24,8 +24,6 @@ function App() {
   );
 
   useEffect(() => {
-    console.log("cookies", cookies);
-    console.log("set user id", getUserID(cookies));
     setAuthenticatedUserID(getUserID(cookies));
   }, []);
 

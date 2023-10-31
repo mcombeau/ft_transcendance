@@ -11,7 +11,7 @@ import SettingsMenu from "./SettingsMenu";
 import SidePannel from "./SidePannel";
 import SendForm from "./SendForm";
 import { Socket } from "socket.io-client";
-import { getUserID, getUsername } from "../../cookies";
+import { getUsername } from "../../cookies";
 import {
   Status,
   Message,
@@ -21,6 +21,7 @@ import {
   ReceivedInfo,
   PublicChatRoom,
 } from "./types";
+import { AuthenticationContext } from "../authenticationState";
 
 export function isInChannel(
   userID: number,
@@ -201,6 +202,7 @@ export const Chat = () => {
   const [invitesPannel, setInvitesPannel] = useState(false);
   const [publicChatsPannel, setPublicChatsPannel] = useState(false);
   const [invites, setInvites] = useState([]);
+  const { authenticatedUserID } = useContext(AuthenticationContext);
   let navigate = useNavigate();
 
   function getChannel(chatRoomID: number): ChatRoom {
@@ -319,7 +321,7 @@ export const Chat = () => {
       setPublicChats((prev) => [...prev, publicChatRoom]);
 
       // TODO : check if I have more info #socket refacto
-      if (info.userID === getUserID(cookies)) {
+      if (info.userID === authenticatedUserID) {
         var user: User = {
           userID: info.userID,
           username: info.username,
@@ -372,7 +374,7 @@ export const Chat = () => {
         });
       });
 
-      if (info.userID === getUserID(cookies)) {
+      if (info.userID === authenticatedUserID) {
         // If i'm the one joining create new mychat and fetch info
         const newChat = await fetchChatData(
           info.chatRoomID,
@@ -404,7 +406,7 @@ export const Chat = () => {
         });
       });
 
-      if (info.userID === getUserID(cookies)) {
+      if (info.userID === authenticatedUserID) {
         // If i'm the one leaving remove chat from mychats
         setMyChats((prev) => {
           const tmp = [...prev];
@@ -450,7 +452,7 @@ export const Chat = () => {
       console.log("RECEIVED", "ban", info);
       // If somebody is being banned
       if (info.participantInfo.isBanned) {
-        if (info.targetID === getUserID(cookies)) {
+        if (info.targetID === authenticatedUserID) {
           // If i'm the one being banned remove chat from mychats
           setMyChats((prev) => {
             const tmp = [...prev];
@@ -506,7 +508,7 @@ export const Chat = () => {
     socket.on("invite", (info: ReceivedInfo) => {
       // Receive invitation from someone else
       var invite: Invite = info.inviteInfo;
-      if (invite.invitedID === getUserID(cookies)) {
+      if (invite.invitedID === authenticatedUserID) {
         setInvites((prev: Invite[]) =>
           prev.filter((i: Invite) => i.id !== invite.id)
         );
@@ -544,7 +546,7 @@ export const Chat = () => {
         });
       });
 
-      if (info.userID === getUserID(cookies)) {
+      if (info.userID === authenticatedUserID) {
         // If i'm the one joining create new mychat and fetch info
         const newChat = await fetchChatData(
           info.chatRoomID,
@@ -628,7 +630,7 @@ export const Chat = () => {
         });
       });
 
-      if (info.targetID === getUserID(cookies)) {
+      if (info.targetID === authenticatedUserID) {
         // If i'm the one being kicked remove chat from mychats
         setMyChats((prev) => {
           const tmp = [...prev];
@@ -717,7 +719,7 @@ export const Chat = () => {
     if (myChats.length === 0) {
       // Fetching Chats
       fetch(
-        `http://localhost:3001/users/${getUserID(cookies)}/chats`,
+        `http://localhost:3001/users/${authenticatedUserID}/chats`,
         request
       ).then(async (response) => {
         const chat_data = await response.json();
@@ -764,7 +766,7 @@ export const Chat = () => {
 
     if (invites.length === 0) {
       fetch(
-        `http://localhost:3001/invites/received/${getUserID(cookies)}`,
+        `http://localhost:3001/invites/received/${authenticatedUserID}`,
         request
       ).then(async (response) => {
         const data = await response.json();
