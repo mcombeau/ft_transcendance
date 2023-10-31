@@ -1,5 +1,8 @@
 import { useContext, useEffect, useState } from "react";
-import { WebSocketContext } from "../../contexts/WebsocketContext";
+import {
+  WebSocketContext,
+  WebSocketProvider,
+} from "../../contexts/WebsocketContext";
 import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
 import "./Chat.css";
@@ -819,50 +822,52 @@ export const Chat = () => {
   }, [cookies]);
 
   return (
-    <div className="chat-container">
-      {SidePannel(
-        newchannel,
-        setNewchannel,
-        currentChatRoomID,
-        setCurrentChatRoomID,
-        socket,
-        settings,
-        setSettings,
-        setContextMenu,
-        myChats,
-        invitesPannel,
-        setInvitesPannel,
-        publicChatsPannel,
-        setPublicChatsPannel,
-        cookies
-      )}
-      <div className="chat">
-        {SettingsMenu(
-          settings,
-          setSettings,
-          getChannel(currentChatRoomID),
+    <WebSocketProvider value={socket}>
+      <div className="chat-container">
+        {SidePannel(
+          newchannel,
+          setNewchannel,
+          currentChatRoomID,
           setCurrentChatRoomID,
           socket,
-          navigate,
+          settings,
+          setSettings,
+          setContextMenu,
+          myChats,
+          invitesPannel,
+          setInvitesPannel,
+          publicChatsPannel,
+          setPublicChatsPannel,
           cookies
         )}
-        {Messages(
-          getChannel(currentChatRoomID),
-          navigate,
-          settings,
-          contextMenu,
-          setContextMenu,
-          socket,
-          invitesPannel,
-          invites,
-          publicChats,
-          publicChatsPannel,
-          cookies,
-          myChats
-        )}
-        {SendForm(getChannel(currentChatRoomID), cookies, socket)}
+        <div className="chat">
+          {SettingsMenu(
+            settings,
+            setSettings,
+            getChannel(currentChatRoomID),
+            setCurrentChatRoomID,
+            socket,
+            navigate,
+            cookies
+          )}
+          {Messages(
+            getChannel(currentChatRoomID),
+            navigate,
+            settings,
+            contextMenu,
+            setContextMenu,
+            socket,
+            invitesPannel,
+            invites,
+            publicChats,
+            publicChatsPannel,
+            cookies,
+            myChats
+          )}
+          {SendForm(getChannel(currentChatRoomID), cookies, socket)}
+        </div>
       </div>
-    </div>
+    </WebSocketProvider>
   );
 };
 

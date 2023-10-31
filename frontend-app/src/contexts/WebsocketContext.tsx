@@ -11,3 +11,5 @@ export const socket = io(URL, {
   },
 });
 export const WebSocketContext = createContext<Socket>(socket);
+
+export const WebSocketProvider = WebSocketContext.Provider;
