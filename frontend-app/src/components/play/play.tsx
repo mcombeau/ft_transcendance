@@ -150,11 +150,11 @@ function Play() {
   }
 
   function check() {
-    this.socket.emit("tick", this.state);
-    this.checkPlayers();
-    this.checkGoals();
-    this.checkBallBoundaries();
-    this.checkGameOver();
+    socket.emit("tick", state);
+    checkPlayers();
+    checkGoals();
+    checkBallBoundaries();
+    checkGameOver();
   }
 
   function tick() {
@@ -166,7 +166,7 @@ function Play() {
           y: prevState.ballPosition.y + prevState.move.stepY,
         },
       }));
-      this.check();
+      check();
     }
   }
 
@@ -285,7 +285,7 @@ function Play() {
 
   function checkGameOver() {
     if (state.result[0] === 10 || state.result[1] === 10) {
-      this.pause();
+      pause();
     }
   }
 
@@ -298,6 +298,15 @@ function Play() {
       console.log(state);
     });
   }, []);
+
+  useEffect(() => {
+    componentDidMount();
+    return componentWillUnmount();
+  }, []);
+
+  useEffect(() => {
+    tick();
+  }, [timer]);
 
   return (
     <div className="App">
