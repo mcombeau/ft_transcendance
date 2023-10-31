@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { UserEntity } from 'src/users/entities/user.entity';
 
 @Entity({ name: 'games' })
 export class GameEntity {
@@ -7,13 +8,13 @@ export class GameEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ApiProperty()
-  @Column()
-  winnerID: number;
+  @ApiProperty({ type: () => UserEntity, isArray: true })
+  @ManyToOne(() => UserEntity, (user) => user.lostGames, { cascade: true })
+  loser: UserEntity;
 
-  @ApiProperty()
-  @Column()
-  loserID: number;
+  @ApiProperty({ type: () => UserEntity, isArray: true })
+  @ManyToOne(() => UserEntity, (user) => user.wonGames, { cascade: true })
+  winner: UserEntity;
 
   @ApiProperty()
   @Column()

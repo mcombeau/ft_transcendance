@@ -1,6 +1,7 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatEntity } from 'src/chats/entities/chat.entity';
+import { GameEntity } from 'src/games/entities/game.entity';
 import { UserNotFoundError } from 'src/exceptions/not-found.interceptor';
 import { PasswordService } from 'src/password/password.service';
 import { UserEntity } from 'src/users/entities/user.entity';
@@ -8,7 +9,12 @@ import { createUserParams } from 'src/users/utils/types';
 import { updateUserParams } from 'src/users/utils/types';
 import { Repository, UpdateResult, DeleteResult } from 'typeorm';
 import { ChatsService } from 'src/chats/chats.service';
+import { GamesService } from 'src/games/games.service';
+import { FriendsService } from 'src/friends/friends.service';
 import { sendParticipantDto } from 'src/chat-participants/dtos/sendChatParticipant.dto';
+import { BadRequestException } from '@nestjs/common';
+import { sendGameDto } from 'src/games/dtos/sendGame.dto';
+import { sendFriendDto } from 'src/friends/dtos/sendFriend.dto';
 
 @Injectable()
 export class UsersService {
@@ -19,6 +25,10 @@ export class UsersService {
     private passwordService: PasswordService,
     @Inject(forwardRef(() => ChatsService))
     private chatsService: ChatsService,
+    @Inject(forwardRef(() => GamesService))
+    private gameService: GamesService,
+    @Inject(forwardRef(() => FriendsService))
+    private friendService: FriendsService,
   ) {}
 
   fetchUsers(): Promise<UserEntity[]> {
@@ -70,6 +80,14 @@ export class UsersService {
     return userChatRooms;
   }
 
+  async fetchUserGamesByUserID(userID: number): Promise<sendGameDto[]> {
+    return this.gameService.fetchGamesByUserID(userID);
+  }
+
+  async fetchUserFriendsByUserID(userID: number): Promise<sendFriendDto[]> {
+    return this.friendService.fetchFriendsByUserID(userID);
+  }
+
   async fetchUserChatDMsByUserID(id: number): Promise<ChatEntity[]> {
     const user = await this.userRepository.findOne({
       where: { id },
@@ -108,11 +126,30 @@ export class UsersService {
     return user.password;
   }
 
-  updateUserByID(
+  async updateUserByID(
     id: number,
     userDetails: updateUserParams,
   ): Promise<UpdateResult> {
-    return this.userRepository.update({ id }, { ...userDetails });
+    const updatedInfo: updateUserParams = {};
+    if (userDetails.username) updatedInfo.username = userDetails.username;
+    if (userDetails.email) updatedInfo.email = userDetails.email;
+
+    if (userDetails.currentPassword) {
+      const user = await this.fetchUserByID(id);
+      const isValidCurrentPassword = await this.passwordService.checkPassword(
+        userDetails.currentPassword,
+        user,
+      );
+      if (isValidCurrentPassword) {
+        const hashedPassword = await this.passwordService.hashPassword(
+          userDetails.newPassword,
+        );
+        updatedInfo.password = hashedPassword;
+      } else {
+        throw new BadRequestException('Invalid password');
+      }
+    }
+    return this.userRepository.update({ id }, { ...updatedInfo });
   }
 
   async setTwoFactorAuthenticationSecret(secret: string, id: number) {

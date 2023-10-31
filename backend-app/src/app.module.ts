@@ -8,7 +8,7 @@ import { ChatsModule } from './chats/chats.module';
 import { FriendsModule } from './friends/friends.module';
 import { GamesModule } from './games/games.module';
 import { ChatEntity } from './chats/entities/chat.entity';
-import { FriendEntity } from './friends/entities/friend.entity';
+import { FriendEntity } from './friends/entities/Friend.entity';
 import { GameEntity } from './games/entities/game.entity';
 // import { ChatMessagesModule } from './chat-messages/chat-messages.module';
 import { ChatMessageEntity } from './chat-messages/entities/chat-message.entity';

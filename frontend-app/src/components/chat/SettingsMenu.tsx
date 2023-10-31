@@ -4,7 +4,6 @@ import { Socket } from "socket.io-client";
 import { Dispatch, SetStateAction, useState } from "react";
 import { ListParticipants } from "./ListParticipants";
 import { NavigateFunction } from "react-router-dom";
-import { getUserID } from "../../cookies";
 
 export const SettingsMenu = (
   settings: boolean,
@@ -13,7 +12,8 @@ export const SettingsMenu = (
   setCurrentChatRoomID: Dispatch<SetStateAction<number>>,
   socket: Socket,
   navigate: NavigateFunction,
-  cookies: any
+  cookies: any,
+  authenticatedUserID: number
 ) => {
   const [newPassword, setNewPassword] = useState("");
 
@@ -66,7 +66,7 @@ export const SettingsMenu = (
     }
     // if (settings && currentChatRoom && currentChatRoom.isDM)
     //   var leave_button = <br></br>;
-    if (checkStatus(currentChatRoom, getUserID(cookies)) === Status.Owner) {
+    if (checkStatus(currentChatRoom, authenticatedUserID) === Status.Owner) {
       leave_button = (
         <button
           onClick={() => {
@@ -134,7 +134,13 @@ export const SettingsMenu = (
           : "Not password protected"}
         {password_form}
         <h3>Channel members</h3>
-        {ListParticipants(currentChatRoom, navigate, socket, cookies)}
+        {ListParticipants(
+          currentChatRoom,
+          navigate,
+          socket,
+          cookies,
+          authenticatedUserID
+        )}
         <button
           className="closesettings"
           onClick={() => {

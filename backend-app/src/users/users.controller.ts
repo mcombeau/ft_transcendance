@@ -23,6 +23,9 @@ import { updateUsersDto } from 'src/users/dtos/updateUsers.dto';
 import { UsersService } from 'src/users/users.service';
 import { UserEntity } from './entities/user.entity';
 import { ChatEntity } from 'src/chats/entities/chat.entity';
+// import { GameEntity } from 'src/games/entities/game.entity';
+import { sendGameDto } from 'src/games/dtos/sendGame.dto';
+import { sendFriendDto } from 'src/friends/dtos/sendFriend.dto';
 import { UpdateResult, DeleteResult } from 'typeorm';
 
 @ApiTags('users')
@@ -68,6 +71,34 @@ export class UsersController {
     @Param('id', ParseIntPipe) id: number,
   ): Promise<ChatEntity[]> {
     return this.userService.fetchUserChatDMsByUserID(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id/games')
+  @ApiOkResponse({
+    type: sendGameDto,
+    isArray: true,
+    description: 'Get user games by user ID.',
+  })
+  async getUserGamesByUserID(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<sendGameDto[]> {
+    console.log('[User Controller]: fetching games');
+    return this.userService.fetchUserGamesByUserID(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id/friends')
+  @ApiOkResponse({
+    type: sendFriendDto,
+    isArray: true,
+    description: 'Get user friends by user ID.',
+  })
+  async getUserFriendsByUserID(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<sendFriendDto[]> {
+    console.log('[User Controller]: fetching friends');
+    return this.userService.fetchUserFriendsByUserID(id);
   }
 
   // @UseGuards(JwtAuthGuard)
