@@ -27,6 +27,8 @@
 - 404 if page not exist (not tostring business)
 
 -------------------------------------------------------------------------------------
+- sockets game
+
 - validation:
 
   - validation channel name
