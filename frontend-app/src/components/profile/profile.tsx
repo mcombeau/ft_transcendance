@@ -163,7 +163,7 @@ function Profile() {
   var profileUserID: number = Number(useParams().id);
   const [user, setUser] = useState<User>();
   const [isMyPage, setIsMyPage] = useState(false);
-  const [cookies, setCookie] = useCookies(["token"]);
+  const [cookies] = useCookies(["token"]);
   const socket = useContext(WebSocketContext);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isMyFriend, setIsMyFriend] = useState(false);
@@ -230,10 +230,10 @@ function Profile() {
         cookies,
         isEditingProfile,
         setIsEditingProfile,
-        setCookie
+        authenticatedUserID
       )}
       {FriendsList(isMyPage, user, cookies)}
-      {GameHistory(isMyPage, user, cookies)}
+      {GameHistory(user, cookies)}
     </div>
   );
 }

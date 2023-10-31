@@ -840,7 +840,8 @@ export const Chat = () => {
           setInvitesPannel,
           publicChatsPannel,
           setPublicChatsPannel,
-          cookies
+          cookies,
+          authenticatedUserID
         )}
         <div className="chat">
           {SettingsMenu(
@@ -850,7 +851,8 @@ export const Chat = () => {
             setCurrentChatRoomID,
             socket,
             navigate,
-            cookies
+            cookies,
+            authenticatedUserID
           )}
           {Messages(
             getChannel(currentChatRoomID),
@@ -864,9 +866,15 @@ export const Chat = () => {
             publicChats,
             publicChatsPannel,
             cookies,
-            myChats
+            myChats,
+            authenticatedUserID
           )}
-          {SendForm(getChannel(currentChatRoomID), cookies, socket)}
+          {SendForm(
+            getChannel(currentChatRoomID),
+            cookies,
+            socket,
+            authenticatedUserID
+          )}
         </div>
       </div>
     </WebSocketProvider>

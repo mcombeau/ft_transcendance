@@ -48,7 +48,7 @@ function displayStats(games: Game[]) {
   );
 }
 
-function GameHistory(isMyPage: boolean, user: User, cookies: any) {
+function GameHistory(user: User, cookies: any) {
   const [games, setGames] = useState<Game[]>();
 
   async function fetchGames(userID: number, cookies: any) {

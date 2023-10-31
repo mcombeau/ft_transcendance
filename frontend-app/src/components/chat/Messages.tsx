@@ -1,7 +1,6 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import { NavigateFunction } from "react-router-dom";
 import { Socket } from "socket.io-client";
-import { getUserID } from "../../cookies";
 import { Message, ChatRoom, Invite, PublicChatRoom } from "./types";
 import { ContextMenuEl } from "./ContextMenu";
 import { ReceivedInfo } from "./types";
@@ -18,7 +17,8 @@ export const Messages = (
   publicChats: PublicChatRoom[],
   publicChatsPannel: boolean,
   cookies: any,
-  myChats: ChatRoom[]
+  myChats: ChatRoom[],
+  authenticatedUserID: number
 ) => {
   const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
   const [contextMenuTarget, setContextMenuTarget] = useState({
@@ -34,7 +34,7 @@ export const Messages = (
         </div>
       );
     }
-    if (msg.senderID === getUserID(cookies)) {
+    if (msg.senderID === authenticatedUserID) {
       return (
         <div id="rightmessage">
           <span
@@ -90,12 +90,12 @@ export const Messages = (
         <button
           id="accept"
           onClick={(e) => {
-             var getPassword = "";
+            var getPassword = "";
             if (invite.chatHasPassword) {
               getPassword = prompt(
                 `${invite.chatRoomName} is password protected. Please enter password:`
               );
-            } 
+            }
             var info: ReceivedInfo = {
               token: cookies["token"],
               inviteInfo: invite,

@@ -1,6 +1,6 @@
 import { User } from "./profile";
 import { useEffect, useState } from "react";
-import { getIs2faEnabled, getUserID } from "../../cookies";
+import { getIs2faEnabled } from "../../cookies";
 
 async function readStream(response: any) {
   const reader = response.body.getReader();
@@ -19,7 +19,7 @@ function ProfileSettings(
   cookies: any,
   isEditingProfile,
   setIsEditingProfile,
-  setCookie
+  authenticatedUserID: number
 ) {
   const [newUsername, setNewUsername] = useState("");
   const [newEmail, setNewEmail] = useState("");
@@ -111,7 +111,7 @@ function ProfileSettings(
       }),
     };
     e.preventDefault();
-    fetch(`http://localhost:3001/users/${getUserID(cookies)}`, request).then(
+    fetch(`http://localhost:3001/users/${authenticatedUserID}`, request).then(
       async (response) => {
         if (!response.ok) {
           const error = await response.json();
@@ -134,7 +134,7 @@ function ProfileSettings(
       }),
     };
     e.preventDefault();
-    fetch(`http://localhost:3001/users/${getUserID(cookies)}`, request).then(
+    fetch(`http://localhost:3001/users/${authenticatedUserID}`, request).then(
       async (response) => {
         if (!response.ok) {
           const error = await response.json();
