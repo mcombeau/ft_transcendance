@@ -1,20 +1,52 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthenticationContext } from "../authenticationState";
-import { blockUser, User } from "./profile";
+import { blockUser, unfriend, User } from "./profile";
 
 export type Friend = {
   id: number;
   username: string;
 };
 
-function blockButton(myID: number, targetID: number, cookies: any) {
+function removeFriendFromList(userID: number, setFriends: any) {
+  setFriends((friends: Friend[]) =>
+    friends.filter((friend) => friend.id !== userID)
+  );
+}
+
+function blockButton(
+  myID: number,
+  targetID: number,
+  cookies: any,
+  setFriends: any
+) {
   return (
     <button
       onClick={() => {
-        blockUser(targetID, myID, cookies);
+        if (blockUser(targetID, myID, cookies)) {
+          removeFriendFromList(targetID, setFriends);
+        }
       }}
     >
       Block
+    </button>
+  );
+}
+
+function unfriendButton(
+  myID: number,
+  targetID: number,
+  cookies: any,
+  setFriends: any
+) {
+  return (
+    <button
+      onClick={() => {
+        if (unfriend(targetID, myID, cookies)) {
+          removeFriendFromList(targetID, setFriends);
+        }
+      }}
+    >
+      Unfriend
     </button>
   );
 }
@@ -23,13 +55,15 @@ function displayFriend(
   friend: Friend,
   isMyPage: boolean,
   myID: number,
-  cookies: any
+  cookies: any,
+  setFriends: any
 ) {
   if (isMyPage) {
     return (
       <li>
         <a href={"/user/" + friend.id}>{friend.username}</a>
-        {blockButton(myID, friend.id, cookies)}
+        {blockButton(myID, friend.id, cookies, setFriends)}
+        {unfriendButton(myID, friend.id, cookies, setFriends)}
       </li>
     );
   }
@@ -44,13 +78,14 @@ function displayFriends(
   friends: Friend[],
   isMyPage: boolean,
   myID: number,
-  cookies: any
+  cookies: any,
+  setFriends: any
 ) {
   if (friends === undefined) return <ul>No friends</ul>;
   return (
     <ul>
       {friends.map((friend: Friend) =>
-        displayFriend(friend, isMyPage, myID, cookies)
+        displayFriend(friend, isMyPage, myID, cookies, setFriends)
       )}
     </ul>
   );
@@ -107,7 +142,13 @@ function FriendsList(isMyPage: boolean, user: User, cookies: any) {
   return (
     <div>
       <h3>Friends list:</h3>
-      {displayFriends(friends, isMyPage, authenticatedUserID, cookies)}
+      {displayFriends(
+        friends,
+        isMyPage,
+        authenticatedUserID,
+        cookies,
+        setFriends
+      )}
     </div>
   );
 }
