@@ -34,7 +34,12 @@ function userDetails(user: User) {
   );
 }
 
-function befriend(user: User, authenticatedUserID: number, cookies: any) {
+function befriend(
+  user: User,
+  authenticatedUserID: number,
+  cookies: any,
+  setIsMyFriend: any
+) {
   // TODO: rather create friendship invite
   var request = {
     method: "POST",
@@ -50,11 +55,18 @@ function befriend(user: User, authenticatedUserID: number, cookies: any) {
   fetch(`http://localhost:3001/friends`, request).then(async (response) => {
     if (!response.ok) {
       console.log("Error adding friend");
+    } else {
+      setIsMyFriend(true);
     }
   });
 }
 
-function unfriend(user: User, authenticatedUserID: number, cookies: any) {
+function unfriend(
+  user: User,
+  authenticatedUserID: number,
+  cookies: any,
+  setIsMyFriend: any
+) {
   var request = {
     method: "DELETE",
     headers: {
@@ -71,6 +83,8 @@ function unfriend(user: User, authenticatedUserID: number, cookies: any) {
     console.log(response);
     if (!response.ok) {
       console.log("Error adding friend");
+    } else {
+      setIsMyFriend(false);
     }
   });
 }
@@ -136,7 +150,12 @@ async function checkIfIsBlocked(
   });
 }
 
-function blockUser(user: User, authenticatedUserID: number, cookies: any) {
+function blockUser(
+  user: User,
+  authenticatedUserID: number,
+  cookies: any,
+  setIsBlocked: any
+) {
   console.log("blocking user");
   var request = {
     method: "POST",
@@ -153,12 +172,19 @@ function blockUser(user: User, authenticatedUserID: number, cookies: any) {
     async (response) => {
       if (!response.ok) {
         console.log("Error blocking user");
+      } else {
+        setIsBlocked(true);
       }
     }
   );
 }
 
-function unblockUser(user: User, authenticatedUserID: number, cookies: any) {
+function unblockUser(
+  user: User,
+  authenticatedUserID: number,
+  cookies: any,
+  setIsBlocked: any
+) {
   console.log("Unblocking user");
   var request = {
     method: "DELETE",
@@ -177,6 +203,8 @@ function unblockUser(user: User, authenticatedUserID: number, cookies: any) {
       console.log(response);
       if (!response.ok) {
         console.log("Error unblocking user");
+      } else {
+        setIsBlocked(false);
       }
     }
   );
@@ -185,7 +213,9 @@ function unblockUser(user: User, authenticatedUserID: number, cookies: any) {
 function interactWithUser(
   isMyPage: boolean,
   isMyFriend: boolean,
+  setIsMyFriend: any,
   isBlocked: boolean,
+  setIsBlocked: any,
   user: User,
   authenticatedUserID: number,
   cookies: any
@@ -195,13 +225,21 @@ function interactWithUser(
   var friendshipButton: any;
   if (isMyFriend) {
     friendshipButton = (
-      <button onClick={() => unfriend(user, authenticatedUserID, cookies)}>
+      <button
+        onClick={() =>
+          unfriend(user, authenticatedUserID, cookies, setIsMyFriend)
+        }
+      >
         Unfriend
       </button>
     );
   } else {
     friendshipButton = (
-      <button onClick={() => befriend(user, authenticatedUserID, cookies)}>
+      <button
+        onClick={() =>
+          befriend(user, authenticatedUserID, cookies, setIsMyFriend)
+        }
+      >
         Add friend
       </button>
     );
@@ -209,13 +247,21 @@ function interactWithUser(
   var blockButton: any;
   if (isBlocked) {
     blockButton = (
-      <button onClick={() => unblockUser(user, authenticatedUserID, cookies)}>
+      <button
+        onClick={() =>
+          unblockUser(user, authenticatedUserID, cookies, setIsBlocked)
+        }
+      >
         Unblock
       </button>
     );
   } else {
     blockButton = (
-      <button onClick={() => blockUser(user, authenticatedUserID, cookies)}>
+      <button
+        onClick={() =>
+          blockUser(user, authenticatedUserID, cookies, setIsBlocked)
+        }
+      >
         Block
       </button>
     );
@@ -295,12 +341,11 @@ function Profile() {
     }
 
     fetchUser();
-    checkIfIsMyFriend(user, authenticatedUserID, cookies, setIsMyFriend);
-    checkIfIsBlocked(user, authenticatedUserID, cookies, setIsBlocked);
   }, [cookies, socket, profileUserID]);
 
   useEffect(() => {
     checkIfIsMyFriend(user, authenticatedUserID, cookies, setIsMyFriend);
+    checkIfIsBlocked(user, authenticatedUserID, cookies, setIsBlocked);
   }, [user]);
 
   // TODO: add friendship invite section
@@ -313,7 +358,9 @@ function Profile() {
       {interactWithUser(
         isMyPage,
         isMyFriend,
+        setIsMyFriend,
         isBlocked,
+        setIsBlocked,
         user,
         authenticatedUserID,
         cookies
