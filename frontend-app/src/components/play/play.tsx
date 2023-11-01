@@ -39,32 +39,11 @@ function Play() {
       stepY: 10,
     },
   });
-  const [timer, setTimer] = useState<NodeJS.Timeout>();
-  const delay: number = 100;
-  const player1x: number = 42;
-  const player2x: number = 660;
   const pHeight: number = 80;
-  const gateHeight: number = 160;
-  const gateY: number = 100;
-  const p1GateX: number = 3;
-  const p2GateX: number = 697;
   const playerMaxY: number = 400;
   const playerMinY: number = 0;
   const ballRadius: number = 10;
-  const bottomBoundary: number = 410;
-  const topBoundary: number = 10;
-  const leftBoundary: number = 5;
-  const rightBoundary: number = 710;
-  // const [otherState, setOtherState] = useState<State>();
   const socket = useContext(WebSocketContext);
-
-  const moves = [
-    { stepX: 1, stepY: 1 },
-    { stepX: 1, stepY: 2 },
-    { stepX: 2, stepY: 1 },
-    { stepX: -1, stepY: -1 },
-    { stepX: -1, stepY: 1 },
-  ];
 
   function componentDidMount() {
     //key bindings
@@ -182,22 +161,12 @@ function Play() {
     };
   }, []);
 
-  // useEffect(() => {
-  //   // TODO: fix handling key presses will reset the state
-  //   componentDidMount();
-  // return componentWillUnmount();
-  // setState((prevState) => ({
-  //   ...prevState,
-  // p1
-  //   p2: prevState.p2 + 18,
-  // }));
-  // }, []);
-
-  // useEffect(() => {
-  //   console.log("State changed");
-  //   console.log(state.ballPosition);
-  //   check();
-  // }, [state]);
+  useEffect(() => {
+    componentDidMount();
+    return () => {
+      componentWillUnmount();
+    };
+  }, []);
 
   return (
     <div className="App">
