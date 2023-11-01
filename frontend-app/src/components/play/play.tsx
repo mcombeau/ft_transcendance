@@ -66,121 +66,11 @@ function Play() {
     { stepX: -1, stepY: 1 },
   ];
 
-  function randomInitialMove() {
-    let initialMove = moves[Math.floor(Math.random() * moves.length)];
-    console.log(initialMove);
-    setState((prevState) => ({ ...prevState, move: initialMove }));
-  }
-
-  function checkGoals() {
-    //checking if the ball touches the borders of the goal
-    if (
-      state.ballPosition.x - ballRadius <= p1GateX + ballRadius * 2 &&
-      state.ballPosition.y + ballRadius >= gateY &&
-      state.ballPosition.y - ballRadius <= gateY + gateHeight
-    ) {
-      setState((prevState) => ({
-        ...prevState,
-        result: [prevState.result[0], prevState.result[1] + 1],
-      }));
-      resetBall();
-      randomInitialMove();
-    }
-
-    if (
-      state.ballPosition.x + ballRadius >= p2GateX &&
-      state.ballPosition.y + ballRadius >= gateY &&
-      state.ballPosition.y - ballRadius <= gateY + gateHeight
-    ) {
-      setState((prevState) => ({
-        ...prevState,
-        result: [prevState.result[0] + 1, prevState.result[1]],
-      }));
-      resetBall();
-      randomInitialMove();
-    }
-  }
-
-  function checkPlayers() {
-    //checking if the ball is touching the players, and if so, calculating the angle of rebound
-    if (
-      state.ballPosition.x - ballRadius <= player1x &&
-      state.ballPosition.y + ballRadius >= state.p1 &&
-      state.ballPosition.y - ballRadius <= state.p1 + pHeight
-    ) {
-      setState((prevState) => ({
-        ...prevState,
-        move: { stepX: -prevState.move.stepX, stepY: prevState.move.stepY },
-      }));
-    }
-
-    if (
-      state.ballPosition.x - ballRadius >= player2x &&
-      state.ballPosition.y + ballRadius >= state.p2 &&
-      state.ballPosition.y - ballRadius <= state.p2 + pHeight
-    ) {
-      setState((prevState) => ({
-        ...prevState,
-        move: { stepX: -prevState.move.stepX, stepY: prevState.move.stepY },
-      }));
-    }
-  }
-
-  function checkBallBoundaries() {
-    //checking if the ball is touching the boundaries, and if so, calculating the angle of rebound
-
-    if (
-      state.ballPosition.y + ballRadius + state.move.stepY >= bottomBoundary ||
-      state.ballPosition.y - ballRadius + state.move.stepY <= topBoundary
-    ) {
-      console.log("Ball is out of vertical bounds");
-      setState((prevState) => ({
-        ...prevState,
-        move: { stepX: prevState.move.stepX, stepY: -prevState.move.stepY },
-      }));
-    }
-
-    if (
-      state.ballPosition.x - ballRadius + state.move.stepX <= leftBoundary ||
-      state.ballPosition.x + ballRadius + state.move.stepX >= rightBoundary
-    ) {
-      console.log("Ball is out of horizontal bounds");
-      setState((prevState) => ({
-        ...prevState,
-        move: { stepX: -prevState.move.stepX, stepY: prevState.move.stepY },
-      }));
-    }
-    console.log("Ball is not out of bounds");
-  }
-
-  function check() {
-    checkPlayers();
-    checkGoals();
-    checkBallBoundaries();
-    checkGameOver();
-  }
-
-  function tick() {
-    setState((prevState) => {
-      console.log("tick state", prevState.ballPosition);
-      if (prevState.live)
-        return {
-          ...prevState,
-          ballPosition: {
-            x: prevState.ballPosition.x + prevState.move.stepX,
-            y: prevState.ballPosition.y + prevState.move.stepY,
-          },
-        };
-      return { ...prevState };
-    });
-  }
-
   function componentDidMount() {
     //key bindings
     console.log("Component did mount");
     window.addEventListener("keydown", handleKeyPress);
     window.addEventListener("keydown", handleKeyPress2);
-    setTimer(setInterval(() => tick(), delay));
   }
 
   function componentWillUnmount() {
@@ -188,7 +78,6 @@ function Play() {
     console.log("Component will unmount");
     window.removeEventListener("keydown", handleKeyPress);
     window.removeEventListener("keydown", handleKeyPress2);
-    clearInterval(timer);
   }
 
   function checkPlayerBoundaries(
@@ -277,35 +166,6 @@ function Play() {
       if (checkPlayerBoundaries(2)) {
         resetPlayer(checkPlayerBoundaries(2));
       }
-    } else if (event.key === "p") {
-      console.log("Handling P");
-      pause();
-    }
-  }
-
-  function resetBall() {
-    setState((prevState) => ({
-      ...prevState,
-      ballPosition: defaultBallPosition,
-    }));
-  }
-
-  function restart() {
-    resetBall();
-    randomInitialMove();
-  }
-
-  function pause() {
-    setState((prevState) => ({
-      ...prevState,
-      live: !prevState.live,
-      isPaused: !prevState.isPaused,
-    }));
-  }
-
-  function checkGameOver() {
-    if (state.result[0] === 10 || state.result[1] === 10) {
-      pause();
     }
   }
 
