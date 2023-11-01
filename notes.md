@@ -1,5 +1,7 @@
 # PROFILE 
 
+- in the back block => unfriend mcombeau
+
 - Misc
 	- fix cookie referring to user that does not exist
 	- fix going to page for user that does not exist
