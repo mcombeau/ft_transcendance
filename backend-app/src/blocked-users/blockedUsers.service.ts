@@ -52,12 +52,24 @@ export class BlockedUsersService {
     return this.formatBlockedUserForSending(blockedUser);
   }
 
-  async fetchBlockedUsersByUserID(id: number): Promise<sendBlockedUserDto[]> {
+  async fetchBlockedUsersByUserID(
+    userID: number,
+  ): Promise<sendBlockedUserDto[]> {
     const blockedUsers = await this.blockedUserRepository.find({
-      where: [{ blockingUser: { id: id } }, { blockedUser: { id: id } }],
+      where: [{ blockingUser: { id: userID } }],
       relations: ['blockingUser', 'blockedUser'],
     });
     return this.formatBlockedUserArrayForSending(blockedUsers);
+  }
+
+  async fetchBlockingUsersByUserID(
+    userID: number,
+  ): Promise<sendBlockedUserDto[]> {
+    const usersBlockingMe = await this.blockedUserRepository.find({
+      where: [{ blockedUser: { id: userID } }],
+      relations: ['blockingUser', 'blockedUser'],
+    });
+    return this.formatBlockedUserArrayForSending(usersBlockingMe);
   }
 
   async fetchBlockedUserEntityByUserIDs(
@@ -73,10 +85,6 @@ export class BlockedUsersService {
         {
           blockingUser: { id: blockingUser.id },
           blockedUser: { id: blockedUser.id },
-        },
-        {
-          blockingUser: { id: blockedUser.id },
-          blockedUser: { id: blockingUser.id },
         },
       ],
       relations: ['blockingUser', 'blockedUser'],
@@ -102,7 +110,7 @@ export class BlockedUsersService {
     blockedUserDetails: createBlockedUserParams,
   ): Promise<BlockedUserEntity> {
     if (blockedUserDetails.blockingUserID === blockedUserDetails.blockedUserID)
-      throw new BadRequestException('Cannot blockedUser yourself !');
+      throw new BadRequestException('Cannot blocked yourself !');
     const blockingUser = await this.userService.fetchUserByID(
       blockedUserDetails.blockingUserID,
     );
@@ -117,10 +125,6 @@ export class BlockedUsersService {
           blockingUser: { id: blockingUser.id },
           blockedUser: { id: blockedUser.id },
         },
-        {
-          blockingUser: { id: blockedUser.id },
-          blockedUser: { id: blockingUser.id },
-        },
       ],
     });
     if (foundRecord.length > 0) {
@@ -133,23 +137,6 @@ export class BlockedUsersService {
     return this.blockedUserRepository.save(newBlockedUser);
   }
 
-  async updateBlockedUserByID(
-    id: number,
-    blockedUserDetails: updateBlockedUserParams,
-  ): Promise<UpdateResult> {
-    const blockingUser = await this.userService.fetchUserByID(
-      blockedUserDetails.blockingUserID,
-    );
-    const blockedUser = await this.userService.fetchUserByID(
-      blockedUserDetails.blockedUserID,
-    );
-
-    return this.blockedUserRepository.update(
-      { id },
-      { blockingUser: blockingUser, blockedUser: blockedUser },
-    );
-  }
-
   async deleteBlockedUserByID(id: number): Promise<DeleteResult> {
     return this.blockedUserRepository.delete({ id });
   }
@@ -157,11 +144,11 @@ export class BlockedUsersService {
   async deleteBlockedUserByUserIDs(
     blockedUserDetails: updateBlockedUserParams,
   ): Promise<DeleteResult> {
-    const blockedUser_relationship = await this.fetchBlockedUserEntityByUserIDs(
+    const blockedUserRelationship = await this.fetchBlockedUserEntityByUserIDs(
       blockedUserDetails.blockingUserID,
       blockedUserDetails.blockedUserID,
     );
-    if (blockedUser_relationship)
-      return this.deleteBlockedUserByID(blockedUser_relationship.id);
+    if (blockedUserRelationship)
+      return this.deleteBlockedUserByID(blockedUserRelationship.id);
   }
 }

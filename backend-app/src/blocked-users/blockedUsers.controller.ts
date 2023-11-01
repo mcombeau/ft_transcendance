@@ -25,12 +25,12 @@ import { updateBlockedUserDto } from 'src/blocked-users/dtos/updateBlockedUser.d
 import { BlockedUserEntity } from 'src/blocked-users/entities/BlockedUser.entity';
 
 @UseGuards(JwtAuthGuard)
-@ApiTags('blockedUsers')
-@Controller('blockedUsers')
+@ApiTags('blocked users')
+@Controller('blocked-users')
 export class BlockedUsersController {
   constructor(private blockedUserService: BlockedUsersService) {}
 
-  @Post('blockedUser')
+  @Post('blockeduser')
   @ApiOkResponse({
     type: sendBlockedUserDto,
     description: 'Get one blockedUser relationship.',
@@ -79,22 +79,6 @@ export class BlockedUsersController {
     @Body() blockedUserDto: createBlockedUserDto,
   ): Promise<BlockedUserEntity> {
     return this.blockedUserService.createBlockedUser(blockedUserDto);
-  }
-
-  @Patch(':id')
-  @ApiCreatedResponse({ description: 'Record updated.' })
-  @ApiBadRequestResponse({ description: 'Bad request' })
-  @ApiUnprocessableEntityResponse({
-    description: 'Database error. (Unprocessable entity)',
-  })
-  async updateBlockedUserByID(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateBlockedUserDto: updateBlockedUserDto,
-  ): Promise<UpdateResult> {
-    return this.blockedUserService.updateBlockedUserByID(
-      id,
-      updateBlockedUserDto,
-    );
   }
 
   @Delete()
