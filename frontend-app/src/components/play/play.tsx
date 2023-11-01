@@ -236,7 +236,7 @@ function Play() {
     if (event.key === "q") {
       console.log("Handling Q");
       setState((prevState) => ({
-        ...state,
+        ...prevState,
         p1: prevState.p1 - step,
       }));
       if (checkPlayerBoundaries(1)) {
@@ -245,7 +245,7 @@ function Play() {
     } else if (event.key === "a") {
       console.log("Handling A");
       setState((prevState) => ({
-        ...state,
+        ...prevState,
         p1: prevState.p1 + step,
       }));
       if (checkPlayerBoundaries(1)) {
@@ -262,7 +262,7 @@ function Play() {
     if (event.key === "o") {
       console.log("Handling O");
       setState((prevState) => ({
-        ...state,
+        ...prevState,
         p2: prevState.p2 - step,
       }));
       if (checkPlayerBoundaries(2)) {
@@ -271,7 +271,7 @@ function Play() {
     } else if (event.key === "l") {
       console.log("Handling L");
       setState((prevState) => ({
-        ...state,
+        ...prevState,
         p2: prevState.p2 + step,
       }));
       if (checkPlayerBoundaries(2)) {
@@ -284,10 +284,10 @@ function Play() {
   }
 
   function resetBall() {
-    setState({
-      ...state,
+    setState((prevState) => ({
+      ...prevState,
       ballPosition: defaultBallPosition,
-    });
+    }));
   }
 
   function restart() {
@@ -297,7 +297,7 @@ function Play() {
 
   function pause() {
     setState((prevState) => ({
-      ...state,
+      ...prevState,
       live: !prevState.live,
       isPaused: !prevState.isPaused,
     }));
