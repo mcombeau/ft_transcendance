@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { WebSocketContext } from "../../contexts/WebsocketContext";
 import "./styles.css";
 
@@ -39,65 +39,21 @@ function Play() {
       stepY: 10,
     },
   });
-  const pHeight: number = 80;
-  const playerMaxY: number = 400;
-  const playerMinY: number = 0;
   const ballRadius: number = 10;
   const socket = useContext(WebSocketContext);
 
   function componentDidMount() {
-    //key bindings
     console.log("Component did mount");
     window.addEventListener("keydown", handleKeyPress);
   }
 
   function componentWillUnmount() {
-    //key unbindings
     console.log("Component will unmount");
     window.removeEventListener("keydown", handleKeyPress);
   }
 
-  function checkPlayerBoundaries(
-    player: number //checking the boundaries of players for going beyond the field
-  ) {
-    if (player === 1) {
-      if (state.p1 + pHeight >= playerMaxY) return 1;
-      if (state.p1 <= playerMinY) {
-        return 2;
-      }
-    } else if (player === 2) {
-      if (state.p2 + pHeight >= playerMaxY) return 3;
-      if (state.p2 <= playerMinY) return 4;
-    }
-
-    console.log("No player is out of bounds");
-    return 0;
-  }
-
-  function resetPlayer(
-    code: number //return of players to the field, in case of exit
-  ) {
-    if (code === 1) {
-      setState((prevState) => ({
-        ...prevState,
-        p1: playerMaxY - pHeight,
-      }));
-    }
-    if (code === 2) {
-      setState((prevState) => ({ ...prevState, p1: playerMinY }));
-    }
-    if (code === 3) {
-      setState((prevState) => ({ ...prevState, p2: playerMaxY - pHeight }));
-    }
-    if (code === 4) {
-      setState((prevState) => ({ ...prevState, p2: playerMinY }));
-    }
-  }
-
-  function handleKeyPress(
-    event: any //player 1 binds
-  ) {
-    console.log("handling key press");
+  function handleKeyPress(event: any) {
+    // TODO: remove secondary keys and replace by arrows
     if (event.key === "q") {
       socket.emit("up");
     } else if (event.key === "a") {

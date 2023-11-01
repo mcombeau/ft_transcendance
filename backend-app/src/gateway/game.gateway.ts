@@ -1,12 +1,10 @@
 import { OnModuleInit, Inject, forwardRef } from '@nestjs/common';
 import {
-  ConnectedSocket,
-  MessageBody,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { Server, Socket as ioSocket } from 'socket.io';
+import { Server } from 'socket.io';
 import { GamesService } from 'src/games/games.service';
 
 type Position = {
@@ -285,7 +283,7 @@ export class GameGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('up')
-  onUp(@ConnectedSocket() socket: ioSocket) {
+  onUp() {
     this.gameState.p1 -= this.step;
     if (this.checkPlayerBoundaries(1)) {
       this.resetPlayer(this.checkPlayerBoundaries(1));
@@ -293,7 +291,7 @@ export class GameGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('down')
-  onDown(@ConnectedSocket() socket: ioSocket) {
+  onDown() {
     this.gameState.p1 += this.step;
     if (this.checkPlayerBoundaries(1)) {
       this.resetPlayer(this.checkPlayerBoundaries(1));
@@ -301,7 +299,7 @@ export class GameGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('up2')
-  onUp2(@ConnectedSocket() socket: ioSocket) {
+  onUp2() {
     this.gameState.p2 -= this.step;
     if (this.checkPlayerBoundaries(2)) {
       this.resetPlayer(this.checkPlayerBoundaries(2));
@@ -309,14 +307,10 @@ export class GameGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('down2')
-  onDown2(@ConnectedSocket() socket: ioSocket) {
+  onDown2() {
     this.gameState.p2 += this.step;
     if (this.checkPlayerBoundaries(2)) {
       this.resetPlayer(this.checkPlayerBoundaries(2));
     }
   }
-  // @SubscribeMessage('tick')
-  // onTick(@MessageBody() state: any, @ConnectedSocket() socket: ioSocket) {
-  //   this.message = state;
-  // }
 }
