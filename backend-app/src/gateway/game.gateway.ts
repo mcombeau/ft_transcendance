@@ -60,7 +60,7 @@ export class GameGateway implements OnModuleInit {
   gameState: State;
 
   onModuleInit() {
-    this.delay = 100;
+    this.delay = 10;
     this.player1x = 42;
     this.player2x = 660;
     this.pHeight = 80;
@@ -92,28 +92,14 @@ export class GameGateway implements OnModuleInit {
       },
     };
     this.server.on('connection', (socket) => {
-      this.gameState = {
-        result: [0, 0],
-        p1: 160,
-        p2: 160,
-        live: true,
-        isPaused: false,
-        ballPosition: this.defaultBallPosition,
-        move: {
-          stepX: -1,
-          stepY: 1,
-        },
-      };
+      this.resetBall();
       console.log(`[Game Gateway]: A user connected: ${socket.id}`);
       socket.on('disconnect', () => {
         console.log('a user disconnected');
       });
     });
     setInterval(() => {
-      this.gameState.ballPosition = {
-        x: this.gameState.ballPosition.x + this.gameState.move.stepX,
-        y: this.gameState.ballPosition.y + this.gameState.move.stepY,
-      };
+      this.tick();
       this.server.emit('tick', this.gameState);
     }, this.delay);
   }
