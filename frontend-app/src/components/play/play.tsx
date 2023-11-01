@@ -35,8 +35,8 @@ function Play() {
     isPaused: false,
     ballPosition: defaultBallPosition,
     move: {
-      stepX: -1,
-      stepY: 1,
+      stepX: -10,
+      stepY: 10,
     },
   });
   const [timer, setTimer] = useState<NodeJS.Timeout>();
@@ -161,18 +161,18 @@ function Play() {
   }
 
   function tick() {
-    console.log("tick");
-    console.log(state);
-    if (state.live === true) {
-      setState((prevState) => ({
-        ...prevState,
-        ballPosition: {
-          x: prevState.ballPosition.x + prevState.move.stepX,
-          y: prevState.ballPosition.y + prevState.move.stepY,
-        },
-      }));
-      check();
-    }
+    setState((prevState) => {
+      console.log("tick state", prevState.ballPosition);
+      if (prevState.live)
+        return {
+          ...prevState,
+          ballPosition: {
+            x: prevState.ballPosition.x + prevState.move.stepX,
+            y: prevState.ballPosition.y + prevState.move.stepY,
+          },
+        };
+      return { ...prevState };
+    });
   }
 
   function componentDidMount() {
@@ -279,10 +279,7 @@ function Play() {
       }
     } else if (event.key === "p") {
       console.log("Handling P");
-      setState((prevState) => ({
-        ...prevState,
-        live: false,
-      }));
+      pause();
     }
   }
 
@@ -331,6 +328,12 @@ function Play() {
     //   p2: prevState.p2 + 18,
     // }));
   }, []);
+
+  useEffect(() => {
+    console.log("State changed");
+    console.log(state.ballPosition);
+    check();
+  }, [state]);
 
   return (
     <div className="App">
