@@ -120,16 +120,6 @@ export class FriendsService {
     return this.friendRepository.save(newFriend);
   }
 
-  async updateFriendByID(
-    id: number,
-    friendDetails: updateFriendParams,
-  ): Promise<UpdateResult> {
-    const user1 = await this.userService.fetchUserByID(friendDetails.userID1);
-    const user2 = await this.userService.fetchUserByID(friendDetails.userID2);
-
-    return this.friendRepository.update({ id }, { user1: user1, user2: user2 });
-  }
-
   async deleteFriendByID(id: number): Promise<DeleteResult> {
     return this.friendRepository.delete({ id });
   }
@@ -137,11 +127,10 @@ export class FriendsService {
   async deleteFriendByUserIDs(
     friendDetails: updateFriendParams,
   ): Promise<DeleteResult> {
-    const friend_relationship = await this.fetchFriendEntityByUserIDs(
+    const friendRelationship = await this.fetchFriendEntityByUserIDs(
       friendDetails.userID1,
       friendDetails.userID2,
     );
-    if (friend_relationship)
-      return this.deleteFriendByID(friend_relationship.id);
+    if (friendRelationship) return this.deleteFriendByID(friendRelationship.id);
   }
 }

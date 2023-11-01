@@ -77,19 +77,6 @@ export class FriendsController {
     return this.friendService.createFriend(friendDto);
   }
 
-  @Patch(':id')
-  @ApiCreatedResponse({ description: 'Record updated.' })
-  @ApiBadRequestResponse({ description: 'Bad request' })
-  @ApiUnprocessableEntityResponse({
-    description: 'Database error. (Unprocessable entity)',
-  })
-  async updateFriendByID(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateFriendDto: updateFriendDto,
-  ): Promise<UpdateResult> {
-    return this.friendService.updateFriendByID(id, updateFriendDto);
-  }
-
   @Delete()
   @ApiOkResponse({ description: 'Record deleted by user IDs.' })
   @ApiBadRequestResponse({ description: 'Bad request' })
