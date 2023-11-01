@@ -49,14 +49,12 @@ function Play() {
     //key bindings
     console.log("Component did mount");
     window.addEventListener("keydown", handleKeyPress);
-    window.addEventListener("keydown", handleKeyPress2);
   }
 
   function componentWillUnmount() {
     //key unbindings
     console.log("Component will unmount");
     window.removeEventListener("keydown", handleKeyPress);
-    window.removeEventListener("keydown", handleKeyPress2);
   }
 
   function checkPlayerBoundaries(
@@ -100,51 +98,14 @@ function Play() {
     event: any //player 1 binds
   ) {
     console.log("handling key press");
-    const step = 7;
     if (event.key === "q") {
-      console.log("Handling Q");
-      setState((prevState) => ({
-        ...prevState,
-        p1: prevState.p1 - step,
-      }));
-      if (checkPlayerBoundaries(1)) {
-        resetPlayer(checkPlayerBoundaries(1));
-      }
+      socket.emit("up");
     } else if (event.key === "a") {
-      console.log("Handling A");
-      setState((prevState) => ({
-        ...prevState,
-        p1: prevState.p1 + step,
-      }));
-      if (checkPlayerBoundaries(1)) {
-        resetPlayer(checkPlayerBoundaries(1));
-      }
-    }
-  }
-
-  function handleKeyPress2(
-    event: any //player 2 binds
-  ) {
-    console.log("handling key press");
-    const step = 7;
-    if (event.key === "o") {
-      console.log("Handling O");
-      setState((prevState) => ({
-        ...prevState,
-        p2: prevState.p2 - step,
-      }));
-      if (checkPlayerBoundaries(2)) {
-        resetPlayer(checkPlayerBoundaries(2));
-      }
+      socket.emit("down");
+    } else if (event.key === "o") {
+      socket.emit("up2");
     } else if (event.key === "l") {
-      console.log("Handling L");
-      setState((prevState) => ({
-        ...prevState,
-        p2: prevState.p2 + step,
-      }));
-      if (checkPlayerBoundaries(2)) {
-        resetPlayer(checkPlayerBoundaries(2));
-      }
+      socket.emit("down2");
     }
   }
 

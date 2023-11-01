@@ -58,6 +58,7 @@ export class GameGateway implements OnModuleInit {
   rightBoundary: number;
   defaultBallPosition: { x: number; y: number };
   gameState: State;
+  step: number;
 
   onModuleInit() {
     this.delay = 10;
@@ -75,6 +76,7 @@ export class GameGateway implements OnModuleInit {
     this.topBoundary = 10;
     this.leftBoundary = 5;
     this.rightBoundary = 710;
+    this.step = 7;
     this.defaultBallPosition = {
       x: 249,
       y: 225,
@@ -92,7 +94,7 @@ export class GameGateway implements OnModuleInit {
       },
     };
     this.server.on('connection', (socket) => {
-      this.resetBall();
+      // this.resetBall();
       console.log(`[Game Gateway]: A user connected: ${socket.id}`);
       socket.on('disconnect', () => {
         console.log('a user disconnected');
@@ -114,7 +116,6 @@ export class GameGateway implements OnModuleInit {
       { stepX: -1, stepY: 1 },
     ];
     let initialMove = moves[Math.floor(Math.random() * moves.length)];
-    console.log(initialMove);
     this.gameState.move = initialMove;
   }
 
@@ -230,40 +231,35 @@ export class GameGateway implements OnModuleInit {
   }
 
   checkPlayerBoundaries(
-    player, //checking the boundaries of players for going beyond the field
+    player: number, //checking the boundaries of players for going beyond the field
   ) {
-    const { p1, p2 } = this.gameState;
-    const { pHeight, playerMaxY, playerMinY } = this;
-
     if (player === 1) {
-      if (p1 + pHeight >= playerMaxY) return 1;
-      if (p1 <= playerMinY) {
+      if (this.gameState.p1 + this.pHeight >= this.playerMaxY) return 1;
+      if (this.gameState.p1 <= this.playerMinY) {
         return 2;
       }
     } else if (player === 2) {
-      if (p2 + pHeight >= playerMaxY) return 3;
-      if (p2 <= playerMinY) return 4;
+      if (this.gameState.p2 + this.pHeight >= this.playerMaxY) return 3;
+      if (this.gameState.p2 <= this.playerMinY) return 4;
     }
 
     return 0;
   }
 
   resetPlayer(
-    code, //return of players to the field, in case of exit
+    code: number, //return of players to the field, in case of exit
   ) {
-    const { p1, p2 } = this.gameState;
-    const { pHeight, playerMaxY, playerMinY } = this;
     if (code === 1) {
-      this.gameState.p1 = playerMaxY - pHeight;
+      this.gameState.p1 = this.playerMaxY - this.pHeight;
     }
     if (code === 2) {
-      this.gameState.p1 = playerMinY;
+      this.gameState.p1 = this.playerMinY;
     }
     if (code === 3) {
-      this.gameState.p2 = playerMaxY - pHeight;
+      this.gameState.p2 = this.playerMaxY - this.pHeight;
     }
     if (code === 4) {
-      this.gameState.p2 = playerMinY;
+      this.gameState.p2 = this.playerMinY;
     }
   }
 
@@ -288,6 +284,37 @@ export class GameGateway implements OnModuleInit {
     }
   }
 
+  @SubscribeMessage('up')
+  onUp(@ConnectedSocket() socket: ioSocket) {
+    this.gameState.p1 -= this.step;
+    if (this.checkPlayerBoundaries(1)) {
+      this.resetPlayer(this.checkPlayerBoundaries(1));
+    }
+  }
+
+  @SubscribeMessage('down')
+  onDown(@ConnectedSocket() socket: ioSocket) {
+    this.gameState.p1 += this.step;
+    if (this.checkPlayerBoundaries(1)) {
+      this.resetPlayer(this.checkPlayerBoundaries(1));
+    }
+  }
+
+  @SubscribeMessage('up2')
+  onUp2(@ConnectedSocket() socket: ioSocket) {
+    this.gameState.p2 -= this.step;
+    if (this.checkPlayerBoundaries(2)) {
+      this.resetPlayer(this.checkPlayerBoundaries(2));
+    }
+  }
+
+  @SubscribeMessage('down2')
+  onDown2(@ConnectedSocket() socket: ioSocket) {
+    this.gameState.p2 += this.step;
+    if (this.checkPlayerBoundaries(2)) {
+      this.resetPlayer(this.checkPlayerBoundaries(2));
+    }
+  }
   // @SubscribeMessage('tick')
   // onTick(@MessageBody() state: any, @ConnectedSocket() socket: ioSocket) {
   //   this.message = state;
