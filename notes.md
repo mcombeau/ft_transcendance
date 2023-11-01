@@ -1,7 +1,6 @@
 # PROFILE 
 
-- in the back block => unfriend mcombeau
-
+- remove friend button for blocked users
 - blocked list
 
 - Misc

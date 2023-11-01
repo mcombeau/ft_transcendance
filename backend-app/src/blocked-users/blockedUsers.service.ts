@@ -9,6 +9,7 @@ import {
 import { sendBlockedUserDto } from './dtos/sendBlockedUser.dto';
 import { UsersService } from 'src/users/users.service';
 import { BadRequestException } from '@nestjs/common';
+import { FriendsService } from 'src/friends/friends.service';
 
 @Injectable()
 export class BlockedUsersService {
@@ -17,6 +18,8 @@ export class BlockedUsersService {
     private blockedUserRepository: Repository<BlockedUserEntity>,
     @Inject(forwardRef(() => UsersService))
     private userService: UsersService,
+    @Inject(forwardRef(() => FriendsService))
+    private friendService: FriendsService,
   ) {}
 
   private formatBlockedUserForSending(
@@ -70,6 +73,26 @@ export class BlockedUsersService {
       relations: ['blockingUser', 'blockedUser'],
     });
     return this.formatBlockedUserArrayForSending(usersBlockingMe);
+  }
+
+  async usersAreBlockingEachOtherByUserIDs(
+    userID1: number,
+    userID2: number,
+  ): Promise<boolean> {
+    const foundRecord = await this.blockedUserRepository.find({
+      where: [
+        {
+          blockingUser: { id: userID1 },
+          blockedUser: { id: userID2 },
+        },
+        {
+          blockingUser: { id: userID2 },
+          blockedUser: { id: userID1 },
+        },
+      ],
+      relations: ['blockingUser', 'blockedUser'],
+    });
+    return foundRecord.length > 0;
   }
 
   async fetchBlockedUserEntityByUserIDs(
@@ -134,6 +157,14 @@ export class BlockedUsersService {
       blockingUser: blockingUser,
       blockedUser: blockedUser,
     });
+    try {
+      await this.friendService.deleteFriendByUserIDs({
+        userID1: blockingUser.id,
+        userID2: blockedUser.id,
+      });
+    } catch (e) {
+      console.log('[BlockedUser service] Caught error');
+    }
     return this.blockedUserRepository.save(newBlockedUser);
   }
 

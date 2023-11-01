@@ -6,6 +6,7 @@ import { createFriendParams, updateFriendParams } from './utils/types';
 import { sendFriendDto } from './dtos/sendFriend.dto';
 import { UsersService } from 'src/users/users.service';
 import { BadRequestException } from '@nestjs/common';
+import { BlockedUsersService } from 'src/blocked-users/blockedUsers.service';
 
 @Injectable()
 export class FriendsService {
@@ -14,6 +15,8 @@ export class FriendsService {
     private friendRepository: Repository<FriendEntity>,
     @Inject(forwardRef(() => UsersService))
     private userService: UsersService,
+    @Inject(forwardRef(() => BlockedUsersService))
+    private blockedUserService: BlockedUsersService,
   ) {}
 
   private formatFriendForSending(friend: FriendEntity): sendFriendDto {
@@ -98,6 +101,15 @@ export class FriendsService {
     const user1 = await this.userService.fetchUserByID(friendDetails.userID1);
     const user2 = await this.userService.fetchUserByID(friendDetails.userID2);
     if (!user1 || !user2) throw new BadRequestException('User not found');
+    const areBlocked =
+      await this.blockedUserService.usersAreBlockingEachOtherByUserIDs(
+        user1.id,
+        user2.id,
+      );
+    if (areBlocked) {
+      throw new BadRequestException('Cannot friend a blocked user');
+    }
+
     const foundRecord = await this.friendRepository.find({
       where: [
         {
