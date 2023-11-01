@@ -56,7 +56,7 @@ function Play() {
   const leftBoundary: number = 5;
   const rightBoundary: number = 710;
   // const [otherState, setOtherState] = useState<State>();
-  // const socket = useContext(WebSocketContext);
+  const socket = useContext(WebSocketContext);
 
   const moves = [
     { stepX: 1, stepY: 1 },
@@ -310,30 +310,34 @@ function Play() {
   }
 
   useEffect(() => {
-    // socket.emit("test");
-    // // TODO: setup this properly
-    // socket.on("tick", (state: State) => {
-    //   setOtherState(state);
-    //   console.log(state);
-    // });
+    console.log("Init socket");
+    socket.on("tick", (state: State) => {
+      console.log("received tick");
+      console.log(state);
+      setState(state);
+    });
+    return () => {
+      console.log("Unregistering sockets");
+      socket.off("tick");
+    };
   }, []);
 
-  useEffect(() => {
-    // TODO: fix handling key presses will reset the state
-    componentDidMount();
-    // return componentWillUnmount();
-    // setState((prevState) => ({
-    //   ...prevState,
-    // p1
-    //   p2: prevState.p2 + 18,
-    // }));
-  }, []);
+  // useEffect(() => {
+  //   // TODO: fix handling key presses will reset the state
+  //   componentDidMount();
+  // return componentWillUnmount();
+  // setState((prevState) => ({
+  //   ...prevState,
+  // p1
+  //   p2: prevState.p2 + 18,
+  // }));
+  // }, []);
 
-  useEffect(() => {
-    console.log("State changed");
-    console.log(state.ballPosition);
-    check();
-  }, [state]);
+  // useEffect(() => {
+  //   console.log("State changed");
+  //   console.log(state.ballPosition);
+  //   check();
+  // }, [state]);
 
   return (
     <div className="App">
