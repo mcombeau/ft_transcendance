@@ -95,8 +95,6 @@ async function checkIfIsMyFriend(
   };
   await fetch(`http://localhost:3001/friends/friend`, request).then(
     async (response) => {
-      console.log("is MY friend response");
-      console.log(response);
       if (!response.ok) {
         setIsMyFriend(false);
       } else {
@@ -106,9 +104,88 @@ async function checkIfIsMyFriend(
   );
 }
 
+async function checkIfIsBlocked(
+  user: User,
+  authenticatedUserID: number,
+  cookies: any,
+  setIsBlocked: any
+) {
+  if (user === undefined) return;
+  var request = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${cookies["token"]}`,
+    },
+    body: JSON.stringify({
+      blockingUserID: authenticatedUserID,
+      blockedUserID: user.id,
+    }),
+  };
+  await fetch(
+    `http://localhost:3001/blocked-users/isUserBlocked`,
+    request
+  ).then(async (response) => {
+    console.log("is blocked response");
+    console.log(response);
+    if (!response.ok) {
+      setIsBlocked(false);
+    } else {
+      setIsBlocked(true);
+    }
+  });
+}
+
+function blockUser(user: User, authenticatedUserID: number, cookies: any) {
+  console.log("blocking user");
+  var request = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${cookies["token"]}`,
+    },
+    body: JSON.stringify({
+      blockingUserID: authenticatedUserID,
+      blockedUserID: user.id,
+    }),
+  };
+  fetch(`http://localhost:3001/blocked-users`, request).then(
+    async (response) => {
+      if (!response.ok) {
+        console.log("Error blocking user");
+      }
+    }
+  );
+}
+
+function unblockUser(user: User, authenticatedUserID: number, cookies: any) {
+  console.log("Unblocking user");
+  var request = {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${cookies["token"]}`,
+    },
+    body: JSON.stringify({
+      blockingUserID: authenticatedUserID,
+      blockedUserID: user.id,
+    }),
+  };
+  fetch(`http://localhost:3001/blocked-users`, request).then(
+    async (response) => {
+      console.log("response");
+      console.log(response);
+      if (!response.ok) {
+        console.log("Error unblocking user");
+      }
+    }
+  );
+}
+
 function interactWithUser(
   isMyPage: boolean,
   isMyFriend: boolean,
+  isBlocked: boolean,
   user: User,
   authenticatedUserID: number,
   cookies: any
@@ -129,10 +206,24 @@ function interactWithUser(
       </button>
     );
   }
+  var blockButton: any;
+  if (isBlocked) {
+    blockButton = (
+      <button onClick={() => unblockUser(user, authenticatedUserID, cookies)}>
+        Unblock
+      </button>
+    );
+  } else {
+    blockButton = (
+      <button onClick={() => blockUser(user, authenticatedUserID, cookies)}>
+        Block
+      </button>
+    );
+  }
   return (
     <p>
       {friendshipButton}
-      <button>Block user</button>
+      {blockButton}
       <button>Send DM</button>
     </p>
   );
@@ -167,6 +258,7 @@ function Profile() {
   const socket = useContext(WebSocketContext);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isMyFriend, setIsMyFriend] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false);
   const { authenticatedUserID } = useContext(AuthenticationContext);
 
   async function fetchUser() {
@@ -204,6 +296,7 @@ function Profile() {
 
     fetchUser();
     checkIfIsMyFriend(user, authenticatedUserID, cookies, setIsMyFriend);
+    checkIfIsBlocked(user, authenticatedUserID, cookies, setIsBlocked);
   }, [cookies, socket, profileUserID]);
 
   useEffect(() => {
@@ -220,6 +313,7 @@ function Profile() {
       {interactWithUser(
         isMyPage,
         isMyFriend,
+        isBlocked,
         user,
         authenticatedUserID,
         cookies

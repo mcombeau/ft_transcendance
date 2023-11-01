@@ -5,7 +5,6 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -17,7 +16,7 @@ import {
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { DeleteResult, UpdateResult } from 'typeorm';
+import { DeleteResult } from 'typeorm';
 import { BlockedUsersService } from 'src/blocked-users/blockedUsers.service';
 import { sendBlockedUserDto } from 'src/blocked-users/dtos/sendBlockedUser.dto';
 import { createBlockedUserDto } from 'src/blocked-users/dtos/createBlockedUser.dto';
@@ -30,7 +29,7 @@ import { BlockedUserEntity } from 'src/blocked-users/entities/BlockedUser.entity
 export class BlockedUsersController {
   constructor(private blockedUserService: BlockedUsersService) {}
 
-  @Post('blockeduser')
+  @Post('isUserBlocked')
   @ApiOkResponse({
     type: sendBlockedUserDto,
     description: 'Get one blockedUser relationship.',
@@ -38,6 +37,7 @@ export class BlockedUsersController {
   getOneBlockedUserByUserIDs(
     @Body() blockedUserDto: createBlockedUserDto,
   ): Promise<sendBlockedUserDto> {
+    console.log('check blocked user');
     return this.blockedUserService.fetchBlockedUserByUserIDs(
       blockedUserDto.blockingUserID,
       blockedUserDto.blockedUserID,
@@ -78,6 +78,7 @@ export class BlockedUsersController {
   createBlockedUser(
     @Body() blockedUserDto: createBlockedUserDto,
   ): Promise<BlockedUserEntity> {
+    console.log('create blocked user');
     return this.blockedUserService.createBlockedUser(blockedUserDto);
   }
 
@@ -90,6 +91,7 @@ export class BlockedUsersController {
   deleteBlockedUserByUserIDs(
     @Body() updateBlockedUserDto: updateBlockedUserDto,
   ): Promise<DeleteResult> {
+    console.log('delete block user');
     return this.blockedUserService.deleteBlockedUserByUserIDs(
       updateBlockedUserDto,
     );
