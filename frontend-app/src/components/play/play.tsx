@@ -23,10 +23,10 @@ type State = {
 };
 
 function Play() {
-  const [defaultBallPosition, setDefaultBallPosition] = useState<Position>({
+  const defaultBallPosition: Position = {
     x: 249,
     y: 225,
-  });
+  };
   const [state, setState] = useState<State>({
     result: [0, 0],
     p1: 160,
@@ -39,28 +39,24 @@ function Play() {
       stepY: 1,
     },
   });
-  const [otherState, setOtherState] = useState<State>();
-  const [delay, setDelay] = useState<number>(1000);
-  const [player1x, setPlayer1x] = useState<number>(42);
-  const [player2x, setPlayer2x] = useState<number>(660);
-  const [pHeight, setPHeight] = useState<number>(80);
-  const [gateHeight, setGateHeight] = useState<number>(160);
-  const [gateY, setGateY] = useState<number>(100);
-  const [p1GateX, setP1GateX] = useState<number>(3);
-  const [p2GateX, setP2GateX] = useState<number>(697);
-  const [playerMaxY, setPlayerMaxY] = useState<number>(400);
-  const [playerMinY, setPlayerMinY] = useState<number>(0);
-  const [ballRadius, setBallRadius] = useState<number>(10);
-  const [bottomBoundary, setBottomBoundary] = useState<number>(410);
-  const [topBoundary, setTopBoundary] = useState<number>(10);
-  const [leftBoundary, setLeftBoundary] = useState<number>(5);
-  const [rightBoundary, setRightBoundary] = useState<number>(710);
   const [timer, setTimer] = useState<NodeJS.Timeout>();
-  const socket = useContext(WebSocketContext);
-  // const handleUserKeyPress = useCallback((event: any) => {
-  //   handleKeyPress(event);
-  //   handleKeyPress2(event);
-  // }, []);
+  const delay: number = 100;
+  const player1x: number = 42;
+  const player2x: number = 660;
+  const pHeight: number = 80;
+  const gateHeight: number = 160;
+  const gateY: number = 100;
+  const p1GateX: number = 3;
+  const p2GateX: number = 697;
+  const playerMaxY: number = 400;
+  const playerMinY: number = 0;
+  const ballRadius: number = 10;
+  const bottomBoundary: number = 410;
+  const topBoundary: number = 10;
+  const leftBoundary: number = 5;
+  const rightBoundary: number = 710;
+  // const [otherState, setOtherState] = useState<State>();
+  // const socket = useContext(WebSocketContext);
 
   const moves = [
     { stepX: 1, stepY: 1 },
@@ -73,7 +69,7 @@ function Play() {
   function randomInitialMove() {
     let initialMove = moves[Math.floor(Math.random() * moves.length)];
     console.log(initialMove);
-    setState({ ...state, move: initialMove });
+    setState((prevState) => ({ ...prevState, move: initialMove }));
   }
 
   function checkGoals() {
@@ -113,7 +109,7 @@ function Play() {
       state.ballPosition.y - ballRadius <= state.p1 + pHeight
     ) {
       setState((prevState) => ({
-        ...state,
+        ...prevState,
         move: { stepX: -prevState.move.stepX, stepY: prevState.move.stepY },
       }));
     }
@@ -124,7 +120,7 @@ function Play() {
       state.ballPosition.y - ballRadius <= state.p2 + pHeight
     ) {
       setState((prevState) => ({
-        ...state,
+        ...prevState,
         move: { stepX: -prevState.move.stepX, stepY: prevState.move.stepY },
       }));
     }
@@ -137,8 +133,9 @@ function Play() {
       state.ballPosition.y + ballRadius + state.move.stepY >= bottomBoundary ||
       state.ballPosition.y - ballRadius + state.move.stepY <= topBoundary
     ) {
+      console.log("Ball is out of vertical bounds");
       setState((prevState) => ({
-        ...state,
+        ...prevState,
         move: { stepX: prevState.move.stepX, stepY: -prevState.move.stepY },
       }));
     }
@@ -147,11 +144,13 @@ function Play() {
       state.ballPosition.x - ballRadius + state.move.stepX <= leftBoundary ||
       state.ballPosition.x + ballRadius + state.move.stepX >= rightBoundary
     ) {
+      console.log("Ball is out of horizontal bounds");
       setState((prevState) => ({
-        ...state,
+        ...prevState,
         move: { stepX: -prevState.move.stepX, stepY: prevState.move.stepY },
       }));
     }
+    console.log("Ball is not out of bounds");
   }
 
   function check() {
@@ -166,7 +165,7 @@ function Play() {
     console.log(state);
     if (state.live === true) {
       setState((prevState) => ({
-        ...state,
+        ...prevState,
         ballPosition: {
           x: prevState.ballPosition.x + prevState.move.stepX,
           y: prevState.ballPosition.y + prevState.move.stepY,
@@ -205,6 +204,7 @@ function Play() {
       if (state.p2 <= playerMinY) return 4;
     }
 
+    console.log("No player is out of bounds");
     return 0;
   }
 
@@ -212,16 +212,19 @@ function Play() {
     code: number //return of players to the field, in case of exit
   ) {
     if (code === 1) {
-      setState({ ...state, p1: playerMaxY - pHeight });
+      setState((prevState) => ({
+        ...prevState,
+        p1: playerMaxY - pHeight,
+      }));
     }
     if (code === 2) {
-      setState({ ...state, p1: playerMinY });
+      setState((prevState) => ({ ...prevState, p1: playerMinY }));
     }
     if (code === 3) {
-      setState({ ...state, p2: playerMaxY - pHeight });
+      setState((prevState) => ({ ...prevState, p2: playerMaxY - pHeight }));
     }
     if (code === 4) {
-      setState({ ...state, p2: playerMinY });
+      setState((prevState) => ({ ...prevState, p2: playerMinY }));
     }
   }
 
@@ -274,6 +277,12 @@ function Play() {
       if (checkPlayerBoundaries(2)) {
         resetPlayer(checkPlayerBoundaries(2));
       }
+    } else if (event.key === "p") {
+      console.log("Handling P");
+      setState((prevState) => ({
+        ...prevState,
+        live: false,
+      }));
     }
   }
 
@@ -316,9 +325,12 @@ function Play() {
     // TODO: fix handling key presses will reset the state
     componentDidMount();
     // return componentWillUnmount();
+    // setState((prevState) => ({
+    //   ...prevState,
+    // p1
+    //   p2: prevState.p2 + 18,
+    // }));
   }, []);
-
-  useEffect(() => {});
 
   return (
     <div className="App">
