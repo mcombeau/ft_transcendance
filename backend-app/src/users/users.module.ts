@@ -7,6 +7,7 @@ import { PasswordModule } from 'src/password/password.module';
 import { ChatsModule } from 'src/chats/chats.module';
 import { GamesModule } from 'src/games/games.module';
 import { FriendsModule } from 'src/friends/friends.module';
+import { BlockedUsersModule } from 'src/blocked-users/blockedUsers.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { FriendsModule } from 'src/friends/friends.module';
     forwardRef(() => ChatsModule),
     forwardRef(() => GamesModule),
     forwardRef(() => FriendsModule),
+    forwardRef(() => BlockedUsersModule),
   ],
   controllers: [UsersController],
   providers: [UsersService],
