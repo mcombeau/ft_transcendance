@@ -34,11 +34,10 @@ function userDetails(user: User) {
   );
 }
 
-function befriend(
-  user: User,
+async function befriend(
+  userID: number,
   authenticatedUserID: number,
-  cookies: any,
-  setIsMyFriend: any
+  cookies: any
 ) {
   // TODO: rather create friendship invite
   var request = {
@@ -49,23 +48,24 @@ function befriend(
     },
     body: JSON.stringify({
       userID1: authenticatedUserID,
-      userID2: user.id,
+      userID2: userID,
     }),
   };
-  fetch(`http://localhost:3001/friends`, request).then(async (response) => {
-    if (!response.ok) {
-      console.log("Error adding friend");
-    } else {
-      setIsMyFriend(true);
+  return fetch(`http://localhost:3001/friends`, request).then(
+    async (response) => {
+      if (!response.ok) {
+        console.log("Error adding friend");
+        return false;
+      }
+      return true;
     }
-  });
+  );
 }
 
-function unfriend(
-  user: User,
+export async function unfriend(
+  userID: number,
   authenticatedUserID: number,
-  cookies: any,
-  setIsMyFriend: any
+  cookies: any
 ) {
   var request = {
     method: "DELETE",
@@ -75,18 +75,20 @@ function unfriend(
     },
     body: JSON.stringify({
       userID1: authenticatedUserID,
-      userID2: user.id,
+      userID2: userID,
     }),
   };
-  fetch(`http://localhost:3001/friends`, request).then(async (response) => {
-    console.log("response");
-    console.log(response);
-    if (!response.ok) {
-      console.log("Error adding friend");
-    } else {
-      setIsMyFriend(false);
+  return fetch(`http://localhost:3001/friends`, request).then(
+    async (response) => {
+      console.log("response");
+      console.log(response);
+      if (!response.ok) {
+        console.log("Error adding friend");
+        return false;
+      }
+      return true;
     }
-  });
+  );
 }
 
 async function checkIfIsMyFriend(
@@ -150,11 +152,10 @@ async function checkIfIsBlocked(
   });
 }
 
-function blockUser(
-  user: User,
+export async function blockUser(
+  userID: number,
   authenticatedUserID: number,
-  cookies: any,
-  setIsBlocked: any
+  cookies: any
 ) {
   console.log("blocking user");
   var request = {
@@ -165,25 +166,24 @@ function blockUser(
     },
     body: JSON.stringify({
       blockingUserID: authenticatedUserID,
-      blockedUserID: user.id,
+      blockedUserID: userID,
     }),
   };
-  fetch(`http://localhost:3001/blocked-users`, request).then(
+  return fetch(`http://localhost:3001/blocked-users`, request).then(
     async (response) => {
       if (!response.ok) {
         console.log("Error blocking user");
-      } else {
-        setIsBlocked(true);
+        return false;
       }
+      return true;
     }
   );
 }
 
-function unblockUser(
-  user: User,
+async function unblockUser(
+  userID: number,
   authenticatedUserID: number,
-  cookies: any,
-  setIsBlocked: any
+  cookies: any
 ) {
   console.log("Unblocking user");
   var request = {
@@ -194,19 +194,84 @@ function unblockUser(
     },
     body: JSON.stringify({
       blockingUserID: authenticatedUserID,
-      blockedUserID: user.id,
+      blockedUserID: userID,
     }),
   };
-  fetch(`http://localhost:3001/blocked-users`, request).then(
+  return fetch(`http://localhost:3001/blocked-users`, request).then(
     async (response) => {
       console.log("response");
       console.log(response);
       if (!response.ok) {
         console.log("Error unblocking user");
-      } else {
-        setIsBlocked(false);
+        return false;
       }
+      return true;
     }
+  );
+}
+
+function friendButton(
+  user: User,
+  authenticatedUserID: number,
+  cookies: any,
+  isMyFriend: boolean,
+  setIsMyFriend: any
+) {
+  // TODO: check if need be async
+  if (isMyFriend) {
+    return (
+      <button
+        onClick={() => {
+          if (unfriend(user.id, authenticatedUserID, cookies)) {
+            setIsMyFriend(false);
+          }
+        }}
+      >
+        Unfriend
+      </button>
+    );
+  }
+  return (
+    <button
+      onClick={() => {
+        if (befriend(user.id, authenticatedUserID, cookies)) {
+          setIsMyFriend(true);
+        }
+      }}
+    >
+      Add friend
+    </button>
+  );
+}
+
+function blockButton(
+  user: User,
+  authenticatedUserID: number,
+  cookies: any,
+  isBlocked: boolean,
+  setIsBlocked: any
+) {
+  if (isBlocked) {
+    return (
+      <button
+        onClick={() => {
+          if (unblockUser(user.id, authenticatedUserID, cookies))
+            setIsBlocked(false);
+        }}
+      >
+        Unblock
+      </button>
+    );
+  }
+  return (
+    <button
+      onClick={() => {
+        if (blockUser(user.id, authenticatedUserID, cookies))
+          setIsBlocked(true);
+      }}
+    >
+      Block
+    </button>
   );
 }
 
@@ -222,54 +287,16 @@ function interactWithUser(
 ) {
   if (user === undefined) return <div />;
   if (isMyPage) return <p></p>;
-  var friendshipButton: any;
-  if (isMyFriend) {
-    friendshipButton = (
-      <button
-        onClick={() =>
-          unfriend(user, authenticatedUserID, cookies, setIsMyFriend)
-        }
-      >
-        Unfriend
-      </button>
-    );
-  } else {
-    friendshipButton = (
-      <button
-        onClick={() =>
-          befriend(user, authenticatedUserID, cookies, setIsMyFriend)
-        }
-      >
-        Add friend
-      </button>
-    );
-  }
-  var blockButton: any;
-  if (isBlocked) {
-    blockButton = (
-      <button
-        onClick={() =>
-          unblockUser(user, authenticatedUserID, cookies, setIsBlocked)
-        }
-      >
-        Unblock
-      </button>
-    );
-  } else {
-    blockButton = (
-      <button
-        onClick={() =>
-          blockUser(user, authenticatedUserID, cookies, setIsBlocked)
-        }
-      >
-        Block
-      </button>
-    );
-  }
   return (
     <p>
-      {friendshipButton}
-      {blockButton}
+      {friendButton(
+        user,
+        authenticatedUserID,
+        cookies,
+        isMyFriend,
+        setIsMyFriend
+      )}
+      {blockButton(user, authenticatedUserID, cookies, isBlocked, setIsBlocked)}
       <button>Send DM</button>
     </p>
   );

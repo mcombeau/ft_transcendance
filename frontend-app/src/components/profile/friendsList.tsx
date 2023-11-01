@@ -1,26 +1,64 @@
-import { useEffect, useState } from "react";
-import { User } from "./profile";
+import { useContext, useEffect, useState } from "react";
+import { AuthenticationContext } from "../authenticationState";
+import { blockUser, User } from "./profile";
 
 export type Friend = {
   id: number;
   username: string;
 };
 
-function displayFriend(friend: Friend) {
+function blockButton(myID: number, targetID: number, cookies: any) {
   return (
-    <p>
-      <a href={"/user/" + friend.id}>{friend.username}</a>
-    </p>
+    <button
+      onClick={() => {
+        blockUser(targetID, myID, cookies);
+      }}
+    >
+      Block
+    </button>
   );
 }
 
-function displayFriends(friends: Friend[]) {
-  if (friends === undefined) return <p>No friends</p>;
-  return friends.map(displayFriend);
+function displayFriend(
+  friend: Friend,
+  isMyPage: boolean,
+  myID: number,
+  cookies: any
+) {
+  if (isMyPage) {
+    return (
+      <li>
+        <a href={"/user/" + friend.id}>{friend.username}</a>
+        {blockButton(myID, friend.id, cookies)}
+      </li>
+    );
+  }
+  return (
+    <li>
+      <a href={"/user/" + friend.id}>{friend.username}</a>
+    </li>
+  );
+}
+
+function displayFriends(
+  friends: Friend[],
+  isMyPage: boolean,
+  myID: number,
+  cookies: any
+) {
+  if (friends === undefined) return <ul>No friends</ul>;
+  return (
+    <ul>
+      {friends.map((friend: Friend) =>
+        displayFriend(friend, isMyPage, myID, cookies)
+      )}
+    </ul>
+  );
 }
 
 function FriendsList(isMyPage: boolean, user: User, cookies: any) {
   const [friends, setFriends] = useState<Friend[]>();
+  const { authenticatedUserID } = useContext(AuthenticationContext);
 
   async function fetchFriends(userID: number, cookies: any) {
     var request = {
@@ -69,7 +107,7 @@ function FriendsList(isMyPage: boolean, user: User, cookies: any) {
   return (
     <div>
       <h3>Friends list:</h3>
-      {displayFriends(friends)}
+      {displayFriends(friends, isMyPage, authenticatedUserID, cookies)}
     </div>
   );
 }
