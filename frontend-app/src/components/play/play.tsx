@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { WebSocketContext } from "../../contexts/WebsocketContext";
 import "./styles.css";
 
@@ -40,7 +40,7 @@ function Play() {
     },
   });
   const [otherState, setOtherState] = useState<State>();
-  const [delay, setDelay] = useState<number>(10);
+  const [delay, setDelay] = useState<number>(1000);
   const [player1x, setPlayer1x] = useState<number>(42);
   const [player2x, setPlayer2x] = useState<number>(660);
   const [pHeight, setPHeight] = useState<number>(80);
@@ -57,6 +57,11 @@ function Play() {
   const [rightBoundary, setRightBoundary] = useState<number>(710);
   const [timer, setTimer] = useState<NodeJS.Timeout>();
   const socket = useContext(WebSocketContext);
+  // const handleUserKeyPress = useCallback((event: any) => {
+  //   handleKeyPress(event);
+  //   handleKeyPress2(event);
+  // }, []);
+
   const moves = [
     { stepX: 1, stepY: 1 },
     { stepX: 1, stepY: 2 },
@@ -150,7 +155,6 @@ function Play() {
   }
 
   function check() {
-    socket.emit("tick", state);
     checkPlayers();
     checkGoals();
     checkBallBoundaries();
@@ -158,6 +162,8 @@ function Play() {
   }
 
   function tick() {
+    console.log("tick");
+    console.log(state);
     if (state.live === true) {
       setState((prevState) => ({
         ...state,
@@ -172,6 +178,7 @@ function Play() {
 
   function componentDidMount() {
     //key bindings
+    console.log("Component did mount");
     window.addEventListener("keydown", handleKeyPress);
     window.addEventListener("keydown", handleKeyPress2);
     setTimer(setInterval(() => tick(), delay));
@@ -179,6 +186,7 @@ function Play() {
 
   function componentWillUnmount() {
     //key unbindings
+    console.log("Component will unmount");
     window.removeEventListener("keydown", handleKeyPress);
     window.removeEventListener("keydown", handleKeyPress2);
     clearInterval(timer);
@@ -220,8 +228,10 @@ function Play() {
   function handleKeyPress(
     event: any //player 1 binds
   ) {
+    console.log("handling key press");
     const step = 7;
     if (event.key === "q") {
+      console.log("Handling Q");
       setState((prevState) => ({
         ...state,
         p1: prevState.p1 - step,
@@ -230,6 +240,7 @@ function Play() {
         resetPlayer(checkPlayerBoundaries(1));
       }
     } else if (event.key === "a") {
+      console.log("Handling A");
       setState((prevState) => ({
         ...state,
         p1: prevState.p1 + step,
@@ -243,8 +254,10 @@ function Play() {
   function handleKeyPress2(
     event: any //player 2 binds
   ) {
+    console.log("handling key press");
     const step = 7;
     if (event.key === "o") {
+      console.log("Handling O");
       setState((prevState) => ({
         ...state,
         p2: prevState.p2 - step,
@@ -253,6 +266,7 @@ function Play() {
         resetPlayer(checkPlayerBoundaries(2));
       }
     } else if (event.key === "l") {
+      console.log("Handling L");
       setState((prevState) => ({
         ...state,
         p2: prevState.p2 + step,
@@ -290,23 +304,21 @@ function Play() {
   }
 
   useEffect(() => {
-    socket.emit("test");
-    // TODO: setup this properly
-
-    socket.on("tick", (state: State) => {
-      setOtherState(state);
-      console.log(state);
-    });
+    // socket.emit("test");
+    // // TODO: setup this properly
+    // socket.on("tick", (state: State) => {
+    //   setOtherState(state);
+    //   console.log(state);
+    // });
   }, []);
 
   useEffect(() => {
+    // TODO: fix handling key presses will reset the state
     componentDidMount();
-    return componentWillUnmount();
+    // return componentWillUnmount();
   }, []);
 
-  useEffect(() => {
-    tick();
-  }, [timer]);
+  useEffect(() => {});
 
   return (
     <div className="App">
