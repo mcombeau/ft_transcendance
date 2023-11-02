@@ -113,7 +113,9 @@ export class GameGateway implements OnModuleInit {
       });
 
       var myGameRoom: GameRoom = await this.getRoom(user.userID);
-      if (!myGameRoom) {
+      if (myGameRoom) {
+        socket.join(myGameRoom.socketRoomID);
+      } else {
         myGameRoom = await this.joinRoom(socket, user.userID);
       }
       console.log(
