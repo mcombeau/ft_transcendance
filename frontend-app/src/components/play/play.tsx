@@ -43,6 +43,8 @@ function Play() {
   const ballRadius: number = 10;
   const socket = useContext(WebSocketContext);
   const [cookies] = useCookies(["token"]);
+  const [player1Username, setPlayer1Username] = useState("");
+  const [player2Username, setPlayer2Username] = useState("");
 
   function componentDidMount(cookies: any) {
     console.log("Component did mount");
@@ -75,7 +77,8 @@ function Play() {
     console.log("Init socket");
     socket.on("tick", (data: any) => {
       console.log(data);
-      console.log("received tick from gameroowm", data.gameRoomID);
+      setPlayer1Username(data.player1Username);
+      setPlayer2Username(data.player2Username);
       setState(data.gameState);
     });
     return () => {
@@ -95,8 +98,13 @@ function Play() {
     <div className="App">
       <div className="center-container">
         <div className="result">
-          <span className="res1">{state.result[0]}</span>:
-          <span className="res2">{state.result[1]}</span>
+          <span className="res1">
+            {player1Username} - {state.result[0]}
+          </span>
+          :
+          <span className="res2">
+            {player2Username} - {state.result[1]}
+          </span>
           <div className="gameField">
             <div
               className="ball"
