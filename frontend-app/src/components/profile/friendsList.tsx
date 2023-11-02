@@ -1,26 +1,99 @@
-import { useEffect, useState } from "react";
-import { User } from "./profile";
+import { useContext, useEffect, useState } from "react";
+import { AuthenticationContext } from "../authenticationState";
+import { blockUser, unfriend, User } from "./profile";
 
 export type Friend = {
   id: number;
   username: string;
 };
 
-function displayFriend(friend: Friend) {
-  return (
-    <p>
-      <a href={"/user/" + friend.id}>{friend.username}</a>
-    </p>
+function removeFriendFromList(userID: number, setFriends: any) {
+  setFriends((friends: Friend[]) =>
+    friends.filter((friend) => friend.id !== userID)
   );
 }
 
-function displayFriends(friends: Friend[]) {
-  if (friends === undefined) return <p>No friends</p>;
-  return friends.map(displayFriend);
+function blockButton(
+  myID: number,
+  targetID: number,
+  cookies: any,
+  setFriends: any
+) {
+  return (
+    <button
+      onClick={() => {
+        if (blockUser(targetID, myID, cookies)) {
+          removeFriendFromList(targetID, setFriends);
+        }
+      }}
+    >
+      Block
+    </button>
+  );
+}
+
+function unfriendButton(
+  myID: number,
+  targetID: number,
+  cookies: any,
+  setFriends: any
+) {
+  return (
+    <button
+      onClick={() => {
+        if (unfriend(targetID, myID, cookies)) {
+          removeFriendFromList(targetID, setFriends);
+        }
+      }}
+    >
+      Unfriend
+    </button>
+  );
+}
+
+function displayFriend(
+  friend: Friend,
+  isMyPage: boolean,
+  myID: number,
+  cookies: any,
+  setFriends: any
+) {
+  if (isMyPage) {
+    return (
+      <li>
+        <a href={"/user/" + friend.id}>{friend.username}</a>
+        {blockButton(myID, friend.id, cookies, setFriends)}
+        {unfriendButton(myID, friend.id, cookies, setFriends)}
+      </li>
+    );
+  }
+  return (
+    <li>
+      <a href={"/user/" + friend.id}>{friend.username}</a>
+    </li>
+  );
+}
+
+function displayFriends(
+  friends: Friend[],
+  isMyPage: boolean,
+  myID: number,
+  cookies: any,
+  setFriends: any
+) {
+  if (friends === undefined) return <ul>No friends</ul>;
+  return (
+    <ul>
+      {friends.map((friend: Friend) =>
+        displayFriend(friend, isMyPage, myID, cookies, setFriends)
+      )}
+    </ul>
+  );
 }
 
 function FriendsList(isMyPage: boolean, user: User, cookies: any) {
   const [friends, setFriends] = useState<Friend[]>();
+  const { authenticatedUserID } = useContext(AuthenticationContext);
 
   async function fetchFriends(userID: number, cookies: any) {
     var request = {
@@ -69,7 +142,13 @@ function FriendsList(isMyPage: boolean, user: User, cookies: any) {
   return (
     <div>
       <h3>Friends list:</h3>
-      {displayFriends(friends)}
+      {displayFriends(
+        friends,
+        isMyPage,
+        authenticatedUserID,
+        cookies,
+        setFriends
+      )}
     </div>
   );
 }

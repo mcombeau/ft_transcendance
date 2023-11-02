@@ -34,7 +34,11 @@ function userDetails(user: User) {
   );
 }
 
-function befriend(user: User, authenticatedUserID: number, cookies: any) {
+async function befriend(
+  userID: number,
+  authenticatedUserID: number,
+  cookies: any
+) {
   // TODO: rather create friendship invite
   var request = {
     method: "POST",
@@ -44,17 +48,25 @@ function befriend(user: User, authenticatedUserID: number, cookies: any) {
     },
     body: JSON.stringify({
       userID1: authenticatedUserID,
-      userID2: user.id,
+      userID2: userID,
     }),
   };
-  fetch(`http://localhost:3001/friends`, request).then(async (response) => {
-    if (!response.ok) {
-      console.log("Error adding friend");
+  return fetch(`http://localhost:3001/friends`, request).then(
+    async (response) => {
+      if (!response.ok) {
+        console.log("Error adding friend");
+        return false;
+      }
+      return true;
     }
-  });
+  );
 }
 
-function unfriend(user: User, authenticatedUserID: number, cookies: any) {
+export async function unfriend(
+  userID: number,
+  authenticatedUserID: number,
+  cookies: any
+) {
   var request = {
     method: "DELETE",
     headers: {
@@ -63,16 +75,20 @@ function unfriend(user: User, authenticatedUserID: number, cookies: any) {
     },
     body: JSON.stringify({
       userID1: authenticatedUserID,
-      userID2: user.id,
+      userID2: userID,
     }),
   };
-  fetch(`http://localhost:3001/friends`, request).then(async (response) => {
-    console.log("response");
-    console.log(response);
-    if (!response.ok) {
-      console.log("Error adding friend");
+  return fetch(`http://localhost:3001/friends`, request).then(
+    async (response) => {
+      console.log("response");
+      console.log(response);
+      if (!response.ok) {
+        console.log("Error adding friend");
+        return false;
+      }
+      return true;
     }
-  });
+  );
 }
 
 async function checkIfIsMyFriend(
@@ -95,8 +111,6 @@ async function checkIfIsMyFriend(
   };
   await fetch(`http://localhost:3001/friends/friend`, request).then(
     async (response) => {
-      console.log("is MY friend response");
-      console.log(response);
       if (!response.ok) {
         setIsMyFriend(false);
       } else {
@@ -106,33 +120,183 @@ async function checkIfIsMyFriend(
   );
 }
 
+async function checkIfIsBlocked(
+  user: User,
+  authenticatedUserID: number,
+  cookies: any,
+  setIsBlocked: any
+) {
+  if (user === undefined) return;
+  var request = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${cookies["token"]}`,
+    },
+    body: JSON.stringify({
+      blockingUserID: authenticatedUserID,
+      blockedUserID: user.id,
+    }),
+  };
+  await fetch(
+    `http://localhost:3001/blocked-users/isUserBlocked`,
+    request
+  ).then(async (response) => {
+    console.log("is blocked response");
+    console.log(response);
+    if (!response.ok) {
+      setIsBlocked(false);
+    } else {
+      setIsBlocked(true);
+    }
+  });
+}
+
+export async function blockUser(
+  userID: number,
+  authenticatedUserID: number,
+  cookies: any
+) {
+  console.log("blocking user");
+  var request = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${cookies["token"]}`,
+    },
+    body: JSON.stringify({
+      blockingUserID: authenticatedUserID,
+      blockedUserID: userID,
+    }),
+  };
+  return fetch(`http://localhost:3001/blocked-users`, request).then(
+    async (response) => {
+      if (!response.ok) {
+        console.log("Error blocking user");
+        return false;
+      }
+      return true;
+    }
+  );
+}
+
+async function unblockUser(
+  userID: number,
+  authenticatedUserID: number,
+  cookies: any
+) {
+  console.log("Unblocking user");
+  var request = {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${cookies["token"]}`,
+    },
+    body: JSON.stringify({
+      blockingUserID: authenticatedUserID,
+      blockedUserID: userID,
+    }),
+  };
+  return fetch(`http://localhost:3001/blocked-users`, request).then(
+    async (response) => {
+      console.log("response");
+      console.log(response);
+      if (!response.ok) {
+        console.log("Error unblocking user");
+        return false;
+      }
+      return true;
+    }
+  );
+}
+
+function friendButton(
+  user: User,
+  authenticatedUserID: number,
+  cookies: any,
+  isMyFriend: boolean,
+  setIsMyFriend: any
+) {
+  // TODO: check if need be async
+  if (isMyFriend) {
+    return (
+      <button
+        onClick={() => {
+          if (unfriend(user.id, authenticatedUserID, cookies)) {
+            setIsMyFriend(false);
+          }
+        }}
+      >
+        Unfriend
+      </button>
+    );
+  }
+  return (
+    <button
+      onClick={() => {
+        if (befriend(user.id, authenticatedUserID, cookies)) {
+          setIsMyFriend(true);
+        }
+      }}
+    >
+      Add friend
+    </button>
+  );
+}
+
+function blockButton(
+  user: User,
+  authenticatedUserID: number,
+  cookies: any,
+  isBlocked: boolean,
+  setIsBlocked: any
+) {
+  if (isBlocked) {
+    return (
+      <button
+        onClick={() => {
+          if (unblockUser(user.id, authenticatedUserID, cookies))
+            setIsBlocked(false);
+        }}
+      >
+        Unblock
+      </button>
+    );
+  }
+  return (
+    <button
+      onClick={() => {
+        if (blockUser(user.id, authenticatedUserID, cookies))
+          setIsBlocked(true);
+      }}
+    >
+      Block
+    </button>
+  );
+}
+
 function interactWithUser(
   isMyPage: boolean,
   isMyFriend: boolean,
+  setIsMyFriend: any,
+  isBlocked: boolean,
+  setIsBlocked: any,
   user: User,
   authenticatedUserID: number,
   cookies: any
 ) {
   if (user === undefined) return <div />;
   if (isMyPage) return <p></p>;
-  var friendshipButton: any;
-  if (isMyFriend) {
-    friendshipButton = (
-      <button onClick={() => unfriend(user, authenticatedUserID, cookies)}>
-        Unfriend
-      </button>
-    );
-  } else {
-    friendshipButton = (
-      <button onClick={() => befriend(user, authenticatedUserID, cookies)}>
-        Add friend
-      </button>
-    );
-  }
   return (
     <p>
-      {friendshipButton}
-      <button>Block user</button>
+      {friendButton(
+        user,
+        authenticatedUserID,
+        cookies,
+        isMyFriend,
+        setIsMyFriend
+      )}
+      {blockButton(user, authenticatedUserID, cookies, isBlocked, setIsBlocked)}
       <button>Send DM</button>
     </p>
   );
@@ -167,6 +331,7 @@ function Profile() {
   const socket = useContext(WebSocketContext);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isMyFriend, setIsMyFriend] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false);
   const { authenticatedUserID } = useContext(AuthenticationContext);
 
   async function fetchUser() {
@@ -203,11 +368,11 @@ function Profile() {
     }
 
     fetchUser();
-    checkIfIsMyFriend(user, authenticatedUserID, cookies, setIsMyFriend);
   }, [cookies, socket, profileUserID]);
 
   useEffect(() => {
     checkIfIsMyFriend(user, authenticatedUserID, cookies, setIsMyFriend);
+    checkIfIsBlocked(user, authenticatedUserID, cookies, setIsBlocked);
   }, [user]);
 
   // TODO: add friendship invite section
@@ -220,6 +385,9 @@ function Profile() {
       {interactWithUser(
         isMyPage,
         isMyFriend,
+        setIsMyFriend,
+        isBlocked,
+        setIsBlocked,
         user,
         authenticatedUserID,
         cookies

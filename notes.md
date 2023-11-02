@@ -1,5 +1,8 @@
 # PROFILE 
 
+- remove friend button for blocked users
+- blocked list
+
 - Misc
 	- fix cookie referring to user that does not exist
 	- fix going to page for user that does not exist
@@ -13,21 +16,23 @@
 	- change 2fa activation
 		- disable
 	- change avatar
-	- friends list
-		- unfriend 
-		- block 
 
 - other people
-	- friend/unfriend/block button
 	- challenge button
 	- ( dm button )
 
-- Remove 2fa secret from fetch users/userid (userEntity) mmcombeau
-- fix validation
+- Remove 2fa secret from fetch users/userid (userEntity) mcombeau
+- fix validation mcombeau
 - 404 if page not exist (not tostring business)
 
 -------------------------------------------------------------------------------------
-- sockets game
+
+- Game
+	- sockets game
+	- Defy somebody
+	- lobby/matchmaking
+	- personalization
+	- deal with broadband/network issues
 
 - validation:
 
@@ -39,10 +44,6 @@
   - limit number of password retries on join/accept invite
   - prettify password settings
 
-# Authentication - cookies
-
-
-- mot de passe update
 - change police chat
 
 Nice to have:
