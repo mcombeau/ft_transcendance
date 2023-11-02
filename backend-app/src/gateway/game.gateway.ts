@@ -69,13 +69,11 @@ export class GameGateway implements OnModuleInit {
   topBoundary: number;
   leftBoundary: number;
   rightBoundary: number;
-  defaultBallPosition: { x: number; y: number };
   step: number;
-  initialGameState: State;
   gameRooms: GameRoom[];
 
   onModuleInit() {
-    this.delay = 5;
+    this.delay = 1000;
     this.player1x = 42;
     this.player2x = 660;
     this.pHeight = 80;
@@ -92,22 +90,6 @@ export class GameGateway implements OnModuleInit {
     this.rightBoundary = 710;
     this.step = 7;
     this.gameRooms = [];
-    this.defaultBallPosition = {
-      x: 249,
-      y: 225,
-    };
-    this.initialGameState = {
-      result: [0, 0],
-      p1: 160,
-      p2: 160,
-      live: true,
-      isPaused: false,
-      ballPosition: this.defaultBallPosition,
-      move: {
-        stepX: -1,
-        stepY: 1,
-      },
-    };
     this.server.on('connection', async (socket) => {
       const token = socket.handshake.headers.authorization.split(' ')[1];
       const user = await this.authService
@@ -140,22 +122,21 @@ export class GameGateway implements OnModuleInit {
         'to receive messages from gameroom',
         myGameRoom.socketRoomID,
       );
-      this.randomInitialMove(myGameRoom.gameState);
     });
   }
 
   private startGame(gameRoom: GameRoom) {
+    if (gameRoom.socketRoomID === '0') {
+      console.log('Start gameroome 0');
+      gameRoom.gameState.ballPosition.x += 30;
+    }
+    if (gameRoom.socketRoomID === '1') {
+      console.log('Start gameroome 1');
+      gameRoom.gameState.ballPosition.x -= 60;
+    }
     setInterval(() => {
       this.tick(gameRoom);
       this.server.to(gameRoom.socketRoomID).emit('tick', gameRoom);
-      // console.log(
-      //   'tick userid',
-      //   user.userID,
-      //   'gameroom',
-      //   myGameRoom.socketRoomID,
-      // );
-      // console.log('State for gameroom ', myGameRoom.socketRoomID);
-      // console.log(myGameRoom.gameState);
     }, this.delay);
   }
 
@@ -172,8 +153,28 @@ export class GameGateway implements OnModuleInit {
     return null;
   }
 
+  private placeBall() {
+    return { x: 250, y: 250 };
+  }
+
+  private createGameState() {
+    return {
+      result: [0, 0],
+      p1: 160,
+      p2: 160,
+      live: true,
+      isPaused: false,
+      ballPosition: this.placeBall(),
+      move: {
+        stepX: -1,
+        stepY: 1,
+      },
+    };
+  }
+
   private async createRoom(socket: Socket, userID: number) {
     const socketRoomID = this.gameRooms.length.toString();
+
     console.log(
       '[Game Gateway] Create new GameRoom of id',
       socketRoomID,
@@ -184,7 +185,7 @@ export class GameGateway implements OnModuleInit {
     return {
       player1ID: userID,
       socketRoomID: socketRoomID,
-      gameState: this.initialGameState,
+      gameState: this.createGameState(),
     };
   }
 
@@ -319,7 +320,6 @@ export class GameGateway implements OnModuleInit {
         x: gameRoom.gameState.ballPosition.x + gameRoom.gameState.move.stepX,
         y: gameRoom.gameState.ballPosition.y + gameRoom.gameState.move.stepY,
       };
-      console.log('mod', gameRoom.socketRoomID);
     }
     this.check(gameRoom.gameState);
   }
@@ -360,7 +360,7 @@ export class GameGateway implements OnModuleInit {
   }
 
   resetBall(gameState: State) {
-    gameState.ballPosition = this.defaultBallPosition;
+    gameState.ballPosition = this.placeBall();
   }
 
   restart(gameState: State) {
