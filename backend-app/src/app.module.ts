@@ -10,6 +10,7 @@ import { GamesModule } from './games/games.module';
 import { ChatEntity } from './chats/entities/chat.entity';
 import { FriendEntity } from './friends/entities/Friend.entity';
 import { GameEntity } from './games/entities/game.entity';
+import { BlockedUserEntity } from 'src/blocked-users/entities/BlockedUser.entity';
 // import { ChatMessagesModule } from './chat-messages/chat-messages.module';
 import { ChatMessageEntity } from './chat-messages/entities/chat-message.entity';
 import { GatewayModule } from './gateway/gateway.module';
@@ -35,6 +36,7 @@ import { InvitesModule } from './invites/invites.module';
         ChatMessageEntity,
         ChatParticipantEntity,
         FriendEntity,
+        BlockedUserEntity,
         GameEntity,
         InviteEntity,
       ],

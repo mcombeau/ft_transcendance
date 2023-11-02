@@ -1,10 +1,18 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  ManyToMany,
+  JoinTable,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { ChatMessageEntity } from '../../chat-messages/entities/chat-message.entity';
 import { ChatParticipantEntity } from '../../chat-participants/entities/chat-participant.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { GameEntity } from 'src/games/entities/game.entity';
 import { InviteEntity } from 'src/invites/entities/Invite.entity';
 import { FriendEntity } from 'src/friends/entities/Friend.entity';
+import { BlockedUserEntity } from 'src/blocked-users/entities/BlockedUser.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity {
@@ -74,9 +82,25 @@ export class UserEntity {
 
   // @ApiProperty({ type: () => FriendEntity, isArray: true })
   @OneToMany(() => FriendEntity, (friend) => friend.user1, { nullable: true })
-  friend_to: FriendEntity[];
+  friendTo: FriendEntity[];
 
   // @ApiProperty({ type: () => FriendEntity, isArray: true })
   @OneToMany(() => FriendEntity, (friend) => friend.user2, { nullable: true })
-  friend_of: FriendEntity[];
+  friendOf: FriendEntity[];
+
+  // @ApiProperty({ type: () => FriendEntity, isArray: true })
+  @OneToMany(
+    () => BlockedUserEntity,
+    (blockedUser) => blockedUser.blockingUser,
+    { nullable: true },
+  )
+  blockedUsers: BlockedUserEntity[];
+
+  // @ApiProperty({ type: () => FriendEntity, isArray: true })
+  @OneToMany(
+    () => BlockedUserEntity,
+    (blockedUser) => blockedUser.blockedUser,
+    { nullable: true },
+  )
+  blockedByUsers: BlockedUserEntity[];
 }
