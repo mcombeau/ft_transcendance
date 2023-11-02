@@ -33,6 +33,7 @@ type GameRoom = {
   player1ID: number;
   player2ID?: number;
   socketRoomID: string;
+  gameState: State;
 };
 
 @WebSocketGateway({
@@ -65,8 +66,8 @@ export class GameGateway implements OnModuleInit {
   leftBoundary: number;
   rightBoundary: number;
   defaultBallPosition: { x: number; y: number };
-  gameState: State;
   step: number;
+  initialGameState: State;
   gameRooms: GameRoom[];
 
   onModuleInit() {
@@ -91,7 +92,7 @@ export class GameGateway implements OnModuleInit {
       x: 249,
       y: 225,
     };
-    this.gameState = {
+    this.initialGameState = {
       result: [0, 0],
       p1: 160,
       p2: 160,
@@ -124,12 +125,27 @@ export class GameGateway implements OnModuleInit {
         );
         socket.broadcast.emit('disconnection event');
       });
-      await this.joinRoom(socket, user.userID);
+      const myGameRoom: GameRoom = await this.joinRoom(socket, user.userID);
+      setInterval(() => {
+        this.tick(myGameRoom.gameState);
+        this.server.emit('tick', myGameRoom.gameState);
+      }, this.delay);
     });
-    setInterval(() => {
-      this.tick();
-      this.server.emit('tick', this.gameState);
-    }, this.delay);
+  }
+
+  // TODO: function start game
+
+  private async getRoom(userID: number) {
+    // TODO: remove unused rooms ?
+    for (let i = this.gameRooms.length - 1; i >= 0; i--) {
+      var gameRoom = this.gameRooms[i];
+      if (gameRoom.player1ID === userID) {
+        return gameRoom.socketRoomID;
+      } else if (gameRoom.player2ID && gameRoom.player2ID === userID) {
+        return gameRoom.socketRoomID;
+      }
+    }
+    return null;
   }
 
   private async createRoom(socket: Socket, userID: number) {
@@ -144,6 +160,7 @@ export class GameGateway implements OnModuleInit {
     return {
       player1ID: userID,
       socketRoomID: socketRoomID,
+      gameState: this.initialGameState,
     };
   }
 
@@ -153,7 +170,7 @@ export class GameGateway implements OnModuleInit {
     if (this.gameRooms.length === 0) {
       const newGameRoom = await this.createRoom(socket, userID);
       this.gameRooms.push(newGameRoom);
-      return;
+      return newGameRoom;
     }
     // If the last gameroom is not full join it
     const lastGameRoom = this.gameRooms[this.gameRooms.length - 1];
@@ -167,13 +184,15 @@ export class GameGateway implements OnModuleInit {
         'joins GameRoom of id',
         lastGameRoom.socketRoomID,
       );
+      return lastGameRoom;
     } else {
       const newGameRoom = await this.createRoom(socket, userID);
       this.gameRooms.push(newGameRoom);
+      return newGameRoom;
     }
   }
 
-  randomInitialMove() {
+  randomInitialMove(gameState: State) {
     // pseudo-random ball behavior
     const moves = [
       { stepX: 1, stepY: 1 },
@@ -183,131 +202,114 @@ export class GameGateway implements OnModuleInit {
       { stepX: -1, stepY: 1 },
     ];
     let initialMove = moves[Math.floor(Math.random() * moves.length)];
-    this.gameState.move = initialMove;
+    gameState.move = initialMove;
   }
 
-  checkGoals() {
+  checkGoals(gameState: State) {
     //checking if the ball touches the borders of the goal
     if (
-      this.gameState.ballPosition.x - this.ballRadius <=
+      gameState.ballPosition.x - this.ballRadius <=
         this.p1GateX + this.ballRadius * 2 &&
-      this.gameState.ballPosition.y + this.ballRadius >= this.gateY &&
-      this.gameState.ballPosition.y - this.ballRadius <=
-        this.gateY + this.gateHeight
+      gameState.ballPosition.y + this.ballRadius >= this.gateY &&
+      gameState.ballPosition.y - this.ballRadius <= this.gateY + this.gateHeight
     ) {
-      this.gameState.result = [
-        this.gameState.result[0],
-        this.gameState.result[1] + 1,
-      ];
-      this.resetBall();
-      this.randomInitialMove();
+      gameState.result = [gameState.result[0], gameState.result[1] + 1];
+      this.resetBall(gameState);
+      this.randomInitialMove(gameState);
     }
 
     if (
-      this.gameState.ballPosition.x + this.ballRadius >= this.p2GateX &&
-      this.gameState.ballPosition.y + this.ballRadius >= this.gateY &&
-      this.gameState.ballPosition.y - this.ballRadius <=
-        this.gateY + this.gateHeight
+      gameState.ballPosition.x + this.ballRadius >= this.p2GateX &&
+      gameState.ballPosition.y + this.ballRadius >= this.gateY &&
+      gameState.ballPosition.y - this.ballRadius <= this.gateY + this.gateHeight
     ) {
-      this.gameState.result = [
-        this.gameState.result[0] + 1,
-        this.gameState.result[1],
-      ];
-      this.resetBall();
-      this.randomInitialMove();
+      gameState.result = [gameState.result[0] + 1, gameState.result[1]];
+      this.resetBall(gameState);
+      this.randomInitialMove(gameState);
     }
   }
 
-  checkPlayers() {
+  checkPlayers(gameState: State) {
     //checking if the ball is touching the players, and if so, calculating the angle of rebound
     if (
-      this.gameState.ballPosition.x - this.ballRadius <= this.player1x &&
-      this.gameState.ballPosition.y + this.ballRadius >= this.gameState.p1 &&
-      this.gameState.ballPosition.y - this.ballRadius <=
-        this.gameState.p1 + this.pHeight
+      gameState.ballPosition.x - this.ballRadius <= this.player1x &&
+      gameState.ballPosition.y + this.ballRadius >= gameState.p1 &&
+      gameState.ballPosition.y - this.ballRadius <= gameState.p1 + this.pHeight
     ) {
-      this.gameState.move = {
-        stepX: -this.gameState.move.stepX,
-        stepY: this.gameState.move.stepY,
+      gameState.move = {
+        stepX: -gameState.move.stepX,
+        stepY: gameState.move.stepY,
       };
     }
 
     if (
-      this.gameState.ballPosition.x - this.ballRadius >= this.player2x &&
-      this.gameState.ballPosition.y + this.ballRadius >= this.gameState.p2 &&
-      this.gameState.ballPosition.y - this.ballRadius <=
-        this.gameState.p2 + this.pHeight
+      gameState.ballPosition.x - this.ballRadius >= this.player2x &&
+      gameState.ballPosition.y + this.ballRadius >= gameState.p2 &&
+      gameState.ballPosition.y - this.ballRadius <= gameState.p2 + this.pHeight
     ) {
-      this.gameState.move = {
-        stepX: -this.gameState.move.stepX,
-        stepY: this.gameState.move.stepY,
+      gameState.move = {
+        stepX: -gameState.move.stepX,
+        stepY: gameState.move.stepY,
       };
     }
   }
 
-  checkBallBoundaries() {
+  checkBallBoundaries(gameState: State) {
     //checking if the ball is touching the boundaries, and if so, calculating the angle of rebound
     if (
-      this.gameState.ballPosition.y +
-        this.ballRadius +
-        this.gameState.move.stepY >=
+      gameState.ballPosition.y + this.ballRadius + gameState.move.stepY >=
         this.bottomBoundary ||
-      this.gameState.ballPosition.y -
-        this.ballRadius +
-        this.gameState.move.stepY <=
+      gameState.ballPosition.y - this.ballRadius + gameState.move.stepY <=
         this.topBoundary
     ) {
-      this.gameState.move = {
-        stepX: this.gameState.move.stepX,
-        stepY: -this.gameState.move.stepY,
+      gameState.move = {
+        stepX: gameState.move.stepX,
+        stepY: -gameState.move.stepY,
       };
     }
 
     if (
-      this.gameState.ballPosition.x -
-        this.ballRadius +
-        this.gameState.move.stepX <=
+      gameState.ballPosition.x - this.ballRadius + gameState.move.stepX <=
         this.leftBoundary ||
-      this.gameState.ballPosition.x +
-        this.ballRadius +
-        this.gameState.move.stepX >=
+      gameState.ballPosition.x + this.ballRadius + gameState.move.stepX >=
         this.rightBoundary
     ) {
-      this.gameState.move = {
-        stepX: -this.gameState.move.stepX,
-        stepY: this.gameState.move.stepY,
+      gameState.move = {
+        stepX: -gameState.move.stepX,
+        stepY: gameState.move.stepY,
       };
     }
   }
 
-  check() {
-    this.checkPlayers();
-    this.checkGoals();
-    this.checkBallBoundaries();
-    this.checkGameOver();
+  check(gameState: State) {
+    this.checkPlayers(gameState);
+    this.checkGoals(gameState);
+    this.checkBallBoundaries(gameState);
+    this.checkGameOver(gameState);
   }
 
-  tick() {
-    if (this.gameState.live === true) {
-      this.gameState.ballPosition = {
-        x: this.gameState.ballPosition.x + this.gameState.move.stepX,
-        y: this.gameState.ballPosition.y + this.gameState.move.stepY,
+  tick(gameState: State) {
+    if (gameState.live === true) {
+      gameState.ballPosition = {
+        x: gameState.ballPosition.x + gameState.move.stepX,
+        y: gameState.ballPosition.y + gameState.move.stepY,
       };
     }
-    this.check();
+    this.check(gameState);
   }
 
   checkPlayerBoundaries(
     player: number, //checking the boundaries of players for going beyond the field
+    gameState: State,
   ) {
     if (player === 1) {
-      if (this.gameState.p1 + this.pHeight >= this.playerMaxY) return 1;
-      if (this.gameState.p1 <= this.playerMinY) {
+      if (gameState.p1 + this.pHeight >= this.playerMaxY) return 1;
+      if (gameState.p1 <= this.playerMinY) {
         return 2;
       }
     } else if (player === 2) {
-      if (this.gameState.p2 + this.pHeight >= this.playerMaxY) return 3;
-      if (this.gameState.p2 <= this.playerMinY) return 4;
+      if (gameState.p2 + this.pHeight >= this.playerMaxY) return 3;
+      if (gameState.p2 <= this.playerMinY) return 4;
     }
 
     return 0;
@@ -315,40 +317,41 @@ export class GameGateway implements OnModuleInit {
 
   resetPlayer(
     code: number, //return of players to the field, in case of exit
+    gameState: State,
   ) {
     if (code === 1) {
-      this.gameState.p1 = this.playerMaxY - this.pHeight;
+      gameState.p1 = this.playerMaxY - this.pHeight;
     }
     if (code === 2) {
-      this.gameState.p1 = this.playerMinY;
+      gameState.p1 = this.playerMinY;
     }
     if (code === 3) {
-      this.gameState.p2 = this.playerMaxY - this.pHeight;
+      gameState.p2 = this.playerMaxY - this.pHeight;
     }
     if (code === 4) {
-      this.gameState.p2 = this.playerMinY;
+      gameState.p2 = this.playerMinY;
     }
   }
 
-  resetBall() {
-    this.gameState.ballPosition = this.defaultBallPosition;
+  resetBall(gameState: State) {
+    gameState.ballPosition = this.defaultBallPosition;
   }
 
-  restart() {
-    this.resetBall();
-    this.randomInitialMove();
+  restart(gameState: State) {
+    this.resetBall(gameState);
+    this.randomInitialMove(gameState);
   }
 
-  pause() {
-    this.gameState.live = !this.gameState.live;
-    this.gameState.isPaused = !this.gameState.isPaused;
+  pause(gameState: State) {
+    gameState.live = !gameState.live;
+    gameState.isPaused = !gameState.isPaused;
   }
 
-  checkGameOver() {
-    const { result } = this.gameState;
+  checkGameOver(gameState: State) {
+    const { result } = gameState;
     if (result[0] === 10 || result[1] === 10) {
       // TODO: finish game and insert in db
-      this.pause();
+      this.pause(gameState);
     }
   }
 
