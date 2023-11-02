@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from "react";
+import { useCookies } from "react-cookie";
 import { WebSocketContext } from "../../contexts/WebsocketContext";
 import "./styles.css";
 
@@ -41,36 +42,41 @@ function Play() {
   });
   const ballRadius: number = 10;
   const socket = useContext(WebSocketContext);
+  const [cookies] = useCookies(["token"]);
 
-  function componentDidMount() {
+  function componentDidMount(cookies: any) {
     console.log("Component did mount");
-    window.addEventListener("keydown", handleKeyPress);
+    window.addEventListener("keydown", (event) => {
+      handleKeyPress(event, cookies);
+    });
   }
 
-  function componentWillUnmount() {
+  function componentWillUnmount(cookies: any) {
     console.log("Component will unmount");
-    window.removeEventListener("keydown", handleKeyPress);
+    window.removeEventListener("keydown", (event) => {
+      handleKeyPress(event, cookies);
+    });
   }
 
-  function handleKeyPress(event: any) {
+  function handleKeyPress(event: any, cookies: any) {
     // TODO: remove secondary keys and replace by arrows
     if (event.key === "q") {
-      socket.emit("up");
+      socket.emit("up", cookies["token"]);
     } else if (event.key === "a") {
-      socket.emit("down");
+      socket.emit("down", cookies["token"]);
     } else if (event.key === "o") {
-      socket.emit("up2");
+      socket.emit("up2", cookies["token"]);
     } else if (event.key === "l") {
-      socket.emit("down2");
+      socket.emit("down2", cookies["token"]);
     }
   }
 
   useEffect(() => {
     console.log("Init socket");
-    socket.on("tick", (state: State) => {
-      console.log("received tick");
-      console.log(state);
-      setState(state);
+    socket.on("tick", (data: any) => {
+      console.log(data);
+      console.log("received tick from gameroowm", data.gameRoomID);
+      setState(data.gameState);
     });
     return () => {
       console.log("Unregistering sockets");
@@ -79,9 +85,9 @@ function Play() {
   }, []);
 
   useEffect(() => {
-    componentDidMount();
+    componentDidMount(cookies);
     return () => {
-      componentWillUnmount();
+      componentWillUnmount(cookies);
     };
   }, []);
 

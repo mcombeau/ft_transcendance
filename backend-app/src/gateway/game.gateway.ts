@@ -129,24 +129,44 @@ export class GameGateway implements OnModuleInit {
         );
         socket.broadcast.emit('disconnection event');
       });
-      const myGameRoom: GameRoom = await this.joinRoom(socket, user.userID);
-      setInterval(() => {
-        this.tick(myGameRoom.gameState);
-        this.server.emit('tick', myGameRoom.gameState);
-      }, this.delay);
+
+      var myGameRoom: GameRoom = await this.getRoom(user.userID);
+      if (!myGameRoom) {
+        myGameRoom = await this.joinRoom(socket, user.userID);
+      }
+      console.log(
+        'Setting up user',
+        user.userID,
+        'to receive messages from gameroom',
+        myGameRoom.socketRoomID,
+      );
+      this.randomInitialMove(myGameRoom.gameState);
     });
   }
 
-  // TODO: function start game
+  private startGame(gameRoom: GameRoom) {
+    setInterval(() => {
+      this.tick(gameRoom);
+      this.server.to(gameRoom.socketRoomID).emit('tick', gameRoom);
+      // console.log(
+      //   'tick userid',
+      //   user.userID,
+      //   'gameroom',
+      //   myGameRoom.socketRoomID,
+      // );
+      // console.log('State for gameroom ', myGameRoom.socketRoomID);
+      // console.log(myGameRoom.gameState);
+    }, this.delay);
+  }
 
   private async getRoom(userID: number) {
     // TODO: remove unused rooms ?
     for (let i = this.gameRooms.length - 1; i >= 0; i--) {
       var gameRoom = this.gameRooms[i];
       if (gameRoom.player1ID === userID) {
-        return gameRoom.socketRoomID;
+        return gameRoom;
       } else if (gameRoom.player2ID && gameRoom.player2ID === userID) {
-        return gameRoom.socketRoomID;
+        return gameRoom;
       }
     }
     return null;
@@ -188,6 +208,7 @@ export class GameGateway implements OnModuleInit {
         'joins GameRoom of id',
         lastGameRoom.socketRoomID,
       );
+      this.startGame(lastGameRoom);
       return lastGameRoom;
     } else {
       const newGameRoom = await this.createRoom(socket, userID);
@@ -292,14 +313,15 @@ export class GameGateway implements OnModuleInit {
     this.checkGameOver(gameState);
   }
 
-  tick(gameState: State) {
-    if (gameState.live === true) {
-      gameState.ballPosition = {
-        x: gameState.ballPosition.x + gameState.move.stepX,
-        y: gameState.ballPosition.y + gameState.move.stepY,
+  tick(gameRoom: GameRoom) {
+    if (gameRoom.gameState.live === true) {
+      gameRoom.gameState.ballPosition = {
+        x: gameRoom.gameState.ballPosition.x + gameRoom.gameState.move.stepX,
+        y: gameRoom.gameState.ballPosition.y + gameRoom.gameState.move.stepY,
       };
+      console.log('mod', gameRoom.socketRoomID);
     }
-    this.check(gameState);
+    this.check(gameRoom.gameState);
   }
 
   checkPlayerBoundaries(
@@ -363,7 +385,9 @@ export class GameGateway implements OnModuleInit {
   async onUp(@MessageBody() token: string) {
     const userID: number = await this.chatGateway.checkIdentity(token);
     // TODO: maybe change the way we get gamerooms and id them
-    const gameRoom: GameRoom = this.gameRooms[await this.getRoom(userID)];
+    const gameRoom: GameRoom =
+      this.gameRooms[(await this.getRoom(userID)).socketRoomID];
+    console.log('Gameroom for user', userID, ':', gameRoom.socketRoomID);
     gameRoom.gameState.p1 -= this.step;
     if (this.checkPlayerBoundaries(1, gameRoom.gameState)) {
       this.resetPlayer(
@@ -376,7 +400,8 @@ export class GameGateway implements OnModuleInit {
   @SubscribeMessage('down')
   async onDown(@MessageBody() token: string) {
     const userID: number = await this.chatGateway.checkIdentity(token);
-    const gameRoom: GameRoom = this.gameRooms[await this.getRoom(userID)];
+    const gameRoom: GameRoom =
+      this.gameRooms[(await this.getRoom(userID)).socketRoomID];
     gameRoom.gameState.p1 += this.step;
     if (this.checkPlayerBoundaries(1, gameRoom.gameState)) {
       this.resetPlayer(
@@ -389,7 +414,9 @@ export class GameGateway implements OnModuleInit {
   @SubscribeMessage('up2')
   async onUp2(@MessageBody() token: string) {
     const userID: number = await this.chatGateway.checkIdentity(token);
-    const gameRoom: GameRoom = this.gameRooms[await this.getRoom(userID)];
+    const gameRoom: GameRoom =
+      this.gameRooms[(await this.getRoom(userID)).socketRoomID];
+
     gameRoom.gameState.p2 -= this.step;
     if (this.checkPlayerBoundaries(2, gameRoom.gameState)) {
       this.resetPlayer(
@@ -402,8 +429,9 @@ export class GameGateway implements OnModuleInit {
   @SubscribeMessage('down2')
   async onDown2(@MessageBody() token: string) {
     const userID: number = await this.chatGateway.checkIdentity(token);
-    const gameRoom: GameRoom = this.gameRooms[await this.getRoom(userID)];
-    gameRoom.gameState.p2 -= this.step;
+    const gameRoom: GameRoom =
+      this.gameRooms[(await this.getRoom(userID)).socketRoomID];
+    gameRoom.gameState.p2 += this.step;
     if (this.checkPlayerBoundaries(2, gameRoom.gameState)) {
       this.resetPlayer(
         this.checkPlayerBoundaries(2, gameRoom.gameState),
