@@ -275,6 +275,15 @@ function blockButton(
   );
 }
 
+function challengeButton(user: User, authenticatedUserID: number) {
+  console.log("User " + authenticatedUserID + " challenges user " + user.id);
+  // TODO: redirect challenging user to play page with a specific status (maybe unique id room ?)
+  // - accept challenge business for later, challenged user has a new button
+  // - if they click it redirect them to the new room
+  // - probably using sockets
+  return <button>Challenge</button>;
+}
+
 function interactWithUser(
   isMyPage: boolean,
   isMyFriend: boolean,
@@ -297,6 +306,7 @@ function interactWithUser(
         setIsMyFriend
       )}
       {blockButton(user, authenticatedUserID, cookies, isBlocked, setIsBlocked)}
+      {challengeButton(user, authenticatedUserID)}
       <button>Send DM</button>
     </p>
   );

@@ -59,7 +59,7 @@ export class GameGateway implements OnModuleInit {
   step: number;
 
   onModuleInit() {
-    this.delay = 10;
+    this.delay = 5;
     this.player1x = 42;
     this.player2x = 660;
     this.pHeight = 80;
@@ -278,6 +278,7 @@ export class GameGateway implements OnModuleInit {
   checkGameOver() {
     const { result } = this.gameState;
     if (result[0] === 10 || result[1] === 10) {
+      // TODO: finish game and insert in db
       this.pause();
     }
   }
