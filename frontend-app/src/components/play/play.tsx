@@ -3,6 +3,9 @@ import { useCookies } from "react-cookie";
 import { WebSocketContext } from "../../contexts/WebsocketContext";
 import "./styles.css";
 
+const UP = 38;
+const DOWN = 40;
+
 type Position = {
   x: number;
   y: number;
@@ -62,14 +65,11 @@ function Play() {
 
   function handleKeyPress(event: any, cookies: any) {
     // TODO: remove secondary keys and replace by arrows
-    if (event.key === "q") {
+
+    if (event.key === "w" || event.key === UP) {
       socket.emit("up", cookies["token"]);
-    } else if (event.key === "a") {
+    } else if (event.key === "s" || event.key === DOWN) {
       socket.emit("down", cookies["token"]);
-    } else if (event.key === "o") {
-      socket.emit("up2", cookies["token"]);
-    } else if (event.key === "l") {
-      socket.emit("down2", cookies["token"]);
     }
   }
 

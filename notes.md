@@ -28,7 +28,7 @@
 -------------------------------------------------------------------------------------
 
 - Game
-	- sockets game
+	- emit pour start the game (maybe countdown ?)
 	- Defy somebody
 	- lobby/matchmaking
 	- personalization

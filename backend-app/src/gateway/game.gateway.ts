@@ -75,7 +75,7 @@ export class GameGateway implements OnModuleInit {
   gameRooms: GameRoom[];
 
   onModuleInit() {
-    this.delay = 1000;
+    this.delay = 13;
     this.player1x = 42;
     this.player2x = 660;
     this.pHeight = 80;
@@ -388,14 +388,21 @@ export class GameGateway implements OnModuleInit {
   @SubscribeMessage('up')
   async onUp(@MessageBody() token: string) {
     const userID: number = await this.chatGateway.checkIdentity(token);
-    // TODO: maybe change the way we get gamerooms and id them
+
     const gameRoom: GameRoom =
       this.gameRooms[(await this.getRoom(userID)).socketRoomID];
-    console.log('Gameroom for user', userID, ':', gameRoom.socketRoomID);
-    gameRoom.gameState.p1 -= this.step;
-    if (this.checkPlayerBoundaries(1, gameRoom.gameState)) {
+
+    var playerIndex = 1;
+    if (gameRoom.player1ID === userID) {
+      gameRoom.gameState.p1 -= this.step;
+    } else {
+      playerIndex = 2;
+      gameRoom.gameState.p2 -= this.step;
+    }
+
+    if (this.checkPlayerBoundaries(playerIndex, gameRoom.gameState)) {
       this.resetPlayer(
-        this.checkPlayerBoundaries(1, gameRoom.gameState),
+        this.checkPlayerBoundaries(playerIndex, gameRoom.gameState),
         gameRoom.gameState,
       );
     }
@@ -406,39 +413,17 @@ export class GameGateway implements OnModuleInit {
     const userID: number = await this.chatGateway.checkIdentity(token);
     const gameRoom: GameRoom =
       this.gameRooms[(await this.getRoom(userID)).socketRoomID];
-    gameRoom.gameState.p1 += this.step;
-    if (this.checkPlayerBoundaries(1, gameRoom.gameState)) {
-      this.resetPlayer(
-        this.checkPlayerBoundaries(1, gameRoom.gameState),
-        gameRoom.gameState,
-      );
+
+    var playerIndex = 1;
+    if (gameRoom.player1ID === userID) {
+      gameRoom.gameState.p1 += this.step;
+    } else {
+      playerIndex = 2;
+      gameRoom.gameState.p2 += this.step;
     }
-  }
-
-  @SubscribeMessage('up2')
-  async onUp2(@MessageBody() token: string) {
-    const userID: number = await this.chatGateway.checkIdentity(token);
-    const gameRoom: GameRoom =
-      this.gameRooms[(await this.getRoom(userID)).socketRoomID];
-
-    gameRoom.gameState.p2 -= this.step;
-    if (this.checkPlayerBoundaries(2, gameRoom.gameState)) {
+    if (this.checkPlayerBoundaries(playerIndex, gameRoom.gameState)) {
       this.resetPlayer(
-        this.checkPlayerBoundaries(2, gameRoom.gameState),
-        gameRoom.gameState,
-      );
-    }
-  }
-
-  @SubscribeMessage('down2')
-  async onDown2(@MessageBody() token: string) {
-    const userID: number = await this.chatGateway.checkIdentity(token);
-    const gameRoom: GameRoom =
-      this.gameRooms[(await this.getRoom(userID)).socketRoomID];
-    gameRoom.gameState.p2 += this.step;
-    if (this.checkPlayerBoundaries(2, gameRoom.gameState)) {
-      this.resetPlayer(
-        this.checkPlayerBoundaries(2, gameRoom.gameState),
+        this.checkPlayerBoundaries(playerIndex, gameRoom.gameState),
         gameRoom.gameState,
       );
     }
