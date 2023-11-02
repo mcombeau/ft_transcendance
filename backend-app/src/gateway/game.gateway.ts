@@ -6,6 +6,8 @@ import {
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { GamesService } from 'src/games/games.service';
+import { AuthService } from 'src/auth/auth.service';
+import { Socket } from 'socket.io';
 
 type Position = {
   x: number;
@@ -27,6 +29,12 @@ type State = {
   move: Step;
 };
 
+type GameRoom = {
+  player1ID: number;
+  player2ID?: number;
+  socketRoomID: string;
+};
+
 @WebSocketGateway({
   cors: {
     origin: ['http://localhost:3000', 'http://localhost'],
@@ -34,6 +42,8 @@ type State = {
 })
 export class GameGateway implements OnModuleInit {
   constructor(
+    @Inject(forwardRef(() => AuthService))
+    private authService: AuthService,
     @Inject(forwardRef(() => GamesService))
     private gameService: GamesService,
   ) {}
@@ -57,6 +67,7 @@ export class GameGateway implements OnModuleInit {
   defaultBallPosition: { x: number; y: number };
   gameState: State;
   step: number;
+  gameRooms: GameRoom[];
 
   onModuleInit() {
     this.delay = 5;
@@ -75,6 +86,7 @@ export class GameGateway implements OnModuleInit {
     this.leftBoundary = 5;
     this.rightBoundary = 710;
     this.step = 7;
+    this.gameRooms = [];
     this.defaultBallPosition = {
       x: 249,
       y: 225,
@@ -91,17 +103,74 @@ export class GameGateway implements OnModuleInit {
         stepY: 1,
       },
     };
-    this.server.on('connection', (socket) => {
-      // this.resetBall();
-      console.log(`[Game Gateway]: A user connected: ${socket.id}`);
+    this.server.on('connection', async (socket) => {
+      const token = socket.handshake.headers.authorization.split(' ')[1];
+      const user = await this.authService
+        .validateToken(token)
+        .catch(() => {
+          return false;
+        })
+        .finally(() => {
+          return true;
+        });
+
+      console.log(
+        `[Chat Gateway]: A user connected: ${user.username} - ${user.userID} (${socket.id})`,
+      );
+      socket.broadcast.emit('connection event'); // TODO: probably remove
       socket.on('disconnect', () => {
-        console.log('a user disconnected');
+        console.log(
+          `[Chat Gateway]: A user disconnected: ${user.username} - ${user.userID} (${socket.id})`,
+        );
+        socket.broadcast.emit('disconnection event');
       });
+      await this.joinRoom(socket, user.userID);
     });
     setInterval(() => {
       this.tick();
       this.server.emit('tick', this.gameState);
     }, this.delay);
+  }
+
+  private async createRoom(socket: Socket, userID: number) {
+    const socketRoomID = this.gameRooms.length.toString();
+    console.log(
+      '[Game Gateway] Create new GameRoom of id',
+      socketRoomID,
+      'with player',
+      userID,
+    );
+    await socket.join(socketRoomID);
+    return {
+      player1ID: userID,
+      socketRoomID: socketRoomID,
+    };
+  }
+
+  private async joinRoom(socket: Socket, userID: number) {
+    socket.data.userID = userID;
+    // If there is no gameroom create and join one
+    if (this.gameRooms.length === 0) {
+      const newGameRoom = await this.createRoom(socket, userID);
+      this.gameRooms.push(newGameRoom);
+      return;
+    }
+    // If the last gameroom is not full join it
+    const lastGameRoom = this.gameRooms[this.gameRooms.length - 1];
+    // If the last gameroom is full create a new one
+    if (!lastGameRoom.player2ID) {
+      lastGameRoom.player2ID = userID;
+      await socket.join(lastGameRoom.socketRoomID);
+      console.log(
+        '[Game Gateway] User',
+        userID,
+        'joins GameRoom of id',
+        lastGameRoom.socketRoomID,
+      );
+    } else {
+      const newGameRoom = await this.createRoom(socket, userID);
+      this.gameRooms.push(newGameRoom);
+    }
   }
 
   randomInitialMove() {
