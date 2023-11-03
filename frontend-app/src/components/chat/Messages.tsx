@@ -3,7 +3,7 @@ import { NavigateFunction } from "react-router-dom";
 import { Socket } from "socket.io-client";
 import { Message, ChatRoom, Invite, PublicChatRoom } from "./types";
 import { ContextMenuEl } from "./ContextMenu";
-import { ReceivedInfo } from "./types";
+import { ReceivedInfo, typeInvite } from "./types";
 
 export const Messages = (
   currentChatRoom: ChatRoom,
@@ -80,16 +80,36 @@ export const Messages = (
   const inviteStatus = (invite: Invite) => {
     // MAKE SURE THIS WORKS BECAUSE ITS FUCKING WEIIIIIIRD
     var date = new Date(parseInt(invite.expiresAt.toString()));
+    var messageInvite: string;
+    switch (invite.type) {
+      case typeInvite.Game:
+        messageInvite = "wants to play";
+        break;
+
+      case typeInvite.Friend:
+        messageInvite = "wants to be your friend";
+        break;
+
+      case typeInvite.Chat:
+        messageInvite =
+          "invites you to join chat " + <i>invite.chatRoomName</i>;
+        break;
+
+      default:
+        messageInvite = "sent you an unknown invite";
+        break;
+    }
     return (
-      // TODO: make actual type
       <div id="messages_invite">
         <p>
-          <b>{invite.senderUsername}</b> invites you to join the {invite.type}{" "}
-          <i>{invite.chatRoomName}</i> until {date.toString().split("GMT")[0]}
+          <b>{invite.senderUsername}</b> {messageInvite} <br />
+          <small>
+            (this invite expires on {date.toString().split("GMT")[0]})
+          </small>
         </p>
         <button
           id="accept"
-          onClick={(e) => {
+          onClick={() => {
             var getPassword = "";
             if (invite.chatHasPassword) {
               getPassword = prompt(
@@ -163,11 +183,11 @@ export const Messages = (
             ),
             token: cookies["token"],
           };
-			if (getPassword !== "") {
-				info.chatInfo = {
-				password: getPassword,
-				}
-			}
+          if (getPassword !== "") {
+            info.chatInfo = {
+              password: getPassword,
+            };
+          }
           socket.emit("join chat", info);
         }}
       >

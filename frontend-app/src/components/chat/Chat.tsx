@@ -348,7 +348,6 @@ export const Chat = () => {
     });
 
     socket.on("join chat", async (info: ReceivedInfo) => {
-      console.log("RECEIVED", "join chat", info);
       var user: User = {
         userID: info.userID,
         username: info.username,
