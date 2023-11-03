@@ -51,11 +51,6 @@ export class ReceivedInfoDto {
 
   @ApiProperty()
   @IsOptional()
-  @IsEnum(inviteType)
-  inviteType?: inviteType;
-
-  @ApiProperty()
-  @IsOptional()
   @ValidateNested()
   @Type(() => createMessageDto)
   messageInfo?: createMessageDto;

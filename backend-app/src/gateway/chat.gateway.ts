@@ -500,11 +500,11 @@ export class ChatGateway implements OnModuleInit {
     try {
       info.userID = await this.checkIdentity(info.token);
       const inviteDetails: UserTargetChat = {
-        inviteType: info.inviteType,
+        inviteType: info.inviteInfo.type,
         userID: info.userID,
         targetID: info.targetID,
       };
-      if (info.chatRoomID && info.inviteType === inviteType.CHAT) {
+      if (info.chatRoomID && info.inviteInfo.type === inviteType.CHAT) {
         inviteDetails.chatRoomID = info.chatRoomID;
       }
       const invite = await this.inviteUser(inviteDetails);
@@ -1096,7 +1096,7 @@ export class ChatGateway implements OnModuleInit {
       throw new InviteCreationError(`User not found`);
     }
     const invite = await this.inviteService.createInvite({
-      type: info.inviteType,
+      type: info.inviteInfo.type,
       senderID: info.userID,
       invitedUserID: info.targetID,
     });
@@ -1104,7 +1104,7 @@ export class ChatGateway implements OnModuleInit {
   }
 
   private async inviteUser(info: UserTargetChat): Promise<sendInviteDto> {
-    switch (info.inviteType) {
+    switch (info.inviteInfo.type) {
       case inviteType.CHAT:
         return this.inviteUserToChat(info);
       case inviteType.GAME:
