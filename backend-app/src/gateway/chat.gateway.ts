@@ -39,7 +39,7 @@ import { WebsocketExceptionsFilter } from 'src/exceptions/websocket-exception.fi
 type UserTargetChat = {
   userID: number;
   targetID: number;
-  chatRoomID: number;
+  chatRoomID?: number;
   inviteType?: inviteType;
 };
 
@@ -499,12 +499,12 @@ export class ChatGateway implements OnModuleInit {
   async onInvite(@MessageBody() info: ReceivedInfoDto): Promise<void> {
     try {
       info.userID = await this.checkIdentity(info.token);
-      const inviteDetails = {
-        type: info.inviteType,
+      const inviteDetails: UserTargetChat = {
+        inviteType: info.inviteType,
         userID: info.userID,
         targetID: info.targetID,
       };
-      if (info.inviteType === inviteType.CHAT) {
+      if (info.chatRoomID && info.inviteType === inviteType.CHAT) {
         inviteDetails.chatRoomID = info.chatRoomID;
       }
       const invite = await this.inviteUser(inviteDetails);
@@ -1106,11 +1106,11 @@ export class ChatGateway implements OnModuleInit {
   private async inviteUser(info: UserTargetChat): Promise<sendInviteDto> {
     switch (info.inviteType) {
       case inviteType.CHAT:
-        return inviteUserToChat(info);
+        return this.inviteUserToChat(info);
       case inviteType.GAME:
-        return inviteUserGeneric(info);
+        return this.inviteUserGeneric(info);
       case inviteType.FRIEND:
-        return inviteUserGeneric(info);
+        return this.inviteUserGeneric(info);
     }
   }
 
