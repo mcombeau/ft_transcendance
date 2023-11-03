@@ -36,6 +36,8 @@ export const ContextMenuEl = (
         (e.target as HTMLInputElement).getAttribute("value")
       );
     }
+    console.log("Sent invite", info);
+    console.log("Invite info", info.inviteInfo);
     ChangeStatus(info, "invite", socket);
     setContextMenu(false);
     setInvitesMenu(false);

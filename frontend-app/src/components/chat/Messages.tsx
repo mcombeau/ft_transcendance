@@ -77,6 +77,24 @@ export const Messages = (
     );
   };
 
+  function acceptInvite(invite: Invite) {
+    var info: ReceivedInfo = {
+      token: cookies["token"],
+      inviteInfo: invite,
+    };
+    if (invite.type === typeInvite.Chat) {
+      if (invite.chatHasPassword) {
+        var getPassword = prompt(
+          `${invite.chatRoomName} is password protected. Please enter password:`
+        );
+      }
+      info.chatInfo = {
+        password: getPassword,
+      };
+    }
+    socket.emit("accept invite", info);
+  }
+
   const inviteStatus = (invite: Invite) => {
     // MAKE SURE THIS WORKS BECAUSE ITS FUCKING WEIIIIIIRD
     var date = new Date(parseInt(invite.expiresAt.toString()));
@@ -110,20 +128,7 @@ export const Messages = (
         <button
           id="accept"
           onClick={() => {
-            var getPassword = "";
-            if (invite.chatHasPassword) {
-              getPassword = prompt(
-                `${invite.chatRoomName} is password protected. Please enter password:`
-              );
-            }
-            var info: ReceivedInfo = {
-              token: cookies["token"],
-              inviteInfo: invite,
-              chatInfo: {
-                password: getPassword,
-              },
-            };
-            socket.emit("accept invite", info);
+            acceptInvite(invite);
           }}
         >
           Accept

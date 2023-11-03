@@ -63,6 +63,7 @@ export function ChangeStatus(
 ) {
   const status_values = ["mute", "kick", "ban", "operator", "invite", "dm"];
   if (!status_values.includes(userStatus)) return;
+  console.log("Change status invite info", info);
   socket.emit(userStatus, info);
 }
 
