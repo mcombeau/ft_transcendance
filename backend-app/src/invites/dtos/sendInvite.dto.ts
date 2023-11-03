@@ -1,27 +1,29 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsEnum } from 'class-validator';
 import { inviteType } from '../entities/Invite.entity';
 
 export class sendInviteDto {
   @ApiProperty()
-  id: number;
+  id?: number;
 
   @ApiProperty()
+  @IsEnum(inviteType)
   type: inviteType;
 
   @ApiProperty()
-  expiresAt: number;
+  expiresAt?: number;
 
   @ApiProperty()
-  senderID: number;
+  senderID?: number;
 
   @ApiProperty()
-  senderUsername: string;
+  senderUsername?: string;
 
   @ApiProperty()
-  invitedID: number;
+  invitedID?: number;
 
   @ApiProperty()
-  invitedUsername: string;
+  invitedUsername?: string;
 
   @ApiProperty()
   chatRoomID?: number;

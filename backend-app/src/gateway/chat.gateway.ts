@@ -1096,21 +1096,24 @@ export class ChatGateway implements OnModuleInit {
       throw new InviteCreationError(`User not found`);
     }
     const invite = await this.inviteService.createInvite({
-      type: info.inviteInfo.type,
+      type: info.inviteType,
       senderID: info.userID,
       invitedUserID: info.targetID,
     });
+    console.log('[ChatGateway] created Invite:', invite);
     return invite;
   }
 
   private async inviteUser(info: UserTargetChat): Promise<sendInviteDto> {
-    switch (info.inviteInfo.type) {
+    switch (info.inviteType) {
       case inviteType.CHAT:
         return this.inviteUserToChat(info);
       case inviteType.GAME:
         return this.inviteUserGeneric(info);
       case inviteType.FRIEND:
         return this.inviteUserGeneric(info);
+      default:
+        throw new InviteCreationError('invalid invite type');
     }
   }
 
