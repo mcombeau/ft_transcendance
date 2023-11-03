@@ -188,7 +188,6 @@ export class ChatGateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() info: ReceivedInfoDto,
   ): Promise<void> {
-    console.log('[Chat Gateway]: Add chat', info);
     try {
       info.userID = await this.checkIdentity(info.token);
       info.chatInfo.ownerID = info.userID;
@@ -221,7 +220,6 @@ export class ChatGateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() info: ReceivedInfoDto,
   ): Promise<void> {
-    console.log('[Chat Gateway]: Leave socket room:', info);
     try {
       info.userID = await this.checkIdentity(info.token);
       const userParticipant =
@@ -248,7 +246,6 @@ export class ChatGateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() info: ReceivedInfoDto,
   ): Promise<void> {
-    console.log('[Chat Gateway]: Join socket room:', info);
     try {
       info.userID = await this.checkIdentity(info.token);
       const userParticipant =
@@ -303,7 +300,6 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('delete chat')
   async onDeleteChat(@MessageBody() info: ReceivedInfoDto): Promise<void> {
-    console.log('[Chat Gateway]: Delete chat', info);
     try {
       info.userID = await this.checkIdentity(info.token);
       this.deleteChatRoom({ userID: info.userID, chatRoomID: info.chatRoomID });
@@ -326,7 +322,6 @@ export class ChatGateway implements OnModuleInit {
   ): Promise<void> {
     // TODO: good error message "You have been banned"
     try {
-      console.log('[Chat Gateway]: Join chat', info);
       info.userID = await this.checkIdentity(info.token);
       const user = await this.userService.fetchUserByID(info.userID);
       if (info.chatInfo && info.chatInfo.password !== undefined) {
@@ -405,7 +400,6 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('chat message')
   async onChatMessage(@MessageBody() info: ReceivedInfoDto): Promise<void> {
-    console.log('[Chat Gateway]: Sending chat message');
     try {
       const userID = await this.checkIdentity(info.token);
       info.userID = userID;
@@ -446,12 +440,6 @@ export class ChatGateway implements OnModuleInit {
         info.participantInfo.mutedUntil,
       );
       info.token = '';
-      console.log('Muted date:', info.participantInfo.mutedUntil);
-      console.log('Muted date:', info.participantInfo.mutedUntil.toString());
-      console.log(
-        'Muted date:',
-        new Date(info.participantInfo.mutedUntil).toString(),
-      );
       this.server
         .to(this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat))
         .emit('mute', info);
@@ -466,7 +454,6 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('toggle private')
   async onTogglePrivate(@MessageBody() info: ReceivedInfoDto): Promise<void> {
-    console.log('[Chat Gateway]: Toggle private chat');
     try {
       info.userID = await this.checkIdentity(info.token);
       info.username = (
@@ -542,7 +529,6 @@ export class ChatGateway implements OnModuleInit {
     @MessageBody() info: ReceivedInfoDto,
   ): Promise<void> {
     try {
-      console.log('[Chat Gateway]: accept invite', info);
       info.userID = await this.checkIdentity(info.token);
       const user = await this.userService.fetchUserByID(info.userID);
       switch (info.inviteInfo.type) {
@@ -573,7 +559,6 @@ export class ChatGateway implements OnModuleInit {
     @MessageBody() info: ReceivedInfoDto,
   ): Promise<void> {
     try {
-      console.log('[Chat Gateway]: Refuse invite', info);
       info.userID = await this.checkIdentity(info.token);
       await this.refuseUserInvite(info.inviteInfo);
       info.token = '';
@@ -692,7 +677,6 @@ export class ChatGateway implements OnModuleInit {
   @SubscribeMessage('set password')
   async onSetPassword(@MessageBody() info: ReceivedInfoDto): Promise<void> {
     try {
-      console.log('[Chat Gateway]: set password:', info);
       info.userID = await this.checkIdentity(info.token);
 
       await this.setPassword(
@@ -706,7 +690,6 @@ export class ChatGateway implements OnModuleInit {
       info.chatInfo.hasPassword =
         await this.chatsService.fetchChatHasPasswordByID(info.chatRoomID);
 
-      console.log('[Chat Gateway]: After setting password', info);
       info.token = '';
       info.chatInfo.password = '';
       this.server.emit('set password', info);
@@ -875,14 +858,11 @@ export class ChatGateway implements OnModuleInit {
     password: string,
     chatRoomID: number,
   ): Promise<void> {
-    console.log('Check Chat Room Pass', password, chatRoomID);
     const chat = await this.getChatRoomOrFail(chatRoomID);
     const passwordOK = await this.passwordService.checkPasswordChat(
       password,
       chat,
     );
-    console.log('[Chat Gateway]: password is OK ?', passwordOK);
-    console.log('[Chat Gateway]: inputted password', password);
     if (!passwordOK) {
       throw new ChatPermissionError(
         `Invalid password for chatroom ${chat.name}`,
@@ -907,7 +887,6 @@ export class ChatGateway implements OnModuleInit {
           `User '${info.userID}' is banned from '${info.chatRoomID}'.`,
         );
       }
-      console.log('[Chat Gateway]: participant', participant);
       throw new ChatJoinError(
         `User '${info.userID}' is already in chat '${info.chatRoomID}'.`,
       );
@@ -960,9 +939,6 @@ export class ChatGateway implements OnModuleInit {
       newMutedTimestamp = new Date(
         Date.now() + minutes * (60 * 1000),
       ).getTime();
-      console.log('Muted date:', newMutedTimestamp);
-      console.log('Muted date:', newMutedTimestamp.toString());
-      console.log('Muted date:', new Date(newMutedTimestamp).toString());
     }
     await this.chatParticipantsService.updateParticipantByID(target.id, {
       mutedUntil: newMutedTimestamp,
@@ -1084,7 +1060,6 @@ export class ChatGateway implements OnModuleInit {
       senderID: info.userID,
       invitedUserID: info.targetID,
     });
-    console.log('[ChatGateway] created Invite:', invite);
     return invite;
   }
 
@@ -1209,7 +1184,6 @@ export class ChatGateway implements OnModuleInit {
     user: UserEntity,
     info: ReceivedInfoDto,
   ): Promise<ReceivedInfoDto> {
-    console.log('[Chat Gateway] accept Friend invite:', info.inviteInfo);
     await this.acceptUserInviteToFriends(info.inviteInfo);
     info.username = user.username;
     info.token = '';

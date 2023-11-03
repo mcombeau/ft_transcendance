@@ -154,22 +154,15 @@ export class InvitesService {
   }
 
   async createInvite(inviteDetails: inviteParams): Promise<sendInviteDto> {
-    console.log(
-      '[Invite Service] creating invite of type:',
-      inviteDetails.type,
-    );
     switch (inviteDetails.type) {
       case inviteType.CHAT:
         const chatInvite = await this.createChatInvite(inviteDetails);
-        console.log('[Invite Service] created invite', chatInvite);
         return this.formatInviteForSending(chatInvite);
       case inviteType.GAME:
         const gameInvite = await this.createGameInvite(inviteDetails);
-        console.log('[Invite Service] created invite', gameInvite);
         return this.formatInviteForSending(gameInvite);
       case inviteType.FRIEND:
         const friendInvite = await this.createFriendInvite(inviteDetails);
-        console.log('[Invite Service] created invite', friendInvite);
         return this.formatInviteForSending(friendInvite);
       default:
         throw new InviteCreationError('invalid invite type.');

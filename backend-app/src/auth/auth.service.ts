@@ -58,7 +58,6 @@ export class AuthService {
   school42Login(req: any, res: any): void {
     console.log('[Auth Service]: school42login');
     const user: UserEntity = req.user;
-    console.log(user);
     const access_token = this.login(user);
     res.cookie('token', access_token.access_token);
     res.redirect(302, `http://localhost:3000/user/${user.id}`);

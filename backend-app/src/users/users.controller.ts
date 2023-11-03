@@ -83,7 +83,6 @@ export class UsersController {
   async getUserGamesByUserID(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<sendGameDto[]> {
-    console.log('[User Controller]: fetching games');
     return this.userService.fetchUserGamesByUserID(id);
   }
 
@@ -97,7 +96,6 @@ export class UsersController {
   async getUserFriendsByUserID(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<sendFriendDto[]> {
-    console.log('[User Controller]: fetching friends');
     return this.userService.fetchUserFriendsByUserID(id);
   }
 

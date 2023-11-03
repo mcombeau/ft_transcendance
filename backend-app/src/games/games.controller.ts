@@ -46,8 +46,6 @@ export class GamesController {
     description: 'Database error. (Unprocessable entity)',
   })
   createGame(@Body() gameDto: createGameDto) {
-    console.log('A game has been posted');
-    console.log(gameDto);
     return this.gameService.createGame(gameDto);
   }
 

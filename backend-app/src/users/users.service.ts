@@ -107,7 +107,6 @@ export class UsersService {
       userDetails.password,
     );
     userDetails.password = hashedPassword;
-    console.log('[User Service]: creating user', userDetails);
     const newUserInfo = this.userRepository.create({
       ...userDetails,
       isTwoFactorAuthenticationEnabled: false,
