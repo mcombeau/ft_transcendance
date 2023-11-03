@@ -40,6 +40,7 @@ type UserTargetChat = {
   userID: number;
   targetID: number;
   chatRoomID: number;
+  inviteType?: inviteType;
 };
 
 enum RoomType {
@@ -498,11 +499,15 @@ export class ChatGateway implements OnModuleInit {
   async onInvite(@MessageBody() info: ReceivedInfoDto): Promise<void> {
     try {
       info.userID = await this.checkIdentity(info.token);
-      const invite = await this.inviteUser({
+      const inviteDetails = {
+        type: info.inviteType,
         userID: info.userID,
         targetID: info.targetID,
-        chatRoomID: info.chatRoomID,
-      });
+      };
+      if (info.inviteType === inviteType.CHAT) {
+        inviteDetails.chatRoomID = info.chatRoomID;
+      }
+      const invite = await this.inviteUser(inviteDetails);
       info.inviteInfo = invite;
       info.inviteInfo.chatHasPassword =
         await this.chatsService.fetchChatHasPasswordByID(info.chatRoomID);
@@ -1057,7 +1062,7 @@ export class ChatGateway implements OnModuleInit {
     return isPrivate;
   }
 
-  private async inviteUser(info: UserTargetChat): Promise<sendInviteDto> {
+  private async inviteUserToChat(info: UserTargetChat): Promise<sendInviteDto> {
     await this.getParticipantOrFail({
       userID: info.userID,
       chatRoomID: info.chatRoomID,
@@ -1080,6 +1085,33 @@ export class ChatGateway implements OnModuleInit {
       chatRoomID: info.chatRoomID,
     });
     return invite;
+  }
+
+  private async inviteUserGeneric(
+    info: UserTargetChat,
+  ): Promise<sendInviteDto> {
+    const user = await this.userService.fetchUserByID(info.userID);
+    const target = await this.userService.fetchUserByID(info.targetID);
+    if (!user || !target) {
+      throw new InviteCreationError(`User not found`);
+    }
+    const invite = await this.inviteService.createInvite({
+      type: info.inviteType,
+      senderID: info.userID,
+      invitedUserID: info.targetID,
+    });
+    return invite;
+  }
+
+  private async inviteUser(info: UserTargetChat): Promise<sendInviteDto> {
+    switch (info.inviteType) {
+      case inviteType.CHAT:
+        return inviteUserToChat(info);
+      case inviteType.GAME:
+        return inviteUserGeneric(info);
+      case inviteType.FRIEND:
+        return inviteUserGeneric(info);
+    }
   }
 
   private async acceptUserInvite(info: UserChatInfo): Promise<void> {
