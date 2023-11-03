@@ -132,12 +132,14 @@ export class InvitesService {
   async createInvite(inviteDetails: inviteParams): Promise<sendInviteDto> {
     switch (inviteDetails.type) {
       case inviteType.CHAT:
-        const invite = await this.createChatInvite(inviteDetails);
+        let invite = await this.createChatInvite(inviteDetails);
         return this.formatInviteForSending(invite);
-      // case inviteType.GAME:
-      //   return this.createGameInvite(inviteDetails);
-      // case inviteType.FRIEND:
-      //   return this.createFriendInvite(inviteDetails);
+      case inviteType.GAME:
+        invite = await this.createGameInvite(inviteDetails);
+        return this.formatInviteForSending(invite);
+      case inviteType.FRIEND:
+        invite = await this.createFriendInvite(inviteDetails);
+        return this.formatInviteForSending(invite);
       default:
         throw new InviteCreationError('invalid invite type.');
     }
@@ -167,6 +169,7 @@ export class InvitesService {
       where: {
         inviteSender: sender,
         invitedUser: invitedUser,
+        type: inviteType.CHAT,
         chatRoom: chatRoom,
       },
     });
@@ -187,14 +190,84 @@ export class InvitesService {
     }
   }
 
-  private async createGameInvite(inviteDetails: inviteParams) {
-    // TODO [mcombeau]: implement this
-    throw new InviteCreationError('game invites not implemented yet.');
+  private async createGameInvite(
+    inviteDetails: inviteParams,
+  ): Promise<InviteEntity> {
+    const sender = await this.userService.fetchUserByID(inviteDetails.senderID);
+    const invitedUser = await this.userService.fetchUserByID(
+      inviteDetails.invitedUserID,
+    );
+
+    if (!sender || !invitedUser) {
+      throw new InviteCreationError('invalid parameters for invite creation.');
+    }
+
+    let inviteExpiry = 0;
+    inviteExpiry = new Date(
+      Date.now() + 1 * (60 * 60 * 1000), // time + 1 hour
+    ).getTime();
+
+    const invite = await this.inviteRepository.findOne({
+      where: {
+        inviteSender: sender,
+        invitedUser: invitedUser,
+        type: inviteType.GAME,
+      },
+    });
+    if (invite) {
+      // invite already exists, updating invite expiry.
+      await this.inviteRepository.update(invite.id, {
+        expiresAt: inviteExpiry,
+      });
+      return this.fetchInviteEntityByID(invite.id);
+    } else {
+      return this.inviteRepository.save({
+        type: inviteType.GAME,
+        expiresAt: inviteExpiry,
+        inviteSender: sender,
+        invitedUser: invitedUser,
+      });
+    }
   }
 
-  private async createFriendInvite(inviteDetails: inviteParams) {
-    // TODO [mcombeau]: implement this
-    throw new InviteCreationError('friend invites not implemented yet.');
+  private async createFriendInvite(
+    inviteDetails: inviteParams,
+  ): Promise<InviteEntity> {
+    const sender = await this.userService.fetchUserByID(inviteDetails.senderID);
+    const invitedUser = await this.userService.fetchUserByID(
+      inviteDetails.invitedUserID,
+    );
+
+    if (!sender || !invitedUser) {
+      throw new InviteCreationError('invalid parameters for invite creation.');
+    }
+
+    let inviteExpiry = 0;
+    inviteExpiry = new Date(
+      Date.now() + 1 * (60 * 60 * 1000), // time + 1 hour
+    ).getTime();
+
+    const invite = await this.inviteRepository.findOne({
+      where: {
+        inviteSender: sender,
+        invitedUser: invitedUser,
+        type: inviteType.FRIEND,
+      },
+    });
+    if (invite) {
+      // invite already exists, updating invite expiry.
+      await this.inviteRepository.update(invite.id, {
+        expiresAt: inviteExpiry,
+      });
+      return this.fetchInviteEntityByID(invite.id);
+    } else {
+      return this.inviteRepository.save({
+        type: inviteType.FRIEND,
+        expiresAt: inviteExpiry,
+        inviteSender: sender,
+        invitedUser: invitedUser,
+      });
+    }
   }
 
   async deleteInvitesByInvitedUserChatRoomID(
