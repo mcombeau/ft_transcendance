@@ -20,6 +20,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
 import { ChatParticipantsService } from 'src/chat-participants/chat-participants.service';
 import { ChatParticipantEntity } from 'src/chat-participants/entities/chat-participant.entity';
+import { UserEntity } from 'src/users/entities/user.entity';
 import { ChatsService } from 'src/chats/chats.service';
 import {
   ChatJoinError,
@@ -532,6 +533,63 @@ export class ChatGateway implements OnModuleInit {
     }
   }
 
+  private async acceptChatInvite(
+    user: UserEntity,
+    info: ReceivedInfoDto,
+    @ConnectedSocket() socket: Socket,
+  ): Promise<ReceivedInfoDto> {
+    await this.checkChatRoomPassword(
+      info.chatInfo.password,
+      info.inviteInfo.chatRoomID,
+    );
+    await this.acceptUserInviteToChatRoom({
+      userID: info.userID,
+      chatRoomID: info.inviteInfo.chatRoomID,
+    });
+    info.username = user.username;
+    info.token = '';
+    const chat = await this.chatsService.fetchChatByID(
+      info.inviteInfo.chatRoomID,
+    );
+    info.chatRoomID = chat.id;
+    info.chatInfo = {
+      name: chat.name,
+      isPrivate: chat.isPrivate,
+    };
+    if (socket.data.userID === info.userID) {
+      // Making the participants join the socket room
+      await socket.join(
+        this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat),
+      );
+    }
+    return info;
+  }
+
+  private async acceptGameInvite(
+    user: UserEntity,
+    info: ReceivedInfoDto,
+  ): Promise<ReceivedInfoDto> {
+    // TODO: implement this
+    console.log('Game accept invite not implemented yet !');
+    info.username = user.username;
+    info.token = '';
+    return info;
+  }
+
+  private async acceptFriendInvite(
+    user: UserEntity,
+    info: ReceivedInfoDto,
+  ): Promise<ReceivedInfoDto> {
+    info.inviteInfo = await this.inviteService.createInvite({
+      type: info.inviteInfo.type,
+      senderID: info.userID,
+      invitedUserID: info.targetID,
+    });
+    info.username = user.username;
+    info.token = '';
+    return info;
+  }
+
   @SubscribeMessage('accept invite')
   async onAcceptInvite(
     @ConnectedSocket() socket: Socket,
@@ -541,29 +599,18 @@ export class ChatGateway implements OnModuleInit {
       console.log('[Chat Gateway]: accept invite', info);
       info.userID = await this.checkIdentity(info.token);
       const user = await this.userService.fetchUserByID(info.userID);
-      await this.checkChatRoomPassword(
-        info.chatInfo.password,
-        info.inviteInfo.chatRoomID,
-      );
-      await this.acceptUserInvite({
-        userID: info.userID,
-        chatRoomID: info.inviteInfo.chatRoomID,
-      });
-      info.username = user.username;
-      info.token = '';
-      const chat = await this.chatsService.fetchChatByID(
-        info.inviteInfo.chatRoomID,
-      );
-      info.chatRoomID = chat.id;
-      info.chatInfo = {
-        name: chat.name,
-        isPrivate: chat.isPrivate,
-      };
-      if (socket.data.userID === info.userID) {
-        // Making the participants join the socket room
-        await socket.join(
-          this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat),
-        );
+      switch (info.inviteInfo.type) {
+        case inviteType.CHAT:
+          info = await this.acceptChatInvite(user, info, socket);
+          break;
+        case inviteType.GAME:
+          info = await this.acceptGameInvite(user, info);
+          break;
+        case inviteType.FRIEND:
+          info = await this.acceptFriendInvite(user, info);
+          break;
+        default:
+          throw new InviteCreationError('Invalid invite type');
       }
       this.server
         .to(this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat))
@@ -1117,7 +1164,7 @@ export class ChatGateway implements OnModuleInit {
     }
   }
 
-  private async acceptUserInvite(info: UserChatInfo): Promise<void> {
+  private async acceptUserInviteToChatRoom(info: UserChatInfo): Promise<void> {
     try {
       const invite =
         await this.inviteService.fetchInviteByInvitedUserChatRoomID(info);
