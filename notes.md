@@ -25,7 +25,6 @@
   - challenge button
   - ( dm button )
 
-- fix validation mcombeau
 - 404 if page not exist (not tostring business)
 
 ---
@@ -46,7 +45,7 @@
 - passwords:
 
   - hide password as they are typed
-  - limit number of password retries on join/accept invite
+  - limit number of passwgrd retries on join/accept invite
   - prettify password settings
 
 - change police chat
