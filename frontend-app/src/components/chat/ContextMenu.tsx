@@ -27,7 +27,9 @@ export const ContextMenuEl = (
     var info: ReceivedInfo = {
       token: cookies["token"],
       targetID: target.id,
-      inviteType: type,
+      inviteInfo: {
+        type: type,
+      },
     };
     if (type === typeInvite.Chat) {
       info.chatRoomID = parseInt(

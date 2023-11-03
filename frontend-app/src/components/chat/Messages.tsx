@@ -131,7 +131,7 @@ export const Messages = (
 
         <button
           id="refuse"
-          onClick={(e) => {
+          onClick={() => {
             const info = {
               token: cookies["token"],
               inviteInfo: invite,
