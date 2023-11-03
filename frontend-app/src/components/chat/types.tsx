@@ -10,6 +10,7 @@ export type ReceivedInfo = {
   participantInfo?: updateParticipantParams;
   inviteInfo?: Invite;
   inviteDate?: number;
+  inviteType?: typeInvite;
 };
 
 export type createChatMessageParams = {
