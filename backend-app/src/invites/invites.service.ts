@@ -129,6 +129,30 @@ export class InvitesService {
     // return this.formatInvitesArrayForSending(invites);
   }
 
+  async fetchInviteByUserIDsAndType(
+    userID1: number,
+    userID2: number,
+    type: inviteType,
+  ): Promise<InviteEntity[]> {
+    await this.deleteExpiredInvites();
+    const invite = await this.inviteRepository.find({
+      where: [
+        {
+          type: type,
+          inviteSender: { id: userID1 },
+          invitedUser: { id: userID2 },
+        },
+        {
+          type: type,
+          inviteSender: { id: userID2 },
+          invitedUser: { id: userID1 },
+        },
+      ],
+      relations: ['inviteSender', 'invitedUser', 'chatRoom'],
+    });
+    return invite;
+  }
+
   async createInvite(inviteDetails: inviteParams): Promise<sendInviteDto> {
     console.log(
       '[Invite Service] creating invite of type:',
