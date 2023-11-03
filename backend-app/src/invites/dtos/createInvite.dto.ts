@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsInt, IsNotEmpty, IsPositive } from 'class-validator';
+import {
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsPositive,
+} from 'class-validator';
 import { inviteType } from '../entities/Invite.entity';
 
 export class createInviteDto {
@@ -21,8 +27,9 @@ export class createInviteDto {
   invitedUserID: number;
 
   @ApiProperty()
+  @IsOptional()
   @IsNotEmpty()
   @IsInt()
   @IsPositive()
-  chatRoomID: number;
+  chatRoomID?: number;
 }
