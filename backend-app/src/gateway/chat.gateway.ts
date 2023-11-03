@@ -30,6 +30,7 @@ import {
 import { InviteEntity, inviteType } from 'src/invites/entities/Invite.entity';
 import { InvitesService } from 'src/invites/invites.service';
 import { UsersService } from 'src/users/users.service';
+import { FriendsService } from 'src/friends/friends.service';
 import { UserChatInfo } from 'src/chat-participants/utils/types';
 import { ReceivedInfoDto } from './dtos/chatGateway.dto';
 import { ChatEntity } from 'src/chats/entities/chat.entity';
@@ -74,6 +75,8 @@ export class ChatGateway implements OnModuleInit {
     private authService: AuthService,
     @Inject(forwardRef(() => PasswordService))
     private passwordService: PasswordService,
+    @Inject(forwardRef(() => FriendsService))
+    private friendService: FriendsService,
   ) {}
   @WebSocketServer()
   server: Server;
@@ -562,6 +565,9 @@ export class ChatGateway implements OnModuleInit {
         this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat),
       );
     }
+    this.server
+      .to(this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat))
+      .emit('accept invite', info);
     return info;
   }
 
@@ -573,6 +579,7 @@ export class ChatGateway implements OnModuleInit {
     console.log('Game accept invite not implemented yet !');
     info.username = user.username;
     info.token = '';
+    // TODO emit to user 1 and 2 to join game
     return info;
   }
 
@@ -580,13 +587,14 @@ export class ChatGateway implements OnModuleInit {
     user: UserEntity,
     info: ReceivedInfoDto,
   ): Promise<ReceivedInfoDto> {
-    info.inviteInfo = await this.inviteService.createInvite({
-      type: info.inviteInfo.type,
-      senderID: info.userID,
-      invitedUserID: info.targetID,
+    console.log('[Chat Gateway] accept Friend invite:', info.inviteInfo);
+    await this.friendService.createFriend({
+      userID1: info.inviteInfo.senderID,
+      userID2: info.inviteInfo.invitedID,
     });
     info.username = user.username;
     info.token = '';
+    // TODO emit to user 1 and 2 that they are now friends
     return info;
   }
 
@@ -612,9 +620,6 @@ export class ChatGateway implements OnModuleInit {
         default:
           throw new InviteCreationError('Invalid invite type');
       }
-      this.server
-        .to(this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat))
-        .emit('accept invite', info);
     } catch (e) {
       const err_msg = '[Chat Gateway]: Chat accept invite error:' + e.message;
       console.log(err_msg);
