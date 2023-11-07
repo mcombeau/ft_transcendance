@@ -203,6 +203,7 @@ export const Chat = () => {
   const [contextMenu, setContextMenu] = useState(false);
   const [invitesPannel, setInvitesPannel] = useState(false);
   const [publicChatsPannel, setPublicChatsPannel] = useState(false);
+  const [blockedUsers, setBlockedUsers] = useState([]);
   const [invites, setInvites] = useState([]);
   const { authenticatedUserID } = useContext(AuthenticationContext);
   let navigate = useNavigate();
@@ -746,6 +747,27 @@ export const Chat = () => {
       });
     }
 
+    if (blockedUsers.length === 0) {
+      // Fetching Chats
+      fetch(
+        `http://localhost:3001/users/${authenticatedUserID}/blockedUsers`,
+        request
+      ).then(async (response) => {
+        const data = await response.json();
+        if (!response.ok) {
+          console.log("error response load channels");
+          return;
+        }
+        console.log("RECEIVED blocked users data", data);
+        data.map(async (blockedRelationship: any) => {
+          setBlockedUsers((prev) => [
+            ...prev,
+            blockedRelationship.blockedUserID,
+          ]);
+        });
+      });
+    }
+
     if (publicChats.length === 0) {
       fetch(`http://localhost:3001/chats/public`, request).then(
         async (response) => {
@@ -871,7 +893,9 @@ export const Chat = () => {
             publicChatsPannel,
             cookies,
             myChats,
-            authenticatedUserID
+            authenticatedUserID,
+            blockedUsers,
+            setBlockedUsers
           )}
           {SendForm(
             getChannel(currentChatRoomID),

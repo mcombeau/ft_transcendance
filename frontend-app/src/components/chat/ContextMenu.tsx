@@ -1,9 +1,10 @@
 import { Status, ChatRoom, typeInvite } from "./types";
 import { ChangeStatus } from "./Chat";
-import { Dispatch, SetStateAction, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { Socket } from "socket.io-client";
 import { checkStatus } from "./Chat";
 import { ReceivedInfo } from "./types";
+import { blockUser, unblockUser } from "../profile/profile";
 
 export const ContextMenuEl = (
   contextMenu: boolean,
@@ -14,10 +15,17 @@ export const ContextMenuEl = (
   channel: ChatRoom,
   cookies: any,
   myChats: ChatRoom[],
-  authenticatedUserID: number
+  authenticatedUserID: number,
+  blockedUsers: number[],
+  setBlockedUsers: Dispatch<SetStateAction<number[]>>
 ) => {
   const menuRef = useRef<HTMLDivElement>(null);
   const [invitesMenu, setInvitesMenu] = useState(false);
+  const [userIsBlocked, setUserIsBlocked] = useState(false);
+
+  useEffect(() => {
+    setUserIsBlocked(blockedUsers.includes(target.id));
+  }, []);
 
   function invite(
     e: any,
@@ -59,17 +67,45 @@ export const ContextMenuEl = (
   }
   // TODO: refact li
 
-  if (!invitesMenu) {
-    var options = (
-      <ul>
+  function blockButton() {
+    if (userIsBlocked) {
+      return (
         <li
           onClick={() => {
-            console.log("Blocked " + target.username);
+            console.log("Unblocked " + target.username);
+            if (unblockUser(target.id, authenticatedUserID, cookies)) {
+              setBlockedUsers((prev) =>
+                prev.filter((userID: number) => userID !== target.id)
+              );
+              setUserIsBlocked(false);
+            }
             setContextMenu(false);
           }}
         >
-          Block
+          Unblock
         </li>
+      );
+    }
+    return (
+      <li
+        onClick={() => {
+          console.log("Blocked " + target.username);
+          if (blockUser(target.id, authenticatedUserID, cookies)) {
+            setBlockedUsers([...blockedUsers, target.id]);
+            setUserIsBlocked(true);
+          }
+          setContextMenu(false);
+        }}
+      >
+        Block
+      </li>
+    );
+  }
+
+  if (!invitesMenu) {
+    var options = (
+      <ul>
+        {blockButton()}
         <li
           onClick={() => {
             console.log("Invited " + target.username);

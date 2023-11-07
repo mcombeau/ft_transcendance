@@ -181,7 +181,7 @@ export async function blockUser(
   );
 }
 
-async function unblockUser(
+export async function unblockUser(
   userID: number,
   authenticatedUserID: number,
   cookies: any
@@ -386,7 +386,6 @@ function Profile() {
     checkIfIsBlocked(user, authenticatedUserID, cookies, setIsBlocked);
   }, [user]);
 
-  // TODO: add friendship invite section
   return (
     <div>
       <img src={defaultProfilePicture} width="100" height="100"></img>

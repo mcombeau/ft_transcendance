@@ -18,7 +18,9 @@ export const Messages = (
   publicChatsPannel: boolean,
   cookies: any,
   myChats: ChatRoom[],
-  authenticatedUserID: number
+  authenticatedUserID: number,
+  blockedUsers: number[],
+  setBlockedUsers: Dispatch<SetStateAction<number[]>>
 ) => {
   const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
   const [contextMenuTarget, setContextMenuTarget] = useState({
@@ -163,7 +165,9 @@ export const Messages = (
           currentChatRoom,
           cookies,
           myChats,
-          authenticatedUserID
+          authenticatedUserID,
+          blockedUsers,
+          setBlockedUsers
         )}
       </div>
     );
@@ -222,7 +226,11 @@ export const Messages = (
 
   function displayMessages(currentChatRoom: ChatRoom) {
     if (currentChatRoom === undefined) return <div></div>;
-    return currentChatRoom.messages.map(messageStatus);
+    return currentChatRoom.messages
+      .filter((message: Message) => {
+        return !blockedUsers.includes(message.senderID);
+      })
+      .map(messageStatus);
   }
 
   return (
@@ -238,7 +246,9 @@ export const Messages = (
         currentChatRoom,
         cookies,
         myChats,
-        authenticatedUserID
+        authenticatedUserID,
+        blockedUsers,
+        setBlockedUsers
       )}
     </div>
   );
