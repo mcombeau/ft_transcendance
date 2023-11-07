@@ -58,11 +58,11 @@ export class BlockedUsersService {
   async fetchBlockedUsersByUserID(
     userID: number,
   ): Promise<sendBlockedUserDto[]> {
-    const blockedUsers = await this.blockedUserRepository.find({
+    const usersIAmBlocking = await this.blockedUserRepository.find({
       where: [{ blockingUser: { id: userID } }],
       relations: ['blockingUser', 'blockedUser'],
     });
-    return this.formatBlockedUserArrayForSending(blockedUsers);
+    return this.formatBlockedUserArrayForSending(usersIAmBlocking);
   }
 
   async fetchBlockingUsersByUserID(
