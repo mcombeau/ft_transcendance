@@ -44,8 +44,8 @@ export class UserEntity {
   @Column()
   isTwoFactorAuthenticationEnabled: boolean;
 
-  @ApiProperty()
-  @Column()
+  // @ApiProperty()
+  @Column({ nullable: true, select: false })
   twoFactorAuthenticationSecret: string;
 
   // @ApiProperty({ type: () => ChatMessageEntity, isArray: true })

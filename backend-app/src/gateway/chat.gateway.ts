@@ -20,7 +20,9 @@ import { AuthService } from 'src/auth/auth.service';
 import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
 import { ChatParticipantsService } from 'src/chat-participants/chat-participants.service';
 import { ChatParticipantEntity } from 'src/chat-participants/entities/chat-participant.entity';
+import { UserEntity } from 'src/users/entities/user.entity';
 import { ChatsService } from 'src/chats/chats.service';
+import { BlockedUsersService } from 'src/blocked-users/blockedUsers.service';
 import {
   ChatJoinError,
   ChatPermissionError,
@@ -29,17 +31,20 @@ import {
 import { InviteEntity, inviteType } from 'src/invites/entities/Invite.entity';
 import { InvitesService } from 'src/invites/invites.service';
 import { UsersService } from 'src/users/users.service';
+import { FriendsService } from 'src/friends/friends.service';
 import { UserChatInfo } from 'src/chat-participants/utils/types';
 import { ReceivedInfoDto } from './dtos/chatGateway.dto';
 import { ChatEntity } from 'src/chats/entities/chat.entity';
 import { Socket } from 'socket.io';
 import { PasswordService } from 'src/password/password.service';
 import { WebsocketExceptionsFilter } from 'src/exceptions/websocket-exception.filter';
+import { BadRequestException } from '@nestjs/common';
 
 type UserTargetChat = {
   userID: number;
   targetID: number;
-  chatRoomID: number;
+  chatRoomID?: number;
+  inviteType?: inviteType;
 };
 
 enum RoomType {
@@ -72,6 +77,10 @@ export class ChatGateway implements OnModuleInit {
     private authService: AuthService,
     @Inject(forwardRef(() => PasswordService))
     private passwordService: PasswordService,
+    @Inject(forwardRef(() => FriendsService))
+    private friendService: FriendsService,
+    @Inject(forwardRef(() => BlockedUsersService))
+    private blockedUserService: BlockedUsersService,
   ) {}
   @WebSocketServer()
   server: Server;
@@ -183,7 +192,6 @@ export class ChatGateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() info: ReceivedInfoDto,
   ): Promise<void> {
-    console.log('[Chat Gateway]: Add chat', info);
     try {
       info.userID = await this.checkIdentity(info.token);
       info.chatInfo.ownerID = info.userID;
@@ -216,7 +224,6 @@ export class ChatGateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() info: ReceivedInfoDto,
   ): Promise<void> {
-    console.log('[Chat Gateway]: Leave socket room:', info);
     try {
       info.userID = await this.checkIdentity(info.token);
       const userParticipant =
@@ -243,7 +250,6 @@ export class ChatGateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() info: ReceivedInfoDto,
   ): Promise<void> {
-    console.log('[Chat Gateway]: Join socket room:', info);
     try {
       info.userID = await this.checkIdentity(info.token);
       const userParticipant =
@@ -298,7 +304,6 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('delete chat')
   async onDeleteChat(@MessageBody() info: ReceivedInfoDto): Promise<void> {
-    console.log('[Chat Gateway]: Delete chat', info);
     try {
       info.userID = await this.checkIdentity(info.token);
       this.deleteChatRoom({ userID: info.userID, chatRoomID: info.chatRoomID });
@@ -321,7 +326,6 @@ export class ChatGateway implements OnModuleInit {
   ): Promise<void> {
     // TODO: good error message "You have been banned"
     try {
-      console.log('[Chat Gateway]: Join chat', info);
       info.userID = await this.checkIdentity(info.token);
       const user = await this.userService.fetchUserByID(info.userID);
       if (info.chatInfo && info.chatInfo.password !== undefined) {
@@ -400,7 +404,6 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('chat message')
   async onChatMessage(@MessageBody() info: ReceivedInfoDto): Promise<void> {
-    console.log('[Chat Gateway]: Sending chat message');
     try {
       const userID = await this.checkIdentity(info.token);
       info.userID = userID;
@@ -441,12 +444,6 @@ export class ChatGateway implements OnModuleInit {
         info.participantInfo.mutedUntil,
       );
       info.token = '';
-      console.log('Muted date:', info.participantInfo.mutedUntil);
-      console.log('Muted date:', info.participantInfo.mutedUntil.toString());
-      console.log(
-        'Muted date:',
-        new Date(info.participantInfo.mutedUntil).toString(),
-      );
       this.server
         .to(this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat))
         .emit('mute', info);
@@ -461,7 +458,6 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('toggle private')
   async onTogglePrivate(@MessageBody() info: ReceivedInfoDto): Promise<void> {
-    console.log('[Chat Gateway]: Toggle private chat');
     try {
       info.userID = await this.checkIdentity(info.token);
       info.username = (
@@ -498,11 +494,15 @@ export class ChatGateway implements OnModuleInit {
   async onInvite(@MessageBody() info: ReceivedInfoDto): Promise<void> {
     try {
       info.userID = await this.checkIdentity(info.token);
-      const invite = await this.inviteUser({
+      const inviteDetails: UserTargetChat = {
+        inviteType: info.inviteInfo.type,
         userID: info.userID,
         targetID: info.targetID,
-        chatRoomID: info.chatRoomID,
-      });
+      };
+      if (info.chatRoomID && info.inviteInfo.type === inviteType.CHAT) {
+        inviteDetails.chatRoomID = info.chatRoomID;
+      }
+      const invite = await this.inviteUser(inviteDetails);
       info.inviteInfo = invite;
       info.inviteInfo.chatHasPassword =
         await this.chatsService.fetchChatHasPasswordByID(info.chatRoomID);
@@ -533,36 +533,21 @@ export class ChatGateway implements OnModuleInit {
     @MessageBody() info: ReceivedInfoDto,
   ): Promise<void> {
     try {
-      console.log('[Chat Gateway]: accept invite', info);
       info.userID = await this.checkIdentity(info.token);
       const user = await this.userService.fetchUserByID(info.userID);
-      await this.checkChatRoomPassword(
-        info.chatInfo.password,
-        info.inviteInfo.chatRoomID,
-      );
-      await this.acceptUserInvite({
-        userID: info.userID,
-        chatRoomID: info.inviteInfo.chatRoomID,
-      });
-      info.username = user.username;
-      info.token = '';
-      const chat = await this.chatsService.fetchChatByID(
-        info.inviteInfo.chatRoomID,
-      );
-      info.chatRoomID = chat.id;
-      info.chatInfo = {
-        name: chat.name,
-        isPrivate: chat.isPrivate,
-      };
-      if (socket.data.userID === info.userID) {
-        // Making the participants join the socket room
-        await socket.join(
-          this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat),
-        );
+      switch (info.inviteInfo.type) {
+        case inviteType.CHAT:
+          info = await this.acceptChatInvite(user, info, socket);
+          break;
+        case inviteType.GAME:
+          info = await this.acceptGameInvite(user, info);
+          break;
+        case inviteType.FRIEND:
+          info = await this.acceptFriendInvite(user, info);
+          break;
+        default:
+          throw new InviteCreationError('Invalid invite type');
       }
-      this.server
-        .to(this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat))
-        .emit('accept invite', info);
     } catch (e) {
       const err_msg = '[Chat Gateway]: Chat accept invite error:' + e.message;
       console.log(err_msg);
@@ -578,7 +563,6 @@ export class ChatGateway implements OnModuleInit {
     @MessageBody() info: ReceivedInfoDto,
   ): Promise<void> {
     try {
-      console.log('[Chat Gateway]: Refuse invite', info);
       info.userID = await this.checkIdentity(info.token);
       await this.refuseUserInvite(info.inviteInfo);
       info.token = '';
@@ -697,7 +681,6 @@ export class ChatGateway implements OnModuleInit {
   @SubscribeMessage('set password')
   async onSetPassword(@MessageBody() info: ReceivedInfoDto): Promise<void> {
     try {
-      console.log('[Chat Gateway]: set password:', info);
       info.userID = await this.checkIdentity(info.token);
 
       await this.setPassword(
@@ -711,7 +694,6 @@ export class ChatGateway implements OnModuleInit {
       info.chatInfo.hasPassword =
         await this.chatsService.fetchChatHasPasswordByID(info.chatRoomID);
 
-      console.log('[Chat Gateway]: After setting password', info);
       info.token = '';
       info.chatInfo.password = '';
       this.server.emit('set password', info);
@@ -854,21 +836,15 @@ export class ChatGateway implements OnModuleInit {
   }
 
   private async checkUserInviteHasNotExpired(
-    info: UserChatInfo,
+    info: sendInviteDto,
   ): Promise<void> {
-    const invite = await this.inviteService.fetchInviteByInvitedUserChatRoomID(
-      info,
-    );
+    const invite = await this.inviteService.fetchInviteByID(info.id);
     if (!invite) {
-      throw new ChatPermissionError(
-        `User '${info.userID}' has not been invited to chat '${info.chatRoomID}'.`,
-      );
+      throw new ChatPermissionError('Invite does not exist or has expired');
     }
     if (invite.expiresAt < new Date().getTime()) {
       await this.inviteService.deleteInviteByID(invite.id);
-      throw new ChatPermissionError(
-        `User '${info.userID}' invite to chat '${info.chatRoomID}' has expired.`,
-      );
+      throw new ChatPermissionError('Invite has expired.');
     }
   }
 
@@ -886,14 +862,11 @@ export class ChatGateway implements OnModuleInit {
     password: string,
     chatRoomID: number,
   ): Promise<void> {
-    console.log('Check Chat Room Pass', password, chatRoomID);
     const chat = await this.getChatRoomOrFail(chatRoomID);
     const passwordOK = await this.passwordService.checkPasswordChat(
       password,
       chat,
     );
-    console.log('[Chat Gateway]: password is OK ?', passwordOK);
-    console.log('[Chat Gateway]: inputted password', password);
     if (!passwordOK) {
       throw new ChatPermissionError(
         `Invalid password for chatroom ${chat.name}`,
@@ -918,7 +891,6 @@ export class ChatGateway implements OnModuleInit {
           `User '${info.userID}' is banned from '${info.chatRoomID}'.`,
         );
       }
-      console.log('[Chat Gateway]: participant', participant);
       throw new ChatJoinError(
         `User '${info.userID}' is already in chat '${info.chatRoomID}'.`,
       );
@@ -971,9 +943,6 @@ export class ChatGateway implements OnModuleInit {
       newMutedTimestamp = new Date(
         Date.now() + minutes * (60 * 1000),
       ).getTime();
-      console.log('Muted date:', newMutedTimestamp);
-      console.log('Muted date:', newMutedTimestamp.toString());
-      console.log('Muted date:', new Date(newMutedTimestamp).toString());
     }
     await this.chatParticipantsService.updateParticipantByID(target.id, {
       mutedUntil: newMutedTimestamp,
@@ -1057,7 +1026,7 @@ export class ChatGateway implements OnModuleInit {
     return isPrivate;
   }
 
-  private async inviteUser(info: UserTargetChat): Promise<sendInviteDto> {
+  private async inviteUserToChat(info: UserTargetChat): Promise<sendInviteDto> {
     await this.getParticipantOrFail({
       userID: info.userID,
       chatRoomID: info.chatRoomID,
@@ -1082,17 +1051,50 @@ export class ChatGateway implements OnModuleInit {
     return invite;
   }
 
-  private async acceptUserInvite(info: UserChatInfo): Promise<void> {
+  private async inviteUserGeneric(
+    info: UserTargetChat,
+  ): Promise<sendInviteDto> {
+    const user = await this.userService.fetchUserByID(info.userID);
+    const target = await this.userService.fetchUserByID(info.targetID);
+    if (!user || !target) {
+      throw new InviteCreationError(`User not found`);
+    }
+    const invite = await this.inviteService.createInvite({
+      type: info.inviteType,
+      senderID: info.userID,
+      invitedUserID: info.targetID,
+    });
+    return invite;
+  }
+
+  private async inviteUser(info: UserTargetChat): Promise<sendInviteDto> {
+    switch (info.inviteType) {
+      case inviteType.CHAT:
+        return this.inviteUserToChat(info);
+      case inviteType.GAME:
+        return this.inviteUserGeneric(info);
+      case inviteType.FRIEND:
+        return this.inviteUserGeneric(info);
+      default:
+        throw new InviteCreationError('invalid invite type');
+    }
+  }
+
+  private async acceptUserInviteToChatRoom(info: sendInviteDto): Promise<void> {
     try {
       const invite =
-        await this.inviteService.fetchInviteByInvitedUserChatRoomID(info);
+        await this.inviteService.fetchInviteByInvitedUserChatRoomID({
+          userID: info.invitedID,
+          chatRoomID: info.chatRoomID,
+        });
       await this.checkUserInviteHasNotExpired(info);
 
       // TODO: can a banned user be invited to chatroom?
       const user =
-        await this.chatParticipantsService.fetchParticipantEntityByUserChatID(
-          info,
-        );
+        await this.chatParticipantsService.fetchParticipantEntityByUserChatID({
+          userID: info.invitedID,
+          chatRoomID: info.chatRoomID,
+        });
       if (user) {
         await this.checkUserHasNotAlreadyAcceptedInvite(user);
         await this.checkUserIsNotBanned(user);
@@ -1102,10 +1104,110 @@ export class ChatGateway implements OnModuleInit {
         userID: invite.invitedUser.id,
         chatRoomID: invite.chatRoom.id,
       });
-      await this.inviteService.deleteInvitesByInvitedUserChatRoomID(info);
+
+      await this.inviteService.deleteInvitesByInvitedUserChatRoomID({
+        userID: invite.invitedUser.id,
+        chatRoomID: invite.chatRoom.id,
+      });
     } catch (e) {
       throw new ChatPermissionError(e.message);
     }
+  }
+
+  private async acceptUserInviteToGame(info: sendInviteDto): Promise<void> {
+    // TODO: Implement this
+    console.log('Accept user invite to game not implemented yet!', info);
+  }
+
+  private async acceptUserInviteToFriends(info: sendInviteDto): Promise<void> {
+    try {
+      console.log('--- Accept user Ivite to friends:', info);
+      const invite = await this.inviteService.fetchInviteByID(info.id);
+      if (!invite) {
+        throw Error("Can't find invite!");
+      }
+      await this.checkUserInviteHasNotExpired(info);
+
+      const userIsBlocked =
+        await this.blockedUserService.usersAreBlockingEachOtherByUserIDs(
+          info.senderID,
+          info.invitedID,
+        );
+      if (userIsBlocked) {
+        throw new BadRequestException(
+          'Cannot accept friend invite: a user is blocking another',
+        );
+      }
+      await this.friendService.createFriend({
+        userID1: info.senderID,
+        userID2: info.invitedID,
+      });
+
+      await this.inviteService.deleteInviteByID(invite.id);
+    } catch (e) {
+      throw new ChatPermissionError(e.message);
+    }
+  }
+
+  private async acceptChatInvite(
+    user: UserEntity,
+    info: ReceivedInfoDto,
+    @ConnectedSocket() socket: Socket,
+  ): Promise<ReceivedInfoDto> {
+    await this.checkChatRoomPassword(
+      info.chatInfo.password,
+      info.inviteInfo.chatRoomID,
+    );
+    await this.acceptUserInviteToChatRoom(info.inviteInfo);
+    info.username = user.username;
+    info.token = '';
+    const chat = await this.chatsService.fetchChatByID(
+      info.inviteInfo.chatRoomID,
+    );
+    info.chatRoomID = chat.id;
+    info.chatInfo = {
+      name: chat.name,
+      isPrivate: chat.isPrivate,
+    };
+    if (socket.data.userID === info.userID) {
+      // Making the participants join the socket room
+      await socket.join(
+        this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat),
+      );
+    }
+    this.server
+      .to(this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat))
+      .emit('accept invite', info);
+    return info;
+  }
+
+  private async acceptGameInvite(
+    user: UserEntity,
+    info: ReceivedInfoDto,
+  ): Promise<ReceivedInfoDto> {
+    // TODO: implement this
+    console.log('Game accept invite not implemented yet !');
+    info.username = user.username;
+    info.token = '';
+    // TODO emit to user 1 and 2 to join game
+    this.server
+      .to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
+      .emit('accept invite', info);
+    return info;
+  }
+
+  private async acceptFriendInvite(
+    user: UserEntity,
+    info: ReceivedInfoDto,
+  ): Promise<ReceivedInfoDto> {
+    await this.acceptUserInviteToFriends(info.inviteInfo);
+    info.username = user.username;
+    info.token = '';
+    // TODO emit to user 1 and 2 that they are now friends
+    this.server
+      .to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
+      .emit('accept invite', info);
+    return info;
   }
 
   private async refuseUserInvite(invite: sendInviteDto): Promise<void> {

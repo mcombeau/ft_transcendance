@@ -37,7 +37,6 @@ export class BlockedUsersController {
   getOneBlockedUserByUserIDs(
     @Body() blockedUserDto: createBlockedUserDto,
   ): Promise<sendBlockedUserDto> {
-    console.log('check blocked user');
     return this.blockedUserService.fetchBlockedUserByUserIDs(
       blockedUserDto.blockingUserID,
       blockedUserDto.blockedUserID,
@@ -78,7 +77,6 @@ export class BlockedUsersController {
   createBlockedUser(
     @Body() blockedUserDto: createBlockedUserDto,
   ): Promise<BlockedUserEntity> {
-    console.log('create blocked user');
     return this.blockedUserService.createBlockedUser(blockedUserDto);
   }
 
@@ -91,7 +89,6 @@ export class BlockedUsersController {
   deleteBlockedUserByUserIDs(
     @Body() updateBlockedUserDto: updateBlockedUserDto,
   ): Promise<DeleteResult> {
-    console.log('delete block user');
     return this.blockedUserService.deleteBlockedUserByUserIDs(
       updateBlockedUserDto,
     );

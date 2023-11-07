@@ -3,6 +3,7 @@ import { Type } from 'class-transformer';
 import {
   IsAlphanumeric,
   IsInt,
+  IsEnum,
   IsJWT,
   IsNumber,
   IsOptional,
@@ -13,6 +14,7 @@ import { createMessageDto } from 'src/chat-messages/dtos/createMessage.dto';
 import { updateParticipantDto } from 'src/chat-participants/dtos/updateChatParticipant.dto';
 import { createChatDto } from 'src/chats/dtos/createChats.dto';
 import { sendInviteDto } from 'src/invites/dtos/sendInvite.dto';
+import { inviteType } from 'src/invites/entities/Invite.entity';
 
 export class ReceivedInfoDto {
   @ApiProperty()

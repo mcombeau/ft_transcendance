@@ -1,35 +1,60 @@
 import { ApiProperty } from '@nestjs/swagger';
+import {
+  IsEnum,
+  IsOptional,
+  IsString,
+  IsInt,
+  IsBoolean,
+  IsNumber,
+} from 'class-validator';
 import { inviteType } from '../entities/Invite.entity';
 
 export class sendInviteDto {
   @ApiProperty()
-  id: number;
+  @IsOptional()
+  @IsInt()
+  id?: number;
 
   @ApiProperty()
+  @IsEnum(inviteType)
   type: inviteType;
 
   @ApiProperty()
-  expiresAt: number;
+  @IsOptional()
+  expiresAt?: number;
 
   @ApiProperty()
-  senderID: number;
+  @IsOptional()
+  @IsInt()
+  senderID?: number;
 
   @ApiProperty()
-  senderUsername: string;
+  @IsOptional()
+  @IsString()
+  senderUsername?: string;
 
   @ApiProperty()
-  invitedID: number;
+  @IsOptional()
+  @IsInt()
+  invitedID?: number;
 
   @ApiProperty()
-  invitedUsername: string;
+  @IsOptional()
+  invitedUsername?: string;
 
   @ApiProperty()
+  @IsOptional()
+  @IsInt()
   chatRoomID?: number;
 
   @ApiProperty()
+  @IsOptional()
+  @IsString()
   chatRoomName?: string;
 
   @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
   chatHasPassword?: boolean;
   // @ApiProperty()
   // gameRoomID: number;

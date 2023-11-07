@@ -21,6 +21,7 @@ import { UserNotFoundException } from 'src/exceptions/not-found.exception';
 import { createUsersDto } from 'src/users/dtos/createUsers.dto';
 import { updateUsersDto } from 'src/users/dtos/updateUsers.dto';
 import { UsersService } from 'src/users/users.service';
+import { sendBlockedUserDto } from 'src/blocked-users/dtos/sendBlockedUser.dto';
 import { UserEntity } from './entities/user.entity';
 import { ChatEntity } from 'src/chats/entities/chat.entity';
 // import { GameEntity } from 'src/games/entities/game.entity';
@@ -83,7 +84,6 @@ export class UsersController {
   async getUserGamesByUserID(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<sendGameDto[]> {
-    console.log('[User Controller]: fetching games');
     return this.userService.fetchUserGamesByUserID(id);
   }
 
@@ -97,8 +97,20 @@ export class UsersController {
   async getUserFriendsByUserID(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<sendFriendDto[]> {
-    console.log('[User Controller]: fetching friends');
     return this.userService.fetchUserFriendsByUserID(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id/blockedUsers')
+  @ApiOkResponse({
+    type: sendBlockedUserDto,
+    isArray: true,
+    description: 'Get blocked user list by user ID.',
+  })
+  async getUserBlockedUsersByUserID(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<sendBlockedUserDto[]> {
+    return this.userService.fetchUserBlockedUsersByUserID(id);
   }
 
   // @UseGuards(JwtAuthGuard)

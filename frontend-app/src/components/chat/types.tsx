@@ -77,16 +77,16 @@ export enum typeInvite {
 }
 
 export type Invite = {
-  id: number;
-  invitedID: number;
-  senderID: number;
-  invitedUsername: string;
-  senderUsername: string;
+  id?: number;
+  invitedID?: number;
+  senderID?: number;
+  invitedUsername?: string;
+  senderUsername?: string;
   type: typeInvite;
   chatRoomID?: number;
   chatRoomName?: string;
   chatHasPassword?: boolean;
-  expiresAt: number;
+  expiresAt?: number;
 };
 
 export enum Status {

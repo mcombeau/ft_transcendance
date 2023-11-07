@@ -1,11 +1,13 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthenticationContext } from "../authenticationState";
-import { blockUser, unfriend, User } from "./profile";
+import { blockUser, unblockUser, unfriend, User } from "./profile";
 
 export type Friend = {
   id: number;
   username: string;
 };
+
+type BlockedUser = Friend;
 
 function removeFriendFromList(userID: number, setFriends: any) {
   setFriends((friends: Friend[]) =>
@@ -28,6 +30,25 @@ function blockButton(
       }}
     >
       Block
+    </button>
+  );
+}
+
+function unblockButton(
+  myID: number,
+  targetID: number,
+  cookies: any,
+  setFriends: any
+) {
+  return (
+    <button
+      onClick={() => {
+        if (unblockUser(targetID, myID, cookies)) {
+          removeFriendFromList(targetID, setFriends);
+        }
+      }}
+    >
+      Unblock
     </button>
   );
 }
@@ -56,8 +77,17 @@ function displayFriend(
   isMyPage: boolean,
   myID: number,
   cookies: any,
-  setFriends: any
+  setFriends: any,
+  blocked: boolean = false
 ) {
+  if (blocked) {
+    return (
+      <li>
+        <a href={"/user/" + friend.id}>{friend.username}</a>
+        {unblockButton(myID, friend.id, cookies, setFriends)}
+      </li>
+    );
+  }
   if (isMyPage) {
     return (
       <li>
@@ -79,13 +109,15 @@ function displayFriends(
   isMyPage: boolean,
   myID: number,
   cookies: any,
-  setFriends: any
+  setFriends: any,
+  blocked: boolean = false
 ) {
-  if (friends === undefined) return <ul>No friends</ul>;
+  if (friends === undefined)
+    return <ul>{blocked ? "Nobody blocked" : "No friends"}</ul>;
   return (
     <ul>
       {friends.map((friend: Friend) =>
-        displayFriend(friend, isMyPage, myID, cookies, setFriends)
+        displayFriend(friend, isMyPage, myID, cookies, setFriends, blocked)
       )}
     </ul>
   );
@@ -93,6 +125,7 @@ function displayFriends(
 
 function FriendsList(isMyPage: boolean, user: User, cookies: any) {
   const [friends, setFriends] = useState<Friend[]>();
+  const [blockedUsers, setBlockedUsers] = useState<BlockedUser[]>();
   const { authenticatedUserID } = useContext(AuthenticationContext);
 
   async function fetchFriends(userID: number, cookies: any) {
@@ -127,6 +160,31 @@ function FriendsList(isMyPage: boolean, user: User, cookies: any) {
         setFriends([...fetchedFriends]);
       }
     );
+    fetch(`http://localhost:3001/users/${userID}/blockedUsers`, request).then(
+      async (response) => {
+        const blockedData = await response.json();
+        if (!response.ok) {
+          console.log("error response loading blocked users list");
+          return <h1>No Blocked Users loaded</h1>;
+        }
+        var fetchedBlockedUsers = blockedData.map((fetchedBlockedUser: any) => {
+          const amIUser1 = fetchedBlockedUser.userID1 === user.id;
+          if (!amIUser1) {
+            var newBlockedUser: BlockedUser = {
+              id: fetchedBlockedUser.blockedUserID,
+              username: fetchedBlockedUser.blockedUsername,
+            };
+          } else {
+            var newBlockedUser: BlockedUser = {
+              id: fetchedBlockedUser.blockedUserID,
+              username: fetchedBlockedUser.blockedUsername,
+            };
+          }
+          return newBlockedUser;
+        });
+        setBlockedUsers([...fetchedBlockedUsers]);
+      }
+    );
   }
 
   useEffect(() => {
@@ -148,6 +206,21 @@ function FriendsList(isMyPage: boolean, user: User, cookies: any) {
         authenticatedUserID,
         cookies,
         setFriends
+      )}
+      {isMyPage ? (
+        <div>
+          <h3>Blocked Users</h3>
+          {displayFriends(
+            blockedUsers,
+            isMyPage,
+            authenticatedUserID,
+            cookies,
+            setBlockedUsers,
+            true
+          )}
+        </div>
+      ) : (
+        <div></div>
       )}
     </div>
   );

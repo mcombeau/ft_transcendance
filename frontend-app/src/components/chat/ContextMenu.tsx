@@ -1,9 +1,10 @@
-import { Status, ChatRoom } from "./types";
+import { Status, ChatRoom, typeInvite } from "./types";
 import { ChangeStatus } from "./Chat";
-import { Dispatch, SetStateAction, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { Socket } from "socket.io-client";
 import { checkStatus } from "./Chat";
 import { ReceivedInfo } from "./types";
+import { blockUser, unblockUser } from "../profile/profile";
 
 export const ContextMenuEl = (
   contextMenu: boolean,
@@ -14,20 +15,37 @@ export const ContextMenuEl = (
   channel: ChatRoom,
   cookies: any,
   myChats: ChatRoom[],
-  authenticatedUserID: number
+  authenticatedUserID: number,
+  blockedUsers: number[],
+  setBlockedUsers: Dispatch<SetStateAction<number[]>>
 ) => {
   const menuRef = useRef<HTMLDivElement>(null);
   const [invitesMenu, setInvitesMenu] = useState(false);
+  const [userIsBlocked, setUserIsBlocked] = useState(false);
 
-  function inviteToChat(e: any) {
-    var targetChatID = parseInt(
-      (e.target as HTMLInputElement).getAttribute("value")
-    );
+  useEffect(() => {
+    setUserIsBlocked(blockedUsers.includes(target.id));
+  }, []);
+
+  function invite(
+    e: any,
+    target: { id: number; username: string },
+    type: typeInvite
+  ) {
     var info: ReceivedInfo = {
       token: cookies["token"],
-      chatRoomID: targetChatID,
       targetID: target.id,
+      inviteInfo: {
+        type: type,
+      },
     };
+    if (type === typeInvite.Chat) {
+      info.chatRoomID = parseInt(
+        (e.target as HTMLInputElement).getAttribute("value")
+      );
+    }
+    console.log("Sent invite", info);
+    console.log("Invite info", info.inviteInfo);
     ChangeStatus(info, "invite", socket);
     setContextMenu(false);
     setInvitesMenu(false);
@@ -35,7 +53,10 @@ export const ContextMenuEl = (
 
   function displayChatInviteButton(chat: ChatRoom) {
     return (
-      <li value={chat.chatRoomID} onClick={(e) => inviteToChat(e)}>
+      <li
+        value={chat.chatRoomID}
+        onClick={(e) => invite(e, target, typeInvite.Chat)}
+      >
         {chat.name}
       </li>
     );
@@ -46,24 +67,68 @@ export const ContextMenuEl = (
   }
   // TODO: refact li
 
-  if (!invitesMenu) {
-    var options = (
-      <ul>
+  function blockButton() {
+    if (userIsBlocked) {
+      return (
         <li
           onClick={() => {
-            console.log("Blocked " + target.username);
+            console.log("Unblocked " + target.username);
+            if (unblockUser(target.id, authenticatedUserID, cookies)) {
+              setBlockedUsers((prev) =>
+                prev.filter((userID: number) => userID !== target.id)
+              );
+              setUserIsBlocked(false);
+            }
             setContextMenu(false);
           }}
         >
-          Block
+          Unblock
         </li>
+      );
+    }
+    return (
+      <li
+        onClick={() => {
+          console.log("Blocked " + target.username);
+          if (blockUser(target.id, authenticatedUserID, cookies)) {
+            setBlockedUsers([...blockedUsers, target.id]);
+            setUserIsBlocked(true);
+          }
+          setContextMenu(false);
+        }}
+      >
+        Block
+      </li>
+    );
+  }
+
+  if (!invitesMenu) {
+    var options = (
+      <ul>
+        {blockButton()}
         <li
           onClick={() => {
             console.log("Invited " + target.username);
             setInvitesMenu(true);
           }}
         >
-          Invite
+          Invite to chat
+        </li>
+        <li
+          onClick={(e) => {
+            console.log("Challenged " + target.username);
+            invite(e, target, typeInvite.Game);
+          }}
+        >
+          Challenge
+        </li>
+        <li
+          onClick={(e) => {
+            console.log("Added as friend " + target.username);
+            invite(e, target, typeInvite.Friend);
+          }}
+        >
+          Add friend
         </li>
         <li
           onClick={() => {

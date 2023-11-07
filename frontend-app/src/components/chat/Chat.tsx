@@ -20,6 +20,7 @@ import {
   Invite,
   ReceivedInfo,
   PublicChatRoom,
+  typeInvite,
 } from "./types";
 import { AuthenticationContext } from "../authenticationState";
 
@@ -63,6 +64,7 @@ export function ChangeStatus(
 ) {
   const status_values = ["mute", "kick", "ban", "operator", "invite", "dm"];
   if (!status_values.includes(userStatus)) return;
+  console.log("Change status invite info", info);
   socket.emit(userStatus, info);
 }
 
@@ -201,6 +203,7 @@ export const Chat = () => {
   const [contextMenu, setContextMenu] = useState(false);
   const [invitesPannel, setInvitesPannel] = useState(false);
   const [publicChatsPannel, setPublicChatsPannel] = useState(false);
+  const [blockedUsers, setBlockedUsers] = useState([]);
   const [invites, setInvites] = useState([]);
   const { authenticatedUserID } = useContext(AuthenticationContext);
   let navigate = useNavigate();
@@ -348,7 +351,6 @@ export const Chat = () => {
     });
 
     socket.on("join chat", async (info: ReceivedInfo) => {
-      console.log("RECEIVED", "join chat", info);
       var user: User = {
         userID: info.userID,
         username: info.username,
@@ -517,45 +519,48 @@ export const Chat = () => {
     });
 
     socket.on("accept invite", async (info: ReceivedInfo) => {
+      // TODO: adapt to game invite
       setInvites((prev) =>
         prev.filter((invite: Invite) => invite.id !== info.inviteInfo.id)
       );
       console.log("RECEIVED", "accept invite", info);
-      var user: User = {
-        userID: info.userID,
-        username: info.username,
-        isOwner: false,
-        isOperator: false,
-        isBanned: false,
-        mutedUntil: new Date().getTime(),
-        invitedUntil: 0,
-      };
+      if (info.inviteInfo.type === typeInvite.Chat) {
+        var user: User = {
+          userID: info.userID,
+          username: info.username,
+          isOwner: false,
+          isOperator: false,
+          isBanned: false,
+          mutedUntil: new Date().getTime(),
+          invitedUntil: 0,
+        };
 
-      // For everybody in the chat, update participants
-      setMyChats((prev) => {
-        const temp = [...prev];
-        return temp.map((chat: ChatRoom) => {
-          if (chat.chatRoomID === info.chatRoomID) {
-            chat.participants = [...chat.participants, user];
-            serviceAnnouncement(
-              `${info.username} has joined the channel`,
-              chat.chatRoomID
-            );
-          }
-          return chat;
+        // For everybody in the chat, update participants
+        setMyChats((prev) => {
+          const temp = [...prev];
+          return temp.map((chat: ChatRoom) => {
+            if (chat.chatRoomID === info.chatRoomID) {
+              chat.participants = [...chat.participants, user];
+              serviceAnnouncement(
+                `${info.username} has joined the channel`,
+                chat.chatRoomID
+              );
+            }
+            return chat;
+          });
         });
-      });
 
-      if (info.userID === authenticatedUserID) {
-        // If i'm the one joining create new mychat and fetch info
-        const newChat = await fetchChatData(
-          info.chatRoomID,
-          info.chatInfo.name,
-          info.chatInfo.isPrivate,
-          false,
-          request
-        );
-        setMyChats((prev) => [...prev, newChat]);
+        if (info.userID === authenticatedUserID) {
+          // If i'm the one joining create new mychat and fetch info
+          const newChat = await fetchChatData(
+            info.chatRoomID,
+            info.chatInfo.name,
+            info.chatInfo.isPrivate,
+            false,
+            request
+          );
+          setMyChats((prev) => [...prev, newChat]);
+        }
       }
     });
 
@@ -742,6 +747,27 @@ export const Chat = () => {
       });
     }
 
+    if (blockedUsers.length === 0) {
+      // Fetching Chats
+      fetch(
+        `http://localhost:3001/users/${authenticatedUserID}/blockedUsers`,
+        request
+      ).then(async (response) => {
+        const data = await response.json();
+        if (!response.ok) {
+          console.log("error response load channels");
+          return;
+        }
+        console.log("RECEIVED blocked users data", data);
+        data.map(async (blockedRelationship: any) => {
+          setBlockedUsers((prev) => [
+            ...prev,
+            blockedRelationship.blockedUserID,
+          ]);
+        });
+      });
+    }
+
     if (publicChats.length === 0) {
       fetch(`http://localhost:3001/chats/public`, request).then(
         async (response) => {
@@ -867,7 +893,9 @@ export const Chat = () => {
             publicChatsPannel,
             cookies,
             myChats,
-            authenticatedUserID
+            authenticatedUserID,
+            blockedUsers,
+            setBlockedUsers
           )}
           {SendForm(
             getChannel(currentChatRoomID),

@@ -77,14 +77,12 @@ export class ChatsService {
   }
 
   async createChat(chatDetails: createChatParams): Promise<ChatEntity> {
-    console.log('CREATE CHAT DETAILS =', chatDetails);
     const user = await this.getUserToCreateChatRoomOrFail(chatDetails.ownerID);
     await this.checkChatRoomWithNameCanBeCreated(chatDetails.name, false);
 
     const passwordHash = await this.passwordService.hashPassword(
       chatDetails.password,
     );
-    console.log('Chat details', chatDetails);
     const newChat = this.chatRepository.create({
       name: chatDetails.name,
       password: passwordHash,
@@ -92,7 +90,6 @@ export class ChatsService {
       isDirectMessage: false,
       createdAt: new Date(),
     });
-    console.log('CREATE NEW CHAT DETAILS =', newChat);
     const newSavedChat = await this.chatRepository
       .save(newChat)
       .catch((err: any) => {
@@ -115,7 +112,6 @@ export class ChatsService {
         );
       });
 
-    console.log('New saved chat', newSavedChat);
     return this.fetchChatByID(newSavedChat.id);
   }
 
@@ -202,7 +198,6 @@ export class ChatsService {
 
   async deleteChatByID(id: number): Promise<DeleteResult> {
     await this.chatMessageService.deleteMessagesByChatID(id);
-    console.log('Delete channel ' + id);
     return this.chatRepository.delete({ id });
   }
 
@@ -249,8 +244,6 @@ export class ChatsService {
       where: { id: chatRoomID },
       select: ['password', 'name'],
     });
-    console.log('Chat', chat);
-    console.log('Chat password hash:', chat.password);
     return chat.password;
   }
 }

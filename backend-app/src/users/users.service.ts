@@ -11,10 +11,12 @@ import { Repository, UpdateResult, DeleteResult } from 'typeorm';
 import { ChatsService } from 'src/chats/chats.service';
 import { GamesService } from 'src/games/games.service';
 import { FriendsService } from 'src/friends/friends.service';
+import { BlockedUsersService } from 'src/blocked-users/blockedUsers.service';
 import { sendParticipantDto } from 'src/chat-participants/dtos/sendChatParticipant.dto';
 import { BadRequestException } from '@nestjs/common';
 import { sendGameDto } from 'src/games/dtos/sendGame.dto';
 import { sendFriendDto } from 'src/friends/dtos/sendFriend.dto';
+import { sendBlockedUserDto } from 'src/blocked-users/dtos/sendBlockedUser.dto';
 
 @Injectable()
 export class UsersService {
@@ -29,6 +31,8 @@ export class UsersService {
     private gameService: GamesService,
     @Inject(forwardRef(() => FriendsService))
     private friendService: FriendsService,
+    @Inject(forwardRef(() => BlockedUsersService))
+    private blockedUserService: BlockedUsersService,
   ) {}
 
   fetchUsers(): Promise<UserEntity[]> {
@@ -88,6 +92,12 @@ export class UsersService {
     return this.friendService.fetchFriendsByUserID(userID);
   }
 
+  async fetchUserBlockedUsersByUserID(
+    userID: number,
+  ): Promise<sendBlockedUserDto[]> {
+    return this.blockedUserService.fetchBlockedUsersByUserID(userID);
+  }
+
   async fetchUserChatDMsByUserID(id: number): Promise<ChatEntity[]> {
     const user = await this.userRepository.findOne({
       where: { id },
@@ -107,7 +117,6 @@ export class UsersService {
       userDetails.password,
     );
     userDetails.password = hashedPassword;
-    console.log('[User Service]: creating user', userDetails);
     const newUserInfo = this.userRepository.create({
       ...userDetails,
       isTwoFactorAuthenticationEnabled: false,
