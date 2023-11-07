@@ -22,6 +22,7 @@ import { ChatParticipantsService } from 'src/chat-participants/chat-participants
 import { ChatParticipantEntity } from 'src/chat-participants/entities/chat-participant.entity';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { ChatsService } from 'src/chats/chats.service';
+import { BlockedUsersService } from 'src/blocked-users/blockedUsers.service';
 import {
   ChatJoinError,
   ChatPermissionError,
@@ -37,6 +38,7 @@ import { ChatEntity } from 'src/chats/entities/chat.entity';
 import { Socket } from 'socket.io';
 import { PasswordService } from 'src/password/password.service';
 import { WebsocketExceptionsFilter } from 'src/exceptions/websocket-exception.filter';
+import { BadRequestException } from '@nestjs/common';
 
 type UserTargetChat = {
   userID: number;
@@ -77,6 +79,8 @@ export class ChatGateway implements OnModuleInit {
     private passwordService: PasswordService,
     @Inject(forwardRef(() => FriendsService))
     private friendService: FriendsService,
+    @Inject(forwardRef(() => BlockedUsersService))
+    private blockedUserService: BlockedUsersService,
   ) {}
   @WebSocketServer()
   server: Server;
@@ -1124,7 +1128,16 @@ export class ChatGateway implements OnModuleInit {
       }
       await this.checkUserInviteHasNotExpired(info);
 
-      // TODO: can a blocked user be invited to be friends?
+      const userIsBlocked =
+        await this.blockedUserService.usersAreBlockingEachOtherByUserIDs(
+          info.senderID,
+          info.invitedID,
+        );
+      if (userIsBlocked) {
+        throw new BadRequestException(
+          'Cannot accept friend invite: a user is blocking another',
+        );
+      }
       await this.friendService.createFriend({
         userID1: info.senderID,
         userID2: info.invitedID,
