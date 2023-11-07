@@ -192,7 +192,7 @@ export class InvitesService {
         sender.id,
         invitedUser.id,
       );
-    if (!userIsBlocking) {
+    if (userIsBlocking) {
       throw new InviteCreationError(
         'cannot create chat invite for users who are blocking each other.',
       );
@@ -244,7 +244,7 @@ export class InvitesService {
         sender.id,
         invitedUser.id,
       );
-    if (!userIsBlocking) {
+    if (userIsBlocking) {
       throw new InviteCreationError(
         'cannot create game invite for users who are blocking each other.',
       );
@@ -294,7 +294,7 @@ export class InvitesService {
         sender.id,
         invitedUser.id,
       );
-    if (!userIsBlocking) {
+    if (userIsBlocking) {
       throw new InviteCreationError(
         'cannot create friend invite for users who are blocking each other.',
       );
