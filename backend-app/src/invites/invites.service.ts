@@ -187,6 +187,17 @@ export class InvitesService {
       throw new InviteCreationError('invalid parameters for invite creation.');
     }
 
+    const userIsBlocking =
+      await this.blockedUserService.usersAreBlockingEachOtherByUserIDs(
+        sender.id,
+        invitedUser.id,
+      );
+    if (!userIsBlocking) {
+      throw new InviteCreationError(
+        'cannot create chat invite for users who are blocking each other.',
+      );
+    }
+
     let inviteExpiry = 0;
     inviteExpiry = new Date(
       Date.now() + 1 * (60 * 60 * 1000), // time + 1 hour
