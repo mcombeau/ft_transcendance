@@ -12,6 +12,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { PasswordService } from 'src/password/password.service';
 import { JwtService } from '@nestjs/jwt';
 import { PasswordModule } from 'src/password/password.module';
+import { BlockedUsersModule } from 'src/blocked-users/blockedUsers.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { PasswordModule } from 'src/password/password.module';
     forwardRef(() => GamesModule),
     forwardRef(() => InvitesModule),
     forwardRef(() => PasswordModule),
+    forwardRef(() => BlockedUsersModule),
   ],
   providers: [
     ChatGateway,

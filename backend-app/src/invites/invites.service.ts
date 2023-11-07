@@ -2,6 +2,7 @@ import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatsService } from 'src/chats/chats.service';
 import { UsersService } from 'src/users/users.service';
+import { BlockedUsersService } from 'src/blocked-users/blockedUsers.service';
 import { Repository, DeleteResult } from 'typeorm';
 import { inviteParams } from './utils/types';
 import { InviteEntity, inviteType } from './entities/Invite.entity';
@@ -18,6 +19,8 @@ export class InvitesService {
     private chatService: ChatsService,
     @Inject(forwardRef(() => UsersService))
     private userService: UsersService,
+    @Inject(forwardRef(() => BlockedUsersService))
+    private blockedUserService: BlockedUsersService,
   ) {}
 
   private async formatInviteForSending(
@@ -221,9 +224,19 @@ export class InvitesService {
     const invitedUser = await this.userService.fetchUserByID(
       inviteDetails.invitedUserID,
     );
-
     if (!sender || !invitedUser) {
       throw new InviteCreationError('invalid parameters for invite creation.');
+    }
+
+    const userIsBlocking =
+      await this.blockedUserService.usersAreBlockingEachOtherByUserIDs(
+        sender.id,
+        invitedUser.id,
+      );
+    if (!userIsBlocking) {
+      throw new InviteCreationError(
+        'cannot create game invite for users who are blocking each other.',
+      );
     }
 
     let inviteExpiry = 0;
@@ -261,9 +274,19 @@ export class InvitesService {
     const invitedUser = await this.userService.fetchUserByID(
       inviteDetails.invitedUserID,
     );
-
     if (!sender || !invitedUser) {
       throw new InviteCreationError('invalid parameters for invite creation.');
+    }
+
+    const userIsBlocking =
+      await this.blockedUserService.usersAreBlockingEachOtherByUserIDs(
+        sender.id,
+        invitedUser.id,
+      );
+    if (!userIsBlocking) {
+      throw new InviteCreationError(
+        'cannot create friend invite for users who are blocking each other.',
+      );
     }
 
     let inviteExpiry = 0;
