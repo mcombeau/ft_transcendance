@@ -8,6 +8,7 @@ import FriendsList from "./friendsList";
 import GameHistory from "./history";
 import ProfileSettings from "./profileSettings";
 import { AuthenticationContext } from "../authenticationState";
+import { typeInvite } from "../chat/types";
 
 export type User = {
   id: number;
@@ -39,7 +40,6 @@ async function befriend(
   authenticatedUserID: number,
   cookies: any
 ) {
-  // TODO: rather create friendship invite
   var request = {
     method: "POST",
     headers: {
@@ -47,14 +47,15 @@ async function befriend(
       Authorization: `Bearer ${cookies["token"]}`,
     },
     body: JSON.stringify({
-      userID1: authenticatedUserID,
-      userID2: userID,
+      type: typeInvite.Friend,
+      senderID: authenticatedUserID,
+      invitedUserID: userID,
     }),
   };
-  return fetch(`http://localhost:3001/friends`, request).then(
+  return fetch(`http://localhost:3001/invites`, request).then(
     async (response) => {
       if (!response.ok) {
-        console.log("Error adding friend");
+        console.log("Error inviting friend");
         return false;
       }
       return true;
@@ -83,7 +84,7 @@ export async function unfriend(
       console.log("response");
       console.log(response);
       if (!response.ok) {
-        console.log("Error adding friend");
+        console.log("Error removing friend");
         return false;
       }
       return true;
