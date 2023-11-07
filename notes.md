@@ -1,7 +1,14 @@
 # PROFILE
 
+- no see block people
+
+- challenge invite process
+- invite notif on profile ?
 - remove friend button for blocked users
+
 - blocked list
+
+- reload chat when joining ?
 
 - Misc
 
