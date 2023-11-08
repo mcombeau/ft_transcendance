@@ -15,6 +15,10 @@
 
   - friends list X
     - status (online, offline, in a game ... )
+		1. fix connection sockets reload
+		2. when user connects to socket set it as online 
+		3. put status in database + emit status update socket
+		4. fetch status in loading fetch friends
     - invites (buttons) X
 
 - My profile

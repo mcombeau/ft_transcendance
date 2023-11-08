@@ -52,6 +52,8 @@ function Login() {
     });
     if (!access_token) return;
     const loggedUserID = jwtDecode(access_token)["userID"];
+    console.log("Emit connection");
+    socket.emit("connection");
     setAuthenticatedUserID(loggedUserID);
     setUsername("");
     setPassword("");
