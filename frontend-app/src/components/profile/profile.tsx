@@ -8,7 +8,7 @@ import FriendsList from "./friendsList";
 import GameHistory from "./history";
 import ProfileSettings from "./profileSettings";
 import { AuthenticationContext } from "../authenticationState";
-import { typeInvite } from "../chat/types";
+import "./profile.css"
 
 export type User = {
   id: number;
@@ -40,6 +40,7 @@ async function befriend(
   authenticatedUserID: number,
   cookies: any
 ) {
+  // TODO: rather create friendship invite
   var request = {
     method: "POST",
     headers: {
@@ -47,15 +48,14 @@ async function befriend(
       Authorization: `Bearer ${cookies["token"]}`,
     },
     body: JSON.stringify({
-      type: typeInvite.Friend,
-      senderID: authenticatedUserID,
-      invitedUserID: userID,
+      userID1: authenticatedUserID,
+      userID2: userID,
     }),
   };
-  return fetch(`http://localhost:3001/invites`, request).then(
+  return fetch(`http://localhost:3001/friends`, request).then(
     async (response) => {
       if (!response.ok) {
-        console.log("Error inviting friend");
+        console.log("Error adding friend");
         return false;
       }
       return true;
@@ -84,7 +84,7 @@ export async function unfriend(
       console.log("response");
       console.log(response);
       if (!response.ok) {
-        console.log("Error removing friend");
+        console.log("Error adding friend");
         return false;
       }
       return true;
@@ -181,7 +181,7 @@ export async function blockUser(
   );
 }
 
-export async function unblockUser(
+async function unblockUser(
   userID: number,
   authenticatedUserID: number,
   cookies: any
@@ -374,7 +374,6 @@ function Profile() {
 
   useEffect(() => {
     if (authenticatedUserID === profileUserID) {
-      socket.emit("connection");
       socket.emit("login", cookies["token"]);
       setIsMyPage(true);
     }
@@ -387,32 +386,48 @@ function Profile() {
     checkIfIsBlocked(user, authenticatedUserID, cookies, setIsBlocked);
   }, [user]);
 
+  // TODO: add friendship invite section
   return (
-    <div>
-      <img src={defaultProfilePicture} width="100" height="100"></img>
-      {!userExists ? "User is not logged in" : ""}
-      {titleProfile(isMyPage, user)}
-      {userDetails(user)}
-      {interactWithUser(
-        isMyPage,
-        isMyFriend,
-        setIsMyFriend,
-        isBlocked,
-        setIsBlocked,
-        user,
-        authenticatedUserID,
-        cookies
-      )}
-      {editProfile(isMyPage, user, isEditingProfile, setIsEditingProfile)}
-      {ProfileSettings(
-        user,
-        cookies,
-        isEditingProfile,
-        setIsEditingProfile,
-        authenticatedUserID
-      )}
-      {FriendsList(isMyPage, user, cookies)}
-      {GameHistory(user, cookies)}
+    <div id="profile">
+    <h3 style={{color: 'white'}}>
+      <header>
+        <i className="fa fa-bars" aria-hidden="true"></i>
+      </header>
+      <div className="left-section">
+        <img src={defaultProfilePicture} className="photo"></img>
+        {!userExists ? "User is not logged in" : ""}
+        {titleProfile(isMyPage, user)}
+        {userDetails(user)}
+        {interactWithUser(
+          isMyPage,
+          isMyFriend,
+          setIsMyFriend,
+          isBlocked,
+          setIsBlocked,
+          user,
+          authenticatedUserID,
+          cookies
+        )}
+        {editProfile(isMyPage, user, isEditingProfile, setIsEditingProfile)}
+        {ProfileSettings(
+          user,
+          cookies,
+          isEditingProfile,
+          setIsEditingProfile,
+          authenticatedUserID
+        )}
+      </div>
+      <div className="right-section">
+        <div className="stats row">
+          <div className="stat col-xs-4">
+            {FriendsList(isMyPage, user, cookies)}
+          </div>
+          <div className="stat col-xs-4">
+            {GameHistory(user, cookies)}
+          </div>
+        </div>
+      </div>
+    </h3>
     </div>
   );
 }
