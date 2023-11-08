@@ -374,8 +374,9 @@ function Profile() {
 
   useEffect(() => {
     if (authenticatedUserID === profileUserID) {
-      socket.emit("connection");
+	  console.log("SOCKET Emitting login + connection event !!");
       socket.emit("login", cookies["token"]);
+      socket.emit("connection");
       setIsMyPage(true);
     }
 
