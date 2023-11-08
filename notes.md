@@ -1,12 +1,8 @@
 # PROFILE
 
-- no see block people
-
 - challenge invite process
 - invite notif on profile ?
 - remove friend button for blocked users
-
-- blocked list
 
 - reload chat when joining ?
 
@@ -19,7 +15,7 @@
 
   - friends list X
     - status (online, offline, in a game ... )
-    - invites (buttons)
+    - invites (buttons) X
 
 - My profile
 
