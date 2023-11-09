@@ -8,8 +8,14 @@ export class sendBlockedUserDto {
   blockingUsername: string;
 
   @ApiProperty()
+  blockingUserStatus: string;
+
+  @ApiProperty()
   blockedUserID: number;
 
   @ApiProperty()
   blockedUsername: string;
+
+  @ApiProperty()
+  blockedUserStatus: string;
 }
