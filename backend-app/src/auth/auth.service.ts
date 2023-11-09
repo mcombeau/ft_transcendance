@@ -7,6 +7,7 @@ import { UserEntity } from 'src/users/entities/user.entity';
 import { jwtConstants } from './constants';
 import { toDataURL } from 'qrcode';
 import { authenticator } from 'otplib';
+import { UserNotFoundError } from 'src/exceptions/not-found.interceptor';
 
 // TODO: Do not store JWT token in cookie or local storage??? Store as cookie with 'HTTP only' !
 // prevent CSRF XSS.
@@ -51,6 +52,17 @@ export class AuthService {
     return {
       access_token: this.jwtService.sign(payload),
     };
+  }
+
+  async logout(user: UserEntity): Promise<void> {
+    console.log('[Auth Service]: logout user', user);
+    const dbUser = await this.userService.fetchUserByUsername(user.username);
+    if (!dbUser) {
+      throw new UserNotFoundError();
+    }
+    await this.userService.updateUserByID(dbUser.id, {
+      status: userStatus.OFFLINE,
+    });
   }
 
   // Dont know if this should be elsewhere

@@ -139,7 +139,15 @@ export class UsersService {
     const updatedInfo: updateUserParams = {};
     if (userDetails.username) updatedInfo.username = userDetails.username;
     if (userDetails.email) updatedInfo.email = userDetails.email;
-    if (userDetails.status) updatedInfo.status = userDetails.status;
+    if (userDetails.status) {
+      console.log(
+        '[User Service]: updating user',
+        id,
+        'status to ',
+        userDetails.status,
+      );
+      updatedInfo.status = userDetails.status;
+    }
 
     if (userDetails.currentPassword) {
       const user = await this.fetchUserByID(id);
