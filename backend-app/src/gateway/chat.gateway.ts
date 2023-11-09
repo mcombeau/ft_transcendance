@@ -20,7 +20,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
 import { ChatParticipantsService } from 'src/chat-participants/chat-participants.service';
 import { ChatParticipantEntity } from 'src/chat-participants/entities/chat-participant.entity';
-import { UserEntity } from 'src/users/entities/user.entity';
+import { UserEntity, userStatus } from 'src/users/entities/user.entity';
 import { ChatsService } from 'src/chats/chats.service';
 import { BlockedUsersService } from 'src/blocked-users/blockedUsers.service';
 import {
@@ -106,7 +106,7 @@ export class ChatGateway implements OnModuleInit {
           `[Chat Gateway]: Disconnection event: A user disconnected: ${tokenUser.username} - ${tokenUser.userID} (${socket.id})`,
         );
         this.onLogout(socket, token);
-        socket.broadcast.emit('disconnection event');
+        // socket.broadcast.emit('disconnection event');
       });
 
       if (!user) {
@@ -209,6 +209,9 @@ export class ChatGateway implements OnModuleInit {
       const userID = await this.checkIdentity(token, socket);
       socket.data.userID = userID;
 
+      await this.userService.updateUserByID(userID, {
+        status: userStatus.ONLINE,
+      });
       socket.rooms.forEach(async (room: string) => {
         if (room !== socket.id) await socket.leave(room);
       });
