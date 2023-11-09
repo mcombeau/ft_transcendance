@@ -1,10 +1,11 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthenticationContext } from "../authenticationState";
-import { blockUser, unblockUser, unfriend, User } from "./profile";
+import { blockUser, unblockUser, unfriend, User, UserStatus } from "./profile";
 
 export type Friend = {
   id: number;
   username: string;
+  status: UserStatus;
 };
 
 type BlockedUser = Friend;
@@ -83,7 +84,9 @@ function displayFriend(
   if (blocked) {
     return (
       <li>
-        <a href={"/user/" + friend.id}>{friend.username}</a>
+        <a href={"/user/" + friend.id}>
+          {friend.username} ({friend.status})
+        </a>
         {unblockButton(myID, friend.id, cookies, setFriends)}
       </li>
     );
@@ -91,7 +94,9 @@ function displayFriend(
   if (isMyPage) {
     return (
       <li>
-        <a href={"/user/" + friend.id}>{friend.username}</a>
+        <a href={"/user/" + friend.id}>
+          {friend.username} ({friend.status})
+        </a>
         {blockButton(myID, friend.id, cookies, setFriends)}
         {unfriendButton(myID, friend.id, cookies, setFriends)}
       </li>
@@ -99,7 +104,9 @@ function displayFriend(
   }
   return (
     <li>
-      <a href={"/user/" + friend.id}>{friend.username}</a>
+      <a href={"/user/" + friend.id}>
+        {friend.username} ({friend.status})
+      </a>
     </li>
   );
 }
@@ -148,11 +155,13 @@ function FriendsList(isMyPage: boolean, user: User, cookies: any) {
             var newFriend: Friend = {
               id: fetchedFriend.userID1,
               username: fetchedFriend.username1,
+              status: fetchedFriend.userStatus1,
             };
           } else {
             var newFriend: Friend = {
               id: fetchedFriend.userID2,
               username: fetchedFriend.username2,
+              status: fetchedFriend.userStatus2,
             };
           }
           return newFriend;
@@ -173,11 +182,13 @@ function FriendsList(isMyPage: boolean, user: User, cookies: any) {
             var newBlockedUser: BlockedUser = {
               id: fetchedBlockedUser.blockedUserID,
               username: fetchedBlockedUser.blockedUsername,
+              status: fetchedBlockedUser.status,
             };
           } else {
             var newBlockedUser: BlockedUser = {
               id: fetchedBlockedUser.blockedUserID,
               username: fetchedBlockedUser.blockedUsername,
+              status: fetchedBlockedUser.status,
             };
           }
           return newBlockedUser;
