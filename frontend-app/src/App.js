@@ -11,7 +11,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useCookies } from "react-cookie";
 import { getUserID } from "./cookies";
 import { AuthenticationContext } from "./components/authenticationState";
-import Logout, { logout } from "./components/logout/logout";
+import Logout from "./components/logout/logout";
 
 function App() {
   const [cookies, , removeCookie] = useCookies(["token"]);
