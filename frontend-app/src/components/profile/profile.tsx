@@ -10,19 +10,35 @@ import ProfileSettings from "./profileSettings";
 import { AuthenticationContext } from "../authenticationState";
 import { typeInvite } from "../chat/types";
 
+export enum UserStatus {
+  Offline = "offline",
+  Online = "online",
+  InGame = "in game",
+}
+
 export type User = {
   id: number;
   username: string;
   email: string;
   login42: string;
   isTwoFaEnabled: boolean;
+  status: UserStatus;
 };
 
 function titleProfile(isMyPage: boolean, user: User) {
   if (user === undefined) return <h2>User not found</h2>;
-  if (isMyPage) return <h2>My user page ({user.username})</h2>;
+  if (isMyPage)
+    return (
+      <h2>
+        My user page ({user.username} - {user.status})
+      </h2>
+    );
 
-  return <h2>User page for {user.username}</h2>;
+  return (
+    <h2>
+      User page for {user.username} ({user.status})
+    </h2>
+  );
 }
 
 function userDetails(user: User) {
@@ -370,6 +386,7 @@ function Profile() {
           email: data.email,
           login42: data.login42 ? data.login42 : "",
           isTwoFaEnabled: data.isTwoFactorAuthenticationEnabled,
+          status: data.status,
         });
       }
     );
@@ -377,7 +394,7 @@ function Profile() {
 
   useEffect(() => {
     if (authenticatedUserID === profileUserID) {
-	  console.log("SOCKET Emitting login + connection event !!");
+      console.log("SOCKET Emitting login + connection event !!");
       socket.emit("login", cookies["token"]);
       socket.emit("connection");
       setIsMyPage(true);
