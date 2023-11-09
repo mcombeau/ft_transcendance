@@ -40,14 +40,11 @@ function App() {
 
     fetch(`http://localhost:3001/users/${getUserID(cookies)}`, request).then(
       async (response) => {
-        const data = await response.json();
+        await response.json();
         if (!response.ok) {
-          console.log("User from cookie does not exist");
           logout(setAuthenticatedUserID, removeCookie);
           return;
         }
-        console.log("DATA", data);
-        console.log("User from cookies exist, set up done");
         setAuthenticatedUserID(getUserID(cookies));
       }
     );
