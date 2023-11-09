@@ -11,7 +11,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useCookies } from "react-cookie";
 import { getUserID } from "./cookies";
 import { AuthenticationContext } from "./components/authenticationState";
-import  Logout ,{logout } from "./components/logout/logout";
+import Logout, { logout } from "./components/logout/logout";
 
 function App() {
   const [cookies, , removeCookie] = useCookies(["token"]);
@@ -37,7 +37,8 @@ function App() {
       async (response) => {
         await response.json();
         if (!response.ok) {
-          logout(setAuthenticatedUserID, removeCookie, cookies);
+          setAuthenticatedUserID(null);
+          removeCookie("token", { path: "/" });
           return;
         }
         setAuthenticatedUserID(getUserID(cookies));
