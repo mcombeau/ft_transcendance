@@ -1,20 +1,25 @@
 import "./App.css";
 import NavBar from "./components/navbar/navbar";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  useNavigate,
+} from "react-router-dom";
 import Home from "./components/home/home";
 import Login from "./components/login/login";
 import Chat from "./components/chat/Chat";
 import Play from "./components/play/play";
 import Leaderboard from "./components/leaderboard/leaderboard";
 import Profile from "./components/profile/profile";
-import Logout from "./components/logout";
+import Logout, { logout } from "./components/logout";
 import { useEffect, useMemo, useState } from "react";
 import { useCookies } from "react-cookie";
 import { getUserID } from "./cookies";
 import { AuthenticationContext } from "./components/authenticationState";
 
 function App() {
-  const [cookies] = useCookies(["token"]);
+  const [cookies, , removeCookie] = useCookies(["token"]);
   const [authenticatedUserID, setAuthenticatedUserID] = useState(
     getUserID(cookies)
   );
@@ -35,13 +40,11 @@ function App() {
 
     fetch(`http://localhost:3001/users/${getUserID(cookies)}`, request).then(
       async (response) => {
-        const data = await response.json();
+        await response.json();
         if (!response.ok) {
-          console.log("User from cookie does not exist");
+          logout(setAuthenticatedUserID, removeCookie);
           return;
         }
-        console.log("DATA", data);
-        console.log("User from cookies exist, set up done");
         setAuthenticatedUserID(getUserID(cookies));
       }
     );
