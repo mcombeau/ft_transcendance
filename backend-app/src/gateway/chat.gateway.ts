@@ -87,8 +87,7 @@ export class ChatGateway implements OnModuleInit {
     this.server.on('connection', async (socket) => {
       console.log('[Chat Gateway]: Received connection event');
       const token = socket.handshake.headers.authorization.split(' ')[1];
-      // TODO: CHECK IF USER ACTUALLY EXISTS IN DATABASE
-      const user = await this.authService
+      const tokenUser = await this.authService
         .validateToken(token)
         .catch(() => {
           return false;
@@ -96,19 +95,28 @@ export class ChatGateway implements OnModuleInit {
         .finally(() => {
           return true;
         });
+      const user = await this.userService.fetchUserByID(tokenUser.userID);
 
       console.log(
-        `[Chat Gateway] Connection event: A user connected: ${user.username} - ${user.userID} (${socket.id})`,
+        `[Chat Gateway] Connection event: A user connected: ${tokenUser.username} - ${tokenUser.userID} (${socket.id})`,
       );
       socket.broadcast.emit('connection event'); // TODO: probably remove
       socket.on('disconnect', () => {
         console.log(
-          `[Chat Gateway]: Disconnection event: A user disconnected: ${user.username} - ${user.userID} (${socket.id})`,
+          `[Chat Gateway]: Disconnection event: A user disconnected: ${tokenUser.username} - ${tokenUser.userID} (${socket.id})`,
         );
         socket.broadcast.emit('disconnection event');
       });
-      if (user) {
-        await this.joinSocketRooms(socket, user.userID);
+
+      if (!user) {
+        console.log(
+          '[Chat Gateway][WARNING] User from token',
+          tokenUser.username,
+          'does not exist in DB!',
+        );
+      }
+      if (tokenUser && user) {
+        await this.joinSocketRooms(socket, user.id);
       }
     });
   }
