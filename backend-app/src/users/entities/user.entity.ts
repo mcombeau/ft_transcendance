@@ -14,6 +14,11 @@ import { InviteEntity } from 'src/invites/entities/Invite.entity';
 import { FriendEntity } from 'src/friends/entities/Friend.entity';
 import { BlockedUserEntity } from 'src/blocked-users/entities/BlockedUser.entity';
 
+export enum userStatus {
+  ONLINE = 'online',
+  OFFLINE = 'offline',
+  INGAME = 'in game',
+}
 @Entity({ name: 'users' })
 export class UserEntity {
   @ApiProperty()
@@ -39,6 +44,10 @@ export class UserEntity {
   @ApiProperty()
   @Column()
   createdAt: Date;
+
+  @ApiProperty()
+  @Column({ type: 'enum', enum: userStatus, default: userStatus.OFFLINE })
+  status: userStatus;
 
   @ApiProperty()
   @Column()

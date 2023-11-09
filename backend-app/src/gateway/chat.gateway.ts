@@ -20,7 +20,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { ChatMessagesService } from 'src/chat-messages/chat-messages.service';
 import { ChatParticipantsService } from 'src/chat-participants/chat-participants.service';
 import { ChatParticipantEntity } from 'src/chat-participants/entities/chat-participant.entity';
-import { UserEntity } from 'src/users/entities/user.entity';
+import { UserEntity, userStatus } from 'src/users/entities/user.entity';
 import { ChatsService } from 'src/chats/chats.service';
 import { BlockedUsersService } from 'src/blocked-users/blockedUsers.service';
 import {
@@ -105,7 +105,8 @@ export class ChatGateway implements OnModuleInit {
         console.log(
           `[Chat Gateway]: Disconnection event: A user disconnected: ${tokenUser.username} - ${tokenUser.userID} (${socket.id})`,
         );
-        socket.broadcast.emit('disconnection event');
+        this.onLogout(socket, token);
+        // socket.broadcast.emit('disconnection event');
       });
 
       if (!user) {
@@ -132,8 +133,12 @@ export class ChatGateway implements OnModuleInit {
         '[WARNING] Letting this mismatched token pass anyway if it is undefined for now',
       );
     }
-    if (socketToken !== 'undefined' && socketToken !== token) {
-      throw new ChatPermissionError('invalid socket token');
+    if (socketToken === 'undefined') {
+      console.log('[WARNING] Socket token is undefined:', socketToken);
+      // throw new ChatPermissionError('socket token is undefined');
+    }
+    if (socketToken !== token) {
+      console.log('[WARNING] Socket token does not match given token');
     }
     const isTokenVerified = await this.authService
       .validateToken(token)
@@ -165,6 +170,35 @@ export class ChatGateway implements OnModuleInit {
     });
   }
 
+  @SubscribeMessage('logout')
+  async onLogout(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() token: string,
+  ): Promise<void> {
+    console.log('[Chat Gateway]: Logout', token);
+    try {
+      const userID = await this.checkIdentity(token, socket);
+      socket.data.userID = userID;
+
+      const user = await this.userService.fetchUserByID(userID);
+      await this.authService.logout(user);
+      socket.rooms.forEach(async (room: string) => {
+        if (room !== socket.id) await socket.leave(room);
+      });
+
+      const username = (await this.userService.fetchUserByID(userID)).username;
+      console.log(
+        `[Chat Gateway]: Logout event: A user logged out: ${username} - ${userID} (${socket.id})`,
+      );
+    } catch (e) {
+      const err_msg = '[Chat Gateway]: logout error:' + e.message;
+      console.log(err_msg);
+      // this.server
+      //   .to(this.getSocketRoomIdentifier(userID, RoomType.User))
+      //   .emit('error', err_msg);
+    }
+  }
+
   @SubscribeMessage('login')
   async onLogin(
     @ConnectedSocket() socket: Socket,
@@ -175,6 +209,9 @@ export class ChatGateway implements OnModuleInit {
       const userID = await this.checkIdentity(token, socket);
       socket.data.userID = userID;
 
+      await this.userService.updateUserByID(userID, {
+        status: userStatus.ONLINE,
+      });
       socket.rooms.forEach(async (room: string) => {
         if (room !== socket.id) await socket.leave(room);
       });

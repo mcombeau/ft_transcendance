@@ -1,11 +1,13 @@
 import { Injectable, Request, Response, Res } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
+import { userStatus } from '../users/entities/user.entity';
 import { PasswordService } from 'src/password/password.service';
 import { JwtService } from '@nestjs/jwt';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { jwtConstants } from './constants';
 import { toDataURL } from 'qrcode';
 import { authenticator } from 'otplib';
+import { UserNotFoundError } from 'src/exceptions/not-found.interceptor';
 
 // TODO: Do not store JWT token in cookie or local storage??? Store as cookie with 'HTTP only' !
 // prevent CSRF XSS.
@@ -36,7 +38,7 @@ export class AuthService {
     return user;
   }
 
-  login(user: UserEntity): any {
+  async login(user: UserEntity): Promise<any> {
     console.log('[Auth Service]: login user');
     const payload = {
       username: user.username,
@@ -44,9 +46,23 @@ export class AuthService {
       isTwoFactorAuthenticationEnabled: user.isTwoFactorAuthenticationEnabled,
       isTwoFactorAuthenticated: false,
     };
+    await this.userService.updateUserByID(user.id, {
+      status: userStatus.ONLINE,
+    });
     return {
       access_token: this.jwtService.sign(payload),
     };
+  }
+
+  async logout(user: UserEntity): Promise<void> {
+    console.log('[Auth Service]: logout user', user);
+    const dbUser = await this.userService.fetchUserByUsername(user.username);
+    if (!dbUser) {
+      throw new UserNotFoundError();
+    }
+    await this.userService.updateUserByID(dbUser.id, {
+      status: userStatus.OFFLINE,
+    });
   }
 
   // Dont know if this should be elsewhere
@@ -55,10 +71,10 @@ export class AuthService {
     return await jwt.verify(token, jwtConstants.secret);
   }
 
-  school42Login(req: any, res: any): void {
+  async school42Login(req: any, res: any): Promise<void> {
     console.log('[Auth Service]: school42login');
     const user: UserEntity = req.user;
-    const access_token = this.login(user);
+    const access_token = await this.login(user);
     res.cookie('token', access_token.access_token);
     res.redirect(302, `http://localhost:3000/user/${user.id}`);
   }

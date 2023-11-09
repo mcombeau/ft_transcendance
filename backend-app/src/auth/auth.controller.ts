@@ -14,10 +14,12 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { Jwt2faAuthGuard } from './guards/jwt-2fa-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { school42AuthGuard } from './guards/school42-auth.guard';
 import { ApiTags } from '@nestjs/swagger';
 import { UsersService } from '../users/users.service';
+import { BadRequestException } from '@nestjs/common';
 
 @ApiTags('auth')
 @Controller()
@@ -32,6 +34,16 @@ export class AuthController {
   @Post('auth/login')
   async login(@Request() req: any): Promise<any> {
     return this.authService.login(req.user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('auth/logout')
+  async logout(@Request() req: any): Promise<any> {
+    if (req.user === undefined) {
+      throw new BadRequestException('No user to log out');
+    }
+    console.log('[Auth Controller] logout request user:', req.user);
+    return this.authService.logout(req.user);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -51,7 +63,7 @@ export class AuthController {
   school42AuthRedirect(
     @Request() req: Request,
     @Res({ passthrough: true }) res: Response,
-  ): void {
+  ): Promise<void> {
     console.log('[Auth Controller]: GET on auth/callback');
     return this.authService.school42Login(req, res);
   }

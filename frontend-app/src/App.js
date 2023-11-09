@@ -1,22 +1,17 @@
 import "./App.css";
 import NavBar from "./components/navbar/navbar";
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  useNavigate,
-} from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Home from "./components/home/home";
 import Login from "./components/login/login";
 import Chat from "./components/chat/Chat";
 import Play from "./components/play/play";
 import Leaderboard from "./components/leaderboard/leaderboard";
 import Profile from "./components/profile/profile";
-import Logout, { logout } from "./components/logout";
 import { useEffect, useMemo, useState } from "react";
 import { useCookies } from "react-cookie";
 import { getUserID } from "./cookies";
 import { AuthenticationContext } from "./components/authenticationState";
+import Logout from "./components/logout/logout";
 
 function App() {
   const [cookies, , removeCookie] = useCookies(["token"]);
@@ -42,7 +37,8 @@ function App() {
       async (response) => {
         await response.json();
         if (!response.ok) {
-          logout(setAuthenticatedUserID, removeCookie);
+          setAuthenticatedUserID(null);
+          removeCookie("token", { path: "/" });
           return;
         }
         setAuthenticatedUserID(getUserID(cookies));

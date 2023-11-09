@@ -4,9 +4,10 @@ import {
   IsAlphanumeric,
   IsOptional,
   IsString,
-  IsInt,
+  IsEnum,
   Length,
 } from 'class-validator';
+import { userStatus } from 'src/users/entities/user.entity';
 
 export class updateUsersDto {
   @ApiProperty()
@@ -34,4 +35,9 @@ export class updateUsersDto {
   @IsOptional()
   @IsEmail()
   email?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsEnum(userStatus)
+  status?: userStatus;
 }
