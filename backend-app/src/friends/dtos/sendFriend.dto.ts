@@ -8,8 +8,14 @@ export class sendFriendDto {
   username1: string;
 
   @ApiProperty()
+  userStatus1: string;
+
+  @ApiProperty()
   userID2: number;
 
   @ApiProperty()
   username2: string;
+
+  @ApiProperty()
+  userStatus2: string;
 }
