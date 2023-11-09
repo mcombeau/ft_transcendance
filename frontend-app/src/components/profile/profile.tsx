@@ -216,9 +216,11 @@ function friendButton(
   authenticatedUserID: number,
   cookies: any,
   isMyFriend: boolean,
-  setIsMyFriend: any
+  setIsMyFriend: any,
+  isBlocked: boolean
 ) {
   // TODO: check if need be async
+  if (isBlocked) return <div></div>;
   if (isMyFriend) {
     return (
       <button
@@ -304,7 +306,8 @@ function interactWithUser(
         authenticatedUserID,
         cookies,
         isMyFriend,
-        setIsMyFriend
+        setIsMyFriend,
+        isBlocked
       )}
       {blockButton(user, authenticatedUserID, cookies, isBlocked, setIsBlocked)}
       {challengeButton(user, authenticatedUserID)}
