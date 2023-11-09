@@ -182,13 +182,13 @@ function FriendsList(isMyPage: boolean, user: User, cookies: any) {
             var newBlockedUser: BlockedUser = {
               id: fetchedBlockedUser.blockedUserID,
               username: fetchedBlockedUser.blockedUsername,
-              status: fetchedBlockedUser.status,
+              status: fetchedBlockedUser.blockedUserStatus,
             };
           } else {
             var newBlockedUser: BlockedUser = {
               id: fetchedBlockedUser.blockedUserID,
               username: fetchedBlockedUser.blockedUsername,
-              status: fetchedBlockedUser.status,
+              status: fetchedBlockedUser.blockedUserStatus,
             };
           }
           return newBlockedUser;
