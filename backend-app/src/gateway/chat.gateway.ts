@@ -105,6 +105,7 @@ export class ChatGateway implements OnModuleInit {
         console.log(
           `[Chat Gateway]: Disconnection event: A user disconnected: ${tokenUser.username} - ${tokenUser.userID} (${socket.id})`,
         );
+        this.onLogout(socket, token);
         socket.broadcast.emit('disconnection event');
       });
 
@@ -163,6 +164,36 @@ export class ChatGateway implements OnModuleInit {
         this.getSocketRoomIdentifier(chatRoom.id, RoomType.Chat),
       ); // Name of the socket room is the string id of the channel
     });
+  }
+
+  @SubscribeMessage('logout')
+  async onLogout(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() token: string,
+  ): Promise<void> {
+    console.log('[Chat Gateway]: Logout', token);
+    try {
+      const userID = await this.checkIdentity(token, socket);
+      socket.data.userID = userID;
+
+      const user = await this.userService.fetchUserByID(userID);
+      await this.authService.logout(user);
+      socket.rooms.forEach(async (room: string) => {
+        if (room !== socket.id) await socket.leave(room);
+      });
+
+      const username = (await this.userService.fetchUserByID(userID)).username;
+      console.log(
+        `[Chat Gateway]: Logout event: A user logged in: ${username} - ${userID} (${socket.id})`,
+      );
+      socket.disconnect();
+    } catch (e) {
+      const err_msg = '[Chat Gateway]: logout error:' + e.message;
+      console.log(err_msg);
+      // this.server
+      //   .to(this.getSocketRoomIdentifier(userID, RoomType.User))
+      //   .emit('error', err_msg);
+    }
   }
 
   @SubscribeMessage('login')

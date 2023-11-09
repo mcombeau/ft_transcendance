@@ -42,7 +42,7 @@ function App() {
       async (response) => {
         await response.json();
         if (!response.ok) {
-          logout(setAuthenticatedUserID, removeCookie);
+          logout(setAuthenticatedUserID, removeCookie, cookies);
           return;
         }
         setAuthenticatedUserID(getUserID(cookies));
