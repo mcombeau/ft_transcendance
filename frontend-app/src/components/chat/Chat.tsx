@@ -721,7 +721,8 @@ export const Chat = () => {
         Authorization: `Bearer ${cookies["token"]}`,
       },
     };
-    if (myChats.length === 0) {
+    console.log("authenticated user id ", authenticatedUserID);
+    if (myChats.length === 0 && authenticatedUserID) {
       // Fetching Chats
       fetch(
         `http://localhost:3001/users/${authenticatedUserID}/chats`,
@@ -747,7 +748,7 @@ export const Chat = () => {
       });
     }
 
-    if (blockedUsers.length === 0) {
+    if (blockedUsers.length === 0 && authenticatedUserID) {
       // Fetching Chats
       fetch(
         `http://localhost:3001/users/${authenticatedUserID}/blockedUsers`,
@@ -768,7 +769,7 @@ export const Chat = () => {
       });
     }
 
-    if (publicChats.length === 0) {
+    if (publicChats.length === 0 && authenticatedUserID) {
       fetch(`http://localhost:3001/chats/public`, request).then(
         async (response) => {
           const chat_data = await response.json();
@@ -790,7 +791,7 @@ export const Chat = () => {
       );
     }
 
-    if (invites.length === 0) {
+    if (invites.length === 0 && authenticatedUserID) {
       fetch(
         `http://localhost:3001/invites/received/${authenticatedUserID}`,
         request

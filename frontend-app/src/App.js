@@ -24,7 +24,27 @@ function App() {
   );
 
   useEffect(() => {
-    setAuthenticatedUserID(getUserID(cookies));
+    // Check user with id actually exists in database
+
+    var request = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${cookies["token"]}`,
+      },
+    };
+
+    fetch(`http://localhost:3001/users/${getUserID(cookies)}`, request).then(
+      async (response) => {
+        const data = await response.json();
+        if (!response.ok) {
+          console.log("User from cookie does not exist");
+          return;
+        }
+        console.log("DATA", data);
+        console.log("User from cookies exist, set up done");
+        setAuthenticatedUserID(getUserID(cookies));
+      }
+    );
   }, []);
 
   return (

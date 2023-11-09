@@ -59,16 +59,16 @@ export class UsersService {
   }
 
   async fetchUserChatsByUserID(userID: number): Promise<ChatEntity[]> {
-    const user = await this.userRepository
-      .findOne({
-        where: { id: userID },
-        relations: ['chatRooms.chatRoom'],
-      })
-      .catch((e) => {
-        console.log('[User Service]: ', e);
-        throw new UserNotFoundError();
-      });
+    const user = await this.userRepository.findOne({
+      where: { id: userID },
+      relations: ['chatRooms.chatRoom'],
+    });
 
+    // TODO: understand why upper catch doesn't work
+    if (!user || user === undefined) {
+      console.log('IAM HERE');
+      throw new BadRequestException('Hola que tal');
+    }
     const userChatRooms: ChatEntity[] = [];
     for (const e of user.chatRooms) {
       const participants =

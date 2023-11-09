@@ -2,13 +2,12 @@
 
 - challenge invite process
 - invite notif on profile ?
-- remove friend button for blocked users
 
 - reload chat when joining ?
 
 - Misc
 
-  - fix cookie referring to user that does not exist
+  - fix cookie referring to user that does not exist <-
   - fix going to page for user that does not exist
 
 - User profile
