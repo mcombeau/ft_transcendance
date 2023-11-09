@@ -52,3 +52,6 @@ nlog:
 
 plog:
 	docker-compose logs --follow postgresql
+
+pop:
+	python3 test/populate_database.py
