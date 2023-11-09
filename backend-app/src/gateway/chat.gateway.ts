@@ -87,6 +87,7 @@ export class ChatGateway implements OnModuleInit {
     this.server.on('connection', async (socket) => {
       console.log('[Chat Gateway]: Received connection event');
       const token = socket.handshake.headers.authorization.split(' ')[1];
+      // TODO: CHECK IF USER ACTUALLY EXISTS IN DATABASE
       const user = await this.authService
         .validateToken(token)
         .catch(() => {
