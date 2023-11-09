@@ -51,7 +51,7 @@ export class AuthController {
   school42AuthRedirect(
     @Request() req: Request,
     @Res({ passthrough: true }) res: Response,
-  ): void {
+  ): Promise<void> {
     console.log('[Auth Controller]: GET on auth/callback');
     return this.authService.school42Login(req, res);
   }

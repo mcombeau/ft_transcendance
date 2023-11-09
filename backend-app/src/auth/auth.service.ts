@@ -1,5 +1,6 @@
 import { Injectable, Request, Response, Res } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
+import { userStatus } from '../users/entities/user.entity';
 import { PasswordService } from 'src/password/password.service';
 import { JwtService } from '@nestjs/jwt';
 import { UserEntity } from 'src/users/entities/user.entity';
@@ -36,7 +37,7 @@ export class AuthService {
     return user;
   }
 
-  login(user: UserEntity): any {
+  async login(user: UserEntity): Promise<any> {
     console.log('[Auth Service]: login user');
     const payload = {
       username: user.username,
@@ -44,6 +45,9 @@ export class AuthService {
       isTwoFactorAuthenticationEnabled: user.isTwoFactorAuthenticationEnabled,
       isTwoFactorAuthenticated: false,
     };
+    await this.userService.updateUserByID(user.id, {
+      status: userStatus.ONLINE,
+    });
     return {
       access_token: this.jwtService.sign(payload),
     };
@@ -55,10 +59,10 @@ export class AuthService {
     return await jwt.verify(token, jwtConstants.secret);
   }
 
-  school42Login(req: any, res: any): void {
+  async school42Login(req: any, res: any): Promise<void> {
     console.log('[Auth Service]: school42login');
     const user: UserEntity = req.user;
-    const access_token = this.login(user);
+    const access_token = await this.login(user);
     res.cookie('token', access_token.access_token);
     res.redirect(302, `http://localhost:3000/user/${user.id}`);
   }
