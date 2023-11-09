@@ -59,16 +59,13 @@ export class UsersService {
   }
 
   async fetchUserChatsByUserID(userID: number): Promise<ChatEntity[]> {
-    const user = await this.userRepository
-      .findOne({
-        where: { id: userID },
-        relations: ['chatRooms.chatRoom'],
-      })
-      .catch((e) => {
-        console.log('[User Service]: ', e);
-        throw new UserNotFoundError();
-      });
-
+    const user = await this.userRepository.findOne({
+      where: { id: userID },
+      relations: ['chatRooms.chatRoom'],
+    });
+    if (!user || user === undefined || user === null) {
+      throw new UserNotFoundError();
+    }
     const userChatRooms: ChatEntity[] = [];
     for (const e of user.chatRooms) {
       const participants =

@@ -1,5 +1,6 @@
 import { OnModuleInit, Inject, forwardRef } from '@nestjs/common';
 import {
+  ConnectedSocket,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -114,7 +115,9 @@ export class GameGateway implements OnModuleInit {
         socket.broadcast.emit('disconnection event');
       });
 
-      var myGameRoom: GameRoom = await this.getRoom(user.userID);
+      // TODO: connected sockets may not be logged in users yet.
+      // FIXME: Should not be authorized to join a game room if user is undefined!!
+      let myGameRoom: GameRoom = await this.getRoom(user.userID);
       if (myGameRoom) {
         socket.join(myGameRoom.socketRoomID);
       } else {
@@ -140,7 +143,7 @@ export class GameGateway implements OnModuleInit {
   private async getRoom(userID: number) {
     // TODO: remove unused rooms ?
     for (let i = this.gameRooms.length - 1; i >= 0; i--) {
-      var gameRoom = this.gameRooms[i];
+      const gameRoom = this.gameRooms[i];
       if (gameRoom.player1ID === userID) {
         return gameRoom;
       } else if (gameRoom.player2ID && gameRoom.player2ID === userID) {
@@ -231,7 +234,7 @@ export class GameGateway implements OnModuleInit {
       { stepX: -1, stepY: -1 },
       { stepX: -1, stepY: 1 },
     ];
-    let initialMove = moves[Math.floor(Math.random() * moves.length)];
+    const initialMove = moves[Math.floor(Math.random() * moves.length)];
     gameState.move = initialMove;
   }
 
@@ -386,13 +389,13 @@ export class GameGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('up')
-  async onUp(@MessageBody() token: string) {
-    const userID: number = await this.chatGateway.checkIdentity(token);
+  async onUp(@ConnectedSocket() socket: Socket, @MessageBody() token: string) {
+    const userID: number = await this.chatGateway.checkIdentity(token, socket);
 
     const gameRoom: GameRoom =
       this.gameRooms[(await this.getRoom(userID)).socketRoomID];
 
-    var playerIndex = 1;
+    let playerIndex = 1;
     if (gameRoom.player1ID === userID) {
       gameRoom.gameState.p1 -= this.step;
     } else {
@@ -409,12 +412,15 @@ export class GameGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('down')
-  async onDown(@MessageBody() token: string) {
-    const userID: number = await this.chatGateway.checkIdentity(token);
+  async onDown(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() token: string,
+  ) {
+    const userID: number = await this.chatGateway.checkIdentity(token, socket);
     const gameRoom: GameRoom =
       this.gameRooms[(await this.getRoom(userID)).socketRoomID];
 
-    var playerIndex = 1;
+    let playerIndex = 1;
     if (gameRoom.player1ID === userID) {
       gameRoom.gameState.p1 += this.step;
     } else {

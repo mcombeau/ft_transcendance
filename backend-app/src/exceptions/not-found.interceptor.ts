@@ -24,6 +24,7 @@ export class NotFoundInterceptor implements NestInterceptor {
     return next.handle().pipe(
       catchError((error) => {
         if (error instanceof UserNotFoundError) {
+          console.log('INTERCEPTOR');
           throw new UserNotFoundException(error.message);
         } else if (error instanceof ChatNotFoundError) {
           throw new ChatNotFoundException(error.message);
@@ -36,4 +37,3 @@ export class NotFoundInterceptor implements NestInterceptor {
     );
   }
 }
-
