@@ -133,8 +133,12 @@ export class ChatGateway implements OnModuleInit {
         '[WARNING] Letting this mismatched token pass anyway if it is undefined for now',
       );
     }
-    if (socketToken !== 'undefined' && socketToken !== token) {
-      throw new ChatPermissionError('invalid socket token');
+    if (socketToken === 'undefined') {
+      console.log('[WARNING] Socket token is undefined:', socketToken);
+      // throw new ChatPermissionError('socket token is undefined');
+    }
+    if (socketToken !== token) {
+      console.log('[WARNING] Socket token does not match given token');
     }
     const isTokenVerified = await this.authService
       .validateToken(token)
@@ -184,9 +188,8 @@ export class ChatGateway implements OnModuleInit {
 
       const username = (await this.userService.fetchUserByID(userID)).username;
       console.log(
-        `[Chat Gateway]: Logout event: A user logged in: ${username} - ${userID} (${socket.id})`,
+        `[Chat Gateway]: Logout event: A user logged out: ${username} - ${userID} (${socket.id})`,
       );
-      socket.disconnect();
     } catch (e) {
       const err_msg = '[Chat Gateway]: logout error:' + e.message;
       console.log(err_msg);
