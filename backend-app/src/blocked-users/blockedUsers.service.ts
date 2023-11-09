@@ -28,8 +28,10 @@ export class BlockedUsersService {
     const sendBlockedUser: sendBlockedUserDto = {
       blockingUserID: blockedUser.blockingUser.id,
       blockingUsername: blockedUser.blockingUser.username,
+      blockingUserStatus: blockedUser.blockingUser.status,
       blockedUserID: blockedUser.blockedUser.id,
       blockedUsername: blockedUser.blockedUser.username,
+      blockedUserStatus: blockedUser.blockedUser.status,
     };
     return sendBlockedUser;
   }

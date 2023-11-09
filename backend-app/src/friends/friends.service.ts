@@ -23,8 +23,10 @@ export class FriendsService {
     const sendFriend: sendFriendDto = {
       userID1: friend.user1.id,
       username1: friend.user1.username,
+      userStatus1: friend.user1.status,
       userID2: friend.user2.id,
       username2: friend.user2.username,
+      userStatus2: friend.user2.status,
     };
     return sendFriend;
   }
