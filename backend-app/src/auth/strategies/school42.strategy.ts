@@ -12,7 +12,8 @@
 const CLIENT_ID =
   'u-s4t2ud-18f16c113212b9bfe7b0841fdf7783641ed72d9a63359b4071a723862605ceea'; // Replace with your OAuth client ID
 const CLIENT_SECRET =
-  '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';
+  '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';
+//  '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';
 // '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'; // Replace with your OAuth client secret
 
 import { PassportStrategy } from '@nestjs/passport';
