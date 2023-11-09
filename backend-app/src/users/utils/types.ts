@@ -1,4 +1,4 @@
-import { UserEntity } from 'src/users/entities/user.entity';
+import { userStatus } from 'src/users/entities/user.entity';
 
 export type createUserParams = {
   username: string;
@@ -13,4 +13,5 @@ export type updateUserParams = {
   newPassword?: string;
   currentPassword?: string;
   email?: string;
+  status?: userStatus;
 };
