@@ -417,8 +417,9 @@ export class GameGateway implements OnModuleInit {
 
   checkGameOver(gameRoom: GameRoom) {
     if (
-      gameRoom.gameState.result[0] === WINNING_SCORE ||
-      gameRoom.gameState.result[1] === WINNING_SCORE
+      (gameRoom.gameState.result[0] === WINNING_SCORE ||
+        gameRoom.gameState.result[1] === WINNING_SCORE) &&
+      !gameRoom.gameState.isPaused
     ) {
       this.pause(gameRoom.gameState);
       console.log('[Game Gateway]: a player won !');
