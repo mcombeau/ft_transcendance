@@ -24,7 +24,12 @@ function displayGame(game: Game) {
 
 function displayGames(games: Game[]) {
   if (games === undefined) return <div></div>;
-  return games.map(displayGame);
+  return games
+    .sort(
+      (a: Game, b: Game) =>
+        new Date(b.date).getTime() - new Date(a.date).getTime()
+    )
+    .map(displayGame);
 }
 
 function displayStats(games: Game[]) {
