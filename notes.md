@@ -1,3 +1,5 @@
+%% TODO: Update with subject todo (from notion)
+
 - Game
 	- challenge invite process
 	- in a game status
