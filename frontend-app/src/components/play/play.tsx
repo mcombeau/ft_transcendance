@@ -28,9 +28,9 @@ type State = {
 };
 
 enum StatePlay {
-  OnPage,
-  InLobby,
-  InGame,
+  OnPage = "on page",
+  InLobby = "in lobby",
+  InGame = "in game",
 }
 
 function Play() {
