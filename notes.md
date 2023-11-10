@@ -2,10 +2,9 @@
 
 - Game
 	* challenge invite process
-	- in a game status
+	* in a game status
 	- personalization
 	- deal with broadband/network issues
-	* end game 
 
 - Profile
 	- My profile
@@ -41,5 +40,5 @@
 	- all tokens are taken directly from socket
 	- change police chat
 	- game start countdown
-	- you won/ you lost screen
+	- you won/ you lost screen + replay button
 	- limit game history to X games
