@@ -1,8 +1,6 @@
 - Game Lobby
 	- challenge invite process
-	- matching process
 	- in a game status
-
 
 - Profile
 	- My profile
@@ -21,6 +19,8 @@
   - lobby/matchmaking
   - personalization
   - deal with broadband/network issues
+  - end game 
+  - mark victory in backend 
 
 - validation:
   - validation channel name
@@ -40,3 +40,4 @@
 	- notifs dans la navbar
 	- pop up de notification
 	- achievements (display in profile)
+	- all tokens are taken directly from socket

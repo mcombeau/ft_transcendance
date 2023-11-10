@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
 import { WebSocketContext } from "../../contexts/WebsocketContext";
+import { AuthenticationContext } from "../authenticationState";
 import "./styles.css";
 
 const UP = 38;
@@ -55,6 +56,7 @@ function Play() {
   const [player1Username, setPlayer1Username] = useState("");
   const [player2Username, setPlayer2Username] = useState("");
   const [statePlay, setStatePlay] = useState(StatePlay.OnPage);
+  const { authenticatedUserID } = useContext(AuthenticationContext);
 
   function componentDidMount(cookies: any) {
     console.log("Component did mount");
@@ -71,10 +73,12 @@ function Play() {
   }
 
   function handleKeyPress(event: any, cookies: any) {
-    if (event.key === "w" || event.key === UP) {
-      socket.emit("up", cookies["token"]);
-    } else if (event.key === "s" || event.key === DOWN) {
-      socket.emit("down", cookies["token"]);
+    if (statePlay === StatePlay.InGame) {
+      if (event.key === "w" || event.key === UP) {
+        socket.emit("up", cookies["token"]);
+      } else if (event.key === "s" || event.key === DOWN) {
+        socket.emit("down", cookies["token"]);
+      }
     }
   }
 
@@ -89,8 +93,14 @@ function Play() {
     setStatePlay(StatePlay.InGame);
   }
 
+  function leaveGame() {
+    setStatePlay(StatePlay.OnPage);
+    socket.emit("leave game", cookies["token"]);
+  }
+
   useEffect(() => {
     socket.on("tick", (data: any) => {
+      // TODO: maybe ask back if already in game rather than wait for tick
       setStatePlay(StatePlay.InGame);
       setPlayer1Username(data.player1Username);
       setPlayer2Username(data.player2Username);
@@ -101,9 +111,18 @@ function Play() {
       console.log("Starting game");
       setStatePlay(StatePlay.InGame);
     });
+
+    socket.on("leave game", (userID: number) => {
+      if (userID !== authenticatedUserID) {
+        console.log("The other player left the game");
+        alert("Game ended because the other player left");
+        setStatePlay(StatePlay.OnPage);
+      }
+    });
     return () => {
       socket.off("tick");
-      socket.off("play");
+      socket.off("start game");
+      socket.off("leave game");
     };
   }, []);
 
@@ -135,6 +154,9 @@ function Play() {
           :
           <span className="res2">
             {player2Username} - {state.result[1]}
+          </span>
+          <span>
+            <button onClick={leaveGame}>Leave</button>
           </span>
           <div className="gameField">
             <div
