@@ -78,6 +78,7 @@ function Play() {
   function enterLobby() {
     console.log("Entered Lobby");
     setInLobby(true);
+    socket.emit("waiting", cookies["token"]);
   }
 
   function startGame() {

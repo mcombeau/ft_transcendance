@@ -11,6 +11,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { Socket } from 'socket.io';
 import { MessageBody } from '@nestjs/websockets';
 import { ChatGateway } from './chat.gateway';
+import { UserEntity } from 'src/users/entities/user.entity';
 
 type Position = {
   x: number;
@@ -114,21 +115,6 @@ export class GameGateway implements OnModuleInit {
         );
         socket.broadcast.emit('disconnection event');
       });
-
-      // TODO: connected sockets may not be logged in users yet.
-      // FIXME: Should not be authorized to join a game room if user is undefined!!
-      let myGameRoom: GameRoom = await this.getRoom(user.userID);
-      if (myGameRoom) {
-        socket.join(myGameRoom.socketRoomID);
-      } else {
-        myGameRoom = await this.joinRoom(socket, user);
-      }
-      console.log(
-        'Setting up user',
-        user.userID,
-        'to receive messages from gameroom',
-        myGameRoom.socketRoomID,
-      );
     });
   }
 
@@ -433,5 +419,33 @@ export class GameGateway implements OnModuleInit {
         gameRoom.gameState,
       );
     }
+  }
+
+  @SubscribeMessage('waiting')
+  async onWaiting(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() token: string,
+  ) {
+    // TODO: check that this does not work if not connected (try/catch ?)
+    const user = await this.authService
+      .validateToken(token)
+      .catch(() => {
+        return false;
+      })
+      .finally(() => {
+        return true;
+      });
+    let myGameRoom: GameRoom = await this.getRoom(user.userID);
+    if (myGameRoom) {
+      socket.join(myGameRoom.socketRoomID);
+    } else {
+      myGameRoom = await this.joinRoom(socket, user);
+    }
+    console.log(
+      'Setting up user',
+      user.userID,
+      'to receive messages from gameroom',
+      myGameRoom.socketRoomID,
+    );
   }
 }
