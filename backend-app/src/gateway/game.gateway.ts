@@ -11,7 +11,6 @@ import { AuthService } from 'src/auth/auth.service';
 import { Socket } from 'socket.io';
 import { MessageBody } from '@nestjs/websockets';
 import { ChatGateway } from './chat.gateway';
-import { UserEntity } from 'src/users/entities/user.entity';
 
 type Position = {
   x: number;
@@ -110,7 +109,12 @@ export class GameGateway implements OnModuleInit {
         `[Game Gateway]: A user connected: ${user.username} - ${user.userID} (${socket.id})`,
       );
       socket.broadcast.emit('connection event'); // TODO: probably remove
-      this.reconnect(socket, user.userID);
+      if (await this.reconnect(socket, user.userID)) {
+        console.log(
+          `[Game Gateway]: A user rejoined: ${user.username} a game)`,
+        );
+        socket.emit('rejoin game');
+      }
       socket.on('disconnect', () => {
         console.log(
           `[Game Gateway]: A user disconnected: ${user.username} - ${user.userID} (${socket.id})`,

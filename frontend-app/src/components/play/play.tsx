@@ -33,12 +33,12 @@ enum StatePlay {
   InGame = "in game",
 }
 
-function Play() {
+export const Play = () => {
   const defaultBallPosition: Position = {
     x: 249,
     y: 225,
   };
-  const [state, setState] = useState<State>({
+  const [gameState, setGameState] = useState<State>({
     result: [0, 0],
     p1: 160,
     p2: 160,
@@ -53,9 +53,9 @@ function Play() {
   const ballRadius: number = 10;
   const socket = useContext(WebSocketContext);
   const [cookies] = useCookies(["token"]);
-  const [player1Username, setPlayer1Username] = useState("");
-  const [player2Username, setPlayer2Username] = useState("");
-  const [statePlay, setStatePlay] = useState(StatePlay.OnPage);
+  const [player1Username, setPlayer1Username] = useState<string>("");
+  const [player2Username, setPlayer2Username] = useState<string>("");
+  const [statePlay, setStatePlay] = useState<StatePlay>(StatePlay.OnPage);
   const { authenticatedUserID } = useContext(AuthenticationContext);
 
   function activateKeyHandler(cookies: any) {
@@ -94,37 +94,50 @@ function Play() {
   }
 
   function leaveGame() {
+    console.log("Leave game");
     socket.emit("leave game", cookies["token"]);
     setStatePlay(StatePlay.OnPage);
   }
 
   useEffect(() => {
+    // TODO: double check they work fine
+    activateKeyHandler(cookies);
+    return () => {
+      deactivateKeyHandler(cookies);
+    };
+  }, []);
+
+  useEffect(() => {
     socket.on("tick", (data: any) => {
       // TODO: maybe ask back if already in game rather than wait for tick
-      setStatePlay(StatePlay.InGame);
       setPlayer1Username(data.player1Username);
       setPlayer2Username(data.player2Username);
-      setState(data.gameState);
+      setGameState(data.gameState);
     });
 
     socket.on("start game", () => {
-      console.log("Starting game");
-      setStatePlay(StatePlay.InGame);
-      activateKeyHandler(cookies);
+      console.log("Received start from back");
+      startGame();
     });
 
     socket.on("leave game", (userID: number) => {
       if (userID !== authenticatedUserID) {
         console.log("The other player left the game");
         alert("Game ended because the other player left");
+        leaveGame();
       }
-      setStatePlay(StatePlay.OnPage);
-      deactivateKeyHandler(cookies);
     });
+
+    socket.on("rejoin game", () => {
+      console.log("rejoined game");
+      startGame();
+    });
+
     return () => {
       socket.off("tick");
       socket.off("start game");
       socket.off("leave game");
+      socket.off("rejoin game");
     };
   }, []);
 
@@ -134,21 +147,19 @@ function Play() {
         <button onClick={enterLobby}>Play</button>
       </div>
     );
-  }
-  if (statePlay === StatePlay.InLobby) {
+  } else if (statePlay === StatePlay.InLobby) {
     return <div>Waiting for other player</div>;
   }
-
   return (
     <div className="App">
       <div className="center-container">
         <div className="result">
           <span className="res1">
-            {player1Username} - {state.result[0]}
+            {player1Username} - {gameState.result[0]}
           </span>
           :
           <span className="res2">
-            {player2Username} - {state.result[1]}
+            {player2Username} - {gameState.result[1]}
           </span>
           <span>
             <button onClick={leaveGame}>Leave</button>
@@ -157,14 +168,14 @@ function Play() {
             <div
               className="ball"
               style={{
-                top: state.ballPosition.y - ballRadius,
-                left: state.ballPosition.x - ballRadius,
+                top: gameState.ballPosition.y - ballRadius,
+                left: gameState.ballPosition.x - ballRadius,
               }}
             />
             <div className="midLine" />
             <div className="midLineHor" />
-            <div className="player player1" style={{ top: state.p1 }} />
-            <div className="player player2" style={{ top: state.p2 }} />
+            <div className="player player1" style={{ top: gameState.p1 }} />
+            <div className="player player2" style={{ top: gameState.p2 }} />
             <div className="gate gate1" />
             <div className="gate gate2" />
           </div>
@@ -172,6 +183,6 @@ function Play() {
       </div>
     </div>
   );
-}
+};
 
 export default Play;
