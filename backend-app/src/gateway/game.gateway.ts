@@ -13,7 +13,7 @@ import { MessageBody } from '@nestjs/websockets';
 import { ChatGateway } from './chat.gateway';
 import { createGameParams } from 'src/games/utils/types';
 
-const WINNING_SCORE = 5;
+const WINNING_SCORE = 2;
 
 type Position = {
   x: number;
@@ -412,6 +412,7 @@ export class GameGateway implements OnModuleInit {
       this.pause(gameRoom.gameState);
       console.log('[Game Gateway]: a player won !');
 
+      // TODO: maybe move to another function
       if (gameRoom.gameState.result[0] === WINNING_SCORE) {
         var gameDetails: createGameParams = {
           winnerID: gameRoom.player1ID,
@@ -428,6 +429,7 @@ export class GameGateway implements OnModuleInit {
         };
       }
 
+      this.server.to(gameRoom.socketRoomID).emit('end game', gameDetails);
       this.gameService.createGame(gameDetails);
       this.stopGame(gameRoom);
     }

@@ -93,6 +93,17 @@ export const Play = () => {
     setStatePlay(StatePlay.InGame);
   }
 
+  function endGame(gameDetails: any) {
+    console.log("Game ended");
+    if (gameDetails.winnerID === authenticatedUserID) {
+      alert("You won !");
+    } else {
+      alert("You lost ...");
+    }
+
+    setStatePlay(StatePlay.OnPage);
+  }
+
   function leaveGame() {
     console.log("Leave game");
     socket.emit("leave game", cookies["token"]);
@@ -133,11 +144,16 @@ export const Play = () => {
       startGame();
     });
 
+    socket.on("end game", (gameDetails: any) => {
+      endGame(gameDetails);
+    });
+
     return () => {
       socket.off("tick");
       socket.off("start game");
       socket.off("leave game");
       socket.off("rejoin game");
+      socket.off("end game");
     };
   }, []);
 
