@@ -4,8 +4,8 @@ import { WebSocketContext } from "../../contexts/WebsocketContext";
 import { AuthenticationContext } from "../authenticationState";
 import "./styles.css";
 
-const UP = 38;
-const DOWN = 40;
+const UP = "ArrowUp";
+const DOWN = "ArrowDown";
 
 type Position = {
   x: number;
@@ -58,27 +58,27 @@ function Play() {
   const [statePlay, setStatePlay] = useState(StatePlay.OnPage);
   const { authenticatedUserID } = useContext(AuthenticationContext);
 
-  function componentDidMount(cookies: any) {
-    console.log("Component did mount");
+  function activateKeyHandler(cookies: any) {
+    console.log("Key handler activated");
     window.addEventListener("keydown", (event) => {
       handleKeyPress(event, cookies);
     });
   }
 
-  function componentWillUnmount(cookies: any) {
-    console.log("Component will unmount");
+  function deactivateKeyHandler(cookies: any) {
+    console.log("Key handler deactivated");
     window.removeEventListener("keydown", (event) => {
       handleKeyPress(event, cookies);
     });
   }
 
   function handleKeyPress(event: any, cookies: any) {
-    if (statePlay === StatePlay.InGame) {
-      if (event.key === "w" || event.key === UP) {
-        socket.emit("up", cookies["token"]);
-      } else if (event.key === "s" || event.key === DOWN) {
-        socket.emit("down", cookies["token"]);
-      }
+    if (event.key === "w" || event.key === UP) {
+      event.preventDefault();
+      socket.emit("up", cookies["token"]);
+    } else if (event.key === "s" || event.key === DOWN) {
+      event.preventDefault();
+      socket.emit("down", cookies["token"]);
     }
   }
 
@@ -110,6 +110,7 @@ function Play() {
     socket.on("start game", () => {
       console.log("Starting game");
       setStatePlay(StatePlay.InGame);
+      activateKeyHandler(cookies);
     });
 
     socket.on("leave game", (userID: number) => {
@@ -118,6 +119,7 @@ function Play() {
         alert("Game ended because the other player left");
       }
       setStatePlay(StatePlay.OnPage);
+      deactivateKeyHandler(cookies);
     });
     return () => {
       socket.off("tick");
@@ -125,13 +127,6 @@ function Play() {
       socket.off("leave game");
     };
   }, []);
-
-  useEffect(() => {
-    componentDidMount(cookies);
-    return () => {
-      componentWillUnmount(cookies);
-    };
-  }, [statePlay]);
 
   if (statePlay === StatePlay.OnPage) {
     return (
