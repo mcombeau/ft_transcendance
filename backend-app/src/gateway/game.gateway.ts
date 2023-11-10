@@ -397,8 +397,7 @@ export class GameGateway implements OnModuleInit {
   async onUp(@ConnectedSocket() socket: Socket, @MessageBody() token: string) {
     const userID: number = await this.chatGateway.checkIdentity(token, socket);
 
-    const gameRoom: GameRoom =
-      this.gameRooms[(await this.getRoom(userID)).socketRoomID];
+    const gameRoom: GameRoom =await this.getRoom(userID);
 
     let playerIndex = 1;
     if (gameRoom.player1ID === userID) {
@@ -422,8 +421,7 @@ export class GameGateway implements OnModuleInit {
     @MessageBody() token: string,
   ) {
     const userID: number = await this.chatGateway.checkIdentity(token, socket);
-    const gameRoom: GameRoom =
-      this.gameRooms[(await this.getRoom(userID)).socketRoomID];
+    const gameRoom: GameRoom =await this.getRoom(userID);
 
     let playerIndex = 1;
     if (gameRoom.player1ID === userID) {
