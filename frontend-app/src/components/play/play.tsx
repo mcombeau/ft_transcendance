@@ -48,6 +48,8 @@ function Play() {
   const [cookies] = useCookies(["token"]);
   const [player1Username, setPlayer1Username] = useState("");
   const [player2Username, setPlayer2Username] = useState("");
+  const [inLobby, setInLobby] = useState(false);
+  const [gameStarted, setGameStarted] = useState(false);
 
   function componentDidMount(cookies: any) {
     console.log("Component did mount");
@@ -73,6 +75,16 @@ function Play() {
     }
   }
 
+  function enterLobby() {
+    console.log("Entered Lobby");
+    setInLobby(true);
+  }
+
+  function startGame() {
+    console.log("Game started");
+    setGameStarted(true);
+  }
+
   useEffect(() => {
     console.log("Init socket");
     socket.on("tick", (data: any) => {
@@ -93,6 +105,17 @@ function Play() {
       componentWillUnmount(cookies);
     };
   }, []);
+
+  if (!inLobby) {
+    return (
+      <div>
+        <button onClick={enterLobby}>Play</button>
+      </div>
+    );
+  }
+  if (!gameStarted) {
+    return <div>Waiting for other player</div>;
+  }
 
   return (
     <div className="App">
