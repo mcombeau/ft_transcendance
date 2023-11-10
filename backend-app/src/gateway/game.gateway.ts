@@ -12,6 +12,8 @@ import { Socket } from 'socket.io';
 import { MessageBody } from '@nestjs/websockets';
 import { ChatGateway } from './chat.gateway';
 import { createGameParams } from 'src/games/utils/types';
+import { userStatus } from 'src/users/entities/user.entity';
+import { UsersService } from 'src/users/users.service';
 
 const WINNING_SCORE = 2;
 
@@ -56,6 +58,8 @@ export class GameGateway implements OnModuleInit {
     private authService: AuthService,
     @Inject(forwardRef(() => GamesService))
     private gameService: GamesService,
+    @Inject(forwardRef(() => UsersService))
+    private usersService: UsersService,
     @Inject(forwardRef(() => ChatGateway))
     private chatGateway: ChatGateway,
   ) {}
@@ -138,8 +142,10 @@ export class GameGateway implements OnModuleInit {
     }, this.delay);
   }
 
-  private stopGame(gameRoom: GameRoom) {
+  private async stopGame(gameRoom: GameRoom) {
     console.log('[Game Gateway]: Game stopped');
+    await this.updatePlayerStatus(userStatus.ONLINE, gameRoom.player1ID);
+    await this.updatePlayerStatus(userStatus.ONLINE, gameRoom.player2ID);
     clearInterval(gameRoom.interval);
     this.server.in(gameRoom.socketRoomID).socketsLeave(gameRoom.socketRoomID);
     this.gameRooms = this.gameRooms.filter(
@@ -148,7 +154,6 @@ export class GameGateway implements OnModuleInit {
   }
 
   private async getRoom(userID: number) {
-    // TODO: remove unused rooms ?
     for (let i = this.gameRooms.length - 1; i >= 0; i--) {
       const gameRoom = this.gameRooms[i];
       if (gameRoom.player1ID === userID) {
@@ -158,6 +163,10 @@ export class GameGateway implements OnModuleInit {
       }
     }
     return null;
+  }
+
+  private async updatePlayerStatus(status: userStatus, userID: number) {
+    await this.usersService.updateUserByID(userID, { status: status });
   }
 
   private placeBall() {
@@ -207,6 +216,7 @@ export class GameGateway implements OnModuleInit {
       user.username,
     );
     await socket.join(socketRoomID);
+    await this.updatePlayerStatus(userStatus.INGAME, user.userID);
     return {
       player1ID: user.userID,
       player1Username: user.username,
@@ -232,6 +242,7 @@ export class GameGateway implements OnModuleInit {
       lastGameRoom.player2ID = user.userID;
       lastGameRoom.player2Username = user.username;
       await socket.join(lastGameRoom.socketRoomID);
+      await this.updatePlayerStatus(userStatus.INGAME, user.userID);
       console.log(
         '[Game Gateway] User',
         user.userID,
