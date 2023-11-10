@@ -26,6 +26,12 @@ type State = {
   move: Step;
 };
 
+enum StatePlay {
+  OnPage,
+  InLobby,
+  InGame,
+}
+
 function Play() {
   const defaultBallPosition: Position = {
     x: 249,
@@ -48,8 +54,7 @@ function Play() {
   const [cookies] = useCookies(["token"]);
   const [player1Username, setPlayer1Username] = useState("");
   const [player2Username, setPlayer2Username] = useState("");
-  const [inLobby, setInLobby] = useState(false);
-  const [gameStarted, setGameStarted] = useState(false);
+  const [statePlay, setStatePlay] = useState(StatePlay.OnPage);
 
   function componentDidMount(cookies: any) {
     console.log("Component did mount");
@@ -66,28 +71,27 @@ function Play() {
   }
 
   function handleKeyPress(event: any, cookies: any) {
-    if (gameStarted) {
-      if (event.key === "w" || event.key === UP) {
-        socket.emit("up", cookies["token"]);
-      } else if (event.key === "s" || event.key === DOWN) {
-        socket.emit("down", cookies["token"]);
-      }
+    if (event.key === "w" || event.key === UP) {
+      socket.emit("up", cookies["token"]);
+    } else if (event.key === "s" || event.key === DOWN) {
+      socket.emit("down", cookies["token"]);
     }
   }
 
   function enterLobby() {
     console.log("Entered Lobby");
-    setInLobby(true);
+    setStatePlay(StatePlay.InLobby);
     socket.emit("waiting", cookies["token"]);
   }
 
   function startGame() {
     console.log("Game started");
-    setGameStarted(true);
+    setStatePlay(StatePlay.InGame);
   }
 
   useEffect(() => {
     socket.on("tick", (data: any) => {
+      setStatePlay(StatePlay.InGame);
       setPlayer1Username(data.player1Username);
       setPlayer2Username(data.player2Username);
       setState(data.gameState);
@@ -95,7 +99,7 @@ function Play() {
 
     socket.on("start game", () => {
       console.log("Starting game");
-      setGameStarted(true);
+      setStatePlay(StatePlay.InGame);
     });
     return () => {
       socket.off("tick");
@@ -110,14 +114,14 @@ function Play() {
     };
   }, []);
 
-  if (!inLobby) {
+  if (statePlay === StatePlay.OnPage) {
     return (
       <div>
         <button onClick={enterLobby}>Play</button>
       </div>
     );
   }
-  if (!gameStarted) {
+  if (statePlay === StatePlay.InLobby) {
     return <div>Waiting for other player</div>;
   }
 

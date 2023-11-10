@@ -109,6 +109,7 @@ export class GameGateway implements OnModuleInit {
         `[Game Gateway]: A user connected: ${user.username} - ${user.userID} (${socket.id})`,
       );
       socket.broadcast.emit('connection event'); // TODO: probably remove
+      this.reconnect(socket, user.userID);
       socket.on('disconnect', () => {
         console.log(
           `[Game Gateway]: A user disconnected: ${user.username} - ${user.userID} (${socket.id})`,
@@ -159,6 +160,21 @@ export class GameGateway implements OnModuleInit {
         stepY: 1,
       },
     };
+  }
+
+  private async reconnect(socket: Socket, userID: number) {
+    let myGameRoom: GameRoom = await this.getRoom(userID);
+    if (myGameRoom) {
+      await socket.join(myGameRoom.socketRoomID);
+      console.log(
+        'Setting up user',
+        userID,
+        'to join back gameroom',
+        myGameRoom.socketRoomID,
+      );
+      return true;
+    }
+    return false;
   }
 
   private async createRoom(socket: Socket, user: any) {
@@ -438,17 +454,15 @@ export class GameGateway implements OnModuleInit {
       .finally(() => {
         return true;
       });
-    let myGameRoom: GameRoom = await this.getRoom(user.userID);
-    if (myGameRoom) {
-      socket.join(myGameRoom.socketRoomID);
-    } else {
-      myGameRoom = await this.joinRoom(socket, user);
+
+    if (!(await this.reconnect(socket, user.userID))) {
+      let myGameRoom = await this.joinRoom(socket, user);
+      console.log(
+        'Setting up user',
+        user.userID,
+        'to receive messages from gameroom',
+        myGameRoom.socketRoomID,
+      );
     }
-    console.log(
-      'Setting up user',
-      user.userID,
-      'to receive messages from gameroom',
-      myGameRoom.socketRoomID,
-    );
   }
 }
