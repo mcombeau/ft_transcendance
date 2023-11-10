@@ -11,6 +11,9 @@ import { AuthService } from 'src/auth/auth.service';
 import { Socket } from 'socket.io';
 import { MessageBody } from '@nestjs/websockets';
 import { ChatGateway } from './chat.gateway';
+import { createGameParams } from 'src/games/utils/types';
+
+const WINNING_SCORE = 2;
 
 type Position = {
   x: number;
@@ -335,11 +338,11 @@ export class GameGateway implements OnModuleInit {
     }
   }
 
-  check(gameState: State) {
-    this.checkPlayers(gameState);
-    this.checkGoals(gameState);
-    this.checkBallBoundaries(gameState);
-    this.checkGameOver(gameState);
+  check(gameRoom: GameRoom) {
+    this.checkPlayers(gameRoom.gameState);
+    this.checkGoals(gameRoom.gameState);
+    this.checkBallBoundaries(gameRoom.gameState);
+    this.checkGameOver(gameRoom);
   }
 
   tick(gameRoom: GameRoom) {
@@ -349,7 +352,7 @@ export class GameGateway implements OnModuleInit {
         y: gameRoom.gameState.ballPosition.y + gameRoom.gameState.move.stepY,
       };
     }
-    this.check(gameRoom.gameState);
+    this.check(gameRoom);
   }
 
   checkPlayerBoundaries(
@@ -401,11 +404,31 @@ export class GameGateway implements OnModuleInit {
     gameState.isPaused = !gameState.isPaused;
   }
 
-  checkGameOver(gameState: State) {
-    const { result } = gameState;
-    if (result[0] === 10 || result[1] === 10) {
-      // TODO: finish game and insert in db
-      this.pause(gameState);
+  checkGameOver(gameRoom: GameRoom) {
+    if (
+      gameRoom.gameState.result[0] === WINNING_SCORE ||
+      gameRoom.gameState.result[1] === WINNING_SCORE
+    ) {
+      this.pause(gameRoom.gameState);
+
+      if (gameRoom.gameState.result[0] === WINNING_SCORE) {
+        var gameDetails: createGameParams = {
+          winnerID: gameRoom.gameState.p1,
+          loserID: gameRoom.gameState.p2,
+          loserScore: gameRoom.gameState.result[1],
+          winnerScore: WINNING_SCORE,
+        };
+      } else {
+        var gameDetails: createGameParams = {
+          winnerID: gameRoom.gameState.p2,
+          loserID: gameRoom.gameState.p1,
+          loserScore: gameRoom.gameState.result[0],
+          winnerScore: WINNING_SCORE,
+        };
+      }
+
+      this.gameService.createGame(gameDetails);
+      this.stopGame(gameRoom);
     }
   }
 
