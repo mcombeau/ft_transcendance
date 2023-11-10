@@ -1,202 +1,193 @@
 @import url("https://fonts.googleapis.com/css2?family=Nunito:wght@300&display=swap");
 
 :root {
-  --green: #58a497;
-  --yellow: #e09449;
-  --lightgreen1: #a4bdb7;
-  --brown: #8b4448;
-  --gray: gray;
-  --lightgreen2: rgb(164, 189, 183, 0.5);
-  --box: #ededed;
+  --primary-color: #FFFFFF; /* #4CAF50;*/
+  --secondary-color: #FFC107;
+  --accent-color: #FFFFFF; /*#2196F3;*/
+  --text-color: #FFFFFF;
+  --background: linear-gradient(to bottom, rgba(0, 15, 50, 0.8), rgba(0, 30, 100, 0.8), rgba(0, 60, 200, 0.8));
 }
 
-#profile {
+body {
+  margin: 0;
+  padding: 0;
+  background: url("back2.jpg");
+  font-family: 'Montserrat', sans-serif;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+}
+
+.profile {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  font-family: "Nunito", sans-serif;
-  background: #000000;
+  width: 100vw;
+  background-color: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
+  box-shadow: 0 3px 6px rgba(0,0,0,0.10), 0 3px 6 px rgba(0,0,0,0.10);
+  padding: 0 !important;
 }
 
-/* Content-1:Start */
-.box {
-  width: 450px;
-  height: fit-content;
-  border-radius: 20px;
-  padding: 10px;
+header {
+  box-shadow: 0 3px 6px rgba(0,0,0,0.10), 0 3px 6 px rgba(0,0,0,0.10);
+  background: #eee;
+  background-image: url("4307571.jpg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  height: 250px;
+}
+
+header i {
+  position: relative;
+  cursor: pointer;
+  right: -96%;
+  top: 25px;
+  font-size: 18px !important;
+  color: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
+}
+
+@media (max-width:800px) {
+  header {
+    height: 150px;
+  } 
+  
+  header i {
+    right: -90%;
+  }
+}
+
+.photo {
+  width: 200px;
+  height: 200px;
+  margin-top: -120px;
+  border-radius: 100px;
+  border: 4px solid #fff;
+}
+
+.left-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.right-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.stats {
+  margin-top: 25px;
   text-align: center;
-  background: #ededed;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #ededed;
+  font-family: 'Montserrat', sans-serif;
 }
 
-.box1 {
-  margin-top: 10px;
+
+.number-stat {
+  padding: 0px;
+  font-size: 14pt;
+  font-weight: bold;
+  font-family: 'Montserrat', sans-serif;
+  color: #fff;
 }
 
-.content {
-  margin: 25px 2px;
+.desc-stat {
+  margin-top: -15px;
+  font-size: 10pt;
+  color: #bbb;
+}
+
+.box {
+  width: 300px;
+  border-radius: 10px;
+  padding: 30px;
+  text-align: center;
+  background: #ffffff;
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
 }
 
 .image img {
-  height: auto;
-  width: 120px;
+  width: 150px;
+  height: 150px;
   border-radius: 50%;
-
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: 5px;
-}
-
-.level {
-  font-size: 0.7em;
-  background-color: rgb(164, 189, 183, 0.5);
-  width: 50px;
-  padding: 3px;
-  border-radius: 5px;
-  font-weight: bolder;
-  letter-spacing: 1px;
-
-  display: block;
-  margin: 0px auto 10px;
+  object-fit: cover;
+  margin-bottom: 20px;
 }
 
 .name {
-  font-size: 1.25em;
-  font-weight: bolder;
-  letter-spacing: 1px;
+  font-size: 2em;
+  color: var(--primary-color);
+  margin-bottom: 10px;
 }
 
 .job_title {
-  font-size: 0.65em;
-  font-weight: bolder;
-  color: gray;
-  margin-top: -2px;
+  font-size: 1.2em;
+  color: var(--accent-color);
+  margin-bottom: 20px;
 }
 
-.job_discription {
-  font-size: 0.7em;
-  color: gray;
-  margin: 10px 30px 20px;
+.job_description {
+  font-size: 1em;
+  color: var(--text-color);
+  margin-bottom: 30px;
 }
-
-/* button { */
-/* 	width: 130px; */
-/* 	height: 40px; */
-/* 	border-radius: 10px; */
-/* 	font-weight: bolder; */
-/* } */
 
 .button {
   display: flex;
   justify-content: space-around;
-  flex-direction: row;
-  margin: 20px 30px 0px;
+  margin-top: 20px;
+}
+
+.button button {
+  width: 140px;
+  height: 40px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .button .message {
-  background: #ededed;
-  border: 2px solid #000;
+  background: var(--primary-color);
+  color: #ffffff;
 }
 
 .button .play {
-  background-color: #000;
-  color: #ededed;
-  border: none;
+  background-color: var(--accent-color);
+  color: #ffffff;
 }
 
-button.connect:hover {
-  letter-spacing: 1px;
-  transition: 0.5s;
+.button button:hover {
+  opacity: 0.9;
 }
-
-button.message:hover {
-  letter-spacing: 1px;
-  transition: 0.5s;
-  background: rgba(88, 164, 151, 0.5);
-}
-
-/* Content-1:End */
-
-/* Content-2:Start */
-.box2 {
-  margin-top: 50px;
-  margin-bottom: 10px;
-}
-
-.box2 img {
-  width: 80px;
-}
-
-.row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 0px 0px 10px;
-}
-
-/* h5 { */
-/*   font-weight: bolder; */
-/*   font-size: 1em; */
-/* } */
-
-.row p {
-  font-size: 0.8em;
-}
-
-.box2 .text {
-  text-align: left;
-}
-
-.box2 .text .name {
-  font-size: 1.1em;
-}
-
-.box2 .text .job_title {
-  font-size: 0.6em;
-  margin-bottom: 10px;
-}
-
-.box2 .text .job_discription {
-  margin: 0px;
-}
-
-.box2 .text .about {
-  font-size: 0.9em;
-  font-weight: bolder;
-}
-
-/* Content-2:End */
-
-/* Responsiveness:Start */
 
 @media screen and (max-width: 480px) {
   .box {
-    width: 100vw;
-    border-radius: 0px;
+    width: 100%;
+    border-radius: 0;
   }
 
-  .button {
-    display: flex;
-    flex-direction: column;
+  .image img {
+    width: 120px;
+    height: 120px;
+  }
+
+  .name {
+    font-size: 1.5em;
+  }
+
+  .job_title {
+    font-size: 1em;
   }
 
   .button button {
-    width: 250px;
-  }
-
-  button.connect {
-    margin-top: 10px;
-  }
-
-  .content2 {
-    padding: 0px 20px;
-  }
-
-  .content2 img {
-    width: 60px;
-    height: 60px;
+    width: 100%;
+    margin: 10px 0;
   }
 }
-
-/* Responsiveness:End */

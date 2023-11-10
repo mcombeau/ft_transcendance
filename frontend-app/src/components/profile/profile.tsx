@@ -9,6 +9,7 @@ import GameHistory from "./history";
 import ProfileSettings from "./profileSettings";
 import { AuthenticationContext } from "../authenticationState";
 import { typeInvite } from "../chat/types";
+import "./profile.css";
 
 export enum UserStatus {
   Offline = "offline",
@@ -56,6 +57,7 @@ async function befriend(
   authenticatedUserID: number,
   cookies: any
 ) {
+  // TODO: rather create friendship invite
   var request = {
     method: "POST",
     headers: {
@@ -394,7 +396,6 @@ function Profile() {
 
   useEffect(() => {
     if (authenticatedUserID === profileUserID) {
-      console.log("SOCKET Emitting login + connection event !!");
       socket.emit("login", cookies["token"]);
       socket.emit("connection");
       setIsMyPage(true);
@@ -409,31 +410,44 @@ function Profile() {
   }, [user]);
 
   return (
-    <div>
-      <img src={defaultProfilePicture} width="100" height="100"></img>
-      {!userExists ? "User is not logged in" : ""}
-      {titleProfile(isMyPage, user)}
-      {userDetails(user)}
-      {interactWithUser(
-        isMyPage,
-        isMyFriend,
-        setIsMyFriend,
-        isBlocked,
-        setIsBlocked,
-        user,
-        authenticatedUserID,
-        cookies
-      )}
-      {editProfile(isMyPage, user, isEditingProfile, setIsEditingProfile)}
-      {ProfileSettings(
-        user,
-        cookies,
-        isEditingProfile,
-        setIsEditingProfile,
-        authenticatedUserID
-      )}
-      {FriendsList(isMyPage, user, cookies)}
-      {GameHistory(user, cookies)}
+    <div id="profile">
+      <h3 style={{ color: "white" }}>
+        <header>
+          <i className="fa fa-bars" aria-hidden="true"></i>
+        </header>
+        <div className="left-section">
+          <img src={defaultProfilePicture} className="photo"></img>
+          {!userExists ? "User is not logged in" : ""}
+          {titleProfile(isMyPage, user)}
+          {userDetails(user)}
+          {interactWithUser(
+            isMyPage,
+            isMyFriend,
+            setIsMyFriend,
+            isBlocked,
+            setIsBlocked,
+            user,
+            authenticatedUserID,
+            cookies
+          )}
+          {editProfile(isMyPage, user, isEditingProfile, setIsEditingProfile)}
+          {ProfileSettings(
+            user,
+            cookies,
+            isEditingProfile,
+            setIsEditingProfile,
+            authenticatedUserID
+          )}
+        </div>
+        <div className="right-section">
+          <div className="stats row">
+            <div className="stat col-xs-4">
+              {FriendsList(isMyPage, user, cookies)}
+            </div>
+            <div className="stat col-xs-4">{GameHistory(user, cookies)}</div>
+          </div>
+        </div>
+      </h3>
     </div>
   );
 }
