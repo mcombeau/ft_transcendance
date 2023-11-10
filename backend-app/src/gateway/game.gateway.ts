@@ -119,7 +119,10 @@ export class GameGateway implements OnModuleInit {
   }
 
   private startGame(gameRoom: GameRoom) {
+    console.log('[Game Gateway]: game started');
+    this.server.to(gameRoom.socketRoomID).emit('start game');
     this.randomInitialMove(gameRoom.gameState);
+
     setInterval(() => {
       this.tick(gameRoom);
       this.server.to(gameRoom.socketRoomID).emit('tick', gameRoom);

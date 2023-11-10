@@ -66,12 +66,12 @@ function Play() {
   }
 
   function handleKeyPress(event: any, cookies: any) {
-    // TODO: remove secondary keys and replace by arrows
-
-    if (event.key === "w" || event.key === UP) {
-      socket.emit("up", cookies["token"]);
-    } else if (event.key === "s" || event.key === DOWN) {
-      socket.emit("down", cookies["token"]);
+    if (gameStarted) {
+      if (event.key === "w" || event.key === UP) {
+        socket.emit("up", cookies["token"]);
+      } else if (event.key === "s" || event.key === DOWN) {
+        socket.emit("down", cookies["token"]);
+      }
     }
   }
 
@@ -87,16 +87,19 @@ function Play() {
   }
 
   useEffect(() => {
-    console.log("Init socket");
     socket.on("tick", (data: any) => {
-      console.log(data);
       setPlayer1Username(data.player1Username);
       setPlayer2Username(data.player2Username);
       setState(data.gameState);
     });
+
+    socket.on("start game", () => {
+      console.log("Starting game");
+      setGameStarted(true);
+    });
     return () => {
-      console.log("Unregistering sockets");
       socket.off("tick");
+      socket.off("play");
     };
   }, []);
 
