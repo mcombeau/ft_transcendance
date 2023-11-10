@@ -1,12 +1,10 @@
 %% TODO: Update with subject todo (from notion)
 
 - Game
-	- challenge invite process
-	- in a game status
+	* challenge invite process
+	* in a game status
 	- personalization
 	- deal with broadband/network issues
-	- end game 
-	- mark victory in backend 
 
 - Profile
 	- My profile
@@ -18,6 +16,7 @@
 
 - Bugs
 	- 404 if page not exist (not tostring business)
+	- people offline when logged
 
 - validation:
   - validation channel name
@@ -41,3 +40,5 @@
 	- all tokens are taken directly from socket
 	- change police chat
 	- game start countdown
+	- you won/ you lost screen + replay button
+	- limit game history to X games

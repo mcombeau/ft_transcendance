@@ -47,7 +47,8 @@ export class GamesService {
     const winner = await this.userService.fetchUserByID(gameDetails.winnerID);
     const loser = await this.userService.fetchUserByID(gameDetails.loserID);
 
-    const newGame = await this.gameRepository.create({
+    console.log('[Game Service]: Saving Game', gameDetails);
+    const newGame = this.gameRepository.create({
       winner: winner,
       loser: loser,
       winnerScore: gameDetails.winnerScore,

@@ -11,7 +11,11 @@ import { AuthService } from 'src/auth/auth.service';
 import { Socket } from 'socket.io';
 import { MessageBody } from '@nestjs/websockets';
 import { ChatGateway } from './chat.gateway';
-import { UserEntity } from 'src/users/entities/user.entity';
+import { createGameParams } from 'src/games/utils/types';
+import { userStatus } from 'src/users/entities/user.entity';
+import { UsersService } from 'src/users/users.service';
+
+const WINNING_SCORE = 2;
 
 type Position = {
   x: number;
@@ -54,6 +58,8 @@ export class GameGateway implements OnModuleInit {
     private authService: AuthService,
     @Inject(forwardRef(() => GamesService))
     private gameService: GamesService,
+    @Inject(forwardRef(() => UsersService))
+    private usersService: UsersService,
     @Inject(forwardRef(() => ChatGateway))
     private chatGateway: ChatGateway,
   ) {}
@@ -78,7 +84,7 @@ export class GameGateway implements OnModuleInit {
   gameRooms: GameRoom[];
 
   onModuleInit() {
-    this.delay = 13;
+    this.delay = 6;
     this.player1x = 42;
     this.player2x = 660;
     this.pHeight = 80;
@@ -110,7 +116,12 @@ export class GameGateway implements OnModuleInit {
         `[Game Gateway]: A user connected: ${user.username} - ${user.userID} (${socket.id})`,
       );
       socket.broadcast.emit('connection event'); // TODO: probably remove
-      this.reconnect(socket, user.userID);
+      if (await this.reconnect(socket, user.userID)) {
+        console.log(
+          `[Game Gateway]: A user rejoined: ${user.username} a game)`,
+        );
+        socket.emit('rejoin game');
+      }
       socket.on('disconnect', () => {
         console.log(
           `[Game Gateway]: A user disconnected: ${user.username} - ${user.userID} (${socket.id})`,
@@ -131,8 +142,10 @@ export class GameGateway implements OnModuleInit {
     }, this.delay);
   }
 
-  private stopGame(gameRoom: GameRoom) {
+  private async stopGame(gameRoom: GameRoom) {
     console.log('[Game Gateway]: Game stopped');
+    await this.updatePlayerStatus(userStatus.ONLINE, gameRoom.player1ID);
+    await this.updatePlayerStatus(userStatus.ONLINE, gameRoom.player2ID);
     clearInterval(gameRoom.interval);
     this.server.in(gameRoom.socketRoomID).socketsLeave(gameRoom.socketRoomID);
     this.gameRooms = this.gameRooms.filter(
@@ -141,7 +154,6 @@ export class GameGateway implements OnModuleInit {
   }
 
   private async getRoom(userID: number) {
-    // TODO: remove unused rooms ?
     for (let i = this.gameRooms.length - 1; i >= 0; i--) {
       const gameRoom = this.gameRooms[i];
       if (gameRoom.player1ID === userID) {
@@ -151,6 +163,10 @@ export class GameGateway implements OnModuleInit {
       }
     }
     return null;
+  }
+
+  private async updatePlayerStatus(status: userStatus, userID: number) {
+    await this.usersService.updateUserByID(userID, { status: status });
   }
 
   private placeBall() {
@@ -200,6 +216,7 @@ export class GameGateway implements OnModuleInit {
       user.username,
     );
     await socket.join(socketRoomID);
+    await this.updatePlayerStatus(userStatus.INGAME, user.userID);
     return {
       player1ID: user.userID,
       player1Username: user.username,
@@ -225,6 +242,7 @@ export class GameGateway implements OnModuleInit {
       lastGameRoom.player2ID = user.userID;
       lastGameRoom.player2Username = user.username;
       await socket.join(lastGameRoom.socketRoomID);
+      await this.updatePlayerStatus(userStatus.INGAME, user.userID);
       console.log(
         '[Game Gateway] User',
         user.userID,
@@ -331,11 +349,11 @@ export class GameGateway implements OnModuleInit {
     }
   }
 
-  check(gameState: State) {
-    this.checkPlayers(gameState);
-    this.checkGoals(gameState);
-    this.checkBallBoundaries(gameState);
-    this.checkGameOver(gameState);
+  check(gameRoom: GameRoom) {
+    this.checkPlayers(gameRoom.gameState);
+    this.checkGoals(gameRoom.gameState);
+    this.checkBallBoundaries(gameRoom.gameState);
+    this.checkGameOver(gameRoom);
   }
 
   tick(gameRoom: GameRoom) {
@@ -345,7 +363,7 @@ export class GameGateway implements OnModuleInit {
         y: gameRoom.gameState.ballPosition.y + gameRoom.gameState.move.stepY,
       };
     }
-    this.check(gameRoom.gameState);
+    this.check(gameRoom);
   }
 
   checkPlayerBoundaries(
@@ -397,11 +415,35 @@ export class GameGateway implements OnModuleInit {
     gameState.isPaused = !gameState.isPaused;
   }
 
-  checkGameOver(gameState: State) {
-    const { result } = gameState;
-    if (result[0] === 10 || result[1] === 10) {
-      // TODO: finish game and insert in db
-      this.pause(gameState);
+  checkGameOver(gameRoom: GameRoom) {
+    if (
+      (gameRoom.gameState.result[0] === WINNING_SCORE ||
+        gameRoom.gameState.result[1] === WINNING_SCORE) &&
+      !gameRoom.gameState.isPaused
+    ) {
+      this.pause(gameRoom.gameState);
+      console.log('[Game Gateway]: a player won !');
+
+      // TODO: maybe move to another function
+      if (gameRoom.gameState.result[0] === WINNING_SCORE) {
+        var gameDetails: createGameParams = {
+          winnerID: gameRoom.player1ID,
+          loserID: gameRoom.player2ID,
+          loserScore: gameRoom.gameState.result[1],
+          winnerScore: WINNING_SCORE,
+        };
+      } else {
+        var gameDetails: createGameParams = {
+          winnerID: gameRoom.player2ID,
+          loserID: gameRoom.player1ID,
+          loserScore: gameRoom.gameState.result[0],
+          winnerScore: WINNING_SCORE,
+        };
+      }
+
+      this.server.to(gameRoom.socketRoomID).emit('end game', gameDetails);
+      this.gameService.createGame(gameDetails);
+      this.stopGame(gameRoom);
     }
   }
 
