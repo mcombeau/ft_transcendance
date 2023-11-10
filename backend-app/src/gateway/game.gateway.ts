@@ -490,7 +490,7 @@ export class GameGateway implements OnModuleInit {
       `[Game Gateway]: User ${userID} left gameroom ${gameRoom.socketRoomID}`,
     );
 
-    this.server.emit('leave game', userID);
+    this.server.to(gameRoom.socketRoomID).emit('leave game', userID);
     this.stopGame(gameRoom);
   }
 }
