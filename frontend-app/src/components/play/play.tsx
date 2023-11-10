@@ -94,8 +94,8 @@ function Play() {
   }
 
   function leaveGame() {
-    setStatePlay(StatePlay.OnPage);
     socket.emit("leave game", cookies["token"]);
+    setStatePlay(StatePlay.OnPage);
   }
 
   useEffect(() => {
@@ -116,8 +116,8 @@ function Play() {
       if (userID !== authenticatedUserID) {
         console.log("The other player left the game");
         alert("Game ended because the other player left");
-        setStatePlay(StatePlay.OnPage);
       }
+      setStatePlay(StatePlay.OnPage);
     });
     return () => {
       socket.off("tick");
@@ -131,7 +131,7 @@ function Play() {
     return () => {
       componentWillUnmount(cookies);
     };
-  }, []);
+  }, [statePlay]);
 
   if (statePlay === StatePlay.OnPage) {
     return (
