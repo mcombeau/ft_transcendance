@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
 import { WebSocketContext } from "../../contexts/WebsocketContext";
+import { AuthenticationContext } from "../authenticationState";
 import "./styles.css";
 
 const UP = 38;
@@ -26,6 +27,12 @@ type State = {
   move: Step;
 };
 
+enum StatePlay {
+  OnPage = "on page",
+  InLobby = "in lobby",
+  InGame = "in game",
+}
+
 function Play() {
   const defaultBallPosition: Position = {
     x: 249,
@@ -48,6 +55,8 @@ function Play() {
   const [cookies] = useCookies(["token"]);
   const [player1Username, setPlayer1Username] = useState("");
   const [player2Username, setPlayer2Username] = useState("");
+  const [statePlay, setStatePlay] = useState(StatePlay.OnPage);
+  const { authenticatedUserID } = useContext(AuthenticationContext);
 
   function componentDidMount(cookies: any) {
     console.log("Component did mount");
@@ -64,26 +73,56 @@ function Play() {
   }
 
   function handleKeyPress(event: any, cookies: any) {
-    // TODO: remove secondary keys and replace by arrows
-
-    if (event.key === "w" || event.key === UP) {
-      socket.emit("up", cookies["token"]);
-    } else if (event.key === "s" || event.key === DOWN) {
-      socket.emit("down", cookies["token"]);
+    if (statePlay === StatePlay.InGame) {
+      if (event.key === "w" || event.key === UP) {
+        socket.emit("up", cookies["token"]);
+      } else if (event.key === "s" || event.key === DOWN) {
+        socket.emit("down", cookies["token"]);
+      }
     }
   }
 
+  function enterLobby() {
+    console.log("Entered Lobby");
+    setStatePlay(StatePlay.InLobby);
+    socket.emit("waiting", cookies["token"]);
+  }
+
+  function startGame() {
+    console.log("Game started");
+    setStatePlay(StatePlay.InGame);
+  }
+
+  function leaveGame() {
+    socket.emit("leave game", cookies["token"]);
+    setStatePlay(StatePlay.OnPage);
+  }
+
   useEffect(() => {
-    console.log("Init socket");
     socket.on("tick", (data: any) => {
-      console.log(data);
+      // TODO: maybe ask back if already in game rather than wait for tick
+      setStatePlay(StatePlay.InGame);
       setPlayer1Username(data.player1Username);
       setPlayer2Username(data.player2Username);
       setState(data.gameState);
     });
+
+    socket.on("start game", () => {
+      console.log("Starting game");
+      setStatePlay(StatePlay.InGame);
+    });
+
+    socket.on("leave game", (userID: number) => {
+      if (userID !== authenticatedUserID) {
+        console.log("The other player left the game");
+        alert("Game ended because the other player left");
+      }
+      setStatePlay(StatePlay.OnPage);
+    });
     return () => {
-      console.log("Unregistering sockets");
       socket.off("tick");
+      socket.off("start game");
+      socket.off("leave game");
     };
   }, []);
 
@@ -92,7 +131,18 @@ function Play() {
     return () => {
       componentWillUnmount(cookies);
     };
-  }, []);
+  }, [statePlay]);
+
+  if (statePlay === StatePlay.OnPage) {
+    return (
+      <div>
+        <button onClick={enterLobby}>Play</button>
+      </div>
+    );
+  }
+  if (statePlay === StatePlay.InLobby) {
+    return <div>Waiting for other player</div>;
+  }
 
   return (
     <div className="App">
@@ -104,6 +154,9 @@ function Play() {
           :
           <span className="res2">
             {player2Username} - {state.result[1]}
+          </span>
+          <span>
+            <button onClick={leaveGame}>Leave</button>
           </span>
           <div className="gameField">
             <div
