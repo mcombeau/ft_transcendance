@@ -12,14 +12,16 @@ import { Socket } from 'socket.io';
 import { MessageBody } from '@nestjs/websockets';
 import { ChatGateway } from './chat.gateway';
 import { createGameParams } from 'src/games/utils/types';
-import { userStatus } from 'src/users/entities/user.entity';
+import { UserEntity, userStatus } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
+import { UserNotFoundError } from 'src/exceptions/not-found.interceptor';
 
 const WINNING_SCORE = 2;
 
 type Player = {
   userID: number;
   username: string;
+  inviteID?: number;
 };
 
 type Position = {
@@ -85,7 +87,7 @@ export class GameGateway implements OnModuleInit {
   rightBoundary: number;
   step: number;
   gameRooms: GameRoom[];
-  waitList: number[];
+  waitList: Player[];
 
   onModuleInit() {
     this.delay = 6;
@@ -208,22 +210,22 @@ export class GameGateway implements OnModuleInit {
     return false;
   }
 
-  private async createRoom(socket: Socket, user: any) {
+  private async createRoom(socket: Socket, user: UserEntity) {
     const socketRoomID = this.gameRooms.length.toString();
 
     console.log(
       '[Game Gateway]: Create new GameRoom of id',
       socketRoomID,
       'with player',
-      user.userID,
+      user.id,
       'of username',
       user.username,
     );
     await socket.join(socketRoomID);
-    await this.updatePlayerStatus(userStatus.INGAME, user.userID);
+    await this.updatePlayerStatus(userStatus.INGAME, user.id);
     return {
       player1: {
-        userID: user.userID,
+        userID: user.id,
         username: user.username,
       },
       socketRoomID: socketRoomID,
@@ -232,8 +234,8 @@ export class GameGateway implements OnModuleInit {
     };
   }
 
-  private async joinRoom(socket: Socket, user: any) {
-    socket.data.userID = user.userID;
+  private async joinRoom(socket: Socket, user: UserEntity) {
+    socket.data.userID = user.id;
     // If there is no gameroom create and join one
     if (this.gameRooms.length === 0) {
       const newGameRoom = await this.createRoom(socket, user);
@@ -246,14 +248,14 @@ export class GameGateway implements OnModuleInit {
 
     if (!lastGameRoom.player2) {
       lastGameRoom.player2 = {
-        userID: user.userID,
+        userID: user.id,
         username: user.username,
       };
       await socket.join(lastGameRoom.socketRoomID);
-      await this.updatePlayerStatus(userStatus.INGAME, user.userID);
+      await this.updatePlayerStatus(userStatus.INGAME, user.id);
       console.log(
         '[Game Gateway] User',
-        user.userID,
+        user.id,
         'of username',
         user.username,
         'joins GameRoom of id',
@@ -458,6 +460,10 @@ export class GameGateway implements OnModuleInit {
   @SubscribeMessage('up')
   async onUp(@ConnectedSocket() socket: Socket, @MessageBody() token: string) {
     const userID: number = await this.chatGateway.checkIdentity(token, socket);
+    const user = await this.usersService.fetchUserByID(userID);
+    if (!user) {
+      throw new UserNotFoundError();
+    }
 
     const gameRoom: GameRoom = await this.getRoom(userID);
 
@@ -483,6 +489,10 @@ export class GameGateway implements OnModuleInit {
     @MessageBody() token: string,
   ) {
     const userID: number = await this.chatGateway.checkIdentity(token, socket);
+    const user = await this.usersService.fetchUserByID(userID);
+    if (!user) {
+      throw new UserNotFoundError();
+    }
     const gameRoom: GameRoom = await this.getRoom(userID);
 
     let playerIndex = 1;
@@ -505,23 +515,18 @@ export class GameGateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() token: string,
   ) {
-    // TODO: check that this does not work if not connected (try/catch ?)
-    const user = await this.authService
-      .validateToken(token)
-      .catch(() => {
-        return false;
-      })
-      .finally(() => {
-        return true;
-      });
-
+    const userID: number = await this.chatGateway.checkIdentity(token, socket);
+    const user = await this.usersService.fetchUserByID(userID);
+    if (!user) {
+      throw new UserNotFoundError();
+    }
     console.log('User-----------------', user);
-    if (!(await this.reconnect(socket, user.userID))) {
+    if (!(await this.reconnect(socket, user.id))) {
       let myGameRoom = await this.joinRoom(socket, user);
       console.log(
         '[Game Gateway]:',
         'Setting up user',
-        user.userID,
+        user.id,
         'to receive messages from gameroom',
         myGameRoom.socketRoomID,
       );
@@ -533,9 +538,11 @@ export class GameGateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() token: string,
   ) {
-    // TODO: check that this does not work if not connected (try/catch ?)
-
     const userID: number = await this.chatGateway.checkIdentity(token, socket);
+    const user = await this.usersService.fetchUserByID(userID);
+    if (!user) {
+      throw new UserNotFoundError();
+    }
     const gameRoom: GameRoom = await this.getRoom(userID);
     console.log(
       `[Game Gateway]: User ${userID} left gameroom ${gameRoom.socketRoomID}`,
