@@ -510,6 +510,12 @@ export const Chat = () => {
     socket.on("invite", (info: ReceivedInfo) => {
       // Receive invitation from someone else
       var invite: Invite = info.inviteInfo;
+      if (
+        invite.senderID === authenticatedUserID &&
+        invite.type === typeInvite.Game
+      ) {
+        navigate("/play/" + invite.id);
+      }
       if (invite.invitedID === authenticatedUserID) {
         setInvites((prev: Invite[]) =>
           prev.filter((i: Invite) => i.id !== invite.id)
@@ -561,6 +567,8 @@ export const Chat = () => {
           );
           setMyChats((prev) => [...prev, newChat]);
         }
+      } else if (info.inviteInfo.type === typeInvite.Game) {
+        navigate("/play/" + info.inviteInfo.id);
       }
     });
 
