@@ -1181,8 +1181,6 @@ export class ChatGateway implements OnModuleInit {
   }
 
   private async acceptUserInviteToGame(info: sendInviteDto): Promise<void> {
-    // TODO: Implement this
-    // console.log('Accept user invite to game not implemented yet!', info);
     try {
       console.log('--- Accept user Invite to game:', info);
       const invite = await this.inviteService.fetchInviteByID(info.id);

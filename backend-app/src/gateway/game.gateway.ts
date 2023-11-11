@@ -470,14 +470,14 @@ export class GameGateway implements OnModuleInit {
 
       // TODO: maybe move to another function
       if (gameRoom.gameState.result[0] === WINNING_SCORE) {
-        var gameDetails: createGameParams = {
+        gameDetails: createGameParams = {
           winnerID: gameRoom.player1.userID,
           loserID: gameRoom.player2.userID,
           loserScore: gameRoom.gameState.result[1],
           winnerScore: WINNING_SCORE,
         };
       } else {
-        var gameDetails: createGameParams = {
+        gameDetails: createGameParams = {
           winnerID: gameRoom.player2.userID,
           loserID: gameRoom.player1.userID,
           loserScore: gameRoom.gameState.result[0],
