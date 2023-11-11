@@ -12,7 +12,7 @@ import { Socket } from 'socket.io';
 import { MessageBody } from '@nestjs/websockets';
 import { ChatGateway } from './chat.gateway';
 import { createGameParams } from 'src/games/utils/types';
-import { UserEntity, userStatus } from 'src/users/entities/user.entity';
+import { userStatus } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
 import { UserNotFoundError } from 'src/exceptions/not-found.interceptor';
 
@@ -21,7 +21,7 @@ const WINNING_SCORE = 2;
 type Player = {
   userID: number;
   username: string;
-  socket: Socket;
+  socket?: Socket;
   inviteID?: number;
 };
 
@@ -235,6 +235,8 @@ export class GameGateway implements OnModuleInit {
     );
     await player1.socket.join(socketRoomID);
     await player2.socket.join(socketRoomID);
+    delete player1.socket;
+    delete player2.socket;
     await this.updatePlayerStatus(userStatus.INGAME, player1.userID);
     await this.updatePlayerStatus(userStatus.INGAME, player2.userID);
     return {
@@ -567,6 +569,8 @@ export class GameGateway implements OnModuleInit {
         console.log(
           `[Game Gateway]: ${player.username} is waiting for an opponent`,
         );
+      } else {
+        this.startGame(myGameRoom);
       }
     }
   }
