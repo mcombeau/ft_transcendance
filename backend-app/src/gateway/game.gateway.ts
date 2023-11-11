@@ -17,6 +17,11 @@ import { UsersService } from 'src/users/users.service';
 
 const WINNING_SCORE = 2;
 
+type Player = {
+  userID: number;
+  username: string;
+};
+
 type Position = {
   x: number;
   y: number;
@@ -38,10 +43,8 @@ type State = {
 };
 
 type GameRoom = {
-  player1ID: number;
-  player1Username: string;
-  player2ID?: number;
-  player2Username?: string;
+  player1: Player;
+  player2?: Player;
   socketRoomID: string;
   gameState: State;
   interval: NodeJS.Timer;
@@ -82,6 +85,7 @@ export class GameGateway implements OnModuleInit {
   rightBoundary: number;
   step: number;
   gameRooms: GameRoom[];
+  waitList: number[];
 
   onModuleInit() {
     this.delay = 6;
@@ -144,8 +148,8 @@ export class GameGateway implements OnModuleInit {
 
   private async stopGame(gameRoom: GameRoom) {
     console.log('[Game Gateway]: Game stopped');
-    await this.updatePlayerStatus(userStatus.ONLINE, gameRoom.player1ID);
-    await this.updatePlayerStatus(userStatus.ONLINE, gameRoom.player2ID);
+    await this.updatePlayerStatus(userStatus.ONLINE, gameRoom.player1.userID);
+    await this.updatePlayerStatus(userStatus.ONLINE, gameRoom.player2.userID);
     clearInterval(gameRoom.interval);
     this.server.in(gameRoom.socketRoomID).socketsLeave(gameRoom.socketRoomID);
     this.gameRooms = this.gameRooms.filter(
@@ -156,9 +160,9 @@ export class GameGateway implements OnModuleInit {
   private async getRoom(userID: number) {
     for (let i = this.gameRooms.length - 1; i >= 0; i--) {
       const gameRoom = this.gameRooms[i];
-      if (gameRoom.player1ID === userID) {
+      if (gameRoom.player1.userID === userID) {
         return gameRoom;
-      } else if (gameRoom.player2ID && gameRoom.player2ID === userID) {
+      } else if (gameRoom.player2 && gameRoom.player2.userID === userID) {
         return gameRoom;
       }
     }
@@ -218,8 +222,10 @@ export class GameGateway implements OnModuleInit {
     await socket.join(socketRoomID);
     await this.updatePlayerStatus(userStatus.INGAME, user.userID);
     return {
-      player1ID: user.userID,
-      player1Username: user.username,
+      player1: {
+        userID: user.userID,
+        username: user.username,
+      },
       socketRoomID: socketRoomID,
       gameState: this.createGameState(),
       interval: null,
@@ -238,9 +244,11 @@ export class GameGateway implements OnModuleInit {
     const lastGameRoom = this.gameRooms[this.gameRooms.length - 1];
     // If the last gameroom is full create a new one
 
-    if (!lastGameRoom.player2ID) {
-      lastGameRoom.player2ID = user.userID;
-      lastGameRoom.player2Username = user.username;
+    if (!lastGameRoom.player2) {
+      lastGameRoom.player2 = {
+        userID: user.userID,
+        username: user.username,
+      };
       await socket.join(lastGameRoom.socketRoomID);
       await this.updatePlayerStatus(userStatus.INGAME, user.userID);
       console.log(
@@ -427,15 +435,15 @@ export class GameGateway implements OnModuleInit {
       // TODO: maybe move to another function
       if (gameRoom.gameState.result[0] === WINNING_SCORE) {
         var gameDetails: createGameParams = {
-          winnerID: gameRoom.player1ID,
-          loserID: gameRoom.player2ID,
+          winnerID: gameRoom.player1.userID,
+          loserID: gameRoom.player2.userID,
           loserScore: gameRoom.gameState.result[1],
           winnerScore: WINNING_SCORE,
         };
       } else {
         var gameDetails: createGameParams = {
-          winnerID: gameRoom.player2ID,
-          loserID: gameRoom.player1ID,
+          winnerID: gameRoom.player2.userID,
+          loserID: gameRoom.player1.userID,
           loserScore: gameRoom.gameState.result[0],
           winnerScore: WINNING_SCORE,
         };
@@ -454,7 +462,7 @@ export class GameGateway implements OnModuleInit {
     const gameRoom: GameRoom = await this.getRoom(userID);
 
     let playerIndex = 1;
-    if (gameRoom.player1ID === userID) {
+    if (gameRoom.player1.userID === userID) {
       gameRoom.gameState.p1 -= this.step;
     } else {
       playerIndex = 2;
@@ -478,7 +486,7 @@ export class GameGateway implements OnModuleInit {
     const gameRoom: GameRoom = await this.getRoom(userID);
 
     let playerIndex = 1;
-    if (gameRoom.player1ID === userID) {
+    if (gameRoom.player1.userID === userID) {
       gameRoom.gameState.p1 += this.step;
     } else {
       playerIndex = 2;
@@ -507,6 +515,7 @@ export class GameGateway implements OnModuleInit {
         return true;
       });
 
+    console.log('User-----------------', user);
     if (!(await this.reconnect(socket, user.userID))) {
       let myGameRoom = await this.joinRoom(socket, user);
       console.log(

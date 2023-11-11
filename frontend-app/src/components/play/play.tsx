@@ -121,8 +121,8 @@ export const Play = () => {
   useEffect(() => {
     socket.on("tick", (data: any) => {
       // TODO: maybe ask back if already in game rather than wait for tick
-      setPlayer1Username(data.player1Username);
-      setPlayer2Username(data.player2Username);
+      setPlayer1Username(data.player1.username);
+      setPlayer2Username(data.player2.username);
       setGameState(data.gameState);
     });
 
