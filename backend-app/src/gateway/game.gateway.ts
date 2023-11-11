@@ -166,9 +166,10 @@ export class GameGateway implements OnModuleInit {
   private async getRoom(userID: number) {
     for (let i = this.gameRooms.length - 1; i >= 0; i--) {
       const gameRoom = this.gameRooms[i];
-      if (gameRoom.player1.userID === userID) {
-        return gameRoom;
-      } else if (gameRoom.player2 && gameRoom.player2.userID === userID) {
+      if (
+        gameRoom.player1.userID === userID ||
+        gameRoom.player2.userID === userID
+      ) {
         return gameRoom;
       }
     }
@@ -239,13 +240,15 @@ export class GameGateway implements OnModuleInit {
     delete player2.socket;
     await this.updatePlayerStatus(userStatus.INGAME, player1.userID);
     await this.updatePlayerStatus(userStatus.INGAME, player2.userID);
-    return {
+    const gameRoom: GameRoom = {
       player1: player1,
       player2: player2,
       socketRoomID: socketRoomID,
       gameState: this.createGameState(),
       interval: null,
     };
+    this.gameRooms.push(gameRoom);
+    return gameRoom;
   }
 
   private getFreePlayer(): Player {
@@ -592,9 +595,7 @@ export class GameGateway implements OnModuleInit {
       throw new UserNotFoundError();
     }
     const gameRoom: GameRoom = await this.getRoom(userID);
-    console.log(
-      `[Game Gateway]: User ${userID} left gameroom ${gameRoom.socketRoomID}`,
-    );
+    console.log(`[Game Gateway]: User ${userID} left gameroom ${gameRoom}`);
 
     this.server.to(gameRoom.socketRoomID).emit('leave game', userID);
     this.stopGame(gameRoom);
