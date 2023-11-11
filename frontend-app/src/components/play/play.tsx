@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
+import { useParams } from "react-router-dom";
 import { WebSocketContext } from "../../contexts/WebsocketContext";
 import { AuthenticationContext } from "../authenticationState";
 import "./styles.css";
@@ -52,6 +53,7 @@ export const Play = () => {
   });
   const ballRadius: number = 10;
   const socket = useContext(WebSocketContext);
+  var inviteID: number = Number(useParams().inviteID);
   const [cookies] = useCookies(["token"]);
   const [player1Username, setPlayer1Username] = useState<string>("");
   const [player2Username, setPlayer2Username] = useState<string>("");
@@ -85,7 +87,7 @@ export const Play = () => {
   function enterLobby() {
     console.log("Entered Lobby");
     setStatePlay(StatePlay.InLobby);
-    socket.emit("waiting", cookies["token"]);
+    socket.emit("waiting", { token: cookies["token"] });
   }
 
   function startGame() {
@@ -116,6 +118,14 @@ export const Play = () => {
     return () => {
       deactivateKeyHandler(cookies);
     };
+  }, []);
+
+  useEffect(() => {
+    if (inviteID) {
+      console.log("the player is in an invite thingy");
+      setStatePlay(StatePlay.InLobby);
+      socket.emit("waiting", { token: cookies["token"], inviteID: inviteID });
+    }
   }, []);
 
   useEffect(() => {

@@ -258,51 +258,51 @@ export class GameGateway implements OnModuleInit {
     return null;
   }
 
-  private async waitForFreePlayer(player: Player) {
-    let opponent = this.getFreePlayer();
-    if (opponent) {
-      return this.createRoom(player, opponent);
+  private getInvitedPlayer(player: Player): Player {
+    for (let i = 0; i < this.waitList.length; i++) {
+      let opponent = this.waitList[i];
+      if (opponent.inviteID === player.inviteID) {
+        console.log(
+          '[Game Gateway]: Found opponent',
+          opponent.username,
+          'with invite',
+          opponent.inviteID,
+          'for player',
+          player.username,
+          'with invite',
+          player.inviteID,
+        );
+        return opponent;
+      }
     }
-    this.waitList.push(player);
     return null;
   }
 
-  // private async joinRoom(socket: Socket, user: UserEntity) {
-  //   socket.data.userID = user.id;
-  //   // If there is no gameroom create and join one
-  //   if (this.gameRooms.length === 0) {
-  //     const newGameRoom = await this.createRoom(socket, user);
-  //     this.gameRooms.push(newGameRoom);
-  //     return newGameRoom;
-  //   }
-  //   // If the last gameroom is not full join it
-  //   const lastGameRoom = this.gameRooms[this.gameRooms.length - 1];
-  //   // If the last gameroom is full create a new one
-
-  //   if (!lastGameRoom.player2) {
-  //     lastGameRoom.player2 = {
-  //       userID: user.id,
-  //       username: user.username,
-  //       socket: socket,
-  //     };
-  //     await socket.join(lastGameRoom.socketRoomID);
-  //     await this.updatePlayerStatus(userStatus.INGAME, user.id);
-  //     console.log(
-  //       '[Game Gateway] User',
-  //       user.id,
-  //       'of username',
-  //       user.username,
-  //       'joins GameRoom of id',
-  //       lastGameRoom.socketRoomID,
-  //     );
-  //     this.startGame(lastGameRoom);
-  //     return lastGameRoom;
-  //   } else {
-  //     const newGameRoom = await this.createRoom(socket, user);
-  //     this.gameRooms.push(newGameRoom);
-  //     return newGameRoom;
-  //   }
-  // }
+  private async waitForOpponent(player: Player) {
+    let opponent: Player;
+    if (player.inviteID) {
+      opponent = this.getInvitedPlayer(player);
+    } else {
+      opponent = this.getFreePlayer();
+    }
+    if (opponent) {
+      console.log(
+        '[Game Gateway]: Found opponent',
+        opponent.username,
+        'with invite',
+        opponent.inviteID,
+      );
+      return this.createRoom(player, opponent);
+    }
+    console.log(
+      '[Game Gateway]: Did not found opponent for',
+      player.username,
+      'with invite',
+      player.inviteID,
+    );
+    this.waitList.push(player);
+    return null;
+  }
 
   randomInitialMove(gameState: State) {
     // pseudo-random ball behavior
@@ -468,16 +468,17 @@ export class GameGateway implements OnModuleInit {
       this.pause(gameRoom.gameState);
       console.log('[Game Gateway]: a player won !');
 
+      let gameDetails: createGameParams;
       // TODO: maybe move to another function
       if (gameRoom.gameState.result[0] === WINNING_SCORE) {
-        gameDetails: createGameParams = {
+        gameDetails = {
           winnerID: gameRoom.player1.userID,
           loserID: gameRoom.player2.userID,
           loserScore: gameRoom.gameState.result[1],
           winnerScore: WINNING_SCORE,
         };
       } else {
-        gameDetails: createGameParams = {
+        gameDetails = {
           winnerID: gameRoom.player2.userID,
           loserID: gameRoom.player1.userID,
           loserScore: gameRoom.gameState.result[0],
@@ -547,31 +548,36 @@ export class GameGateway implements OnModuleInit {
   @SubscribeMessage('waiting')
   async onWaiting(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() token: string,
+    @MessageBody() info: { token: string; inviteID: number },
   ) {
+    const token = info.token;
+    const inviteID = info.inviteID;
+
     const userID: number = await this.chatGateway.checkIdentity(token, socket);
     const user = await this.usersService.fetchUserByID(userID);
     if (!user) {
       throw new UserNotFoundError();
     }
-    console.log('User-----------------', user);
-    // Waiting for invite pass inviteID
 
-    // For free players
+    if (await this.reconnect(socket, user.id)) {
+      return;
+    }
     const player: Player = {
       userID: user.id,
       username: user.username,
       socket: socket,
     };
-    if (!(await this.reconnect(socket, user.id))) {
-      let myGameRoom = await this.waitForFreePlayer(player);
-      if (!myGameRoom) {
-        console.log(
-          `[Game Gateway]: ${player.username} is waiting for an opponent`,
-        );
-      } else {
-        this.startGame(myGameRoom);
-      }
+    if (inviteID) {
+      player.inviteID = inviteID;
+    }
+    let myGameRoom: GameRoom = await this.waitForOpponent(player);
+    if (!myGameRoom) {
+      console.log(
+        `[Game Gateway]: ${player.username} is waiting for an opponent:`,
+        player,
+      );
+    } else {
+      this.startGame(myGameRoom);
     }
   }
 
