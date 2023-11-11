@@ -1182,7 +1182,31 @@ export class ChatGateway implements OnModuleInit {
 
   private async acceptUserInviteToGame(info: sendInviteDto): Promise<void> {
     // TODO: Implement this
-    console.log('Accept user invite to game not implemented yet!', info);
+    // console.log('Accept user invite to game not implemented yet!', info);
+    try {
+      console.log('--- Accept user Invite to game:', info);
+      const invite = await this.inviteService.fetchInviteByID(info.id);
+      if (!invite) {
+        throw Error("Can't find invite!");
+      }
+      await this.checkUserInviteHasNotExpired(info);
+
+      const userIsBlocked =
+        await this.blockedUserService.usersAreBlockingEachOtherByUserIDs(
+          info.senderID,
+          info.invitedID,
+        );
+      if (userIsBlocked) {
+        throw new BadRequestException(
+          'Cannot accept game invite: a user is blocking another',
+        );
+      }
+      // TODO: Create game for users
+
+      await this.inviteService.deleteInviteByID(invite.id);
+    } catch (e) {
+      throw new ChatPermissionError(e.message);
+    }
   }
 
   private async acceptUserInviteToFriends(info: sendInviteDto): Promise<void> {
@@ -1251,8 +1275,7 @@ export class ChatGateway implements OnModuleInit {
     user: UserEntity,
     info: ReceivedInfoDto,
   ): Promise<ReceivedInfoDto> {
-    // TODO: implement this
-    console.log('Game accept invite not implemented yet !');
+    await this.acceptUserInviteToGame(info.inviteInfo);
     info.username = user.username;
     info.token = '';
     // TODO emit to user 1 and 2 to join game
