@@ -50,7 +50,8 @@ type GameRoom = {
   player2: Player;
   socketRoomID: string;
   gameState: State;
-  interval: NodeJS.Timer;
+  // interval: NodeJS.Timer;
+  interval: NodeJS.Timeout;
 };
 
 @WebSocketGateway({
@@ -200,7 +201,7 @@ export class GameGateway implements OnModuleInit {
   }
 
   private async reconnect(socket: Socket, userID: number) {
-    let myGameRoom: GameRoom = await this.getRoom(userID);
+    const myGameRoom: GameRoom = await this.getRoom(userID);
     if (myGameRoom) {
       await socket.join(myGameRoom.socketRoomID);
       console.log(
@@ -253,7 +254,7 @@ export class GameGateway implements OnModuleInit {
 
   private getFreePlayer(): Player {
     for (let i = 0; i < this.waitList.length; i++) {
-      let player = this.waitList[i];
+      const player = this.waitList[i];
       if (!player.inviteID) {
         return player;
       }
@@ -263,7 +264,7 @@ export class GameGateway implements OnModuleInit {
 
   private getInvitedPlayer(player: Player): Player {
     for (let i = 0; i < this.waitList.length; i++) {
-      let opponent = this.waitList[i];
+      const opponent = this.waitList[i];
       if (opponent.inviteID === player.inviteID) {
         console.log(
           '[Game Gateway]: Found opponent',
@@ -573,7 +574,7 @@ export class GameGateway implements OnModuleInit {
     if (inviteID) {
       player.inviteID = inviteID;
     }
-    let myGameRoom: GameRoom = await this.waitForOpponent(player);
+    const myGameRoom: GameRoom = await this.waitForOpponent(player);
     if (!myGameRoom) {
       console.log(
         `[Game Gateway]: ${player.username} is waiting for an opponent:`,
@@ -595,9 +596,8 @@ export class GameGateway implements OnModuleInit {
       throw new UserNotFoundError();
     }
     const gameRoom: GameRoom = await this.getRoom(userID);
-    console.log(`[Game Gateway]: User ${userID} left gameroom ${gameRoom}`);
 
     this.server.to(gameRoom.socketRoomID).emit('leave game', userID);
-    this.stopGame(gameRoom);
+    await this.stopGame(gameRoom);
   }
 }

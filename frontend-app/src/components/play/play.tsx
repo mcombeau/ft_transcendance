@@ -145,7 +145,7 @@ export const Play = () => {
       if (userID !== authenticatedUserID) {
         console.log("The other player left the game");
         alert("Game ended because the other player left");
-        leaveGame();
+		setStatePlay(StatePlay.OnPage);
       }
     });
 
