@@ -37,6 +37,8 @@ export class UsersService {
     private blockedUserService: BlockedUsersService,
   ) {}
 
+  defaultAvatarURL = 'src/images/defaultProfilePicture.jpg';
+
   fetchUsers(): Promise<UserEntity[]> {
     return this.userRepository.find();
   }
@@ -120,9 +122,7 @@ export class UsersService {
       file = createReadStream(filename);
       return file;
     } else {
-      file = createReadStream(
-        join(process.cwd(), 'user_data/defaultProfilePicture.jpg'),
-      );
+      file = createReadStream(join(process.cwd(), this.defaultAvatarURL));
       return file;
     }
   }
@@ -137,7 +137,7 @@ export class UsersService {
       isTwoFactorAuthenticationEnabled: false,
       twoFactorAuthenticationSecret: '',
       createdAt: new Date(),
-      avatarUrl: '/user_data/defaultProfilePicture.jpg',
+      avatarUrl: this.defaultAvatarURL,
     });
     await this.userRepository.save(newUserInfo);
     return this.fetchUserByID(newUserInfo.id);
@@ -176,7 +176,7 @@ export class UsersService {
   async removeUserAvatarByUserID(id: number) {
     await this.deleteUserAvatarFileByID(id);
     await this.updateUserByID(id, {
-      avatarUrl: '/user_data/defaultProfilePicture.jpg',
+      avatarUrl: this.defaultAvatarURL,
     });
   }
 
