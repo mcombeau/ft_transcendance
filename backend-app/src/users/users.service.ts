@@ -152,6 +152,9 @@ export class UsersService {
   }
 
   private async unlinkAvatar(filename: string) {
+    if (filename === defaultAvatarURL) {
+      return;
+    }
     await unlink(filename, (err) => {
       if (err) {
         console.log(
@@ -182,9 +185,7 @@ export class UsersService {
 
   async saveUserAvatarByUserID(id: number, file: Express.Multer.File) {
     const user = await this.fetchUserByID(id);
-    if (user.avatarUrl !== defaultAvatarURL) {
-      await this.unlinkAvatar(user.avatarUrl);
-    }
+    await this.unlinkAvatar(user.avatarUrl);
     const filename = user.id + extname(file.originalname);
     const filepath = join(process.cwd(), 'user_data', filename);
 
