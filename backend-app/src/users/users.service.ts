@@ -1,5 +1,5 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
-import { createReadStream, writeFile } from 'fs';
+import { createReadStream, writeFile, unlink } from 'fs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatEntity } from 'src/chats/entities/chat.entity';
 import { GameEntity } from 'src/games/entities/game.entity';
@@ -18,7 +18,7 @@ import { BadRequestException } from '@nestjs/common';
 import { sendGameDto } from 'src/games/dtos/sendGame.dto';
 import { sendFriendDto } from 'src/friends/dtos/sendFriend.dto';
 import { sendBlockedUserDto } from 'src/blocked-users/dtos/sendBlockedUser.dto';
-import { join } from 'path';
+import { join, extname } from 'path';
 
 @Injectable()
 export class UsersService {
@@ -142,9 +142,39 @@ export class UsersService {
     return user.password;
   }
 
+  private async unlinkAvatar(filename: string) {
+    await unlink(filename, (err) => {
+      if (err) {
+        console.log(
+          '[User Service][Remove avatar] Failed to remove avatar...',
+          filename,
+        );
+      } else {
+        console.log(
+          '[User Service][Remove avatar] Avatar removed successfully !',
+          filename,
+        );
+      }
+    });
+  }
+
+  private async deleteUserAvatarFileByID(id: number) {
+    await this.unlinkAvatar(join(process.cwd(), 'user_data', id + '.png'));
+    await this.unlinkAvatar(join(process.cwd(), 'user_data', id + '.jpg'));
+    await this.unlinkAvatar(join(process.cwd(), 'user_data', id + '.jpeg'));
+  }
+
+  async removeUserAvatarByUserID(id: number) {
+    await this.deleteUserAvatarFileByID(id);
+    await this.updateUserByID(id, {
+      avatarUrl: '/user_data/defaultProfilePicture.jpg',
+    });
+  }
+
   async saveUserAvatarByUserID(id: number, file: Express.Multer.File) {
     const user = await this.fetchUserByID(id);
-    const filename = user.id + '-' + file.originalname;
+    await removeUserAvatarByUserID(id);
+    const filename = user.id + extname(file.originalname);
     const filepath = join(process.cwd(), 'user_data', filename);
 
     await writeFile(filepath, file.buffer, 'binary', (err) => {
@@ -210,7 +240,8 @@ export class UsersService {
     );
   }
 
-  deleteUserByID(id: number): Promise<DeleteResult> {
+  async deleteUserByID(id: number): Promise<DeleteResult> {
+    await this.removeUserAvatarByUserID(id);
     return this.userRepository.delete({ id });
   }
 }
