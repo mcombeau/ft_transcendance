@@ -1,21 +1,17 @@
 %% TODO: Update with subject todo (from notion)
 
 - Game
-
   - personalization
   - deal with broadband/network issues
 
 - Profile
-
   - My profile
     - change 2fa activation
     - disable
-    - change avatar
   - other people
     - ( dm button )
 
 - Bugs
-
   - 404 if page not exist (not tostring business)
   - people offline when logged
 
@@ -25,13 +21,12 @@
   - validate passwords
 
 - passwords:
-
   - hide password as they are typed
   - limit number of passwgrd retries on join/accept invite
   - prettify password settings
+  - tell user to fuck off if wrong username/password
 
 - Appearance
-
   - css for lobby play
 
 - Nice to have
