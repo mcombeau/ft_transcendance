@@ -24,10 +24,11 @@ import { UsersService } from 'src/users/users.service';
 import { sendBlockedUserDto } from 'src/blocked-users/dtos/sendBlockedUser.dto';
 import { UserEntity } from './entities/user.entity';
 import { ChatEntity } from 'src/chats/entities/chat.entity';
-// import { GameEntity } from 'src/games/entities/game.entity';
 import { sendGameDto } from 'src/games/dtos/sendGame.dto';
 import { sendFriendDto } from 'src/friends/dtos/sendFriend.dto';
 import { UpdateResult, DeleteResult } from 'typeorm';
+import { Res } from '@nestjs/common';
+import { Response } from 'express';
 
 @ApiTags('users')
 @Controller('users')
