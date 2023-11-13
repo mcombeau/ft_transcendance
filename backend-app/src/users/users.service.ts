@@ -182,7 +182,9 @@ export class UsersService {
 
   async saveUserAvatarByUserID(id: number, file: Express.Multer.File) {
     const user = await this.fetchUserByID(id);
-    await this.unlinkAvatar(user.avatarUrl);
+    if (user.avatarUrl !== defaultAvatarURL) {
+      await this.unlinkAvatar(user.avatarUrl);
+    }
     const filename = user.id + extname(file.originalname);
     const filepath = join(process.cwd(), 'user_data', filename);
 
