@@ -43,6 +43,10 @@ export class UserEntity {
 
   @ApiProperty()
   @Column()
+  avatarUrl: string;
+
+  @ApiProperty()
+  @Column()
   createdAt: Date;
 
   @ApiProperty()

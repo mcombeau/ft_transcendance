@@ -119,6 +119,7 @@ export class UsersService {
       isTwoFactorAuthenticationEnabled: false,
       twoFactorAuthenticationSecret: '',
       createdAt: new Date(),
+      avatarUrl: '/user_data/defaultProfilePicture.jpg',
     });
     await this.userRepository.save(newUserInfo);
     return this.fetchUserByID(newUserInfo.id);
@@ -139,6 +140,7 @@ export class UsersService {
     const updatedInfo: updateUserParams = {};
     if (userDetails.username) updatedInfo.username = userDetails.username;
     if (userDetails.email) updatedInfo.email = userDetails.email;
+    if (userDetails.avatarUrl) updatedInfo.avatarUrl = userDetails.avatarUrl;
     if (userDetails.status) {
       console.log(
         '[User Service]: updating user',
