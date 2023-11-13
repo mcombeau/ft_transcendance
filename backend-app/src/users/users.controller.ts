@@ -8,6 +8,9 @@ import {
   Patch,
   Post,
   UseGuards,
+  UploadedFile,
+  UseInterceptors,
+  Res,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -27,8 +30,8 @@ import { ChatEntity } from 'src/chats/entities/chat.entity';
 import { sendGameDto } from 'src/games/dtos/sendGame.dto';
 import { sendFriendDto } from 'src/friends/dtos/sendFriend.dto';
 import { UpdateResult, DeleteResult } from 'typeorm';
-import { Res } from '@nestjs/common';
-import { Response } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Response, Express } from 'express';
 
 @ApiTags('users')
 @Controller('users')
@@ -136,6 +139,17 @@ export class UsersController {
   })
   getUsers(): Promise<UserEntity[]> {
     return this.userService.fetchUsers();
+  }
+
+  // TODO: Make sure you can't change someone else's avatar
+  @Post(':id/avatar')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadUserAvatarByUserID(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    console.log('[User Controller] Uploading file', file);
+    await this.userService.saveUserAvatarByUserID(id, file);
   }
 
   @Post()

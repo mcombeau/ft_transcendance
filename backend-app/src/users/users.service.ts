@@ -1,5 +1,5 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
-import { createReadStream } from 'fs';
+import { createReadStream, writeFile } from 'fs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatEntity } from 'src/chats/entities/chat.entity';
 import { GameEntity } from 'src/games/entities/game.entity';
@@ -140,6 +140,23 @@ export class UsersService {
       select: ['password'],
     });
     return user.password;
+  }
+
+  async saveUserAvatarByUserID(id: number, file: Express.Multer.File) {
+    const user = await this.fetchUserByID(id);
+    const filename = user.id + '-' + file.originalname;
+    const filepath = join(process.cwd(), 'user_data', filename);
+
+    await writeFile(filepath, file.buffer, 'binary', (err) => {
+      if (!err)
+        console.log(
+          '[User Service][Upload avatar] Avatar uploaded successfully !',
+          filename,
+          'at path',
+          filepath,
+        );
+    });
+    await this.updateUserByID(user.id, { avatarUrl: 'user_data/' + filename });
   }
 
   async updateUserByID(
