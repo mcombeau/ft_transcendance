@@ -1,4 +1,5 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
+import { createReadStream } from 'fs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatEntity } from 'src/chats/entities/chat.entity';
 import { GameEntity } from 'src/games/entities/game.entity';
@@ -107,6 +108,13 @@ export class UsersService {
       }
     }
     return userDMRooms;
+  }
+
+  async fetchUserAvatarByUserID(id: number) {
+    const user = await this.fetchUserByID(id);
+
+    const file = createReadStream(user.avatarUrl);
+    return file;
   }
 
   async createUser(userDetails: createUserParams): Promise<UserEntity> {

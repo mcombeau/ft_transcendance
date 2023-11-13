@@ -113,6 +113,19 @@ export class UsersController {
     return this.userService.fetchUserBlockedUsersByUserID(id);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get(':id/avatar')
+  @ApiOkResponse({
+    description: 'Get avatar by user ID.',
+  })
+  async getUserAvatarByUserID(
+    @Param('id', ParseIntPipe) id: number,
+    @Res() res: Response,
+  ) {
+    const file = await this.userService.fetchUserAvatarByUserID(id);
+    file.pipe(res);
+  }
+
   // @UseGuards(JwtAuthGuard)
   @Get()
   @ApiOkResponse({
