@@ -152,7 +152,7 @@ export class UsersService {
   }
 
   private async unlinkAvatar(filename: string) {
-    if (filename === defaultAvatarURL) {
+    if (filename === this.defaultAvatarURL) {
       return;
     }
     await unlink(filename, (err) => {
