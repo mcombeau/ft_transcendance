@@ -142,6 +142,7 @@ export class UsersController {
   }
 
   // TODO: Make sure you can't change someone else's avatar
+  @UseGuards(JwtAuthGuard)
   @Post(':id/avatar')
   @UseInterceptors(FileInterceptor('file'))
   async uploadUserAvatarByUserID(
@@ -174,6 +175,12 @@ export class UsersController {
     @Body() updateUserDto: updateUsersDto,
   ): Promise<UpdateResult> {
     return this.userService.updateUserByID(id, updateUserDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id/avatar')
+  async deleteUserAvatarByUserID(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.removeUserAvatarByUserID(id);
   }
 
   @Delete(':id')
