@@ -1,5 +1,5 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
-import { createReadStream, writeFile, unlink } from 'fs';
+import { createReadStream, writeFile, unlink, existsSync, constants } from 'fs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatEntity } from 'src/chats/entities/chat.entity';
 import { GameEntity } from 'src/games/entities/game.entity';
@@ -113,9 +113,18 @@ export class UsersService {
 
   async fetchUserAvatarByUserID(id: number) {
     const user = await this.fetchUserByID(id);
+    const filename = join(process.cwd(), user.avatarUrl);
 
-    const file = createReadStream(join(process.cwd(), user.avatarUrl));
-    return file;
+    let file;
+    if (existsSync(filename)) {
+      file = createReadStream(filename);
+      return file;
+    } else {
+      file = createReadStream(
+        join(process.cwd(), 'user_data/defaultProfilePicture.jpg'),
+      );
+      return file;
+    }
   }
 
   async createUser(userDetails: createUserParams): Promise<UserEntity> {
