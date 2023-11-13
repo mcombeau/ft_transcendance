@@ -30,6 +30,7 @@ setup:
 	mkdir -p ${DATA_PATH}/database
 
 clean: down
+	rm -f ./backend-app/user_data/*
 	sudo rm -rf ${DATA_PATH}
 
 db: clean
