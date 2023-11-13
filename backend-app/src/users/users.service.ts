@@ -239,7 +239,8 @@ export class UsersService {
     );
   }
 
-  deleteUserByID(id: number): Promise<DeleteResult> {
+  async deleteUserByID(id: number): Promise<DeleteResult> {
+    await this.removeUserAvatarByUserID(id);
     return this.userRepository.delete({ id });
   }
 }
