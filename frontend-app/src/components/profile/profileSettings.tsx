@@ -28,6 +28,7 @@ function ProfileSettings(
   const [is2faEnabled, setIs2faEnabled] = useState(false);
   const [qrcode, setQrcode] = useState();
   const [twoFaValidationCode, setTwoFaValidationCode] = useState("");
+  const [newAvatar, setNewAvatar] = useState(null);
 
   useEffect(() => {
     if (user !== undefined) {
@@ -144,6 +145,31 @@ function ProfileSettings(
     );
   }
 
+  async function submitNewAvatar(e: any) {
+    e.preventDefault();
+    const formData = new FormData(e.target.closest("form"));
+    console.log("Form data");
+    console.log(formData);
+
+    var request = {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${cookies["token"]}`,
+      },
+      body: formData,
+    };
+    await fetch(
+      `http://localhost:3001/users/${authenticatedUserID}/avatar`,
+      request
+    ).then(async (response) => {
+      if (!response.ok) {
+        console.log("There was an issue with changing your avatar");
+      } else {
+        // TODO: change current image
+      }
+    });
+  }
+
   if (!isEditingProfile) return <div></div>;
 
   return (
@@ -155,6 +181,24 @@ function ProfileSettings(
       >
         Close settings
       </button>
+      {newAvatar && (
+        <img
+          alt="not found"
+          width={"250px"}
+          src={URL.createObjectURL(newAvatar)}
+        />
+      )}
+      <form id="avatar-form">
+        <input
+          type="file"
+          name="file"
+          onChange={(event) => {
+            console.log(event.target.files[0]);
+            setNewAvatar(event.target.files[0]);
+          }}
+        />
+        <button onClick={submitNewAvatar}>Save new avatar</button>
+      </form>
       <form className="edit_field" onSubmit={submitUserInfo}>
         <input
           value={newUsername}
