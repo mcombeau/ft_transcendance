@@ -38,6 +38,10 @@ export class updateUsersDto {
 
   @ApiProperty()
   @IsOptional()
+  avatarUrl?: string;
+
+  @ApiProperty()
+  @IsOptional()
   @IsEnum(userStatus)
   status?: userStatus;
 }

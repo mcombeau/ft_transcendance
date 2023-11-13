@@ -13,5 +13,6 @@ export type updateUserParams = {
   newPassword?: string;
   currentPassword?: string;
   email?: string;
+  avatarUrl?: string;
   status?: userStatus;
 };

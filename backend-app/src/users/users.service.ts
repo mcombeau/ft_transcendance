@@ -1,4 +1,5 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
+import { createReadStream, writeFile, unlink, existsSync, constants } from 'fs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatEntity } from 'src/chats/entities/chat.entity';
 import { GameEntity } from 'src/games/entities/game.entity';
@@ -17,6 +18,7 @@ import { BadRequestException } from '@nestjs/common';
 import { sendGameDto } from 'src/games/dtos/sendGame.dto';
 import { sendFriendDto } from 'src/friends/dtos/sendFriend.dto';
 import { sendBlockedUserDto } from 'src/blocked-users/dtos/sendBlockedUser.dto';
+import { join, extname } from 'path';
 
 @Injectable()
 export class UsersService {
@@ -34,6 +36,8 @@ export class UsersService {
     @Inject(forwardRef(() => BlockedUsersService))
     private blockedUserService: BlockedUsersService,
   ) {}
+
+  defaultAvatarURL = 'src/images/defaultProfilePicture.jpg';
 
   fetchUsers(): Promise<UserEntity[]> {
     return this.userRepository.find();
@@ -109,6 +113,20 @@ export class UsersService {
     return userDMRooms;
   }
 
+  async fetchUserAvatarByUserID(id: number) {
+    const user = await this.fetchUserByID(id);
+    const filename = join(process.cwd(), user.avatarUrl);
+
+    let file;
+    if (existsSync(filename)) {
+      file = createReadStream(filename);
+      return file;
+    } else {
+      file = createReadStream(join(process.cwd(), this.defaultAvatarURL));
+      return file;
+    }
+  }
+
   async createUser(userDetails: createUserParams): Promise<UserEntity> {
     const hashedPassword = await this.passwordService.hashPassword(
       userDetails.password,
@@ -119,6 +137,7 @@ export class UsersService {
       isTwoFactorAuthenticationEnabled: false,
       twoFactorAuthenticationSecret: '',
       createdAt: new Date(),
+      avatarUrl: this.defaultAvatarURL,
     });
     await this.userRepository.save(newUserInfo);
     return this.fetchUserByID(newUserInfo.id);
@@ -132,6 +151,56 @@ export class UsersService {
     return user.password;
   }
 
+  private async unlinkAvatar(filename: string) {
+    if (filename === this.defaultAvatarURL) {
+      return;
+    }
+    await unlink(filename, (err) => {
+      if (err) {
+        console.log(
+          '[User Service][Remove avatar] Failed to remove avatar...',
+          filename,
+        );
+      } else {
+        console.log(
+          '[User Service][Remove avatar] Avatar removed successfully !',
+          filename,
+        );
+      }
+    });
+  }
+
+  private async deleteUserAvatarFileByID(id: number) {
+    await this.unlinkAvatar(join(process.cwd(), 'user_data', id + '.png'));
+    await this.unlinkAvatar(join(process.cwd(), 'user_data', id + '.jpg'));
+    await this.unlinkAvatar(join(process.cwd(), 'user_data', id + '.jpeg'));
+  }
+
+  async removeUserAvatarByUserID(id: number) {
+    await this.deleteUserAvatarFileByID(id);
+    await this.updateUserByID(id, {
+      avatarUrl: this.defaultAvatarURL,
+    });
+  }
+
+  async saveUserAvatarByUserID(id: number, file: Express.Multer.File) {
+    const user = await this.fetchUserByID(id);
+    await this.unlinkAvatar(user.avatarUrl);
+    const filename = user.id + extname(file.originalname);
+    const filepath = join(process.cwd(), 'user_data', filename);
+
+    await writeFile(filepath, file.buffer, 'binary', (err) => {
+      if (!err)
+        console.log(
+          '[User Service][Upload avatar] Avatar uploaded successfully !',
+          filename,
+          'at path',
+          filepath,
+        );
+    });
+    await this.updateUserByID(user.id, { avatarUrl: 'user_data/' + filename });
+  }
+
   async updateUserByID(
     id: number,
     userDetails: updateUserParams,
@@ -139,6 +208,7 @@ export class UsersService {
     const updatedInfo: updateUserParams = {};
     if (userDetails.username) updatedInfo.username = userDetails.username;
     if (userDetails.email) updatedInfo.email = userDetails.email;
+    if (userDetails.avatarUrl) updatedInfo.avatarUrl = userDetails.avatarUrl;
     if (userDetails.status) {
       console.log(
         '[User Service]: updating user',
@@ -182,7 +252,8 @@ export class UsersService {
     );
   }
 
-  deleteUserByID(id: number): Promise<DeleteResult> {
+  async deleteUserByID(id: number): Promise<DeleteResult> {
+    await this.removeUserAvatarByUserID(id);
     return this.userRepository.delete({ id });
   }
 }

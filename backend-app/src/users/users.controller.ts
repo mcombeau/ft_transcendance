@@ -8,6 +8,9 @@ import {
   Patch,
   Post,
   UseGuards,
+  UploadedFile,
+  UseInterceptors,
+  Res,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -24,10 +27,11 @@ import { UsersService } from 'src/users/users.service';
 import { sendBlockedUserDto } from 'src/blocked-users/dtos/sendBlockedUser.dto';
 import { UserEntity } from './entities/user.entity';
 import { ChatEntity } from 'src/chats/entities/chat.entity';
-// import { GameEntity } from 'src/games/entities/game.entity';
 import { sendGameDto } from 'src/games/dtos/sendGame.dto';
 import { sendFriendDto } from 'src/friends/dtos/sendFriend.dto';
 import { UpdateResult, DeleteResult } from 'typeorm';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Response, Express } from 'express';
 
 @ApiTags('users')
 @Controller('users')
@@ -113,6 +117,19 @@ export class UsersController {
     return this.userService.fetchUserBlockedUsersByUserID(id);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get(':id/avatar')
+  @ApiOkResponse({
+    description: 'Get avatar by user ID.',
+  })
+  async getUserAvatarByUserID(
+    @Param('id', ParseIntPipe) id: number,
+    @Res() res: Response,
+  ) {
+    const file = await this.userService.fetchUserAvatarByUserID(id);
+    file.pipe(res);
+  }
+
   // @UseGuards(JwtAuthGuard)
   @Get()
   @ApiOkResponse({
@@ -122,6 +139,18 @@ export class UsersController {
   })
   getUsers(): Promise<UserEntity[]> {
     return this.userService.fetchUsers();
+  }
+
+  // TODO: Make sure you can't change someone else's avatar
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/avatar')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadUserAvatarByUserID(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    console.log('[User Controller] Uploading file', file);
+    await this.userService.saveUserAvatarByUserID(id, file);
   }
 
   @Post()
@@ -146,6 +175,12 @@ export class UsersController {
     @Body() updateUserDto: updateUsersDto,
   ): Promise<UpdateResult> {
     return this.userService.updateUserByID(id, updateUserDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id/avatar')
+  async deleteUserAvatarByUserID(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.removeUserAvatarByUserID(id);
   }
 
   @Delete(':id')
