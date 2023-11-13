@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import { useState } from "react";
 import { useCookies } from "react-cookie";
 import { WebSocketContext } from "../../contexts/WebsocketContext";
-import defaultProfilePicture from "./profilePicture.jpg";
 import FriendsList from "./friendsList";
 import GameHistory from "./history";
 import ProfileSettings from "./profileSettings";
@@ -365,6 +364,7 @@ function Profile() {
   const [isMyFriend, setIsMyFriend] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
   const { authenticatedUserID } = useContext(AuthenticationContext);
+  const [profilePicture, setProfilePicture] = useState(null);
 
   async function fetchUser() {
     var request = {
@@ -392,6 +392,18 @@ function Profile() {
         });
       }
     );
+
+    fetch(`http://localhost:3001/users/${profileUserID}/avatar`, request).then(
+      async (response) => {
+        const data = await response.blob();
+        if (!response.ok) {
+          console.log("error fetching avatar");
+          return <h1>No such user</h1>;
+        }
+        const src = URL.createObjectURL(data);
+        setProfilePicture(src);
+      }
+    );
   }
 
   useEffect(() => {
@@ -416,7 +428,7 @@ function Profile() {
           <i className="fa fa-bars" aria-hidden="true"></i>
         </header>
         <div className="left-section">
-          <img src={defaultProfilePicture} className="photo"></img>
+          <img src={profilePicture} className="photo"></img>
           {!userExists ? "User is not logged in" : ""}
           {titleProfile(isMyPage, user)}
           {userDetails(user)}
