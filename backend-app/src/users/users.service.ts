@@ -18,6 +18,7 @@ import { BadRequestException } from '@nestjs/common';
 import { sendGameDto } from 'src/games/dtos/sendGame.dto';
 import { sendFriendDto } from 'src/friends/dtos/sendFriend.dto';
 import { sendBlockedUserDto } from 'src/blocked-users/dtos/sendBlockedUser.dto';
+import { join } from 'path';
 
 @Injectable()
 export class UsersService {
@@ -113,7 +114,7 @@ export class UsersService {
   async fetchUserAvatarByUserID(id: number) {
     const user = await this.fetchUserByID(id);
 
-    const file = createReadStream(user.avatarUrl);
+    const file = createReadStream(join(process.cwd(), user.avatarUrl));
     return file;
   }
 
