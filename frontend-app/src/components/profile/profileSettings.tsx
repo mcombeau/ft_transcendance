@@ -170,6 +170,24 @@ function ProfileSettings(
     });
   }
 
+  async function removeAvatar(e: any) {
+    e.preventDefault();
+    var request = {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${cookies["token"]}`,
+      },
+    };
+    await fetch(
+      `http://localhost:3001/users/${authenticatedUserID}/avatar`,
+      request
+    ).then(async (response) => {
+      if (!response.ok) {
+        console.log("There was an issue with removing your avatar");
+      }
+    });
+  }
+
   if (!isEditingProfile) return <div></div>;
 
   return (
@@ -199,6 +217,7 @@ function ProfileSettings(
         />
         <button onClick={submitNewAvatar}>Save new avatar</button>
       </form>
+      <button onClick={removeAvatar}>Remove avatar</button>
       <form className="edit_field" onSubmit={submitUserInfo}>
         <input
           value={newUsername}
