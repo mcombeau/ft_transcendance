@@ -22,10 +22,22 @@ export type GameInfo = {
 
 type BlockedUser = Friend;
 
+function getFriendGame(friend: Friend, gameInfos: GameInfo[]) {
+	return gameInfos.find(
+		(gameInfo: GameInfo) =>
+			gameInfo.player1.userID === friend.id ||
+			gameInfo.player2.userID === friend.id
+	);
+}
+
 function removeFriendFromList(userID: number, setFriends: any) {
 	setFriends((friends: Friend[]) =>
 		friends.filter((friend) => friend.id !== userID)
 	);
+}
+
+function linkToGame(gameInfo: GameInfo) {
+	return <div>{gameInfo.socketRoomID}</div>;
 }
 
 function blockButton(
@@ -91,6 +103,7 @@ function displayFriend(
 	myID: number,
 	cookies: any,
 	setFriends: any,
+	gameInfos: GameInfo[],
 	blocked: boolean = false
 ) {
 	if (blocked) {
@@ -103,24 +116,19 @@ function displayFriend(
 			</li>
 		);
 	}
+	const friendGame = getFriendGame(friend, gameInfos);
 	if (isMyPage) {
 		return (
 			<li>
 				<a href={"/user/" + friend.id}>
-					{friend.username} ({friend.status})
+					{friend.username} ({friend.status}{" "}
+					{friendGame ? <div> - {linkToGame(friendGame)}</div> : ""})
 				</a>
 				{blockButton(myID, friend.id, cookies, setFriends)}
 				{unfriendButton(myID, friend.id, cookies, setFriends)}
 			</li>
 		);
 	}
-	return (
-		<li>
-			<a href={"/user/" + friend.id}>
-				{friend.username} ({friend.status})
-			</a>
-		</li>
-	);
 }
 
 function displayFriends(
@@ -129,6 +137,7 @@ function displayFriends(
 	myID: number,
 	cookies: any,
 	setFriends: any,
+	gameInfos: GameInfo[],
 	blocked: boolean = false
 ) {
 	if (friends === undefined)
@@ -136,7 +145,15 @@ function displayFriends(
 	return (
 		<ul>
 			{friends.map((friend: Friend) =>
-				displayFriend(friend, isMyPage, myID, cookies, setFriends, blocked)
+				displayFriend(
+					friend,
+					isMyPage,
+					myID,
+					cookies,
+					setFriends,
+					gameInfos,
+					blocked
+				)
 			)}
 		</ul>
 	);
@@ -144,6 +161,7 @@ function displayFriends(
 
 function FriendsList(isMyPage: boolean, user: User, cookies: any) {
 	const [friends, setFriends] = useState<Friend[]>();
+	const [gameInfos, setGameInfos] = useState<GameInfo[]>();
 	const [blockedUsers, setBlockedUsers] = useState<BlockedUser[]>();
 	const { authenticatedUserID } = useContext(AuthenticationContext);
 	const socket = useContext(WebSocketContext);
@@ -220,8 +238,8 @@ function FriendsList(isMyPage: boolean, user: User, cookies: any) {
 	}, [user]);
 
 	useEffect(() => {
-		socket.on("get games", (data: any) => {
-			console.log("data", data);
+		socket.on("get games", (data: GameInfo[]) => {
+			setGameInfos(data);
 		});
 	}, []);
 
@@ -237,7 +255,8 @@ function FriendsList(isMyPage: boolean, user: User, cookies: any) {
 				isMyPage,
 				authenticatedUserID,
 				cookies,
-				setFriends
+				setFriends,
+				gameInfos
 			)}
 			{isMyPage ? (
 				<div>
@@ -248,6 +267,7 @@ function FriendsList(isMyPage: boolean, user: User, cookies: any) {
 						authenticatedUserID,
 						cookies,
 						setBlockedUsers,
+						gameInfos,
 						true
 					)}
 				</div>
