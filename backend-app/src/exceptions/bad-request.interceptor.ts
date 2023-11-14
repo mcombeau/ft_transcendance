@@ -1,13 +1,13 @@
 import {
-  CallHandler,
-  ExecutionContext,
-  Injectable,
-  NestInterceptor,
+	CallHandler,
+	ExecutionContext,
+	Injectable,
+	NestInterceptor,
 } from '@nestjs/common';
-import { Observable, catchError } from 'rxjs';
+import {Observable, catchError} from 'rxjs';
 import {
-  ChatCreationException,
-  InviteCreationException,
+	ChatCreationException,
+	InviteCreationException,
 } from './bad-request.exception';
 
 export class ChatCreationError extends Error {}
@@ -19,21 +19,21 @@ export class InviteCreationError extends Error {}
 
 @Injectable()
 export class BadRequestInterceptor implements NestInterceptor {
-  intercept(
-    context: ExecutionContext,
-    next: CallHandler<any>,
-  ): Observable<any> | Promise<Observable<any>> {
-    return next.handle().pipe(
-      catchError((error) => {
-        if (error instanceof ChatCreationError) {
-          throw new ChatCreationException(error.message);
-        } else if (error instanceof InviteCreationError) {
-          console.log('THROWING HTTP INVITE EXCEPTION');
-          throw new InviteCreationException(error.message);
-        } else {
-          throw error;
-        }
-      }),
-    );
-  }
+	intercept(
+		context: ExecutionContext,
+		next: CallHandler<any>,
+	): Observable<any> | Promise<Observable<any>> {
+		return next.handle().pipe(
+			catchError((error) => {
+				if (error instanceof ChatCreationError) {
+					throw new ChatCreationException(error.message);
+				} else if (error instanceof InviteCreationError) {
+					console.log('THROWING HTTP INVITE EXCEPTION');
+					throw new InviteCreationException(error.message);
+				} else {
+					throw error;
+				}
+			}),
+		);
+	}
 }

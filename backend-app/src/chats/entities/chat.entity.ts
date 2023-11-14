@@ -1,54 +1,54 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { ChatMessageEntity } from '../../chat-messages/entities/chat-message.entity';
-import { ChatParticipantEntity } from '../../chat-participants/entities/chat-participant.entity';
-import { ApiProperty } from '@nestjs/swagger';
-import { InviteEntity } from '../../invites/entities/Invite.entity';
+import {Column, Entity, OneToMany, PrimaryGeneratedColumn} from 'typeorm';
+import {ChatMessageEntity} from '../../chat-messages/entities/chat-message.entity';
+import {ChatParticipantEntity} from '../../chat-participants/entities/chat-participant.entity';
+import {ApiProperty} from '@nestjs/swagger';
+import {InviteEntity} from '../../invites/entities/Invite.entity';
 
-@Entity({ name: 'chats' })
+@Entity({name: 'chats'})
 export class ChatEntity {
-  @ApiProperty()
-  @PrimaryGeneratedColumn()
-  id: number;
+	@ApiProperty()
+	@PrimaryGeneratedColumn()
+	id: number;
 
-  @ApiProperty()
-  @Column({ unique: true })
-  name: string;
+	@ApiProperty()
+	@Column({unique: true})
+	name: string;
 
-  // @ApiProperty()
-  @Column({ nullable: true, select: false })
-  password: string;
+	// @ApiProperty()
+	@Column({nullable: true, select: false})
+	password: string;
 
-  @ApiProperty()
-  @Column()
-  isPrivate: boolean;
+	@ApiProperty()
+	@Column()
+	isPrivate: boolean;
 
-  @ApiProperty()
-  @Column()
-  isDirectMessage: boolean;
+	@ApiProperty()
+	@Column()
+	isDirectMessage: boolean;
 
-  @ApiProperty()
-  @Column()
-  createdAt: Date;
+	@ApiProperty()
+	@Column()
+	createdAt: Date;
 
-  // @ApiProperty({ type: () => ChatMessageEntity, isArray: true })
-  @OneToMany(() => ChatMessageEntity, (chatMessage) => chatMessage.chatRoom, {
-    nullable: true,
-  })
-  messages: ChatMessageEntity[];
+	// @ApiProperty({ type: () => ChatMessageEntity, isArray: true })
+	@OneToMany(() => ChatMessageEntity, (chatMessage) => chatMessage.chatRoom, {
+		nullable: true,
+	})
+	messages: ChatMessageEntity[];
 
-  // @ApiProperty({ type: () => ChatParticipantEntity, isArray: true })
-  @OneToMany(
-    () => ChatParticipantEntity,
-    (participant) => participant.chatRoom,
-    {
-      nullable: true,
-    },
-  )
-  participants: ChatParticipantEntity[];
+	// @ApiProperty({ type: () => ChatParticipantEntity, isArray: true })
+	@OneToMany(
+		() => ChatParticipantEntity,
+		(participant) => participant.chatRoom,
+		{
+			nullable: true,
+		},
+	)
+	participants: ChatParticipantEntity[];
 
-  // @ApiProperty({ type: () => InviteEntity, isArray: true })
-  @OneToMany(() => InviteEntity, (invite) => invite.chatRoom, {
-    nullable: true,
-  })
-  invitedUsers: InviteEntity[];
+	// @ApiProperty({ type: () => InviteEntity, isArray: true })
+	@OneToMany(() => InviteEntity, (invite) => invite.chatRoom, {
+		nullable: true,
+	})
+	invitedUsers: InviteEntity[];
 }

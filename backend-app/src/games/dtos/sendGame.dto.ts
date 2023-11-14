@@ -1,27 +1,27 @@
-import { ApiProperty } from '@nestjs/swagger';
+import {ApiProperty} from '@nestjs/swagger';
 
 export class sendGameDto {
-  @ApiProperty()
-  id: number;
+	@ApiProperty()
+	id: number;
 
-  @ApiProperty()
-  winnerID: number;
+	@ApiProperty()
+	winnerID: number;
 
-  @ApiProperty()
-  winnerUsername: string;
+	@ApiProperty()
+	winnerUsername: string;
 
-  @ApiProperty()
-  loserID: number;
+	@ApiProperty()
+	loserID: number;
 
-  @ApiProperty()
-  loserUsername: string;
+	@ApiProperty()
+	loserUsername: string;
 
-  @ApiProperty()
-  winnerScore: number;
+	@ApiProperty()
+	winnerScore: number;
 
-  @ApiProperty()
-  loserScore: number;
+	@ApiProperty()
+	loserScore: number;
 
-  @ApiProperty()
-  createdAt: Date;
+	@ApiProperty()
+	createdAt: Date;
 }

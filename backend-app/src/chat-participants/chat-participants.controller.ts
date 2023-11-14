@@ -1,97 +1,97 @@
 import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  ParseIntPipe,
-  Patch,
-  Post,
-  UseGuards,
+	Body,
+	Controller,
+	Delete,
+	Get,
+	Param,
+	ParseIntPipe,
+	Patch,
+	Post,
+	UseGuards,
 } from '@nestjs/common';
-import { ChatParticipantsService } from './chat-participants.service';
-import { createParticipantDto } from './dtos/createChatParticipant.dto';
-import { updateParticipantDto } from './dtos/updateChatParticipant.dto';
+import {ChatParticipantsService} from './chat-participants.service';
+import {createParticipantDto} from './dtos/createChatParticipant.dto';
+import {updateParticipantDto} from './dtos/updateChatParticipant.dto';
 import {
-  ApiBadRequestResponse,
-  ApiCreatedResponse,
-  ApiOkResponse,
-  ApiTags,
-  ApiUnprocessableEntityResponse,
+	ApiBadRequestResponse,
+	ApiCreatedResponse,
+	ApiOkResponse,
+	ApiTags,
+	ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
-import { ChatParticipantEntity } from './entities/chat-participant.entity';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { sendParticipantDto } from './dtos/sendChatParticipant.dto';
-import { DeleteResult, UpdateResult } from 'typeorm';
+import {ChatParticipantEntity} from './entities/chat-participant.entity';
+import {JwtAuthGuard} from 'src/auth/guards/jwt-auth.guard';
+import {sendParticipantDto} from './dtos/sendChatParticipant.dto';
+import {DeleteResult, UpdateResult} from 'typeorm';
 
 @UseGuards(JwtAuthGuard)
 @ApiTags('chat participants')
 @Controller('chat-participants')
 export class ChatParticipantsController {
-  constructor(private participantService: ChatParticipantsService) {}
+	constructor(private participantService: ChatParticipantsService) {}
 
-  @Get(':id')
-  @ApiOkResponse({
-    type: sendParticipantDto,
-    description: 'Get chat participant by ID.',
-  })
-  @ApiBadRequestResponse({ description: 'Bad request.' })
-  getParticipantByID(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<sendParticipantDto> {
-    return this.participantService.fetchParticipantByID(id);
-  }
+	@Get(':id')
+	@ApiOkResponse({
+		type: sendParticipantDto,
+		description: 'Get chat participant by ID.',
+	})
+	@ApiBadRequestResponse({description: 'Bad request.'})
+	getParticipantByID(
+		@Param('id', ParseIntPipe) id: number,
+	): Promise<sendParticipantDto> {
+		return this.participantService.fetchParticipantByID(id);
+	}
 
-  @Get()
-  @ApiOkResponse({
-    type: sendParticipantDto,
-    isArray: true,
-    description: 'Get all chat participants.',
-  })
-  getAllParticipants(): Promise<sendParticipantDto[]> {
-    return this.participantService.fetchParticipants();
-  }
+	@Get()
+	@ApiOkResponse({
+		type: sendParticipantDto,
+		isArray: true,
+		description: 'Get all chat participants.',
+	})
+	getAllParticipants(): Promise<sendParticipantDto[]> {
+		return this.participantService.fetchParticipants();
+	}
 
-  @Post()
-  @ApiCreatedResponse({
-    type: ChatParticipantEntity,
-    description: 'Record created.',
-  })
-  @ApiBadRequestResponse({ description: 'Bad request.' })
-  @ApiUnprocessableEntityResponse({
-    description: 'Database error. (Unprocessable entity)',
-  })
-  createParticipant(
-    @Body() participantDto: createParticipantDto,
-  ): Promise<ChatParticipantEntity> {
-    return this.participantService.createChatParticipant(participantDto);
-  }
+	@Post()
+	@ApiCreatedResponse({
+		type: ChatParticipantEntity,
+		description: 'Record created.',
+	})
+	@ApiBadRequestResponse({description: 'Bad request.'})
+	@ApiUnprocessableEntityResponse({
+		description: 'Database error. (Unprocessable entity)',
+	})
+	createParticipant(
+		@Body() participantDto: createParticipantDto,
+	): Promise<ChatParticipantEntity> {
+		return this.participantService.createChatParticipant(participantDto);
+	}
 
-  @Patch(':id')
-  @ApiCreatedResponse({ description: 'Record updated.' })
-  @ApiBadRequestResponse({ description: 'Bad request' })
-  @ApiUnprocessableEntityResponse({
-    description: 'Database error. (Unprocessable entity)',
-  })
-  async updateParticipantByID(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateParticipantDto: updateParticipantDto,
-  ): Promise<UpdateResult> {
-    return this.participantService.updateParticipantByID(
-      id,
-      updateParticipantDto,
-    );
-  }
+	@Patch(':id')
+	@ApiCreatedResponse({description: 'Record updated.'})
+	@ApiBadRequestResponse({description: 'Bad request'})
+	@ApiUnprocessableEntityResponse({
+		description: 'Database error. (Unprocessable entity)',
+	})
+	async updateParticipantByID(
+		@Param('id', ParseIntPipe) id: number,
+		@Body() updateParticipantDto: updateParticipantDto,
+	): Promise<UpdateResult> {
+		return this.participantService.updateParticipantByID(
+			id,
+			updateParticipantDto,
+		);
+	}
 
-  @Delete(':id')
-  @ApiOkResponse({ description: 'Record deleted by ID.' })
-  @ApiBadRequestResponse({ description: 'Bad request' })
-  @ApiUnprocessableEntityResponse({
-    description: 'Database error. (Unprocessable entity)',
-  })
-  deleteParticipantByID(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<DeleteResult> {
-    return this.participantService.deleteParticipantByID(id);
-  }
+	@Delete(':id')
+	@ApiOkResponse({description: 'Record deleted by ID.'})
+	@ApiBadRequestResponse({description: 'Bad request'})
+	@ApiUnprocessableEntityResponse({
+		description: 'Database error. (Unprocessable entity)',
+	})
+	deleteParticipantByID(
+		@Param('id', ParseIntPipe) id: number,
+	): Promise<DeleteResult> {
+		return this.participantService.deleteParticipantByID(id);
+	}
 }

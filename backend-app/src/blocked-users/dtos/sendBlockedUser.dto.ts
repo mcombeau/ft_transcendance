@@ -1,21 +1,21 @@
-import { ApiProperty } from '@nestjs/swagger';
+import {ApiProperty} from '@nestjs/swagger';
 
 export class sendBlockedUserDto {
-  @ApiProperty()
-  blockingUserID: number;
+	@ApiProperty()
+	blockingUserID: number;
 
-  @ApiProperty()
-  blockingUsername: string;
+	@ApiProperty()
+	blockingUsername: string;
 
-  @ApiProperty()
-  blockingUserStatus: string;
+	@ApiProperty()
+	blockingUserStatus: string;
 
-  @ApiProperty()
-  blockedUserID: number;
+	@ApiProperty()
+	blockedUserID: number;
 
-  @ApiProperty()
-  blockedUsername: string;
+	@ApiProperty()
+	blockedUsername: string;
 
-  @ApiProperty()
-  blockedUserStatus: string;
+	@ApiProperty()
+	blockedUserStatus: string;
 }
