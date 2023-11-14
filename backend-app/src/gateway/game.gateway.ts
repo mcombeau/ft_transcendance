@@ -275,6 +275,7 @@ export class GameGateway implements OnModuleInit {
 		for (let i = 0; i < this.waitList.length; i++) {
 			const player = this.waitList[i];
 			if (!player.inviteID && player.userID !== waitingPlayer.userID) {
+				this.waitList.splice(i, 1);
 				return player;
 			}
 		}
@@ -298,6 +299,7 @@ export class GameGateway implements OnModuleInit {
 					"with invite",
 					player.inviteID
 				);
+				this.waitList.splice(i, 1);
 				return opponent;
 			}
 		}
