@@ -19,7 +19,6 @@ import {
 	UserNotFoundError,
 } from "src/exceptions/not-found.interceptor";
 import { InvitesService } from "src/invites/invites.service";
-import { NotFoundError } from "rxjs";
 
 const WINNING_SCORE = 2;
 
@@ -272,10 +271,10 @@ export class GameGateway implements OnModuleInit {
 		return gameRoom;
 	}
 
-	private getFreePlayer(): Player {
+	private getFreePlayer(waitingPlayer: Player): Player {
 		for (let i = 0; i < this.waitList.length; i++) {
 			const player = this.waitList[i];
-			if (!player.inviteID) {
+			if (!player.inviteID && player.userID !== waitingPlayer.userID) {
 				return player;
 			}
 		}
@@ -285,7 +284,10 @@ export class GameGateway implements OnModuleInit {
 	private getInvitedPlayer(player: Player): Player {
 		for (let i = 0; i < this.waitList.length; i++) {
 			const opponent = this.waitList[i];
-			if (opponent.inviteID === player.inviteID) {
+			if (
+				opponent.inviteID === player.inviteID &&
+				opponent.userID !== player.userID
+			) {
 				console.log(
 					"[Game Gateway]: Found opponent",
 					opponent.username,
@@ -307,7 +309,7 @@ export class GameGateway implements OnModuleInit {
 		if (player.inviteID) {
 			opponent = this.getInvitedPlayer(player);
 		} else {
-			opponent = this.getFreePlayer();
+			opponent = this.getFreePlayer(player);
 		}
 		if (opponent) {
 			console.log(
@@ -324,6 +326,7 @@ export class GameGateway implements OnModuleInit {
 			"with invite",
 			player.inviteID
 		);
+		console.log(`[Game Gateway] Waitlist :`, this.waitList);
 		this.waitList.push(player);
 		return null;
 	}
@@ -589,6 +592,7 @@ export class GameGateway implements OnModuleInit {
 			}
 		}
 
+		console.log(`[Game Gateway] Waitlist in waiting:`, this.waitList);
 		if (await this.reconnect(socket, user.id)) {
 			return;
 		}
@@ -604,7 +608,8 @@ export class GameGateway implements OnModuleInit {
 		if (!myGameRoom) {
 			console.log(
 				`[Game Gateway]: ${player.username} is waiting for an opponent:`,
-				player
+				player.userID,
+				player.username
 			);
 		} else {
 			this.startGame(myGameRoom);
