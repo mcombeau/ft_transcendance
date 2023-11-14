@@ -1,96 +1,96 @@
 export type ReceivedInfo = {
-  token: string;
-  username?: string;
-  username2?: string;
-  userID?: number;
-  targetID?: number;
-  chatRoomID?: number;
-  messageInfo?: createChatMessageParams;
-  chatInfo?: createChatParams;
-  participantInfo?: updateParticipantParams;
-  inviteInfo?: Invite;
-  inviteDate?: number;
+	token: string;
+	username?: string;
+	username2?: string;
+	userID?: number;
+	targetID?: number;
+	chatRoomID?: number;
+	messageInfo?: createChatMessageParams;
+	chatInfo?: createChatParams;
+	participantInfo?: updateParticipantParams;
+	inviteInfo?: Invite;
+	inviteDate?: number;
 };
 
 export type createChatMessageParams = {
-  message: string;
-  sentAt: Date;
+	message: string;
+	sentAt: Date;
 };
 
 export type createChatParams = {
-  name?: string;
-  password?: string;
-  isPrivate?: boolean;
-  hasPassword?: boolean;
+	name?: string;
+	password?: string;
+	isPrivate?: boolean;
+	hasPassword?: boolean;
 };
 
 export type updateParticipantParams = {
-  isOperator?: boolean;
-  isOwner?: boolean;
-  isBanned?: boolean;
-  mutedUntil?: number;
+	isOperator?: boolean;
+	isOwner?: boolean;
+	isBanned?: boolean;
+	mutedUntil?: number;
 };
 
 export type Message = {
-  datestamp: Date;
-  msg: string;
-  senderID: number;
-  senderUsername: string;
-  chatRoomID: number;
-  read: boolean;
-  system: boolean;
+	datestamp: Date;
+	msg: string;
+	senderID: number;
+	senderUsername: string;
+	chatRoomID: number;
+	read: boolean;
+	system: boolean;
 };
 
 export type User = {
-  userID: number;
-  username: string;
-  isOwner: boolean;
-  isOperator: boolean;
-  isBanned: boolean;
-  mutedUntil: number;
-  invitedUntil: number;
+	userID: number;
+	username: string;
+	isOwner: boolean;
+	isOperator: boolean;
+	isBanned: boolean;
+	mutedUntil: number;
+	invitedUntil: number;
 };
 
 export type ChatRoom = {
-  chatRoomID: number;
-  name: string;
-  ownerID: number;
-  participants: User[];
-  messages: Message[];
-  invited: User[];
-  banned: User[];
-  isPrivate: boolean;
-  isDM: boolean;
-  hasPassword: boolean;
+	chatRoomID: number;
+	name: string;
+	ownerID: number;
+	participants: User[];
+	messages: Message[];
+	invited: User[];
+	banned: User[];
+	isPrivate: boolean;
+	isDM: boolean;
+	hasPassword: boolean;
 };
 
 export type PublicChatRoom = {
-  chatRoomID: number;
-  name: string;
-  hasPassword: boolean;
+	chatRoomID: number;
+	name: string;
+	hasPassword: boolean;
 };
 
 export enum typeInvite {
-  Chat = "chat",
-  Game = "game",
-  Friend = "friend",
+	Chat = "chat",
+	Game = "game",
+	Friend = "friend",
 }
 
 export type Invite = {
-  id?: number;
-  invitedID?: number;
-  senderID?: number;
-  invitedUsername?: string;
-  senderUsername?: string;
-  type: typeInvite;
-  chatRoomID?: number;
-  chatRoomName?: string;
-  chatHasPassword?: boolean;
-  expiresAt?: number;
+	id?: number;
+	invitedID?: number;
+	senderID?: number;
+	invitedUsername?: string;
+	senderUsername?: string;
+	type: typeInvite;
+	chatRoomID?: number;
+	chatRoomName?: string;
+	chatHasPassword?: boolean;
+	expiresAt?: number;
 };
 
 export enum Status {
-  Normal,
-  Operator,
-  Owner,
+	Normal,
+	Operator,
+	Owner,
 }

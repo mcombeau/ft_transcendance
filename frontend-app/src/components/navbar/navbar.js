@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from "react";
-import { AuthenticationContext } from "../authenticationState";
+import React, {useContext, useEffect, useState} from "react";
+import {AuthenticationContext} from "../authenticationState";
 
 import {
   NavbarContainer,
@@ -17,7 +17,7 @@ import LogoImg from "./../../ping.svg";
 
 function Navbar() {
   const [extendNavbar, setExtendNavbar] = useState(false);
-  const { authenticatedUserID } = useContext(AuthenticationContext);
+  const {authenticatedUserID} = useContext(AuthenticationContext);
 
   useEffect(() => {
     // TODO: adapt to incorrect cookie (user does not exist in db ...)
