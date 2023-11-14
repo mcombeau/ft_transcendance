@@ -14,6 +14,7 @@
 	- deal with broadband/network issues
 	- end game page
 	- spectator mode
+    - Make it possible for challenger to leave game room with button. make invite expire for the player's opponent.
 
 - Profile
 	- Ladder level
