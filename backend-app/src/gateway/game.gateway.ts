@@ -1,20 +1,22 @@
-import {OnModuleInit, Inject, forwardRef} from '@nestjs/common';
+import { OnModuleInit, Inject, forwardRef } from "@nestjs/common";
 import {
 	ConnectedSocket,
 	SubscribeMessage,
 	WebSocketGateway,
 	WebSocketServer,
-} from '@nestjs/websockets';
-import {Server} from 'socket.io';
-import {GamesService} from 'src/games/games.service';
-import {AuthService} from 'src/auth/auth.service';
-import {Socket} from 'socket.io';
-import {MessageBody} from '@nestjs/websockets';
-import {ChatGateway} from './chat.gateway';
-import {createGameParams} from 'src/games/utils/types';
-import {userStatus} from 'src/users/entities/user.entity';
-import {UsersService} from 'src/users/users.service';
-import {UserNotFoundError} from 'src/exceptions/not-found.interceptor';
+} from "@nestjs/websockets";
+import { Server } from "socket.io";
+import { GamesService } from "src/games/games.service";
+import { AuthService } from "src/auth/auth.service";
+import { Socket } from "socket.io";
+import { MessageBody } from "@nestjs/websockets";
+import { ChatGateway } from "./chat.gateway";
+import { createGameParams } from "src/games/utils/types";
+import { userStatus } from "src/users/entities/user.entity";
+import { UsersService } from "src/users/users.service";
+import { UserNotFoundError } from "src/exceptions/not-found.interceptor";
+import { InvitesService } from "src/invites/invites.service";
+import { NotFoundError } from "rxjs";
 
 const WINNING_SCORE = 2;
 
@@ -54,9 +56,20 @@ type GameRoom = {
 	interval: NodeJS.Timeout;
 };
 
+type PlayerInfo = {
+	userID: number;
+	username: string;
+};
+
+type GameInfo = {
+	player1: PlayerInfo;
+	player2: PlayerInfo;
+	socketRoomID: string;
+};
+
 @WebSocketGateway({
 	cors: {
-		origin: ['http://localhost:3000', 'http://localhost'],
+		origin: ["http://localhost:3000", "http://localhost"],
 	},
 })
 export class GameGateway implements OnModuleInit {
@@ -67,8 +80,10 @@ export class GameGateway implements OnModuleInit {
 		private gameService: GamesService,
 		@Inject(forwardRef(() => UsersService))
 		private usersService: UsersService,
+		@Inject(forwardRef(() => InvitesService))
+		private invitesService: InvitesService,
 		@Inject(forwardRef(() => ChatGateway))
-		private chatGateway: ChatGateway,
+		private chatGateway: ChatGateway
 	) {}
 	@WebSocketServer()
 	server: Server;
@@ -112,8 +127,8 @@ export class GameGateway implements OnModuleInit {
 		this.gameRooms = [];
 		this.waitList = [];
 		this.gameRoomID = 0;
-		this.server.on('connection', async (socket) => {
-			const token = socket.handshake.headers.authorization.split(' ')[1];
+		this.server.on("connection", async (socket) => {
+			const token = socket.handshake.headers.authorization.split(" ")[1];
 			const user = await this.authService
 				.validateToken(token)
 				.catch(() => {
@@ -124,43 +139,45 @@ export class GameGateway implements OnModuleInit {
 				});
 
 			console.log(
-				`[Game Gateway]: A user connected: ${user.username} - ${user.userID} (${socket.id})`,
+				`[Game Gateway]: A user connected: ${user.username} - ${user.userID} (${socket.id})`
 			);
-			socket.broadcast.emit('connection event'); // TODO: probably remove
+			socket.broadcast.emit("connection event"); // TODO: probably remove
 			if (await this.reconnect(socket, user.userID)) {
 				console.log(
-					`[Game Gateway]: A user rejoined: ${user.username} a game)`,
+					`[Game Gateway]: A user rejoined: ${user.username} a game)`
 				);
-				socket.emit('rejoin game');
+				socket.emit("rejoin game");
 			}
-			socket.on('disconnect', () => {
+			socket.on("disconnect", () => {
 				console.log(
-					`[Game Gateway]: A user disconnected: ${user.username} - ${user.userID} (${socket.id})`,
+					`[Game Gateway]: A user disconnected: ${user.username} - ${user.userID} (${socket.id})`
 				);
-				socket.broadcast.emit('disconnection event');
+				socket.broadcast.emit("disconnection event");
 			});
 		});
 	}
 
 	private startGame(gameRoom: GameRoom) {
-		console.log('[Game Gateway]: Game started');
-		this.server.to(gameRoom.socketRoomID).emit('start game');
+		console.log("[Game Gateway]: Game started");
+		// TODO: send to everybody everywhere that the game started
+		this.server.to(gameRoom.socketRoomID).emit("start game");
 		this.randomInitialMove(gameRoom.gameState);
 
 		gameRoom.interval = setInterval(() => {
 			this.tick(gameRoom);
-			this.server.to(gameRoom.socketRoomID).emit('tick', gameRoom);
+			this.server.to(gameRoom.socketRoomID).emit("tick", gameRoom);
 		}, this.delay);
 	}
 
 	private async stopGame(gameRoom: GameRoom) {
-		console.log('[Game Gateway]: Game stopped');
+		console.log("[Game Gateway]: Game stopped");
+		// TODO: send to everybody everywhere that the game is done
 		await this.updatePlayerStatus(userStatus.ONLINE, gameRoom.player1.userID);
 		await this.updatePlayerStatus(userStatus.ONLINE, gameRoom.player2.userID);
 		clearInterval(gameRoom.interval);
 		this.server.in(gameRoom.socketRoomID).socketsLeave(gameRoom.socketRoomID);
 		this.gameRooms = this.gameRooms.filter(
-			(gr: GameRoom) => gr.socketRoomID !== gameRoom.socketRoomID,
+			(gr: GameRoom) => gr.socketRoomID !== gameRoom.socketRoomID
 		);
 	}
 
@@ -178,11 +195,11 @@ export class GameGateway implements OnModuleInit {
 	}
 
 	private async updatePlayerStatus(status: userStatus, userID: number) {
-		await this.usersService.updateUserByID(userID, {status: status});
+		await this.usersService.updateUserByID(userID, { status: status });
 	}
 
 	private placeBall() {
-		return {x: 250, y: 250};
+		return { x: 250, y: 250 };
 	}
 
 	private createGameState() {
@@ -205,11 +222,11 @@ export class GameGateway implements OnModuleInit {
 		if (myGameRoom) {
 			await socket.join(myGameRoom.socketRoomID);
 			console.log(
-				'[Game Gateway]:',
-				'Setting up user',
+				"[Game Gateway]:",
+				"Setting up user",
 				userID,
-				'to join back gameroom',
-				myGameRoom.socketRoomID,
+				"to join back gameroom",
+				myGameRoom.socketRoomID
 			);
 			return true;
 		}
@@ -218,22 +235,22 @@ export class GameGateway implements OnModuleInit {
 
 	private async createRoom(
 		player1: Player,
-		player2: Player,
+		player2: Player
 	): Promise<GameRoom> {
 		const socketRoomID = this.gameRoomID.toString();
 		this.gameRoomID++;
 
 		console.log(
-			'[Game Gateway]: Create new GameRoom of id',
+			"[Game Gateway]: Create new GameRoom of id",
 			socketRoomID,
-			'with player1',
+			"with player1",
 			player1.userID,
-			'of username',
+			"of username",
 			player1.username,
-			'and player2',
+			"and player2",
 			player2.userID,
-			'of username',
-			player2.username,
+			"of username",
+			player2.username
 		);
 		await player1.socket.join(socketRoomID);
 		await player2.socket.join(socketRoomID);
@@ -267,14 +284,14 @@ export class GameGateway implements OnModuleInit {
 			const opponent = this.waitList[i];
 			if (opponent.inviteID === player.inviteID) {
 				console.log(
-					'[Game Gateway]: Found opponent',
+					"[Game Gateway]: Found opponent",
 					opponent.username,
-					'with invite',
+					"with invite",
 					opponent.inviteID,
-					'for player',
+					"for player",
 					player.username,
-					'with invite',
-					player.inviteID,
+					"with invite",
+					player.inviteID
 				);
 				return opponent;
 			}
@@ -291,18 +308,18 @@ export class GameGateway implements OnModuleInit {
 		}
 		if (opponent) {
 			console.log(
-				'[Game Gateway]: Found opponent',
+				"[Game Gateway]: Found opponent",
 				opponent.username,
-				'with invite',
-				opponent.inviteID,
+				"with invite",
+				opponent.inviteID
 			);
 			return this.createRoom(player, opponent);
 		}
 		console.log(
-			'[Game Gateway]: Did not found opponent for',
+			"[Game Gateway]: Did not found opponent for",
 			player.username,
-			'with invite',
-			player.inviteID,
+			"with invite",
+			player.inviteID
 		);
 		this.waitList.push(player);
 		return null;
@@ -311,11 +328,11 @@ export class GameGateway implements OnModuleInit {
 	randomInitialMove(gameState: State) {
 		// pseudo-random ball behavior
 		const moves = [
-			{stepX: 1, stepY: 1},
-			{stepX: 1, stepY: 2},
-			{stepX: 2, stepY: 1},
-			{stepX: -1, stepY: -1},
-			{stepX: -1, stepY: 1},
+			{ stepX: 1, stepY: 1 },
+			{ stepX: 1, stepY: 2 },
+			{ stepX: 2, stepY: 1 },
+			{ stepX: -1, stepY: -1 },
+			{ stepX: -1, stepY: 1 },
 		];
 		const initialMove = moves[Math.floor(Math.random() * moves.length)];
 		gameState.move = initialMove;
@@ -325,7 +342,7 @@ export class GameGateway implements OnModuleInit {
 		//checking if the ball touches the borders of the goal
 		if (
 			gameState.ballPosition.x - this.ballRadius <=
-			this.p1GateX + this.ballRadius * 2 &&
+				this.p1GateX + this.ballRadius * 2 &&
 			gameState.ballPosition.y + this.ballRadius >= this.gateY &&
 			gameState.ballPosition.y - this.ballRadius <= this.gateY + this.gateHeight
 		) {
@@ -374,9 +391,9 @@ export class GameGateway implements OnModuleInit {
 		//checking if the ball is touching the boundaries, and if so, calculating the angle of rebound
 		if (
 			gameState.ballPosition.y + this.ballRadius + gameState.move.stepY >=
-			this.bottomBoundary ||
+				this.bottomBoundary ||
 			gameState.ballPosition.y - this.ballRadius + gameState.move.stepY <=
-			this.topBoundary
+				this.topBoundary
 		) {
 			gameState.move = {
 				stepX: gameState.move.stepX,
@@ -386,9 +403,9 @@ export class GameGateway implements OnModuleInit {
 
 		if (
 			gameState.ballPosition.x - this.ballRadius + gameState.move.stepX <=
-			this.leftBoundary ||
+				this.leftBoundary ||
 			gameState.ballPosition.x + this.ballRadius + gameState.move.stepX >=
-			this.rightBoundary
+				this.rightBoundary
 		) {
 			gameState.move = {
 				stepX: -gameState.move.stepX,
@@ -416,7 +433,7 @@ export class GameGateway implements OnModuleInit {
 
 	checkPlayerBoundaries(
 		player: number, //checking the boundaries of players for going beyond the field
-		gameState: State,
+		gameState: State
 	) {
 		if (player === 1) {
 			if (gameState.p1 + this.pHeight >= this.playerMaxY) return 1;
@@ -433,7 +450,7 @@ export class GameGateway implements OnModuleInit {
 
 	resetPlayer(
 		code: number, //return of players to the field, in case of exit
-		gameState: State,
+		gameState: State
 	) {
 		if (code === 1) {
 			gameState.p1 = this.playerMaxY - this.pHeight;
@@ -470,7 +487,7 @@ export class GameGateway implements OnModuleInit {
 			!gameRoom.gameState.isPaused
 		) {
 			this.pause(gameRoom.gameState);
-			console.log('[Game Gateway]: a player won !');
+			console.log("[Game Gateway]: a player won !");
 
 			let gameDetails: createGameParams;
 			// TODO: maybe move to another function
@@ -490,13 +507,13 @@ export class GameGateway implements OnModuleInit {
 				};
 			}
 
-			this.server.to(gameRoom.socketRoomID).emit('end game', gameDetails);
+			this.server.to(gameRoom.socketRoomID).emit("end game", gameDetails);
 			this.gameService.createGame(gameDetails);
 			this.stopGame(gameRoom);
 		}
 	}
 
-	@SubscribeMessage('up')
+	@SubscribeMessage("up")
 	async onUp(@ConnectedSocket() socket: Socket, @MessageBody() token: string) {
 		const userID: number = await this.chatGateway.checkIdentity(token, socket);
 		const user = await this.usersService.fetchUserByID(userID);
@@ -517,15 +534,15 @@ export class GameGateway implements OnModuleInit {
 		if (this.checkPlayerBoundaries(playerIndex, gameRoom.gameState)) {
 			this.resetPlayer(
 				this.checkPlayerBoundaries(playerIndex, gameRoom.gameState),
-				gameRoom.gameState,
+				gameRoom.gameState
 			);
 		}
 	}
 
-	@SubscribeMessage('down')
+	@SubscribeMessage("down")
 	async onDown(
 		@ConnectedSocket() socket: Socket,
-		@MessageBody() token: string,
+		@MessageBody() token: string
 	) {
 		const userID: number = await this.chatGateway.checkIdentity(token, socket);
 		const user = await this.usersService.fetchUserByID(userID);
@@ -544,23 +561,27 @@ export class GameGateway implements OnModuleInit {
 		if (this.checkPlayerBoundaries(playerIndex, gameRoom.gameState)) {
 			this.resetPlayer(
 				this.checkPlayerBoundaries(playerIndex, gameRoom.gameState),
-				gameRoom.gameState,
+				gameRoom.gameState
 			);
 		}
 	}
 
-	@SubscribeMessage('waiting')
+	@SubscribeMessage("waiting")
 	async onWaiting(
 		@ConnectedSocket() socket: Socket,
-		@MessageBody() info: {token: string; inviteID: number},
+		@MessageBody() info: { token: string; inviteID: number }
 	) {
 		const token = info.token;
 		const inviteID = info.inviteID;
 
 		const userID: number = await this.chatGateway.checkIdentity(token, socket);
 		const user = await this.usersService.fetchUserByID(userID);
+		const invitation = await this.invitesService.fetchInviteByID(inviteID);
 		if (!user) {
 			throw new UserNotFoundError();
+		}
+		if (!invitation) {
+			throw new NotFoundError("Invite not found");
 		}
 
 		if (await this.reconnect(socket, user.id)) {
@@ -578,17 +599,17 @@ export class GameGateway implements OnModuleInit {
 		if (!myGameRoom) {
 			console.log(
 				`[Game Gateway]: ${player.username} is waiting for an opponent:`,
-				player,
+				player
 			);
 		} else {
 			this.startGame(myGameRoom);
 		}
 	}
 
-	@SubscribeMessage('leave game')
+	@SubscribeMessage("leave game")
 	async onLeaveGame(
 		@ConnectedSocket() socket: Socket,
-		@MessageBody() token: string,
+		@MessageBody() token: string
 	) {
 		const userID: number = await this.chatGateway.checkIdentity(token, socket);
 		const user = await this.usersService.fetchUserByID(userID);
@@ -597,7 +618,35 @@ export class GameGateway implements OnModuleInit {
 		}
 		const gameRoom: GameRoom = await this.getRoom(userID);
 
-		this.server.to(gameRoom.socketRoomID).emit('leave game', userID);
+		this.server.to(gameRoom.socketRoomID).emit("leave game", userID);
 		await this.stopGame(gameRoom);
+	}
+
+	gameToGameInfo(game: GameRoom): GameInfo {
+		const gameInfo: GameInfo = {
+			player1: {
+				userID: game.player1.userID,
+				username: game.player1.username,
+			},
+			player2: {
+				userID: game.player2.userID,
+				username: game.player2.username,
+			},
+			socketRoomID: game.socketRoomID,
+		};
+		return gameInfo;
+	}
+
+	@SubscribeMessage("get games")
+	async onGetGames(
+		@ConnectedSocket() socket: Socket,
+		@MessageBody() token: string
+	) {
+		const userID: number = await this.chatGateway.checkIdentity(token, socket);
+		const user = await this.usersService.fetchUserByID(userID);
+		if (!user) {
+			throw new UserNotFoundError();
+		}
+		socket.emit("get games", this.gameRooms.map(this.gameToGameInfo));
 	}
 }

@@ -1,11 +1,23 @@
-import {useContext, useEffect, useState} from "react";
-import {AuthenticationContext} from "../authenticationState";
-import {blockUser, unblockUser, unfriend, User, UserStatus} from "./profile";
+import { useContext, useEffect, useState } from "react";
+import { WebSocketContext } from "../../contexts/WebsocketContext";
+import { AuthenticationContext } from "../authenticationState";
+import { blockUser, unblockUser, unfriend, User, UserStatus } from "./profile";
 
 export type Friend = {
 	id: number;
 	username: string;
 	status: UserStatus;
+};
+
+export type PlayerInfo = {
+	userID: number;
+	username: string;
+};
+
+export type GameInfo = {
+	player1: PlayerInfo;
+	player2: PlayerInfo;
+	socketRoomID: string;
 };
 
 type BlockedUser = Friend;
@@ -133,7 +145,8 @@ function displayFriends(
 function FriendsList(isMyPage: boolean, user: User, cookies: any) {
 	const [friends, setFriends] = useState<Friend[]>();
 	const [blockedUsers, setBlockedUsers] = useState<BlockedUser[]>();
-	const {authenticatedUserID} = useContext(AuthenticationContext);
+	const { authenticatedUserID } = useContext(AuthenticationContext);
+	const socket = useContext(WebSocketContext);
 
 	async function fetchFriends(userID: number, cookies: any) {
 		var request = {
@@ -202,7 +215,15 @@ function FriendsList(isMyPage: boolean, user: User, cookies: any) {
 		if (user !== undefined) {
 			fetchFriends(user.id, cookies);
 		}
+
+		socket.emit("get games", cookies["token"]);
 	}, [user]);
+
+	useEffect(() => {
+		socket.on("get games", (data: any) => {
+			console.log("data", data);
+		});
+	}, []);
 
 	if (user === undefined) {
 		return <div></div>;
