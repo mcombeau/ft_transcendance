@@ -14,7 +14,10 @@ import { ChatGateway } from "./chat.gateway";
 import { createGameParams } from "src/games/utils/types";
 import { userStatus } from "src/users/entities/user.entity";
 import { UsersService } from "src/users/users.service";
-import { UserNotFoundError } from "src/exceptions/not-found.interceptor";
+import {
+	InviteNotFoundError,
+	UserNotFoundError,
+} from "src/exceptions/not-found.interceptor";
 import { InvitesService } from "src/invites/invites.service";
 import { NotFoundError } from "rxjs";
 
@@ -581,7 +584,7 @@ export class GameGateway implements OnModuleInit {
 			throw new UserNotFoundError();
 		}
 		if (!invitation) {
-			throw new NotFoundError("Invite not found");
+			throw new InviteNotFoundError("Invite not found");
 		}
 
 		if (await this.reconnect(socket, user.id)) {
