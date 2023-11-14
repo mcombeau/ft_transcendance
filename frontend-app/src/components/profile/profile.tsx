@@ -1,5 +1,5 @@
 import {useContext, useEffect} from "react";
-import {useParams} from "react-router-dom";
+import {Navigate, useNavigate, useParams} from "react-router-dom";
 import {useState} from "react";
 import {useCookies} from "react-cookie";
 import {WebSocketContext} from "../../contexts/WebsocketContext";
@@ -295,13 +295,38 @@ function blockButton(
 	);
 }
 
-function challengeButton(user: User, authenticatedUserID: number) {
-	console.log("User " + authenticatedUserID + " challenges user " + user.id);
-	// TODO: redirect challenging user to play page with a specific status (maybe unique id room ?)
-	// - accept challenge business for later, challenged user has a new button
-	// - if they click it redirect them to the new room
-	// - probably using sockets
-	return <button>Challenge</button>;
+async function challenge(user: User, authenticatedUserID: number, cookies: any, navigate: any) {
+	var request = {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${cookies["token"]}`,
+		},
+		body: JSON.stringify({
+			type: typeInvite.Game,
+			senderID: authenticatedUserID,
+			invitedUserID: user.id,
+		}),
+	};
+	const inviteID = await fetch(`http://localhost:3001/invites`, request).then(
+		async (response) => {
+			const data = await response.json();
+			if (!response.ok) {
+				console.log("Error inviting friend to play");
+				return null;
+			}
+			return data.id;
+		}
+	)
+	if (inviteID) {
+		navigate("/play/" + inviteID);
+	}
+
+}
+
+function challengeButton(user: User, authenticatedUserID: number, cookies: any, navigate: any) {
+
+	return <button onClick={() => challenge(user, authenticatedUserID, cookies, navigate)}>Challenge</button>;
 }
 
 function interactWithUser(
@@ -312,7 +337,9 @@ function interactWithUser(
 	setIsBlocked: any,
 	user: User,
 	authenticatedUserID: number,
-	cookies: any
+	cookies: any,
+	navigate: any
+
 ) {
 	if (user === undefined) return <div />;
 	if (isMyPage) return <p></p>;
@@ -327,7 +354,7 @@ function interactWithUser(
 				isBlocked
 			)}
 			{blockButton(user, authenticatedUserID, cookies, isBlocked, setIsBlocked)}
-			{challengeButton(user, authenticatedUserID)}
+			{challengeButton(user, authenticatedUserID, cookies, navigate)}
 			<button>Send DM</button>
 		</p>
 	);
@@ -365,6 +392,7 @@ function Profile() {
 	const [isBlocked, setIsBlocked] = useState(false);
 	const {authenticatedUserID} = useContext(AuthenticationContext);
 	const [profilePicture, setProfilePicture] = useState(null);
+	const navigate = useNavigate();
 
 	async function fetchUser() {
 		var request = {
@@ -440,7 +468,8 @@ function Profile() {
 						setIsBlocked,
 						user,
 						authenticatedUserID,
-						cookies
+						cookies,
+						navigate
 					)}
 					{editProfile(isMyPage, user, isEditingProfile, setIsEditingProfile)}
 					{ProfileSettings(
