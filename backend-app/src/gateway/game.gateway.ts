@@ -1,4 +1,9 @@
-import { OnModuleInit, Inject, forwardRef } from "@nestjs/common";
+import {
+	OnModuleInit,
+	Inject,
+	forwardRef,
+	BadRequestException,
+} from "@nestjs/common";
 import {
 	ConnectedSocket,
 	SubscribeMessage,
@@ -530,6 +535,9 @@ export class GameGateway implements OnModuleInit {
 		}
 
 		const gameRoom: GameRoom = await this.getRoom(userID);
+		if (gameRoom === null) {
+			throw new BadRequestException("Could not find game room for user");
+		}
 
 		let playerIndex = 1;
 		if (gameRoom.player1.userID === userID) {
@@ -558,6 +566,9 @@ export class GameGateway implements OnModuleInit {
 			throw new UserNotFoundError();
 		}
 		const gameRoom: GameRoom = await this.getRoom(userID);
+		if (gameRoom === null) {
+			throw new BadRequestException("Could not find game room for user");
+		}
 
 		let playerIndex = 1;
 		if (gameRoom.player1.userID === userID) {
