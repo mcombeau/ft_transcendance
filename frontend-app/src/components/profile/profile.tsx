@@ -1,13 +1,13 @@
-import {useContext, useEffect} from "react";
-import {Navigate, useNavigate, useParams} from "react-router-dom";
-import {useState} from "react";
-import {useCookies} from "react-cookie";
-import {WebSocketContext} from "../../contexts/WebsocketContext";
+import { useContext, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useState } from "react";
+import { useCookies } from "react-cookie";
+import { WebSocketContext } from "../../contexts/WebsocketContext";
 import FriendsList from "./friendsList";
 import GameHistory from "./history";
 import ProfileSettings from "./profileSettings";
-import {AuthenticationContext} from "../authenticationState";
-import {typeInvite} from "../chat/types";
+import { AuthenticationContext } from "../authenticationState";
+import { typeInvite } from "../chat/types";
 import "./profile.css";
 
 export enum UserStatus {
@@ -56,7 +56,6 @@ async function befriend(
 	authenticatedUserID: number,
 	cookies: any
 ) {
-	// TODO: rather create friendship invite
 	var request = {
 		method: "POST",
 		headers: {
@@ -295,7 +294,12 @@ function blockButton(
 	);
 }
 
-async function challenge(user: User, authenticatedUserID: number, cookies: any, navigate: any) {
+async function challenge(
+	user: User,
+	authenticatedUserID: number,
+	cookies: any,
+	navigate: any
+) {
 	var request = {
 		method: "POST",
 		headers: {
@@ -317,16 +321,25 @@ async function challenge(user: User, authenticatedUserID: number, cookies: any, 
 			}
 			return data.id;
 		}
-	)
+	);
 	if (inviteID) {
 		navigate("/play/" + inviteID);
 	}
-
 }
 
-function challengeButton(user: User, authenticatedUserID: number, cookies: any, navigate: any) {
-
-	return <button onClick={() => challenge(user, authenticatedUserID, cookies, navigate)}>Challenge</button>;
+function challengeButton(
+	user: User,
+	authenticatedUserID: number,
+	cookies: any,
+	navigate: any
+) {
+	return (
+		<button
+			onClick={() => challenge(user, authenticatedUserID, cookies, navigate)}
+		>
+			Challenge
+		</button>
+	);
 }
 
 function interactWithUser(
@@ -339,7 +352,6 @@ function interactWithUser(
 	authenticatedUserID: number,
 	cookies: any,
 	navigate: any
-
 ) {
 	if (user === undefined) return <div />;
 	if (isMyPage) return <p></p>;
@@ -390,7 +402,7 @@ function Profile() {
 	const [isEditingProfile, setIsEditingProfile] = useState(false);
 	const [isMyFriend, setIsMyFriend] = useState(false);
 	const [isBlocked, setIsBlocked] = useState(false);
-	const {authenticatedUserID} = useContext(AuthenticationContext);
+	const { authenticatedUserID } = useContext(AuthenticationContext);
 	const [profilePicture, setProfilePicture] = useState(null);
 	const navigate = useNavigate();
 
@@ -451,7 +463,7 @@ function Profile() {
 
 	return (
 		<div id="profile">
-			<h3 style={{color: "white"}}>
+			<h3 style={{ color: "white" }}>
 				<header>
 					<i className="fa fa-bars" aria-hidden="true"></i>
 				</header>

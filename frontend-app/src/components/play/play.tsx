@@ -1,8 +1,8 @@
-import {useContext, useEffect, useState} from "react";
-import {useCookies} from "react-cookie";
-import {useParams} from "react-router-dom";
-import {WebSocketContext} from "../../contexts/WebsocketContext";
-import {AuthenticationContext} from "../authenticationState";
+import { useContext, useEffect, useState } from "react";
+import { useCookies } from "react-cookie";
+import { useParams } from "react-router-dom";
+import { WebSocketContext } from "../../contexts/WebsocketContext";
+import { AuthenticationContext } from "../authenticationState";
 import "./styles.css";
 
 const UP = "ArrowUp";
@@ -54,11 +54,13 @@ export const Play = () => {
 	const ballRadius: number = 10;
 	const socket = useContext(WebSocketContext);
 	var inviteID: number = Number(useParams().inviteID);
+	var gameID: string = useParams().gameID;
 	const [cookies] = useCookies(["token"]);
 	const [player1Username, setPlayer1Username] = useState<string>("");
 	const [player2Username, setPlayer2Username] = useState<string>("");
 	const [statePlay, setStatePlay] = useState<StatePlay>(StatePlay.OnPage);
-	const {authenticatedUserID} = useContext(AuthenticationContext);
+	const [watching, setWatching] = useState<boolean>(true);
+	const { authenticatedUserID } = useContext(AuthenticationContext);
 
 	function activateKeyHandler(cookies: any) {
 		console.log("Key handler activated");
@@ -75,19 +77,21 @@ export const Play = () => {
 	}
 
 	function handleKeyPress(event: any, cookies: any) {
-		if (event.key === "w" || event.key === UP) {
-			event.preventDefault();
-			socket.emit("up", cookies["token"]);
-		} else if (event.key === "s" || event.key === DOWN) {
-			event.preventDefault();
-			socket.emit("down", cookies["token"]);
+		if (!watching) {
+			if (event.key === "w" || event.key === UP) {
+				event.preventDefault();
+				socket.emit("up", cookies["token"]);
+			} else if (event.key === "s" || event.key === DOWN) {
+				event.preventDefault();
+				socket.emit("down", cookies["token"]);
+			}
 		}
 	}
 
 	function enterLobby() {
 		console.log("Entered Lobby");
 		setStatePlay(StatePlay.InLobby);
-		socket.emit("waiting", {token: cookies["token"]});
+		socket.emit("waiting", { token: cookies["token"] });
 	}
 
 	function startGame() {
@@ -122,15 +126,14 @@ export const Play = () => {
 
 	useEffect(() => {
 		if (inviteID) {
-			console.log("the player is in an invite thingy");
 			setStatePlay(StatePlay.InLobby);
-			socket.emit("waiting", {token: cookies["token"], inviteID: inviteID});
+			socket.emit("waiting", { token: cookies["token"], inviteID: inviteID });
 		}
 	}, []);
 
 	useEffect(() => {
 		socket.on("tick", (data: any) => {
-			// TODO: maybe ask back if already in game rather than wait for tick
+			console.log("tick");
 			setPlayer1Username(data.player1.username);
 			setPlayer2Username(data.player2.username);
 			setGameState(data.gameState);
@@ -139,6 +142,8 @@ export const Play = () => {
 		socket.on("start game", () => {
 			console.log("Received start from back");
 			startGame();
+			console.log("Not watching");
+			setWatching(false);
 		});
 
 		socket.on("leave game", (userID: number) => {
@@ -165,6 +170,14 @@ export const Play = () => {
 			socket.off("rejoin game");
 			socket.off("end game");
 		};
+	}, []);
+
+	useEffect(() => {
+		if (gameID !== null) {
+			setWatching(true);
+			setStatePlay(StatePlay.InGame);
+			socket.emit("watch", { token: cookies["token"], gameID: gameID });
+		}
 	}, []);
 
 	if (statePlay === StatePlay.OnPage) {
@@ -200,8 +213,8 @@ export const Play = () => {
 						/>
 						<div className="midLine" />
 						<div className="midLineHor" />
-						<div className="player player1" style={{top: gameState.p1}} />
-						<div className="player player2" style={{top: gameState.p2}} />
+						<div className="player player1" style={{ top: gameState.p1 }} />
+						<div className="player player2" style={{ top: gameState.p2 }} />
 						<div className="gate gate1" />
 						<div className="gate gate2" />
 					</div>

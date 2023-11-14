@@ -37,7 +37,7 @@ function removeFriendFromList(userID: number, setFriends: any) {
 }
 
 function linkToGame(gameInfo: GameInfo) {
-	return <div>{gameInfo.socketRoomID}</div>;
+	return <a href={"/watch/" + gameInfo.socketRoomID}>[watch game]</a>;
 }
 
 function blockButton(
@@ -117,6 +117,7 @@ function displayFriend(
 		);
 	}
 	const friendGame = getFriendGame(friend, gameInfos);
+	// TODO: add a challenge button
 	if (isMyPage) {
 		return (
 			<li>

@@ -25,7 +25,7 @@ import {
 } from "src/exceptions/not-found.interceptor";
 import { InvitesService } from "src/invites/invites.service";
 
-const WINNING_SCORE = 2;
+const WINNING_SCORE = 10;
 
 type Player = {
 	userID: number;
@@ -33,6 +33,8 @@ type Player = {
 	socket?: Socket;
 	inviteID?: number;
 };
+
+type Watcher = Player;
 
 type Position = {
 	x: number;
@@ -59,8 +61,8 @@ type GameRoom = {
 	player2: Player;
 	socketRoomID: string;
 	gameState: State;
-	// interval: NodeJS.Timer;
 	interval: NodeJS.Timeout;
+	watchers: Watcher[];
 };
 
 type PlayerInfo = {
@@ -205,6 +207,17 @@ export class GameGateway implements OnModuleInit {
 		await this.usersService.updateUserByID(userID, { status: status });
 	}
 
+	private async addWatcherToGameRoom(watcher: Watcher, gameID: string) {
+		const gameRoom: GameRoom = this.gameRooms.find((gameRoom: GameRoom) => {
+			gameRoom.socketRoomID == gameID;
+			return gameRoom;
+		});
+		if (!gameRoom) return;
+		gameRoom.watchers.push(watcher);
+		await watcher.socket.join(gameRoom.socketRoomID);
+		delete watcher.socket;
+	}
+
 	private placeBall() {
 		return { x: 250, y: 250 };
 	}
@@ -271,6 +284,7 @@ export class GameGateway implements OnModuleInit {
 			socketRoomID: socketRoomID,
 			gameState: this.createGameState(),
 			interval: null,
+			watchers: [],
 		};
 		this.gameRooms.push(gameRoom);
 		return gameRoom;
@@ -684,5 +698,48 @@ export class GameGateway implements OnModuleInit {
 			throw new UserNotFoundError();
 		}
 		socket.emit("get games", this.gameRooms.map(this.gameToGameInfo));
+	}
+
+	@SubscribeMessage("watch")
+	async onWatch(
+		@ConnectedSocket() socket: Socket,
+		@MessageBody() body: { token: string; gameID: string }
+	) {
+		const userID: number = await this.chatGateway.checkIdentity(
+			body.token,
+			socket
+		);
+		const user = await this.usersService.fetchUserByID(userID);
+		if (!user) {
+			throw new UserNotFoundError();
+		}
+		const watcher: Watcher = {
+			userID: userID,
+			username: user.username,
+			socket: socket,
+		};
+		await this.addWatcherToGameRoom(watcher, body.gameID);
+	}
+
+	@SubscribeMessage("stop watch")
+	async onStopWatch(
+		@ConnectedSocket() socket: Socket,
+		@MessageBody() body: { token: string; gameID: string }
+	) {
+		const userID: number = await this.chatGateway.checkIdentity(
+			body.token,
+			socket
+		);
+		const user = await this.usersService.fetchUserByID(userID);
+		if (!user) {
+			throw new UserNotFoundError();
+		}
+		const watcher: Watcher = {
+			userID: userID,
+			username: user.username,
+			socket: socket,
+		};
+		await this.addWatcherToGameRoom(watcher, body.gameID);
+		// TODO: implement
 	}
 }
