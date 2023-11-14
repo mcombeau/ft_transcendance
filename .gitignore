@@ -6,3 +6,4 @@
 .DS_Store
 .prettierrc
 .eslintrc.js
+.env

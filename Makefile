@@ -36,7 +36,7 @@ clean: down
 db: clean
 	docker volume rm ft_transcendance_database
 	make
-	python3 test/populate_database.py
+	make blog
 
 fclean: clean
 	docker system prune -f -a --volumes
