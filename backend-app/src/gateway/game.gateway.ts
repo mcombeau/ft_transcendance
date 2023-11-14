@@ -579,12 +579,14 @@ export class GameGateway implements OnModuleInit {
 
 		const userID: number = await this.chatGateway.checkIdentity(token, socket);
 		const user = await this.usersService.fetchUserByID(userID);
-		const invitation = await this.invitesService.fetchInviteByID(inviteID);
 		if (!user) {
 			throw new UserNotFoundError();
 		}
-		if (!invitation) {
-			throw new InviteNotFoundError("Invite not found");
+		if (inviteID) {
+			const invitation = await this.invitesService.fetchInviteByID(inviteID);
+			if (!invitation) {
+				throw new InviteNotFoundError("Invite not found");
+			}
 		}
 
 		if (await this.reconnect(socket, user.id)) {
