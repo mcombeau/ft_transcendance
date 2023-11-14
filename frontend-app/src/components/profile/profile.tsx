@@ -1,467 +1,467 @@
-import { useContext, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { useState } from "react";
-import { useCookies } from "react-cookie";
-import { WebSocketContext } from "../../contexts/WebsocketContext";
+import {useContext, useEffect} from "react";
+import {useParams} from "react-router-dom";
+import {useState} from "react";
+import {useCookies} from "react-cookie";
+import {WebSocketContext} from "../../contexts/WebsocketContext";
 import FriendsList from "./friendsList";
 import GameHistory from "./history";
 import ProfileSettings from "./profileSettings";
-import { AuthenticationContext } from "../authenticationState";
-import { typeInvite } from "../chat/types";
+import {AuthenticationContext} from "../authenticationState";
+import {typeInvite} from "../chat/types";
 import "./profile.css";
 
 export enum UserStatus {
-  Offline = "offline",
-  Online = "online",
-  InGame = "in game",
+	Offline = "offline",
+	Online = "online",
+	InGame = "in game",
 }
 
 export type User = {
-  id: number;
-  username: string;
-  email: string;
-  login42: string;
-  isTwoFaEnabled: boolean;
-  status: UserStatus;
+	id: number;
+	username: string;
+	email: string;
+	login42: string;
+	isTwoFaEnabled: boolean;
+	status: UserStatus;
 };
 
 function titleProfile(isMyPage: boolean, user: User) {
-  if (user === undefined) return <h2>User not found</h2>;
-  if (isMyPage)
-    return (
-      <h2>
-        My user page ({user.username} - {user.status})
-      </h2>
-    );
+	if (user === undefined) return <h2>User not found</h2>;
+	if (isMyPage)
+		return (
+			<h2>
+				My user page ({user.username} - {user.status})
+			</h2>
+		);
 
-  return (
-    <h2>
-      User page for {user.username} ({user.status})
-    </h2>
-  );
+	return (
+		<h2>
+			User page for {user.username} ({user.status})
+		</h2>
+	);
 }
 
 function userDetails(user: User) {
-  if (user === undefined) return <div />;
-  return (
-    <p>
-      {user.login42 ? " aka " + user.login42 : ""}
-      <br /> Email is : {user.email}
-    </p>
-  );
+	if (user === undefined) return <div />;
+	return (
+		<p>
+			{user.login42 ? " aka " + user.login42 : ""}
+			<br /> Email is : {user.email}
+		</p>
+	);
 }
 
 async function befriend(
-  userID: number,
-  authenticatedUserID: number,
-  cookies: any
+	userID: number,
+	authenticatedUserID: number,
+	cookies: any
 ) {
-  // TODO: rather create friendship invite
-  var request = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${cookies["token"]}`,
-    },
-    body: JSON.stringify({
-      type: typeInvite.Friend,
-      senderID: authenticatedUserID,
-      invitedUserID: userID,
-    }),
-  };
-  return fetch(`http://localhost:3001/invites`, request).then(
-    async (response) => {
-      if (!response.ok) {
-        console.log("Error inviting friend");
-        return false;
-      }
-      return true;
-    }
-  );
+	// TODO: rather create friendship invite
+	var request = {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${cookies["token"]}`,
+		},
+		body: JSON.stringify({
+			type: typeInvite.Friend,
+			senderID: authenticatedUserID,
+			invitedUserID: userID,
+		}),
+	};
+	return fetch(`http://localhost:3001/invites`, request).then(
+		async (response) => {
+			if (!response.ok) {
+				console.log("Error inviting friend");
+				return false;
+			}
+			return true;
+		}
+	);
 }
 
 export async function unfriend(
-  userID: number,
-  authenticatedUserID: number,
-  cookies: any
+	userID: number,
+	authenticatedUserID: number,
+	cookies: any
 ) {
-  var request = {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${cookies["token"]}`,
-    },
-    body: JSON.stringify({
-      userID1: authenticatedUserID,
-      userID2: userID,
-    }),
-  };
-  return fetch(`http://localhost:3001/friends`, request).then(
-    async (response) => {
-      console.log("response");
-      console.log(response);
-      if (!response.ok) {
-        console.log("Error removing friend");
-        return false;
-      }
-      return true;
-    }
-  );
+	var request = {
+		method: "DELETE",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${cookies["token"]}`,
+		},
+		body: JSON.stringify({
+			userID1: authenticatedUserID,
+			userID2: userID,
+		}),
+	};
+	return fetch(`http://localhost:3001/friends`, request).then(
+		async (response) => {
+			console.log("response");
+			console.log(response);
+			if (!response.ok) {
+				console.log("Error removing friend");
+				return false;
+			}
+			return true;
+		}
+	);
 }
 
 async function checkIfIsMyFriend(
-  user: User,
-  authenticatedUserID: number,
-  cookies: any,
-  setIsMyFriend: any
+	user: User,
+	authenticatedUserID: number,
+	cookies: any,
+	setIsMyFriend: any
 ) {
-  if (user === undefined) return;
-  var request = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${cookies["token"]}`,
-    },
-    body: JSON.stringify({
-      userID1: authenticatedUserID,
-      userID2: user.id,
-    }),
-  };
-  await fetch(`http://localhost:3001/friends/friend`, request).then(
-    async (response) => {
-      if (!response.ok) {
-        setIsMyFriend(false);
-      } else {
-        setIsMyFriend(true);
-      }
-    }
-  );
+	if (user === undefined) return;
+	var request = {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${cookies["token"]}`,
+		},
+		body: JSON.stringify({
+			userID1: authenticatedUserID,
+			userID2: user.id,
+		}),
+	};
+	await fetch(`http://localhost:3001/friends/friend`, request).then(
+		async (response) => {
+			if (!response.ok) {
+				setIsMyFriend(false);
+			} else {
+				setIsMyFriend(true);
+			}
+		}
+	);
 }
 
 async function checkIfIsBlocked(
-  user: User,
-  authenticatedUserID: number,
-  cookies: any,
-  setIsBlocked: any
+	user: User,
+	authenticatedUserID: number,
+	cookies: any,
+	setIsBlocked: any
 ) {
-  if (user === undefined) return;
-  var request = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${cookies["token"]}`,
-    },
-    body: JSON.stringify({
-      blockingUserID: authenticatedUserID,
-      blockedUserID: user.id,
-    }),
-  };
-  await fetch(
-    `http://localhost:3001/blocked-users/isUserBlocked`,
-    request
-  ).then(async (response) => {
-    console.log("is blocked response");
-    console.log(response);
-    if (!response.ok) {
-      setIsBlocked(false);
-    } else {
-      setIsBlocked(true);
-    }
-  });
+	if (user === undefined) return;
+	var request = {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${cookies["token"]}`,
+		},
+		body: JSON.stringify({
+			blockingUserID: authenticatedUserID,
+			blockedUserID: user.id,
+		}),
+	};
+	await fetch(
+		`http://localhost:3001/blocked-users/isUserBlocked`,
+		request
+	).then(async (response) => {
+		console.log("is blocked response");
+		console.log(response);
+		if (!response.ok) {
+			setIsBlocked(false);
+		} else {
+			setIsBlocked(true);
+		}
+	});
 }
 
 export async function blockUser(
-  userID: number,
-  authenticatedUserID: number,
-  cookies: any
+	userID: number,
+	authenticatedUserID: number,
+	cookies: any
 ) {
-  console.log("blocking user");
-  var request = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${cookies["token"]}`,
-    },
-    body: JSON.stringify({
-      blockingUserID: authenticatedUserID,
-      blockedUserID: userID,
-    }),
-  };
-  return fetch(`http://localhost:3001/blocked-users`, request).then(
-    async (response) => {
-      if (!response.ok) {
-        console.log("Error blocking user");
-        return false;
-      }
-      return true;
-    }
-  );
+	console.log("blocking user");
+	var request = {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${cookies["token"]}`,
+		},
+		body: JSON.stringify({
+			blockingUserID: authenticatedUserID,
+			blockedUserID: userID,
+		}),
+	};
+	return fetch(`http://localhost:3001/blocked-users`, request).then(
+		async (response) => {
+			if (!response.ok) {
+				console.log("Error blocking user");
+				return false;
+			}
+			return true;
+		}
+	);
 }
 
 export async function unblockUser(
-  userID: number,
-  authenticatedUserID: number,
-  cookies: any
+	userID: number,
+	authenticatedUserID: number,
+	cookies: any
 ) {
-  console.log("Unblocking user");
-  var request = {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${cookies["token"]}`,
-    },
-    body: JSON.stringify({
-      blockingUserID: authenticatedUserID,
-      blockedUserID: userID,
-    }),
-  };
-  return fetch(`http://localhost:3001/blocked-users`, request).then(
-    async (response) => {
-      console.log("response");
-      console.log(response);
-      if (!response.ok) {
-        console.log("Error unblocking user");
-        return false;
-      }
-      return true;
-    }
-  );
+	console.log("Unblocking user");
+	var request = {
+		method: "DELETE",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${cookies["token"]}`,
+		},
+		body: JSON.stringify({
+			blockingUserID: authenticatedUserID,
+			blockedUserID: userID,
+		}),
+	};
+	return fetch(`http://localhost:3001/blocked-users`, request).then(
+		async (response) => {
+			console.log("response");
+			console.log(response);
+			if (!response.ok) {
+				console.log("Error unblocking user");
+				return false;
+			}
+			return true;
+		}
+	);
 }
 
 function friendButton(
-  user: User,
-  authenticatedUserID: number,
-  cookies: any,
-  isMyFriend: boolean,
-  setIsMyFriend: any,
-  isBlocked: boolean
+	user: User,
+	authenticatedUserID: number,
+	cookies: any,
+	isMyFriend: boolean,
+	setIsMyFriend: any,
+	isBlocked: boolean
 ) {
-  // TODO: check if need be async
-  if (isBlocked) return <div></div>;
-  if (isMyFriend) {
-    return (
-      <button
-        onClick={() => {
-          if (unfriend(user.id, authenticatedUserID, cookies)) {
-            setIsMyFriend(false);
-          }
-        }}
-      >
-        Unfriend
-      </button>
-    );
-  }
-  return (
-    <button
-      onClick={() => {
-        if (befriend(user.id, authenticatedUserID, cookies)) {
-          setIsMyFriend(true);
-        }
-      }}
-    >
-      Add friend
-    </button>
-  );
+	// TODO: check if need be async
+	if (isBlocked) return <div></div>;
+	if (isMyFriend) {
+		return (
+			<button
+				onClick={() => {
+					if (unfriend(user.id, authenticatedUserID, cookies)) {
+						setIsMyFriend(false);
+					}
+				}}
+			>
+				Unfriend
+			</button>
+		);
+	}
+	return (
+		<button
+			onClick={() => {
+				if (befriend(user.id, authenticatedUserID, cookies)) {
+					setIsMyFriend(true);
+				}
+			}}
+		>
+			Add friend
+		</button>
+	);
 }
 
 function blockButton(
-  user: User,
-  authenticatedUserID: number,
-  cookies: any,
-  isBlocked: boolean,
-  setIsBlocked: any
+	user: User,
+	authenticatedUserID: number,
+	cookies: any,
+	isBlocked: boolean,
+	setIsBlocked: any
 ) {
-  if (isBlocked) {
-    return (
-      <button
-        onClick={() => {
-          if (unblockUser(user.id, authenticatedUserID, cookies))
-            setIsBlocked(false);
-        }}
-      >
-        Unblock
-      </button>
-    );
-  }
-  return (
-    <button
-      onClick={() => {
-        if (blockUser(user.id, authenticatedUserID, cookies))
-          setIsBlocked(true);
-      }}
-    >
-      Block
-    </button>
-  );
+	if (isBlocked) {
+		return (
+			<button
+				onClick={() => {
+					if (unblockUser(user.id, authenticatedUserID, cookies))
+						setIsBlocked(false);
+				}}
+			>
+				Unblock
+			</button>
+		);
+	}
+	return (
+		<button
+			onClick={() => {
+				if (blockUser(user.id, authenticatedUserID, cookies))
+					setIsBlocked(true);
+			}}
+		>
+			Block
+		</button>
+	);
 }
 
 function challengeButton(user: User, authenticatedUserID: number) {
-  console.log("User " + authenticatedUserID + " challenges user " + user.id);
-  // TODO: redirect challenging user to play page with a specific status (maybe unique id room ?)
-  // - accept challenge business for later, challenged user has a new button
-  // - if they click it redirect them to the new room
-  // - probably using sockets
-  return <button>Challenge</button>;
+	console.log("User " + authenticatedUserID + " challenges user " + user.id);
+	// TODO: redirect challenging user to play page with a specific status (maybe unique id room ?)
+	// - accept challenge business for later, challenged user has a new button
+	// - if they click it redirect them to the new room
+	// - probably using sockets
+	return <button>Challenge</button>;
 }
 
 function interactWithUser(
-  isMyPage: boolean,
-  isMyFriend: boolean,
-  setIsMyFriend: any,
-  isBlocked: boolean,
-  setIsBlocked: any,
-  user: User,
-  authenticatedUserID: number,
-  cookies: any
+	isMyPage: boolean,
+	isMyFriend: boolean,
+	setIsMyFriend: any,
+	isBlocked: boolean,
+	setIsBlocked: any,
+	user: User,
+	authenticatedUserID: number,
+	cookies: any
 ) {
-  if (user === undefined) return <div />;
-  if (isMyPage) return <p></p>;
-  return (
-    <p>
-      {friendButton(
-        user,
-        authenticatedUserID,
-        cookies,
-        isMyFriend,
-        setIsMyFriend,
-        isBlocked
-      )}
-      {blockButton(user, authenticatedUserID, cookies, isBlocked, setIsBlocked)}
-      {challengeButton(user, authenticatedUserID)}
-      <button>Send DM</button>
-    </p>
-  );
+	if (user === undefined) return <div />;
+	if (isMyPage) return <p></p>;
+	return (
+		<p>
+			{friendButton(
+				user,
+				authenticatedUserID,
+				cookies,
+				isMyFriend,
+				setIsMyFriend,
+				isBlocked
+			)}
+			{blockButton(user, authenticatedUserID, cookies, isBlocked, setIsBlocked)}
+			{challengeButton(user, authenticatedUserID)}
+			<button>Send DM</button>
+		</p>
+	);
 }
 
 function editProfile(
-  isMyPage: boolean,
-  user: User,
-  isEditingProfile: any,
-  setIsEditingProfile: any
+	isMyPage: boolean,
+	user: User,
+	isEditingProfile: any,
+	setIsEditingProfile: any
 ) {
-  if (user === undefined) return <div />;
-  if (!isMyPage) return <div></div>;
-  if (isEditingProfile) return <div></div>;
-  return (
-    <button
-      onClick={() => {
-        setIsEditingProfile(true);
-      }}
-    >
-      Edit profile
-    </button>
-  );
+	if (user === undefined) return <div />;
+	if (!isMyPage) return <div></div>;
+	if (isEditingProfile) return <div></div>;
+	return (
+		<button
+			onClick={() => {
+				setIsEditingProfile(true);
+			}}
+		>
+			Edit profile
+		</button>
+	);
 }
 
 function Profile() {
-  const [userExists, setUserExists] = useState(false);
-  var profileUserID: number = Number(useParams().id);
-  const [user, setUser] = useState<User>();
-  const [isMyPage, setIsMyPage] = useState(false);
-  const [cookies] = useCookies(["token"]);
-  const socket = useContext(WebSocketContext);
-  const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const [isMyFriend, setIsMyFriend] = useState(false);
-  const [isBlocked, setIsBlocked] = useState(false);
-  const { authenticatedUserID } = useContext(AuthenticationContext);
-  const [profilePicture, setProfilePicture] = useState(null);
+	const [userExists, setUserExists] = useState(false);
+	var profileUserID: number = Number(useParams().id);
+	const [user, setUser] = useState<User>();
+	const [isMyPage, setIsMyPage] = useState(false);
+	const [cookies] = useCookies(["token"]);
+	const socket = useContext(WebSocketContext);
+	const [isEditingProfile, setIsEditingProfile] = useState(false);
+	const [isMyFriend, setIsMyFriend] = useState(false);
+	const [isBlocked, setIsBlocked] = useState(false);
+	const {authenticatedUserID} = useContext(AuthenticationContext);
+	const [profilePicture, setProfilePicture] = useState(null);
 
-  async function fetchUser() {
-    var request = {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${cookies["token"]}`,
-      },
-    };
+	async function fetchUser() {
+		var request = {
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${cookies["token"]}`,
+			},
+		};
 
-    fetch(`http://localhost:3001/users/${profileUserID}`, request).then(
-      async (response) => {
-        const data = await response.json();
-        if (!response.ok) {
-          console.log("error response load channels");
-          return <h1>No such user</h1>;
-        }
-        setUserExists(true);
-        setUser({
-          id: data.id,
-          username: data.username,
-          email: data.email,
-          login42: data.login42 ? data.login42 : "",
-          isTwoFaEnabled: data.isTwoFactorAuthenticationEnabled,
-          status: data.status,
-        });
-      }
-    );
+		fetch(`http://localhost:3001/users/${profileUserID}`, request).then(
+			async (response) => {
+				const data = await response.json();
+				if (!response.ok) {
+					console.log("error response load channels");
+					return <h1>No such user</h1>;
+				}
+				setUserExists(true);
+				setUser({
+					id: data.id,
+					username: data.username,
+					email: data.email,
+					login42: data.login42 ? data.login42 : "",
+					isTwoFaEnabled: data.isTwoFactorAuthenticationEnabled,
+					status: data.status,
+				});
+			}
+		);
 
-    fetch(`http://localhost:3001/users/${profileUserID}/avatar`, request).then(
-      async (response) => {
-        const data = await response.blob();
-        if (!response.ok) {
-          console.log("error fetching avatar");
-          return <h1>No such user</h1>;
-        }
-        const src = URL.createObjectURL(data);
-        setProfilePicture(src);
-      }
-    );
-  }
+		fetch(`http://localhost:3001/users/${profileUserID}/avatar`, request).then(
+			async (response) => {
+				const data = await response.blob();
+				if (!response.ok) {
+					console.log("error fetching avatar");
+					return <h1>No such user</h1>;
+				}
+				const src = URL.createObjectURL(data);
+				setProfilePicture(src);
+			}
+		);
+	}
 
-  useEffect(() => {
-    if (authenticatedUserID === profileUserID) {
-      socket.emit("login", cookies["token"]);
-      socket.emit("connection");
-      setIsMyPage(true);
-    }
+	useEffect(() => {
+		if (authenticatedUserID === profileUserID) {
+			socket.emit("login", cookies["token"]);
+			socket.emit("connection");
+			setIsMyPage(true);
+		}
 
-    fetchUser();
-  }, [cookies, socket, profileUserID]);
+		fetchUser();
+	}, [cookies, socket, profileUserID]);
 
-  useEffect(() => {
-    checkIfIsMyFriend(user, authenticatedUserID, cookies, setIsMyFriend);
-    checkIfIsBlocked(user, authenticatedUserID, cookies, setIsBlocked);
-  }, [user]);
+	useEffect(() => {
+		checkIfIsMyFriend(user, authenticatedUserID, cookies, setIsMyFriend);
+		checkIfIsBlocked(user, authenticatedUserID, cookies, setIsBlocked);
+	}, [user]);
 
-  return (
-    <div id="profile">
-      <h3 style={{ color: "white" }}>
-        <header>
-          <i className="fa fa-bars" aria-hidden="true"></i>
-        </header>
-        <div className="left-section">
-          <img src={profilePicture} className="photo"></img>
-          {!userExists ? "User is not logged in" : ""}
-          {titleProfile(isMyPage, user)}
-          {userDetails(user)}
-          {interactWithUser(
-            isMyPage,
-            isMyFriend,
-            setIsMyFriend,
-            isBlocked,
-            setIsBlocked,
-            user,
-            authenticatedUserID,
-            cookies
-          )}
-          {editProfile(isMyPage, user, isEditingProfile, setIsEditingProfile)}
-          {ProfileSettings(
-            user,
-            cookies,
-            isEditingProfile,
-            setIsEditingProfile,
-            authenticatedUserID
-          )}
-        </div>
-        <div className="right-section">
-          <div className="stats row">
-            <div className="stat col-xs-4">
-              {FriendsList(isMyPage, user, cookies)}
-            </div>
-            <div className="stat col-xs-4">{GameHistory(user, cookies)}</div>
-          </div>
-        </div>
-      </h3>
-    </div>
-  );
+	return (
+		<div id="profile">
+			<h3 style={{color: "white"}}>
+				<header>
+					<i className="fa fa-bars" aria-hidden="true"></i>
+				</header>
+				<div className="left-section">
+					<img src={profilePicture} className="photo"></img>
+					{!userExists ? "User is not logged in" : ""}
+					{titleProfile(isMyPage, user)}
+					{userDetails(user)}
+					{interactWithUser(
+						isMyPage,
+						isMyFriend,
+						setIsMyFriend,
+						isBlocked,
+						setIsBlocked,
+						user,
+						authenticatedUserID,
+						cookies
+					)}
+					{editProfile(isMyPage, user, isEditingProfile, setIsEditingProfile)}
+					{ProfileSettings(
+						user,
+						cookies,
+						isEditingProfile,
+						setIsEditingProfile,
+						authenticatedUserID
+					)}
+				</div>
+				<div className="right-section">
+					<div className="stats row">
+						<div className="stat col-xs-4">
+							{FriendsList(isMyPage, user, cookies)}
+						</div>
+						<div className="stat col-xs-4">{GameHistory(user, cookies)}</div>
+					</div>
+				</div>
+			</h3>
+		</div>
+	);
 }
 
 export default Profile;
