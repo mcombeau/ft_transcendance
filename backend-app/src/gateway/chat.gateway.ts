@@ -883,9 +883,7 @@ export class ChatGateway implements OnModuleInit {
 		}
 	}
 
-	private async checkUserInviteIsNotPending(
-		invite: InviteEntity
-	): Promise<void> {
+	async checkUserInviteIsNotPending(invite: InviteEntity): Promise<void> {
 		if (!invite) {
 			throw new ChatPermissionError(
 				`Unexpected error during invite check: invite does not exist.`
@@ -898,9 +896,7 @@ export class ChatGateway implements OnModuleInit {
 		}
 	}
 
-	private async checkUserInviteHasNotExpired(
-		info: sendInviteDto
-	): Promise<void> {
+	async checkUserInviteHasNotExpired(info: sendInviteDto): Promise<void> {
 		const invite = await this.inviteService.fetchInviteByID(info.id);
 		if (!invite) {
 			throw new ChatPermissionError("Invite does not exist or has expired");

@@ -574,6 +574,24 @@ export class GameGateway implements OnModuleInit {
 		}
 	}
 
+	private async checkInviteIsValid(
+		inviteID: number,
+		userID: number
+	): Promise<boolean> {
+		if (!inviteID) {
+			return true;
+		}
+		const invitation = await this.invitesService.fetchInviteByID(inviteID);
+		if (!invitation) {
+			throw new InviteNotFoundError("Invite not found");
+		}
+		if (invitation.invitedID !== userID && invitation.senderID !== userID) {
+			throw new InviteNotFoundError("Invalid invite ID for this user");
+		}
+		this.chatGateway.checkUserInviteHasNotExpired(invitation);
+		return true;
+	}
+
 	@SubscribeMessage("waiting")
 	async onWaiting(
 		@ConnectedSocket() socket: Socket,
@@ -587,12 +605,7 @@ export class GameGateway implements OnModuleInit {
 		if (!user) {
 			throw new UserNotFoundError();
 		}
-		if (inviteID) {
-			const invitation = await this.invitesService.fetchInviteByID(inviteID);
-			if (!invitation) {
-				throw new InviteNotFoundError("Invite not found");
-			}
-		}
+		this.checkInviteIsValid(inviteID, user.id);
 
 		console.log(`[Game Gateway] Waitlist in waiting:`, this.waitList);
 		if (await this.reconnect(socket, user.id)) {
