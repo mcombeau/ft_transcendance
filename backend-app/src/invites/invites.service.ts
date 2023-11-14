@@ -1,14 +1,15 @@
-import {Inject, Injectable, forwardRef} from '@nestjs/common';
-import {InjectRepository} from '@nestjs/typeorm';
-import {ChatsService} from 'src/chats/chats.service';
-import {UsersService} from 'src/users/users.service';
-import {BlockedUsersService} from 'src/blocked-users/blockedUsers.service';
-import {Repository, DeleteResult} from 'typeorm';
-import {inviteParams} from './utils/types';
-import {InviteEntity, inviteType} from './entities/Invite.entity';
-import {InviteCreationError} from 'src/exceptions/bad-request.interceptor';
-import {UserChatInfo} from 'src/chat-participants/utils/types';
-import {sendInviteDto} from './dtos/sendInvite.dto';
+import { Inject, Injectable, forwardRef } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { ChatsService } from "src/chats/chats.service";
+import { UsersService } from "src/users/users.service";
+import { BlockedUsersService } from "src/blocked-users/blockedUsers.service";
+import { Repository, DeleteResult } from "typeorm";
+import { inviteParams } from "./utils/types";
+import { InviteEntity, inviteType } from "./entities/Invite.entity";
+import { InviteCreationError } from "src/exceptions/bad-request.interceptor";
+import { UserChatInfo } from "src/chat-participants/utils/types";
+import { sendInviteDto } from "./dtos/sendInvite.dto";
+import { InviteNotFoundError } from "src/exceptions/not-found.interceptor";
 
 @Injectable()
 export class InvitesService {
@@ -20,11 +21,11 @@ export class InvitesService {
 		@Inject(forwardRef(() => UsersService))
 		private userService: UsersService,
 		@Inject(forwardRef(() => BlockedUsersService))
-		private blockedUserService: BlockedUsersService,
+		private blockedUserService: BlockedUsersService
 	) {}
 
 	private async formatInviteForSending(
-		invite: InviteEntity,
+		invite: InviteEntity
 	): Promise<sendInviteDto> {
 		const sendInvite: sendInviteDto = {
 			id: invite.id,
@@ -45,19 +46,19 @@ export class InvitesService {
 	}
 
 	private async formatInvitesArrayForSending(
-		invites: InviteEntity[],
+		invites: InviteEntity[]
 	): Promise<sendInviteDto[]> {
 		return await Promise.all(
 			invites.map(async (e: InviteEntity) => {
 				return await this.formatInviteForSending(e);
-			}),
+			})
 		);
 	}
 
 	async fetchAllInvites(): Promise<sendInviteDto[]> {
 		await this.deleteExpiredInvites();
 		const invites = await this.inviteRepository.find({
-			relations: ['inviteSender', 'invitedUser', 'chatRoom'],
+			relations: ["inviteSender", "invitedUser", "chatRoom"],
 		});
 		return this.formatInvitesArrayForSending(invites);
 	}
@@ -65,14 +66,15 @@ export class InvitesService {
 	async fetchInviteByID(id: number): Promise<sendInviteDto> {
 		await this.deleteExpiredInvites();
 		const invite = await this.fetchInviteEntityByID(id);
+		if (!invite) throw new InviteNotFoundError();
 		return this.formatInviteForSending(invite);
 	}
 
 	async fetchInviteEntityByID(id: number): Promise<InviteEntity> {
 		await this.deleteExpiredInvites();
 		return this.inviteRepository.findOne({
-			where: {id: id},
-			relations: ['inviteSender', 'invitedUser', 'chatRoom'],
+			where: { id: id },
+			relations: ["inviteSender", "invitedUser", "chatRoom"],
 		});
 	}
 
@@ -80,8 +82,8 @@ export class InvitesService {
 		await this.deleteExpiredInvites();
 		const user = await this.userService.fetchUserByID(userID);
 		const invites = await this.inviteRepository.find({
-			where: {invitedUser: user},
-			relations: ['inviteSender', 'invitedUser', 'chatRoom'],
+			where: { invitedUser: user },
+			relations: ["inviteSender", "invitedUser", "chatRoom"],
 		});
 		return this.formatInvitesArrayForSending(invites);
 	}
@@ -90,8 +92,8 @@ export class InvitesService {
 		await this.deleteExpiredInvites();
 		const user = await this.userService.fetchUserByID(userID);
 		const invites = await this.inviteRepository.find({
-			where: {inviteSender: user},
-			relations: ['inviteSender', 'invitedUser', 'chatRoom'],
+			where: { inviteSender: user },
+			relations: ["inviteSender", "invitedUser", "chatRoom"],
 		});
 		return this.formatInvitesArrayForSending(invites);
 	}
@@ -100,33 +102,33 @@ export class InvitesService {
 		await this.deleteExpiredInvites();
 		const chatRoom = await this.chatService.fetchChatByID(chatRoomID);
 		const invites = await this.inviteRepository.find({
-			where: {chatRoom: chatRoom},
-			relations: ['inviteSender', 'invitedUser', 'chatRoom'],
+			where: { chatRoom: chatRoom },
+			relations: ["inviteSender", "invitedUser", "chatRoom"],
 		});
 		return this.formatInvitesArrayForSending(invites);
 	}
 
 	async fetchInviteByInvitedUserChatRoomID(
-		info: UserChatInfo,
+		info: UserChatInfo
 	): Promise<InviteEntity> {
 		await this.deleteExpiredInvites();
 		const chatRoom = await this.chatService.fetchChatByID(info.chatRoomID);
 		const user = await this.userService.fetchUserByID(info.userID);
 		return await this.inviteRepository.findOne({
-			where: {invitedUser: user, chatRoom: chatRoom},
-			relations: ['inviteSender', 'invitedUser', 'chatRoom'],
+			where: { invitedUser: user, chatRoom: chatRoom },
+			relations: ["inviteSender", "invitedUser", "chatRoom"],
 		});
 	}
 
 	async fetchAllInvitesByInvitedUserChatRoomIDs(
-		info: UserChatInfo,
+		info: UserChatInfo
 	): Promise<InviteEntity[]> {
 		await this.deleteExpiredInvites();
 		const chatRoom = await this.chatService.fetchChatByID(info.chatRoomID);
 		const user = await this.userService.fetchUserByID(info.userID);
 		const invites = this.inviteRepository.find({
-			where: {invitedUser: user, chatRoom: chatRoom},
-			relations: ['inviteSender', 'invitedUser', 'chatRoom'],
+			where: { invitedUser: user, chatRoom: chatRoom },
+			relations: ["inviteSender", "invitedUser", "chatRoom"],
 		});
 		return invites;
 		// return this.formatInvitesArrayForSending(invites);
@@ -135,23 +137,23 @@ export class InvitesService {
 	async fetchInviteByUserIDsAndType(
 		userID1: number,
 		userID2: number,
-		type: inviteType,
+		type: inviteType
 	): Promise<InviteEntity[]> {
 		await this.deleteExpiredInvites();
 		const invite = await this.inviteRepository.find({
 			where: [
 				{
 					type: type,
-					inviteSender: {id: userID1},
-					invitedUser: {id: userID2},
+					inviteSender: { id: userID1 },
+					invitedUser: { id: userID2 },
 				},
 				{
 					type: type,
-					inviteSender: {id: userID2},
-					invitedUser: {id: userID1},
+					inviteSender: { id: userID2 },
+					invitedUser: { id: userID1 },
 				},
 			],
-			relations: ['inviteSender', 'invitedUser', 'chatRoom'],
+			relations: ["inviteSender", "invitedUser", "chatRoom"],
 		});
 		return invite;
 	}
@@ -168,39 +170,39 @@ export class InvitesService {
 				const friendInvite = await this.createFriendInvite(inviteDetails);
 				return this.formatInviteForSending(friendInvite);
 			default:
-				throw new InviteCreationError('invalid invite type.');
+				throw new InviteCreationError("invalid invite type.");
 		}
 	}
 
 	private async createChatInvite(
-		inviteDetails: inviteParams,
+		inviteDetails: inviteParams
 	): Promise<InviteEntity> {
 		const sender = await this.userService.fetchUserByID(inviteDetails.senderID);
 		const invitedUser = await this.userService.fetchUserByID(
-			inviteDetails.invitedUserID,
+			inviteDetails.invitedUserID
 		);
 		const chatRoom = await this.chatService.fetchChatByID(
-			inviteDetails.chatRoomID,
+			inviteDetails.chatRoomID
 		);
 
 		if (!sender || !invitedUser || !chatRoom) {
-			throw new InviteCreationError('invalid parameters for invite creation.');
+			throw new InviteCreationError("invalid parameters for invite creation.");
 		}
 
 		const userIsBlocking =
 			await this.blockedUserService.usersAreBlockingEachOtherByUserIDs(
 				sender.id,
-				invitedUser.id,
+				invitedUser.id
 			);
 		if (userIsBlocking) {
 			throw new InviteCreationError(
-				'cannot create chat invite for users who are blocking each other.',
+				"cannot create chat invite for users who are blocking each other."
 			);
 		}
 
 		let inviteExpiry = 0;
 		inviteExpiry = new Date(
-			Date.now() + 1 * (60 * 60 * 1000), // time + 1 hour
+			Date.now() + 1 * (60 * 60 * 1000) // time + 1 hour
 		).getTime();
 
 		const invite = await this.inviteRepository.findOne({
@@ -229,30 +231,30 @@ export class InvitesService {
 	}
 
 	private async createGameInvite(
-		inviteDetails: inviteParams,
+		inviteDetails: inviteParams
 	): Promise<InviteEntity> {
 		const sender = await this.userService.fetchUserByID(inviteDetails.senderID);
 		const invitedUser = await this.userService.fetchUserByID(
-			inviteDetails.invitedUserID,
+			inviteDetails.invitedUserID
 		);
 		if (!sender || !invitedUser) {
-			throw new InviteCreationError('invalid parameters for invite creation.');
+			throw new InviteCreationError("invalid parameters for invite creation.");
 		}
 
 		const userIsBlocking =
 			await this.blockedUserService.usersAreBlockingEachOtherByUserIDs(
 				sender.id,
-				invitedUser.id,
+				invitedUser.id
 			);
 		if (userIsBlocking) {
 			throw new InviteCreationError(
-				'cannot create game invite for users who are blocking each other.',
+				"cannot create game invite for users who are blocking each other."
 			);
 		}
 
 		let inviteExpiry = 0;
 		inviteExpiry = new Date(
-			Date.now() + 1 * (60 * 60 * 1000), // time + 1 hour
+			Date.now() + 1 * (60 * 60 * 1000) // time + 1 hour
 		).getTime();
 
 		const invite = await this.inviteRepository.findOne({
@@ -279,30 +281,30 @@ export class InvitesService {
 	}
 
 	private async createFriendInvite(
-		inviteDetails: inviteParams,
+		inviteDetails: inviteParams
 	): Promise<InviteEntity> {
 		const sender = await this.userService.fetchUserByID(inviteDetails.senderID);
 		const invitedUser = await this.userService.fetchUserByID(
-			inviteDetails.invitedUserID,
+			inviteDetails.invitedUserID
 		);
 		if (!sender || !invitedUser) {
-			throw new InviteCreationError('invalid parameters for invite creation.');
+			throw new InviteCreationError("invalid parameters for invite creation.");
 		}
 
 		const userIsBlocking =
 			await this.blockedUserService.usersAreBlockingEachOtherByUserIDs(
 				sender.id,
-				invitedUser.id,
+				invitedUser.id
 			);
 		if (userIsBlocking) {
 			throw new InviteCreationError(
-				'cannot create friend invite for users who are blocking each other.',
+				"cannot create friend invite for users who are blocking each other."
 			);
 		}
 
 		let inviteExpiry = 0;
 		inviteExpiry = new Date(
-			Date.now() + 1 * (60 * 60 * 1000), // time + 1 hour
+			Date.now() + 1 * (60 * 60 * 1000) // time + 1 hour
 		).getTime();
 
 		const invite = await this.inviteRepository.findOne({
@@ -329,7 +331,7 @@ export class InvitesService {
 	}
 
 	async deleteInvitesByInvitedUserChatRoomID(
-		info: UserChatInfo,
+		info: UserChatInfo
 	): Promise<DeleteResult> {
 		const invites = await this.fetchAllInvitesByInvitedUserChatRoomIDs(info);
 		invites.map(async (e) => {
@@ -339,12 +341,12 @@ export class InvitesService {
 	}
 
 	async deleteInviteByID(id: number): Promise<DeleteResult> {
-		return this.inviteRepository.delete({id});
+		return this.inviteRepository.delete({ id });
 	}
 
 	async deleteExpiredInvites() {
 		const invites = await this.inviteRepository.find({
-			relations: ['inviteSender', 'invitedUser', 'chatRoom'],
+			relations: ["inviteSender", "invitedUser", "chatRoom"],
 		});
 		invites.map(async (e) => {
 			if (e.expiresAt < new Date().getTime()) {
