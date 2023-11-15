@@ -1,25 +1,27 @@
 %% TODO: Update with subject todo (from notion)
 
 - Cleanup
+
   - change alerts to smth else (notifs ?)
   - move to typescript everywhere
   - cleanup all errors/warnings front
   - allow access to chat/leaderboard ... but prompt for sign in
 
 - Game
+
   - explain controls
   - draw background in css
   - personalization
   - deal with broadband/network issues
   - end game page
   - spectator mode
-	- Make it possible for challenger to leave game room with button. make invite expire for the player's opponent.
+  - Make it possible for challenger to leave game room with button. make invite expire for the player's opponent.
 
 - Profile
+
   - Ladder level
   - ladder (whatever that is ?)
-  - frontend validation for avatar image tyes (only allow .png, .jpg, .jpeg)
-  * server side validation for avatars
+  - frontend give feedback when invalid avatar image sent to back (400 response from back)
   - see friends avatar
   - My profile
     - change 2fa activation
@@ -28,32 +30,37 @@
     - ( dm button )
 
 - Bugs
+
   - 404 if page not exist (not tostring business)
   - people offline when logged
 
 - validation:
+
   - validation channel name
   - validate passwords
 
 - passwords:
+
   - limit number of passwgrd retries on join/accept invite
   - tell user to fuck off if wrong username/password
 
 - Appearance
+
   - css for lobby play
 
 - Project validation
+
   - check we are protected against sql injections
   - all libraries are in latest stable version
   - server side validation for forms and user input
   - check no credientials are in git
-  - check usernames are unique
   - remove passwords for users
 
 - Prompt for info first sign
 - Prompt for 2fa when activated
 
 - Nginx
+
   - have an actual url
 
 - Live games page
