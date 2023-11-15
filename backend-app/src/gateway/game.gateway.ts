@@ -211,10 +211,11 @@ export class GameGateway implements OnModuleInit {
 			gameRoom.socketRoomID == gameID;
 			return gameRoom;
 		});
-		if (!gameRoom) return;
+		if (!gameRoom) return false;
 		gameRoom.watchers.push(watcher);
 		await watcher.socket.join(gameRoom.socketRoomID);
 		delete watcher.socket;
+		return true;
 	}
 
 	private async rmWatcherFromGameRoom(
@@ -733,7 +734,11 @@ export class GameGateway implements OnModuleInit {
 			username: user.username,
 			socket: socket,
 		};
-		await this.addWatcherToGameRoom(watcher, body.gameID);
+		if (!(await this.addWatcherToGameRoom(watcher, body.gameID))) {
+			socket.emit("watch", false);
+		} else {
+			socket.emit("watch", true);
+		}
 	}
 
 	@SubscribeMessage("stop watching")

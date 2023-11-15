@@ -34,7 +34,29 @@ enum StatePlay {
 	InGame = "in game",
 }
 
-function leaveButton() {}
+function gameDoesNotExitPage() {
+	return (
+		<div style={{ textAlign: "center", textEmphasis: "true", color: "red" }}>
+			Game does not exist
+		</div>
+	);
+}
+
+function waitForGamePage() {
+	return (
+		<div style={{ textAlign: "center", textEmphasis: "true" }}>
+			Please wait ...
+		</div>
+	);
+}
+
+function winPage(winnerUsername: string) {
+	return (
+		<div style={{ textAlign: "center", textEmphasis: "true", color: "green" }}>
+			{winnerUsername} won !
+		</div>
+	);
+}
 
 export const Play = () => {
 	const defaultBallPosition: Position = {
@@ -62,6 +84,8 @@ export const Play = () => {
 	const [player2Username, setPlayer2Username] = useState<string>("");
 	const [statePlay, setStatePlay] = useState<StatePlay>(StatePlay.OnPage);
 	const [watching, setWatching] = useState<boolean>(true);
+	const [waiting, setWaiting] = useState<boolean>(true);
+	const [gameDoesNotExist, setGameDoesNotExist] = useState<boolean>(false);
 	const { authenticatedUserID } = useContext(AuthenticationContext);
 	const navigate = useNavigate();
 
@@ -151,7 +175,6 @@ export const Play = () => {
 		socket.on("start game", () => {
 			console.log("Received start from back");
 			startGame();
-			console.log("Not watching");
 		});
 
 		socket.on("leave game", (userID: number) => {
@@ -159,6 +182,9 @@ export const Play = () => {
 				console.log("The other player left the game");
 				alert("Game ended because the other player left");
 				setStatePlay(StatePlay.OnPage);
+			}
+			if (watching) {
+				navigate("/user/" + authenticatedUserID);
 			}
 		});
 
@@ -171,8 +197,20 @@ export const Play = () => {
 			endGame(gameDetails);
 		});
 
+		socket.on("watch", (authorized: boolean) => {
+			console.log("Watching socket");
+			if (!authorized) {
+				setGameDoesNotExist(true);
+			} else {
+				setWatching(true);
+				setStatePlay(StatePlay.InGame);
+			}
+			setWaiting(false);
+		});
+
 		return () => {
 			socket.off("tick");
+			socket.off("watch");
 			socket.off("start game");
 			socket.off("leave game");
 			socket.off("rejoin game");
@@ -182,13 +220,15 @@ export const Play = () => {
 
 	useEffect(() => {
 		if (gameID) {
-			setWatching(true);
-			setStatePlay(StatePlay.InGame);
 			socket.emit("watch", { token: cookies["token"], gameID: gameID });
 		} else {
 			setWatching(false);
+			setWaiting(false);
 		}
 	}, []);
+
+	if (waiting) return waitForGamePage();
+	if (gameDoesNotExist) return gameDoesNotExitPage();
 
 	if (statePlay === StatePlay.OnPage) {
 		return (
