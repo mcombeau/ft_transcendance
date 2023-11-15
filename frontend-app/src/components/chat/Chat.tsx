@@ -1,17 +1,17 @@
-import {useContext, useEffect, useState} from "react";
+import { useContext, useEffect, useState } from "react";
 import {
 	WebSocketContext,
 	WebSocketProvider,
 } from "../../contexts/WebsocketContext";
-import {useCookies} from "react-cookie";
-import {useNavigate} from "react-router-dom";
+import { useCookies } from "react-cookie";
+import { useNavigate } from "react-router-dom";
 import "./Chat.css";
 import Messages from "./Messages";
 import SettingsMenu from "./SettingsMenu";
 import SidePannel from "./SidePannel";
 import SendForm from "./SendForm";
-import {Socket} from "socket.io-client";
-import {getUsername} from "../../cookies";
+import { Socket } from "socket.io-client";
+import { getUsername } from "../../cookies";
 import {
 	Status,
 	Message,
@@ -22,7 +22,7 @@ import {
 	PublicChatRoom,
 	typeInvite,
 } from "./types";
-import {AuthenticationContext} from "../authenticationState";
+import { AuthenticationContext } from "../authenticationState";
 
 export function isInChannel(
 	userID: number,
@@ -120,7 +120,7 @@ export async function fetchChatParticipants(
 	request: any
 ): Promise<User[]> {
 	var participant_list = await fetch(
-		`http://localhost:3001/chats/${chatRoomID}/participants`,
+		`http://localhost/backend/chats/${chatRoomID}/participants`,
 		request
 	).then(async (response) => {
 		const participant_data = await response.json();
@@ -150,7 +150,7 @@ export async function fetchChatMessages(
 	request: any
 ): Promise<Message[]> {
 	var message_list = await fetch(
-		`http://localhost:3001/chats/${chatRoomID}/messages`,
+		`http://localhost/backend/chats/${chatRoomID}/messages`,
 		request
 	).then(async (response) => {
 		const message_data = await response.json();
@@ -180,7 +180,7 @@ export async function fetchHasPassword(
 	request: any
 ): Promise<boolean> {
 	return await fetch(
-		`http://localhost:3001/chats/${chatRoomID}/has_password`,
+		`http://localhost/backend/chats/${chatRoomID}/has_password`,
 		request
 	).then(async (response) => {
 		const hasPassword = await response.json();
@@ -205,7 +205,7 @@ export const Chat = () => {
 	const [publicChatsPannel, setPublicChatsPannel] = useState(false);
 	const [blockedUsers, setBlockedUsers] = useState([]);
 	const [invites, setInvites] = useState([]);
-	const {authenticatedUserID} = useContext(AuthenticationContext);
+	const { authenticatedUserID } = useContext(AuthenticationContext);
 	let navigate = useNavigate();
 
 	function getChannel(chatRoomID: number): ChatRoom {
@@ -437,7 +437,8 @@ export const Chat = () => {
 			});
 			if (new Date(info.participantInfo.mutedUntil) > new Date()) {
 				serviceAnnouncement(
-					`${info.username} has been muted until ${new Date(info.participantInfo.mutedUntil).toString().split("GMT")[0]
+					`${info.username} has been muted until ${
+						new Date(info.participantInfo.mutedUntil).toString().split("GMT")[0]
 					}.`,
 					info.chatRoomID
 				);
@@ -732,7 +733,7 @@ export const Chat = () => {
 		if (myChats.length === 0 && authenticatedUserID) {
 			// Fetching Chats
 			fetch(
-				`http://localhost:3001/users/${authenticatedUserID}/chats`,
+				`http://localhost/backend/users/${authenticatedUserID}/chats`,
 				request
 			).then(async (response) => {
 				const chat_data = await response.json();
@@ -758,7 +759,7 @@ export const Chat = () => {
 		if (blockedUsers.length === 0 && authenticatedUserID) {
 			// Fetching Chats
 			fetch(
-				`http://localhost:3001/users/${authenticatedUserID}/blockedUsers`,
+				`http://localhost/backend/users/${authenticatedUserID}/blockedUsers`,
 				request
 			).then(async (response) => {
 				const data = await response.json();
@@ -777,7 +778,7 @@ export const Chat = () => {
 		}
 
 		if (publicChats.length === 0 && authenticatedUserID) {
-			fetch(`http://localhost:3001/chats/public`, request).then(
+			fetch(`http://localhost/backend/chats/public`, request).then(
 				async (response) => {
 					const chat_data = await response.json();
 					if (!response.ok) {
@@ -800,7 +801,7 @@ export const Chat = () => {
 
 		if (invites.length === 0 && authenticatedUserID) {
 			fetch(
-				`http://localhost:3001/invites/received/${authenticatedUserID}`,
+				`http://localhost/backend/invites/received/${authenticatedUserID}`,
 				request
 			).then(async (response) => {
 				const data = await response.json();

@@ -1,11 +1,11 @@
-import {User} from "./profile";
-import {useEffect, useState} from "react";
-import {getIs2faEnabled} from "../../cookies";
+import { User } from "./profile";
+import { useEffect, useState } from "react";
+import { getIs2faEnabled } from "../../cookies";
 
 async function readStream(response: any) {
 	const reader = response.body.getReader();
 	while (true) {
-		const {done, value} = await reader.read();
+		const { done, value } = await reader.read();
 		if (done) {
 			// Do something with last chunk of data then exit reader
 			return value;
@@ -52,16 +52,17 @@ function ProfileSettings(
 				Authorization: `Bearer ${cookies["token"]}`,
 			},
 		};
-		return await fetch("http://localhost:3001/auth/2fa/generate", request).then(
-			async (response) => {
-				const data = await response.json();
-				if (!response.ok) {
-					console.log("error QR code generation");
-					return;
-				}
-				setQrcode(data);
+		return await fetch(
+			"http://localhost/backend/auth/2fa/generate",
+			request
+		).then(async (response) => {
+			const data = await response.json();
+			if (!response.ok) {
+				console.log("error QR code generation");
+				return;
 			}
-		);
+			setQrcode(data);
+		});
 		// TODO: post it to turn on and if it works close everything
 	}
 
@@ -78,7 +79,7 @@ function ProfileSettings(
 			}),
 		};
 
-		fetch(`http://localhost:3001/auth/2fa/turn-on`, request).then(
+		fetch(`http://localhost/backend/auth/2fa/turn-on`, request).then(
 			async (response) => {
 				const data = await response.json();
 				if (!response.ok) {
@@ -112,14 +113,15 @@ function ProfileSettings(
 			}),
 		};
 		e.preventDefault();
-		fetch(`http://localhost:3001/users/${authenticatedUserID}`, request).then(
-			async (response) => {
-				if (!response.ok) {
-					const error = await response.json();
-					alert("Error: " + error.error + ": " + error.message);
-				}
+		fetch(
+			`http://localhost/backend/users/${authenticatedUserID}`,
+			request
+		).then(async (response) => {
+			if (!response.ok) {
+				const error = await response.json();
+				alert("Error: " + error.error + ": " + error.message);
 			}
-		);
+		});
 	}
 
 	function submitNewPassword(e: any) {
@@ -135,14 +137,15 @@ function ProfileSettings(
 			}),
 		};
 		e.preventDefault();
-		fetch(`http://localhost:3001/users/${authenticatedUserID}`, request).then(
-			async (response) => {
-				if (!response.ok) {
-					const error = await response.json();
-					alert("Error: " + error.error + ": " + error.message);
-				}
+		fetch(
+			`http://localhost/backend/users/${authenticatedUserID}`,
+			request
+		).then(async (response) => {
+			if (!response.ok) {
+				const error = await response.json();
+				alert("Error: " + error.error + ": " + error.message);
 			}
-		);
+		});
 	}
 
 	async function submitNewAvatar(e: any) {
@@ -159,7 +162,7 @@ function ProfileSettings(
 			body: formData,
 		};
 		await fetch(
-			`http://localhost:3001/users/${authenticatedUserID}/avatar`,
+			`http://localhost/backend/users/${authenticatedUserID}/avatar`,
 			request
 		).then(async (response) => {
 			if (!response.ok) {
@@ -179,7 +182,7 @@ function ProfileSettings(
 			},
 		};
 		await fetch(
-			`http://localhost:3001/users/${authenticatedUserID}/avatar`,
+			`http://localhost/backend/users/${authenticatedUserID}/avatar`,
 			request
 		).then(async (response) => {
 			if (!response.ok) {

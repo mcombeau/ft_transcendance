@@ -162,7 +162,7 @@ function displayFriends(
 
 function FriendsList(isMyPage: boolean, user: User, cookies: any) {
 	const [friends, setFriends] = useState<Friend[]>();
-	const [gameInfos, setGameInfos] = useState<GameInfo[]>();
+	const [gameInfos, setGameInfos] = useState<GameInfo[]>([]);
 	const [blockedUsers, setBlockedUsers] = useState<BlockedUser[]>();
 	const { authenticatedUserID } = useContext(AuthenticationContext);
 	const socket = useContext(WebSocketContext);
@@ -174,7 +174,7 @@ function FriendsList(isMyPage: boolean, user: User, cookies: any) {
 				Authorization: `Bearer ${cookies["token"]}`,
 			},
 		};
-		fetch(`http://localhost:3001/users/${userID}/friends`, request).then(
+		fetch(`http://localhost/backend/users/${userID}/friends`, request).then(
 			async (response) => {
 				const friendsData = await response.json();
 				if (!response.ok) {
@@ -201,33 +201,34 @@ function FriendsList(isMyPage: boolean, user: User, cookies: any) {
 				setFriends([...fetchedFriends]);
 			}
 		);
-		fetch(`http://localhost:3001/users/${userID}/blockedUsers`, request).then(
-			async (response) => {
-				const blockedData = await response.json();
-				if (!response.ok) {
-					console.log("error response loading blocked users list");
-					return <h1>No Blocked Users loaded</h1>;
-				}
-				var fetchedBlockedUsers = blockedData.map((fetchedBlockedUser: any) => {
-					const amIUser1 = fetchedBlockedUser.userID1 === user.id;
-					if (!amIUser1) {
-						var newBlockedUser: BlockedUser = {
-							id: fetchedBlockedUser.blockedUserID,
-							username: fetchedBlockedUser.blockedUsername,
-							status: fetchedBlockedUser.blockedUserStatus,
-						};
-					} else {
-						var newBlockedUser: BlockedUser = {
-							id: fetchedBlockedUser.blockedUserID,
-							username: fetchedBlockedUser.blockedUsername,
-							status: fetchedBlockedUser.blockedUserStatus,
-						};
-					}
-					return newBlockedUser;
-				});
-				setBlockedUsers([...fetchedBlockedUsers]);
+		fetch(
+			`http://localhost/backend/users/${userID}/blockedUsers`,
+			request
+		).then(async (response) => {
+			const blockedData = await response.json();
+			if (!response.ok) {
+				console.log("error response loading blocked users list");
+				return <h1>No Blocked Users loaded</h1>;
 			}
-		);
+			var fetchedBlockedUsers = blockedData.map((fetchedBlockedUser: any) => {
+				const amIUser1 = fetchedBlockedUser.userID1 === user.id;
+				if (!amIUser1) {
+					var newBlockedUser: BlockedUser = {
+						id: fetchedBlockedUser.blockedUserID,
+						username: fetchedBlockedUser.blockedUsername,
+						status: fetchedBlockedUser.blockedUserStatus,
+					};
+				} else {
+					var newBlockedUser: BlockedUser = {
+						id: fetchedBlockedUser.blockedUserID,
+						username: fetchedBlockedUser.blockedUsername,
+						status: fetchedBlockedUser.blockedUserStatus,
+					};
+				}
+				return newBlockedUser;
+			});
+			setBlockedUsers([...fetchedBlockedUsers]);
+		});
 	}
 
 	useEffect(() => {
@@ -240,7 +241,9 @@ function FriendsList(isMyPage: boolean, user: User, cookies: any) {
 
 	useEffect(() => {
 		socket.on("get games", (data: GameInfo[]) => {
-			setGameInfos(data);
+			if (data) {
+				setGameInfos(data);
+			}
 		});
 	}, []);
 

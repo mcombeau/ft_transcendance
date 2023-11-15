@@ -39,7 +39,7 @@ function Login() {
       body: JSON.stringify({ username: username, password: password }),
     };
     const access_token = await fetch(
-      "http://localhost:3001/auth/login",
+      "http://localhost/backend/auth/login",
       request
     ).then(async (response) => {
       const data = await response.json();
@@ -72,7 +72,7 @@ function Login() {
         email: email,
       }),
     };
-    fetch("http://localhost:3001/users", request).then(async (response) => {
+    fetch("http://localhost/backend/users", request).then(async (response) => {
       const data = await response.json();
       if (!response.ok) {
         console.log("error user creation");
@@ -144,10 +144,10 @@ function Login() {
             <Button content="Sign Up" />
           </ButtonContainer>
         </form>
-        <form action="http://localhost:3001/auth/42login">
+        <form action="http://localhost/backend/auth/42login">
           <button
           // onClick={() => {
-          //   fetch("http://localhost:3001/auth/42login", { mode: 'cors' }).then(
+          //   fetch("http://localhost/backend/auth/42login", { mode: 'cors' }).then(
           //     async (response) => {
           //       const data = await response.json();
           //       if (!response.ok) {

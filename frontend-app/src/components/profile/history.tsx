@@ -1,5 +1,5 @@
-import {useEffect, useState} from "react";
-import {User} from "./profile";
+import { useEffect, useState } from "react";
+import { User } from "./profile";
 
 export type Game = {
 	didIWin: boolean;
@@ -63,7 +63,7 @@ function GameHistory(user: User, cookies: any) {
 				Authorization: `Bearer ${cookies["token"]}`,
 			},
 		};
-		fetch(`http://localhost:3001/users/${userID}/games`, request).then(
+		fetch(`http://localhost/backend/users/${userID}/games`, request).then(
 			async (response) => {
 				const gamesData = await response.json();
 				if (!response.ok) {

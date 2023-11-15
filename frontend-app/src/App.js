@@ -33,7 +33,7 @@ function App() {
 			},
 		};
 
-		fetch(`http://localhost:3001/users/${getUserID(cookies)}`, request).then(
+		fetch(`http://localhost/backend/users/${getUserID(cookies)}`, request).then(
 			async (response) => {
 				await response.json();
 				if (!response.ok) {
