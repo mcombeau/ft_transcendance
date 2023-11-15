@@ -180,7 +180,6 @@ export class GameGateway implements OnModuleInit {
 
 	private async stopGame(gameRoom: GameRoom) {
 		console.log("[Game Gateway]: Game stopped");
-		// TODO: send to everybody everywhere that the game is done
 		await this.updatePlayerStatus(userStatus.ONLINE, gameRoom.player1.userID);
 		await this.updatePlayerStatus(userStatus.ONLINE, gameRoom.player2.userID);
 		clearInterval(gameRoom.interval);
@@ -507,7 +506,7 @@ export class GameGateway implements OnModuleInit {
 		gameState.isPaused = !gameState.isPaused;
 	}
 
-	checkGameOver(gameRoom: GameRoom) {
+	async checkGameOver(gameRoom: GameRoom) {
 		if (
 			(gameRoom.gameState.result[0] === WINNING_SCORE ||
 				gameRoom.gameState.result[1] === WINNING_SCORE) &&
@@ -535,8 +534,8 @@ export class GameGateway implements OnModuleInit {
 			}
 
 			this.server.to(gameRoom.socketRoomID).emit("end game", gameDetails);
-			this.gameService.saveGame(gameDetails);
-			this.stopGame(gameRoom);
+			await this.gameService.saveGame(gameDetails);
+			await this.stopGame(gameRoom);
 		}
 	}
 
