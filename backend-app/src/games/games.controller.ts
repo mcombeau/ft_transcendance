@@ -7,22 +7,22 @@ import {
 	ParseIntPipe,
 	Patch,
 	Post,
-} from '@nestjs/common';
-import {GamesService} from './games.service';
-import {createGameDto} from './dtos/createGame.dto';
-import {GameNotFoundError} from 'src/exceptions/not-found.interceptor';
+} from "@nestjs/common";
+import { GamesService } from "./games.service";
+import { createGameDto } from "./dtos/createGame.dto";
+import { GameNotFoundError } from "src/exceptions/not-found.interceptor";
 import {
 	ApiBadRequestResponse,
 	ApiCreatedResponse,
 	ApiOkResponse,
 	ApiTags,
 	ApiUnprocessableEntityResponse,
-} from '@nestjs/swagger';
-import {GameEntity} from './entities/game.entity';
-import {updateGameDto} from './dtos/updateGame.dto';
+} from "@nestjs/swagger";
+import { GameEntity } from "./entities/game.entity";
+import { updateGameDto } from "./dtos/updateGame.dto";
 
-@ApiTags('games')
-@Controller('games')
+@ApiTags("games")
+@Controller("games")
 export class GamesController {
 	constructor(private gameService: GamesService) {}
 
@@ -30,7 +30,7 @@ export class GamesController {
 	@ApiOkResponse({
 		type: GameEntity,
 		isArray: true,
-		description: 'Get all games.',
+		description: "Get all games.",
 	})
 	getGames() {
 		return this.gameService.fetchGames();
@@ -39,50 +39,50 @@ export class GamesController {
 	@Post()
 	@ApiCreatedResponse({
 		type: GameEntity,
-		description: 'Record created.',
+		description: "Record created.",
 	})
-	@ApiBadRequestResponse({description: 'Bad request.'})
+	@ApiBadRequestResponse({ description: "Bad request." })
 	@ApiUnprocessableEntityResponse({
-		description: 'Database error. (Unprocessable entity)',
+		description: "Database error. (Unprocessable entity)",
 	})
 	createGame(@Body() gameDto: createGameDto) {
-		return this.gameService.createGame(gameDto);
+		return this.gameService.saveGame(gameDto);
 	}
 
-	@Get(':id')
+	@Get(":id")
 	@ApiOkResponse({
 		type: GameEntity,
-		description: 'Get game by ID.',
+		description: "Get game by ID.",
 	})
-	async getGameByID(@Param('id', ParseIntPipe) id: number) {
+	async getGameByID(@Param("id", ParseIntPipe) id: number) {
 		const game = await this.gameService.fetchGameByID(id);
 		if (!game) throw new GameNotFoundError(id.toString());
 		return game;
 	}
 
-	@Patch(':id')
+	@Patch(":id")
 	@ApiCreatedResponse({
 		type: GameEntity,
-		description: 'Record updated.',
+		description: "Record updated.",
 	})
-	@ApiBadRequestResponse({description: 'Bad request'})
+	@ApiBadRequestResponse({ description: "Bad request" })
 	@ApiUnprocessableEntityResponse({
-		description: 'Database error. (Unprocessable entity)',
+		description: "Database error. (Unprocessable entity)",
 	})
 	async updateGameByID(
-		@Param('id', ParseIntPipe) id: number,
-		@Body() updateGameDto: updateGameDto,
+		@Param("id", ParseIntPipe) id: number,
+		@Body() updateGameDto: updateGameDto
 	) {
 		await this.gameService.updateGameByID(id, updateGameDto);
 	}
 
-	@Delete(':id')
-	@ApiOkResponse({description: 'Record deleted by ID.'})
-	@ApiBadRequestResponse({description: 'Bad request'})
+	@Delete(":id")
+	@ApiOkResponse({ description: "Record deleted by ID." })
+	@ApiBadRequestResponse({ description: "Bad request" })
 	@ApiUnprocessableEntityResponse({
-		description: 'Database error. (Unprocessable entity)',
+		description: "Database error. (Unprocessable entity)",
 	})
-	async deleteGameByID(@Param('id', ParseIntPipe) id: number) {
+	async deleteGameByID(@Param("id", ParseIntPipe) id: number) {
 		await this.gameService.deleteGameByID(id);
 	}
 }

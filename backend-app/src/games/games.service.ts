@@ -1,10 +1,10 @@
-import {Inject, Injectable, forwardRef} from '@nestjs/common';
-import {InjectRepository} from '@nestjs/typeorm';
-import {GameEntity} from 'src/games/entities/game.entity';
-import {Repository} from 'typeorm';
-import {createGameParams, updateGameParams} from './utils/types';
-import {UsersService} from 'src/users/users.service';
-import {sendGameDto} from 'src/games/dtos/sendGame.dto';
+import { Inject, Injectable, forwardRef } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { GameEntity } from "src/games/entities/game.entity";
+import { Repository } from "typeorm";
+import { createGameParams, updateGameParams } from "./utils/types";
+import { UsersService } from "src/users/users.service";
+import { sendGameDto } from "src/games/dtos/sendGame.dto";
 
 @Injectable()
 export class GamesService {
@@ -12,7 +12,7 @@ export class GamesService {
 		@InjectRepository(GameEntity)
 		private gameRepository: Repository<GameEntity>,
 		@Inject(forwardRef(() => UsersService))
-		private userService: UsersService,
+		private userService: UsersService
 	) {}
 
 	private async formatGameForSending(game: GameEntity): Promise<sendGameDto> {
@@ -30,12 +30,12 @@ export class GamesService {
 	}
 
 	private async formatGamesArrayForSending(
-		game: GameEntity[],
+		game: GameEntity[]
 	): Promise<sendGameDto[]> {
 		return await Promise.all(
 			game.map(async (e: GameEntity) => {
 				return await this.formatGameForSending(e);
-			}),
+			})
 		);
 	}
 
@@ -43,11 +43,11 @@ export class GamesService {
 		return this.gameRepository.find();
 	}
 
-	async createGame(gameDetails: createGameParams) {
+	async saveGame(gameDetails: createGameParams) {
 		const winner = await this.userService.fetchUserByID(gameDetails.winnerID);
 		const loser = await this.userService.fetchUserByID(gameDetails.loserID);
 
-		console.log('[Game Service]: Saving Game', gameDetails);
+		console.log("[Game Service]: Saving Game", gameDetails);
 		const newGame = this.gameRepository.create({
 			winner: winner,
 			loser: loser,
@@ -59,23 +59,23 @@ export class GamesService {
 	}
 
 	fetchGameByID(id: number) {
-		return this.gameRepository.findOne({where: {id}});
+		return this.gameRepository.findOne({ where: { id } });
 	}
 
 	async fetchGamesByUserID(userID: number): Promise<sendGameDto[]> {
 		const target = await this.userService.fetchUserByID(userID);
 		const games = await this.gameRepository.find({
-			where: [{winner: target}, {loser: target}],
-			relations: ['winner', 'loser'],
+			where: [{ winner: target }, { loser: target }],
+			relations: ["winner", "loser"],
 		});
 		return this.formatGamesArrayForSending(games);
 	}
 
 	updateGameByID(id: number, gameDetails: updateGameParams) {
-		return this.gameRepository.update({id}, {...gameDetails});
+		return this.gameRepository.update({ id }, { ...gameDetails });
 	}
 
 	deleteGameByID(id: number) {
-		return this.gameRepository.delete({id});
+		return this.gameRepository.delete({ id });
 	}
 }

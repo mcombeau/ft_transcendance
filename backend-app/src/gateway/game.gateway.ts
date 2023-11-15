@@ -535,7 +535,7 @@ export class GameGateway implements OnModuleInit {
 			}
 
 			this.server.to(gameRoom.socketRoomID).emit("end game", gameDetails);
-			this.gameService.createGame(gameDetails);
+			this.gameService.saveGame(gameDetails);
 			this.stopGame(gameRoom);
 		}
 	}
