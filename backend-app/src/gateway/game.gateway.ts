@@ -217,6 +217,22 @@ export class GameGateway implements OnModuleInit {
 		delete watcher.socket;
 	}
 
+	private async rmWatcherFromGameRoom(
+		userID: number,
+		gameID: string,
+		socket: Socket
+	) {
+		const gameRoom: GameRoom = this.gameRooms.find((gameRoom: GameRoom) => {
+			gameRoom.socketRoomID == gameID;
+			return gameRoom;
+		});
+		if (!gameRoom) return;
+		gameRoom.watchers = gameRoom.watchers.filter(
+			(watcher: Watcher) => watcher.userID !== userID
+		);
+		socket.leave(gameRoom.socketRoomID);
+	}
+
 	private placeBall() {
 		return { x: 250, y: 250 };
 	}
@@ -720,7 +736,7 @@ export class GameGateway implements OnModuleInit {
 		await this.addWatcherToGameRoom(watcher, body.gameID);
 	}
 
-	@SubscribeMessage("stop watch")
+	@SubscribeMessage("stop watching")
 	async onStopWatch(
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() body: { token: string; gameID: string }
@@ -733,12 +749,6 @@ export class GameGateway implements OnModuleInit {
 		if (!user) {
 			throw new UserNotFoundError();
 		}
-		const watcher: Watcher = {
-			userID: userID,
-			username: user.username,
-			socket: socket,
-		};
-		await this.addWatcherToGameRoom(watcher, body.gameID);
-		// TODO: implement
+		await this.rmWatcherFromGameRoom(userID, body.gameID, socket);
 	}
 }

@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
-import { useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { WebSocketContext } from "../../contexts/WebsocketContext";
 import { AuthenticationContext } from "../authenticationState";
 import "./styles.css";
@@ -34,6 +34,8 @@ enum StatePlay {
 	InGame = "in game",
 }
 
+function leaveButton() {}
+
 export const Play = () => {
 	const defaultBallPosition: Position = {
 		x: 249,
@@ -61,6 +63,7 @@ export const Play = () => {
 	const [statePlay, setStatePlay] = useState<StatePlay>(StatePlay.OnPage);
 	const [watching, setWatching] = useState<boolean>(true);
 	const { authenticatedUserID } = useContext(AuthenticationContext);
+	const navigate = useNavigate();
 
 	function activateKeyHandler(cookies: any) {
 		console.log("Key handler activated");
@@ -112,6 +115,12 @@ export const Play = () => {
 
 	function leaveGame() {
 		console.log("Leave game");
+		if (watching) {
+			socket.emit("stop watching");
+			setStatePlay(StatePlay.OnPage);
+			navigate("/user/" + authenticatedUserID);
+			return;
+		}
 		socket.emit("leave game", cookies["token"]);
 		setStatePlay(StatePlay.OnPage);
 	}
@@ -143,7 +152,6 @@ export const Play = () => {
 			console.log("Received start from back");
 			startGame();
 			console.log("Not watching");
-			setWatching(false);
 		});
 
 		socket.on("leave game", (userID: number) => {
@@ -173,10 +181,12 @@ export const Play = () => {
 	}, []);
 
 	useEffect(() => {
-		if (gameID !== null) {
+		if (gameID) {
 			setWatching(true);
 			setStatePlay(StatePlay.InGame);
 			socket.emit("watch", { token: cookies["token"], gameID: gameID });
+		} else {
+			setWatching(false);
 		}
 	}, []);
 
@@ -201,7 +211,9 @@ export const Play = () => {
 						{player2Username} - {gameState.result[1]}
 					</span>
 					<span>
-						<button onClick={leaveGame}>Leave</button>
+						<button onClick={leaveGame}>
+							{watching ? "Stop watching" : "Leave game"}
+						</button>
 					</span>
 					<div className="gameField">
 						<div
