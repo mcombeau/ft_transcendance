@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { WebSocketContext } from "../../contexts/WebsocketContext";
 import { AuthenticationContext } from "../authenticationState";
 import "./styles.css";
@@ -28,10 +28,19 @@ type State = {
 	move: Step;
 };
 
+type Player = {
+	id: number;
+	username: string;
+};
+
 enum StatePlay {
+	WaitingForSocket = "waiting for socket",
+	NotFound = "not found",
 	OnPage = "on page",
 	InLobby = "in lobby",
 	InGame = "in game",
+	Watching = "watching",
+	GameEnded = "game ended",
 }
 
 function gameDoesNotExitPage() {
@@ -80,14 +89,32 @@ export const Play = () => {
 	var inviteID: number = Number(useParams().inviteID);
 	var gameID: string = useParams().gameID;
 	const [cookies] = useCookies(["token"]);
-	const [player1Username, setPlayer1Username] = useState<string>("");
-	const [player2Username, setPlayer2Username] = useState<string>("");
-	const [statePlay, setStatePlay] = useState<StatePlay>(StatePlay.OnPage);
-	const [watching, setWatching] = useState<boolean>(true);
-	const [waiting, setWaiting] = useState<boolean>(true);
-	const [gameDoesNotExist, setGameDoesNotExist] = useState<boolean>(false);
+	const [players, setPlayers] = useState<Player[]>([]);
+	const [statePlay, setStatePlay] = useState<StatePlay>(
+		StatePlay.WaitingForSocket
+	);
 	const { authenticatedUserID } = useContext(AuthenticationContext);
 	const navigate = useNavigate();
+
+	function isUserPlaying() {
+		if (players.length !== 2) return false;
+		return (
+			players[0].id === authenticatedUserID ||
+			players[1].id === authenticatedUserID
+		);
+	}
+
+	function getPlayerUsername(player: number) {
+		if (players.length !== 2) return false;
+		switch (player) {
+			case 1:
+				return players[0].username;
+			case 2:
+				return players[1].username;
+			default:
+				return "Player not found";
+		}
+	}
 
 	function activateKeyHandler(cookies: any) {
 		console.log("Key handler activated");
@@ -104,7 +131,7 @@ export const Play = () => {
 	}
 
 	function handleKeyPress(event: any, cookies: any) {
-		if (!watching) {
+		if (isUserPlaying()) {
 			if (event.key === "w" || event.key === UP) {
 				event.preventDefault();
 				socket.emit("up", cookies["token"]);
@@ -123,10 +150,12 @@ export const Play = () => {
 
 	function startGame() {
 		console.log("Game started");
-		setStatePlay(StatePlay.InGame);
+		if (!gameID) {
+			setStatePlay(StatePlay.InGame);
+		}
 	}
 
-	function endGame(gameDetails: any) {
+	async function endGame(gameDetails: any) {
 		console.log("Game ended");
 		if (gameDetails.winnerID === authenticatedUserID) {
 			alert("You won !");
@@ -134,19 +163,24 @@ export const Play = () => {
 			alert("You lost ...");
 		}
 
-		setStatePlay(StatePlay.OnPage);
+		setStatePlay(StatePlay.GameEnded);
+		await new Promise((r) => setTimeout(r, 2000));
+		setStatePlay(StatePlay.WaitingForSocket);
+		navigate("/user/" + authenticatedUserID);
 	}
 
 	function leaveGame() {
 		console.log("Leave game");
-		if (watching) {
+		if (statePlay === StatePlay.Watching) {
 			socket.emit("stop watching");
-			setStatePlay(StatePlay.OnPage);
+			setStatePlay(StatePlay.WaitingForSocket);
 			navigate("/user/" + authenticatedUserID);
 			return;
+		} else {
+			socket.emit("leave game", cookies["token"]);
+			setStatePlay(StatePlay.WaitingForSocket);
+			navigate("/user/" + authenticatedUserID);
 		}
-		socket.emit("leave game", cookies["token"]);
-		setStatePlay(StatePlay.OnPage);
 	}
 
 	useEffect(() => {
@@ -158,22 +192,23 @@ export const Play = () => {
 	}, []);
 
 	useEffect(() => {
-		if (inviteID) {
-			setStatePlay(StatePlay.InLobby);
-			socket.emit("waiting", { token: cookies["token"], inviteID: inviteID });
-		}
-	}, []);
-
-	useEffect(() => {
 		socket.on("tick", (data: any) => {
 			console.log("tick");
-			setPlayer1Username(data.player1.username);
-			setPlayer2Username(data.player2.username);
 			setGameState(data.gameState);
 		});
 
-		socket.on("start game", () => {
-			console.log("Received start from back");
+		socket.on("start game", (data: any) => {
+			console.log("Start Game");
+			setPlayers([
+				{
+					id: data.player1.userID,
+					username: data.player1.username,
+				},
+				{
+					id: data.player2.userID,
+					username: data.player2.username,
+				},
+			]);
 			startGame();
 		});
 
@@ -181,15 +216,22 @@ export const Play = () => {
 			if (userID !== authenticatedUserID) {
 				console.log("The other player left the game");
 				alert("Game ended because the other player left");
-				setStatePlay(StatePlay.OnPage);
-			}
-			if (watching) {
 				navigate("/user/" + authenticatedUserID);
 			}
 		});
 
-		socket.on("rejoin game", () => {
+		socket.on("rejoin game", (data: any) => {
 			console.log("rejoined game");
+			setPlayers([
+				{
+					id: data.player1.userID,
+					username: data.player1.username,
+				},
+				{
+					id: data.player2.userID,
+					username: data.player2.username,
+				},
+			]);
 			startGame();
 		});
 
@@ -197,20 +239,28 @@ export const Play = () => {
 			endGame(gameDetails);
 		});
 
+		socket.on("waiting", (authorized: boolean) => {
+			console.log("Waiting socket");
+			if (!authorized) {
+				setStatePlay(StatePlay.NotFound);
+			} else {
+				setStatePlay(StatePlay.InLobby);
+			}
+		});
+
 		socket.on("watch", (authorized: boolean) => {
 			console.log("Watching socket");
 			if (!authorized) {
-				setGameDoesNotExist(true);
+				setStatePlay(StatePlay.NotFound);
 			} else {
-				setWatching(true);
-				setStatePlay(StatePlay.InGame);
+				setStatePlay(StatePlay.Watching);
 			}
-			setWaiting(false);
 		});
 
 		return () => {
 			socket.off("tick");
 			socket.off("watch");
+			socket.off("waiting");
 			socket.off("start game");
 			socket.off("leave game");
 			socket.off("rejoin game");
@@ -219,61 +269,74 @@ export const Play = () => {
 	}, []);
 
 	useEffect(() => {
-		if (gameID) {
+		if (inviteID) {
+			socket.emit("waiting", { token: cookies["token"], inviteID: inviteID });
+		} else if (gameID) {
 			socket.emit("watch", { token: cookies["token"], gameID: gameID });
 		} else {
-			setWatching(false);
-			setWaiting(false);
+			setStatePlay(StatePlay.OnPage);
 		}
 	}, []);
 
-	if (waiting) return waitForGamePage();
-	if (gameDoesNotExist) return gameDoesNotExitPage();
+	switch (statePlay) {
+		case StatePlay.WaitingForSocket:
+			return waitForGamePage();
 
-	if (statePlay === StatePlay.OnPage) {
-		return (
-			<div>
-				<button onClick={enterLobby}>Play</button>
-			</div>
-		);
-	} else if (statePlay === StatePlay.InLobby) {
-		return <div>Waiting for other player</div>;
-	}
-	return (
-		<div className="App">
-			<div className="center-container">
-				<div className="result">
-					<span className="res1">
-						{player1Username} - {gameState.result[0]}
-					</span>
-					:
-					<span className="res2">
-						{player2Username} - {gameState.result[1]}
-					</span>
-					<span>
-						<button onClick={leaveGame}>
-							{watching ? "Stop watching" : "Leave game"}
-						</button>
-					</span>
-					<div className="gameField">
-						<div
-							className="ball"
-							style={{
-								top: gameState.ballPosition.y - ballRadius,
-								left: gameState.ballPosition.x - ballRadius,
-							}}
-						/>
-						<div className="midLine" />
-						<div className="midLineHor" />
-						<div className="player player1" style={{ top: gameState.p1 }} />
-						<div className="player player2" style={{ top: gameState.p2 }} />
-						<div className="gate gate1" />
-						<div className="gate gate2" />
+		case StatePlay.NotFound:
+			return gameDoesNotExitPage();
+
+		case StatePlay.OnPage:
+			return (
+				<div>
+					<button onClick={enterLobby}>Play</button>
+				</div>
+			);
+
+		case StatePlay.InLobby:
+			return <div>Waiting for other player</div>;
+
+		case StatePlay.GameEnded:
+			return winPage("somebody"); // TODO: fix later
+
+		default:
+			return (
+				<div className="App">
+					<div className="center-container">
+						<div className="result">
+							<span className="res1">
+								{getPlayerUsername(1)} - {gameState.result[0]}
+							</span>
+							:
+							<span className="res2">
+								{getPlayerUsername(1)} - {gameState.result[1]}
+							</span>
+							<span>
+								<button onClick={leaveGame}>
+									{statePlay === StatePlay.Watching
+										? "Stop watching"
+										: "Leave game"}
+								</button>
+							</span>
+							<div className="gameField">
+								<div
+									className="ball"
+									style={{
+										top: gameState.ballPosition.y - ballRadius,
+										left: gameState.ballPosition.x - ballRadius,
+									}}
+								/>
+								<div className="midLine" />
+								<div className="midLineHor" />
+								<div className="player player1" style={{ top: gameState.p1 }} />
+								<div className="player player2" style={{ top: gameState.p2 }} />
+								<div className="gate gate1" />
+								<div className="gate gate2" />
+							</div>
+						</div>
 					</div>
 				</div>
-			</div>
-		</div>
-	);
+			);
+	}
 };
 
 export default Play;

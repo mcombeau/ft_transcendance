@@ -19,13 +19,10 @@ import { ChatGateway } from "./chat.gateway";
 import { createGameParams } from "src/games/utils/types";
 import { userStatus } from "src/users/entities/user.entity";
 import { UsersService } from "src/users/users.service";
-import {
-	InviteNotFoundError,
-	UserNotFoundError,
-} from "src/exceptions/not-found.interceptor";
+import { UserNotFoundError } from "src/exceptions/not-found.interceptor";
 import { InvitesService } from "src/invites/invites.service";
 
-const WINNING_SCORE = 10;
+const WINNING_SCORE = 2;
 
 type Player = {
 	userID: number;
@@ -155,7 +152,6 @@ export class GameGateway implements OnModuleInit {
 				console.log(
 					`[Game Gateway]: A user rejoined: ${user.username} a game)`
 				);
-				socket.emit("rejoin game");
 			}
 			socket.on("disconnect", () => {
 				console.log(
@@ -169,7 +165,7 @@ export class GameGateway implements OnModuleInit {
 	private startGame(gameRoom: GameRoom) {
 		console.log("[Game Gateway]: Game started");
 		// TODO: send to everybody everywhere that the game started
-		this.server.to(gameRoom.socketRoomID).emit("start game");
+		this.server.to(gameRoom.socketRoomID).emit("start game", gameRoom);
 		this.randomInitialMove(gameRoom.gameState);
 
 		gameRoom.interval = setInterval(() => {
@@ -257,6 +253,7 @@ export class GameGateway implements OnModuleInit {
 		const myGameRoom: GameRoom = await this.getRoom(userID);
 		if (myGameRoom) {
 			await socket.join(myGameRoom.socketRoomID);
+			socket.emit("rejoin game", myGameRoom);
 			console.log(
 				"[Game Gateway]:",
 				"Setting up user",
@@ -622,14 +619,18 @@ export class GameGateway implements OnModuleInit {
 		if (!inviteID) {
 			return true;
 		}
-		const invitation = await this.invitesService.fetchInviteByID(inviteID);
-		if (!invitation) {
-			throw new InviteNotFoundError("Invite not found");
+		try {
+			const invitation = await this.invitesService.fetchInviteByID(inviteID);
+			if (!invitation) {
+				return false;
+			}
+			if (invitation.invitedID !== userID && invitation.senderID !== userID) {
+				return false;
+			}
+			this.chatGateway.checkUserInviteHasNotExpired(invitation);
+		} catch (e) {
+			return false;
 		}
-		if (invitation.invitedID !== userID && invitation.senderID !== userID) {
-			throw new InviteNotFoundError("Invalid invite ID for this user");
-		}
-		this.chatGateway.checkUserInviteHasNotExpired(invitation);
 		return true;
 	}
 
@@ -646,7 +647,11 @@ export class GameGateway implements OnModuleInit {
 		if (!user) {
 			throw new UserNotFoundError();
 		}
-		this.checkInviteIsValid(inviteID, user.id);
+
+		const inviteIsValid = await this.checkInviteIsValid(inviteID, user.id);
+		socket.emit("waiting", inviteIsValid || !inviteID);
+		// socket.emit("waiting", inviteIsValid);
+		if (!inviteIsValid) return;
 
 		console.log(`[Game Gateway] Waitlist in waiting:`, this.waitList);
 		if (await this.reconnect(socket, user.id)) {
@@ -668,6 +673,9 @@ export class GameGateway implements OnModuleInit {
 				player.username
 			);
 		} else {
+			if (inviteID) {
+				await this.invitesService.deleteInviteByID(inviteID);
+			}
 			this.startGame(myGameRoom);
 		}
 	}

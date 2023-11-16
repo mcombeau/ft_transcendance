@@ -1192,9 +1192,6 @@ export class ChatGateway implements OnModuleInit {
 					"Cannot accept game invite: a user is blocking another"
 				);
 			}
-			// TODO: Create game for users
-
-			await this.inviteService.deleteInviteByID(invite.id);
 		} catch (e) {
 			throw new ChatPermissionError(e.message);
 		}
