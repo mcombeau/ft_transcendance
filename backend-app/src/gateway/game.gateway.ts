@@ -581,12 +581,14 @@ export class GameGateway implements OnModuleInit {
 		const userID: number = await this.chatGateway.checkIdentity(token, socket);
 		const user = await this.usersService.fetchUserByID(userID);
 		if (!user) {
-			throw new UserNotFoundError();
+			console.log("[Game Gateway][On Up]: User not found");
+			return;
 		}
 
 		const gameRoom: GameRoom = await this.getRoom(userID);
 		if (gameRoom === null) {
-			throw new BadRequestException("Could not find game room for user");
+			console.log("[Game Gateway][On Up]: GameRoom not found");
+			return;
 		}
 
 		let playerIndex = 1;
@@ -613,11 +615,13 @@ export class GameGateway implements OnModuleInit {
 		const userID: number = await this.chatGateway.checkIdentity(token, socket);
 		const user = await this.usersService.fetchUserByID(userID);
 		if (!user) {
-			throw new UserNotFoundError();
+			console.log("[Game Gateway][On Down]: User not found");
+			return;
 		}
 		const gameRoom: GameRoom = await this.getRoom(userID);
 		if (gameRoom === null) {
-			throw new BadRequestException("Could not find game room for user");
+			console.log("[Game Gateway][On Down]: GameRoom not found");
+			return;
 		}
 
 		let playerIndex = 1;
