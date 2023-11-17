@@ -11,8 +11,6 @@
   - draw background in css
   - personalization
   - deal with broadband/network issues
-  - end game page
-  - spectator mode
   - Make it possible for challenger to leave game room with button. make invite expire for the player's opponent.
 
 - Profile
@@ -45,14 +43,15 @@
 
 - Appearance
 
-  - css for lobby play
+  - css for game/lobby/endgamescreen
+  - css profile settings
+  - redo the login page (without styled components)
 
 - Project validation
 
   - check we are protected against sql injections
   - all libraries are in latest stable version
   - server side validation for forms and user input
-  - check no credientials are in git
   - remove passwords for users
 
 - Prompt for info first sign
@@ -78,3 +77,4 @@
   - limit game history to X games
   - Achievements
   - Extended navbar
+  - use 42 profile picture as default user pic
