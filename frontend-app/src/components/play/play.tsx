@@ -177,11 +177,12 @@ export const Play = () => {
 
 	useEffect(() => {
 		// TODO: double check they work fine
+		if (statePlay !== StatePlay.InGame) return;
 		activateKeyHandler(cookies);
 		return () => {
 			deactivateKeyHandler(cookies);
 		};
-	}, []);
+	}, [statePlay]);
 
 	useEffect(() => {
 		socket.on("tick", (data: any) => {
