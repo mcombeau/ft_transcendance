@@ -13,4 +13,3 @@ export type updateGameParams = {
 	winnerScore: number;
 	loserScore: number;
 };
-

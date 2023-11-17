@@ -23,7 +23,7 @@ import { UserNotFoundError } from "src/exceptions/not-found.interceptor";
 import { InvitesService } from "src/invites/invites.service";
 
 // TODO: move constants here (game speed ...)
-const WINNING_SCORE = 4;
+const WINNING_SCORE = 2;
 
 type Player = {
 	userID: number;
@@ -177,11 +177,43 @@ export class GameGateway implements OnModuleInit {
 		}, this.delay);
 	}
 
-	private async stopGame(gameRoom: GameRoom) {
+	private async stopGame(
+		gameRoom: GameRoom,
+		isGameFinished: boolean,
+		leavingUserID?: number
+	) {
 		console.log("[Game Gateway]: Game stopped");
 		await this.updatePlayerStatus(userStatus.ONLINE, gameRoom.player1.userID);
 		await this.updatePlayerStatus(userStatus.ONLINE, gameRoom.player2.userID);
 		clearInterval(gameRoom.interval);
+		if (isGameFinished) {
+			let gameDetails: createGameParams;
+			// TODO: maybe move to another function
+			if (gameRoom.gameState.result[0] === WINNING_SCORE) {
+				gameDetails = {
+					winnerID: gameRoom.player1.userID,
+					winnerUsername: gameRoom.player1.username,
+					loserID: gameRoom.player2.userID,
+					loserUsername: gameRoom.player2.username,
+					loserScore: gameRoom.gameState.result[1],
+					winnerScore: WINNING_SCORE,
+				};
+			} else {
+				gameDetails = {
+					winnerID: gameRoom.player2.userID,
+					winnerUsername: gameRoom.player2.username,
+					loserID: gameRoom.player1.userID,
+					loserUsername: gameRoom.player1.username,
+					loserScore: gameRoom.gameState.result[0],
+					winnerScore: WINNING_SCORE,
+				};
+			}
+
+			this.server.to(gameRoom.socketRoomID).emit("end game", gameDetails);
+			await this.gameService.saveGame(gameDetails);
+		} else {
+			this.server.to(gameRoom.socketRoomID).emit("leave game", leavingUserID);
+		}
 		this.server.in(gameRoom.socketRoomID).socketsLeave(gameRoom.socketRoomID);
 		this.gameRooms = this.gameRooms.filter(
 			(gr: GameRoom) => gr.socketRoomID !== gameRoom.socketRoomID
@@ -540,31 +572,7 @@ export class GameGateway implements OnModuleInit {
 			this.pause(gameRoom.gameState);
 			console.log("[Game Gateway]: a player won !");
 
-			let gameDetails: createGameParams;
-			// TODO: maybe move to another function
-			if (gameRoom.gameState.result[0] === WINNING_SCORE) {
-				gameDetails = {
-					winnerID: gameRoom.player1.userID,
-					winnerUsername: gameRoom.player1.username,
-					loserID: gameRoom.player2.userID,
-					loserUsername: gameRoom.player2.username,
-					loserScore: gameRoom.gameState.result[1],
-					winnerScore: WINNING_SCORE,
-				};
-			} else {
-				gameDetails = {
-					winnerID: gameRoom.player2.userID,
-					winnerUsername: gameRoom.player2.username,
-					loserID: gameRoom.player1.userID,
-					loserUsername: gameRoom.player1.username,
-					loserScore: gameRoom.gameState.result[0],
-					winnerScore: WINNING_SCORE,
-				};
-			}
-
-			this.server.to(gameRoom.socketRoomID).emit("end game", gameDetails);
-			await this.gameService.saveGame(gameDetails);
-			await this.stopGame(gameRoom);
+			await this.stopGame(gameRoom, true);
 		}
 	}
 
@@ -703,8 +711,7 @@ export class GameGateway implements OnModuleInit {
 		}
 		const gameRoom: GameRoom = await this.getRoom(userID);
 
-		this.server.to(gameRoom.socketRoomID).emit("leave game", userID);
-		await this.stopGame(gameRoom);
+		await this.stopGame(gameRoom, false, userID);
 	}
 
 	gameToGameInfo(game: GameRoom): GameInfo {
