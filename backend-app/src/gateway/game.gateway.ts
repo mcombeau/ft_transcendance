@@ -165,7 +165,11 @@ export class GameGateway implements OnModuleInit {
 	private startGame(gameRoom: GameRoom) {
 		console.log("[Game Gateway]: Game started");
 		// TODO: send to everybody everywhere that the game started
-		this.server.to(gameRoom.socketRoomID).emit("start game", gameRoom);
+
+		console.log("[Game Gateway]: start game", this.gameToGameInfo(gameRoom));
+		this.server
+			.to(gameRoom.socketRoomID)
+			.emit("start game", this.gameToGameInfo(gameRoom));
 		this.randomInitialMove(gameRoom.gameState);
 
 		gameRoom.interval = setInterval(() => {
@@ -253,7 +257,8 @@ export class GameGateway implements OnModuleInit {
 		const myGameRoom: GameRoom = await this.getRoom(userID);
 		if (myGameRoom) {
 			await socket.join(myGameRoom.socketRoomID);
-			socket.emit("rejoin game", myGameRoom);
+			console.log("[Game Gateway]: reconnect", this.gameToGameInfo(myGameRoom));
+			socket.emit("rejoin game", this.gameToGameInfo(myGameRoom));
 			console.log(
 				"[Game Gateway]:",
 				"Setting up user",
@@ -650,7 +655,6 @@ export class GameGateway implements OnModuleInit {
 
 		const inviteIsValid = await this.checkInviteIsValid(inviteID, user.id);
 		socket.emit("waiting", inviteIsValid || !inviteID);
-		// socket.emit("waiting", inviteIsValid);
 		if (!inviteIsValid) return;
 
 		console.log(`[Game Gateway] Waitlist in waiting:`, this.waitList);
@@ -721,7 +725,9 @@ export class GameGateway implements OnModuleInit {
 		if (!user) {
 			throw new UserNotFoundError();
 		}
-		socket.emit("get games", this.gameRooms.map(this.gameToGameInfo));
+		const gameInfos: GameInfo[] = this.gameRooms.map(this.gameToGameInfo);
+		console.log("[Game Gateway]:", "Game Infos", gameInfos);
+		socket.emit("get games", gameInfos);
 	}
 
 	@SubscribeMessage("watch")
