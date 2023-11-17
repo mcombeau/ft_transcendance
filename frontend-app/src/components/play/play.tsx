@@ -34,14 +34,16 @@ type Player = {
 	username: string;
 };
 
-type GameDetails = {
+export type GameDetails = {
 	winnerID: number;
 	winnerUsername: string;
 	loserID: number;
 	loserUsername: string;
 	loserScore: number;
 	winnerScore: number;
+	createdAt?: Date;
 };
+
 enum StatePlay {
 	WaitingForSocket = "waiting for socket",
 	NotFound = "not found",
