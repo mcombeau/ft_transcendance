@@ -89,7 +89,8 @@ export const Play = () => {
 	var inviteID: number = Number(useParams().inviteID);
 	var gameID: string = useParams().gameID;
 	const [cookies] = useCookies(["token"]);
-	const [players, setPlayers] = useState<Player[]>([]);
+	const [player1, setPlayer1] = useState<Player>({ id: null, username: "" });
+	const [player2, setPlayer2] = useState<Player>({ id: null, username: "" });
 	const [statePlay, setStatePlay] = useState<StatePlay>(
 		StatePlay.WaitingForSocket
 	);
@@ -97,20 +98,17 @@ export const Play = () => {
 	const navigate = useNavigate();
 
 	function isUserPlaying() {
-		if (players.length !== 2) return false;
 		return (
-			players[0].id === authenticatedUserID ||
-			players[1].id === authenticatedUserID
+			player1.id === authenticatedUserID || player2.id === authenticatedUserID
 		);
 	}
 
 	function getPlayerUsername(player: number) {
-		if (players.length !== 2) return false;
 		switch (player) {
 			case 1:
-				return players[0].username;
+				return player1.username;
 			case 2:
-				return players[1].username;
+				return player2.username;
 			default:
 				return "Player not found";
 		}
@@ -157,12 +155,6 @@ export const Play = () => {
 
 	async function endGame(gameDetails: any) {
 		console.log("Game ended");
-		if (gameDetails.winnerID === authenticatedUserID) {
-			alert("You won !");
-		} else {
-			alert("You lost ...");
-		}
-
 		setStatePlay(StatePlay.GameEnded);
 		await new Promise((r) => setTimeout(r, 2000));
 		setStatePlay(StatePlay.WaitingForSocket);
@@ -199,16 +191,14 @@ export const Play = () => {
 
 		socket.on("start game", (data: any) => {
 			console.log("Start Game");
-			setPlayers([
-				{
-					id: data.player1.userID,
-					username: data.player1.username,
-				},
-				{
-					id: data.player2.userID,
-					username: data.player2.username,
-				},
-			]);
+			setPlayer1({
+				id: data.player1.userID,
+				username: data.player1.username,
+			});
+			setPlayer2({
+				id: data.player2.userID,
+				username: data.player2.username,
+			});
 			startGame();
 		});
 
@@ -222,16 +212,14 @@ export const Play = () => {
 
 		socket.on("rejoin game", (data: any) => {
 			console.log("rejoined game");
-			setPlayers([
-				{
-					id: data.player1.userID,
-					username: data.player1.username,
-				},
-				{
-					id: data.player2.userID,
-					username: data.player2.username,
-				},
-			]);
+			setPlayer1({
+				id: data.player1.userID,
+				username: data.player1.username,
+			});
+			setPlayer2({
+				id: data.player2.userID,
+				username: data.player2.username,
+			});
 			startGame();
 		});
 
@@ -278,6 +266,11 @@ export const Play = () => {
 		}
 	}, []);
 
+	useEffect(() => {
+		console.log("player1", player1);
+		console.log("player2", player2);
+	}, [player1, player2]);
+
 	switch (statePlay) {
 		case StatePlay.WaitingForSocket:
 			return waitForGamePage();
@@ -308,7 +301,7 @@ export const Play = () => {
 							</span>
 							:
 							<span className="res2">
-								{getPlayerUsername(1)} - {gameState.result[1]}
+								{getPlayerUsername(2)} - {gameState.result[1]}
 							</span>
 							<span>
 								<button onClick={leaveGame}>
