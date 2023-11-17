@@ -22,7 +22,8 @@ import { UsersService } from "src/users/users.service";
 import { UserNotFoundError } from "src/exceptions/not-found.interceptor";
 import { InvitesService } from "src/invites/invites.service";
 
-const WINNING_SCORE = 2;
+// TODO: move constants here (game speed ...)
+const WINNING_SCORE = 4;
 
 type Player = {
 	userID: number;
@@ -149,9 +150,7 @@ export class GameGateway implements OnModuleInit {
 			);
 			socket.broadcast.emit("connection event"); // TODO: probably remove
 			if (await this.reconnect(socket, user.userID)) {
-				console.log(
-					`[Game Gateway]: A user rejoined: ${user.username} a game)`
-				);
+				console.log(`[Game Gateway]: A user rejoined: ${user.username} a game`);
 			}
 			socket.on("disconnect", () => {
 				console.log(
@@ -187,6 +186,13 @@ export class GameGateway implements OnModuleInit {
 		this.gameRooms = this.gameRooms.filter(
 			(gr: GameRoom) => gr.socketRoomID !== gameRoom.socketRoomID
 		);
+		const invite1ID = gameRoom.player1.inviteID;
+		const invite2ID = gameRoom.player2.inviteID;
+		if (invite1ID) {
+			await this.invitesService.deleteInviteByID(invite1ID);
+		} else if (invite2ID) {
+			await this.invitesService.deleteInviteByID(invite2ID);
+		}
 	}
 
 	private async getRoom(userID: number) {
@@ -677,9 +683,6 @@ export class GameGateway implements OnModuleInit {
 				player.username
 			);
 		} else {
-			if (inviteID) {
-				await this.invitesService.deleteInviteByID(inviteID);
-			}
 			this.startGame(myGameRoom);
 		}
 	}
