@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { AuthenticationContext } from "../authenticationState";
 
 import {
@@ -14,14 +14,6 @@ import LogoImg from "/app/src/inc/img/logo.svg";
 
 function Navbar() {
 	const { authenticatedUserID } = useContext(AuthenticationContext);
-
-	useEffect(() => {
-		// TODO: adapt to incorrect cookie (user does not exist in db ...)
-		// if (getUserID(cookies)) {
-		//   setIsLogged(true);
-		// }
-		console.log("USER ID ", authenticatedUserID);
-	}, [authenticatedUserID]);
 
 	return (
 		<NavbarContainer>
