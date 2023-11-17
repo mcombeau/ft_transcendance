@@ -44,7 +44,7 @@ function App() {
 				setAuthenticatedUserID(getUserID(cookies));
 			}
 		);
-	}, []);
+	}, [cookies, removeCookie]);
 
 	return (
 		<>

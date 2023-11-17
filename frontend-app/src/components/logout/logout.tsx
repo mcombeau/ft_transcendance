@@ -10,7 +10,7 @@ function Logout() {
 	const navigate = useNavigate();
 	const socket = useContext(WebSocketContext);
 
-	function logout() {
+	function logoutUser() {
 		socket.emit("logout", cookies["token"]);
 		setAuthenticatedUserID(null);
 		removeCookie("token", { path: "/" });
@@ -18,7 +18,7 @@ function Logout() {
 	}
 
 	useEffect(() => {
-		logout();
+		logoutUser();
 	}, []);
 	return <div></div>;
 }
