@@ -545,14 +545,18 @@ export class GameGateway implements OnModuleInit {
 			if (gameRoom.gameState.result[0] === WINNING_SCORE) {
 				gameDetails = {
 					winnerID: gameRoom.player1.userID,
+					winnerUsername: gameRoom.player1.username,
 					loserID: gameRoom.player2.userID,
+					loserUsername: gameRoom.player2.username,
 					loserScore: gameRoom.gameState.result[1],
 					winnerScore: WINNING_SCORE,
 				};
 			} else {
 				gameDetails = {
 					winnerID: gameRoom.player2.userID,
+					winnerUsername: gameRoom.player2.username,
 					loserID: gameRoom.player1.userID,
+					loserUsername: gameRoom.player1.username,
 					loserScore: gameRoom.gameState.result[0],
 					winnerScore: WINNING_SCORE,
 				};

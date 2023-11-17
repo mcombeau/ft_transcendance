@@ -34,6 +34,14 @@ type Player = {
 	username: string;
 };
 
+type GameDetails = {
+	winnerID: number;
+	winnerUsername: string;
+	loserID: number;
+	loserUsername: string;
+	loserScore: number;
+	winnerScore: number;
+};
 enum StatePlay {
 	WaitingForSocket = "waiting for socket",
 	NotFound = "not found",
@@ -60,12 +68,41 @@ function waitForGamePage() {
 	);
 }
 
-function winPage(winnerUsername: string) {
-	return (
-		<div style={{ textAlign: "center", textEmphasis: "true", color: "green" }}>
-			{winnerUsername} won !
-		</div>
+// TODO: @inaara improve css for winpage
+function winPage(gameDetails: GameDetails, authenticatedUserID: number) {
+	const scoreDisplay = (
+		<p>
+			({gameDetails.winnerUsername}: {gameDetails.winnerScore} -{" "}
+			{gameDetails.loserUsername}: {gameDetails.loserScore})
+		</p>
 	);
+	switch (authenticatedUserID) {
+		case gameDetails.winnerID:
+			return (
+				<div
+					style={{ textAlign: "center", textEmphasis: "true", color: "green" }}
+				>
+					<p>You won !</p> {scoreDisplay}
+				</div>
+			);
+		case gameDetails.loserID:
+			return (
+				<div
+					style={{ textAlign: "center", textEmphasis: "true", color: "green" }}
+				>
+					<p>You lost !</p> {scoreDisplay}
+				</div>
+			);
+
+		default:
+			return (
+				<div
+					style={{ textAlign: "center", textEmphasis: "true", color: "green" }}
+				>
+					<p>{gameDetails.winnerUsername} won !</p> {scoreDisplay}
+				</div>
+			);
+	}
 }
 
 export const Play = () => {
@@ -95,6 +132,14 @@ export const Play = () => {
 	const [statePlay, setStatePlay] = useState<StatePlay>(
 		StatePlay.WaitingForSocket
 	);
+	const [endGameDetails, setEndGameDetails] = useState<GameDetails>({
+		winnerID: null,
+		winnerUsername: "",
+		loserID: null,
+		loserUsername: "",
+		loserScore: null,
+		winnerScore: null,
+	});
 	const { authenticatedUserID } = useContext(AuthenticationContext);
 	const navigate = useNavigate();
 
@@ -154,10 +199,11 @@ export const Play = () => {
 		}
 	}
 
-	async function endGame(gameDetails: any) {
-		console.log("Game ended");
+	async function endGame(gameDetails: GameDetails) {
+		console.log("Game ended", gameDetails);
+		setEndGameDetails(gameDetails);
 		setStatePlay(StatePlay.GameEnded);
-		await new Promise((r) => setTimeout(r, 2000));
+		await new Promise((r) => setTimeout(r, 4000));
 		setStatePlay(StatePlay.WaitingForSocket);
 		navigate("/user/" + authenticatedUserID);
 	}
@@ -289,7 +335,7 @@ export const Play = () => {
 			return <div>Waiting for other player</div>;
 
 		case StatePlay.GameEnded:
-			return winPage("somebody"); // TODO: fix later
+			return winPage(endGameDetails, authenticatedUserID);
 
 		default:
 			return (
