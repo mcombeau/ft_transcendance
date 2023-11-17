@@ -211,11 +211,11 @@ export class GameGateway implements OnModuleInit {
 			gameRoom.socketRoomID == gameID;
 			return gameRoom;
 		});
-		if (!gameRoom) return false;
+		if (!gameRoom) return null;
 		await watcher.socket.join(gameRoom.socketRoomID);
 		delete watcher.socket;
 		gameRoom.watchers.push(watcher);
-		return true;
+		return gameRoom;
 	}
 
 	private async rmWatcherFromGameRoom(
@@ -748,10 +748,15 @@ export class GameGateway implements OnModuleInit {
 			username: user.username,
 			socket: socket,
 		};
-		if (!(await this.addWatcherToGameRoom(watcher, body.gameID))) {
-			socket.emit("watch", false);
+		const gameRoom: GameRoom = await this.addWatcherToGameRoom(
+			watcher,
+			body.gameID
+		);
+		if (!gameRoom) {
+			socket.emit("watch", { authorized: false });
 		} else {
-			socket.emit("watch", true);
+			const gameInfo = this.gameToGameInfo(gameRoom);
+			socket.emit("watch", { authorized: true, gameInfo: gameInfo });
 		}
 	}
 

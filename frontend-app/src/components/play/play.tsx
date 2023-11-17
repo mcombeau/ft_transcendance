@@ -3,6 +3,7 @@ import { useCookies } from "react-cookie";
 import { useNavigate, useParams } from "react-router-dom";
 import { WebSocketContext } from "../../contexts/WebsocketContext";
 import { AuthenticationContext } from "../authenticationState";
+import { GameInfo } from "../profile/friendsList";
 import "./styles.css";
 
 const UP = "ArrowUp";
@@ -175,6 +176,17 @@ export const Play = () => {
 		}
 	}
 
+	function setPlayers(gameInfo: GameInfo) {
+		setPlayer1({
+			id: gameInfo.player1.userID,
+			username: gameInfo.player1.username,
+		});
+		setPlayer2({
+			id: gameInfo.player2.userID,
+			username: gameInfo.player2.username,
+		});
+	}
+
 	useEffect(() => {
 		// TODO: double check they work fine
 		if (statePlay !== StatePlay.InGame) return;
@@ -190,16 +202,9 @@ export const Play = () => {
 			setGameState(data.gameState);
 		});
 
-		socket.on("start game", (data: any) => {
+		socket.on("start game", (data: GameInfo) => {
 			console.log("Start Game");
-			setPlayer1({
-				id: data.player1.userID,
-				username: data.player1.username,
-			});
-			setPlayer2({
-				id: data.player2.userID,
-				username: data.player2.username,
-			});
+			setPlayers(data);
 			startGame();
 		});
 
@@ -211,16 +216,9 @@ export const Play = () => {
 			}
 		});
 
-		socket.on("rejoin game", (data: any) => {
+		socket.on("rejoin game", (data: GameInfo) => {
 			console.log("rejoined game");
-			setPlayer1({
-				id: data.player1.userID,
-				username: data.player1.username,
-			});
-			setPlayer2({
-				id: data.player2.userID,
-				username: data.player2.username,
-			});
+			setPlayers(data);
 			startGame();
 		});
 
@@ -237,11 +235,12 @@ export const Play = () => {
 			}
 		});
 
-		socket.on("watch", (authorized: boolean) => {
+		socket.on("watch", (data: { authorized: boolean; gameInfo?: GameInfo }) => {
 			console.log("Watching socket");
-			if (!authorized) {
+			if (!data.authorized) {
 				setStatePlay(StatePlay.NotFound);
 			} else {
+				setPlayers(data.gameInfo);
 				setStatePlay(StatePlay.Watching);
 			}
 		});
