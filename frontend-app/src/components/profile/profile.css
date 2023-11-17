@@ -1,20 +1,25 @@
 @import url("https://fonts.googleapis.com/css2?family=Nunito:wght@300&display=swap");
 
 :root {
-	--primary-color: #FFFFFF;
+	--primary-color: #ffffff;
 	/* #4CAF50;*/
-	--secondary-color: #FFC107;
-	--accent-color: #FFFFFF;
+	--secondary-color: #ffc107;
+	--accent-color: #ffffff;
 	/*#2196F3;*/
-	--text-color: #FFFFFF;
-	--background: linear-gradient(to bottom, rgba(0, 15, 50, 0.8), rgba(0, 30, 100, 0.8), rgba(0, 60, 200, 0.8));
+	--text-color: #ffffff;
+	--background: linear-gradient(
+		to bottom,
+		rgba(0, 15, 50, 0.8),
+		rgba(0, 30, 100, 0.8),
+		rgba(0, 60, 200, 0.8)
+	);
 }
 
 body {
 	margin: 0;
 	padding: 0;
-	background: url("back2.jpg");
-	font-family: 'Montserrat', sans-serif;
+	background: url("/app/src/inc/img/lowerBackground.jpg");
+	font-family: "Montserrat", sans-serif;
 	background-repeat: no-repeat;
 	background-position: center;
 	background-size: cover;
@@ -26,15 +31,19 @@ body {
 	align-items: center;
 	min-height: 100vh;
 	width: 100vw;
-	background-color: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
-	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.10), 0 3px 6 px rgba(0, 0, 0, 0.10);
+	background-color: linear-gradient(
+		to bottom,
+		var(--primary-color),
+		var(--secondary-color)
+	);
+	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1), 0 3px 6 px rgba(0, 0, 0, 0.1);
 	padding: 0 !important;
 }
 
 header {
-	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.10), 0 3px 6 px rgba(0, 0, 0, 0.10);
+	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1), 0 3px 6 px rgba(0, 0, 0, 0.1);
 	background: #eee;
-	background-image: url("4307571.jpg");
+	background-image: url("/app/src/inc/img/upperBackground.jpg");
 	background-repeat: no-repeat;
 	background-position: center;
 	background-size: cover;
@@ -47,10 +56,14 @@ header i {
 	right: -96%;
 	top: 25px;
 	font-size: 18px !important;
-	color: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
+	color: linear-gradient(
+		to bottom,
+		var(--primary-color),
+		var(--secondary-color)
+	);
 }
 
-@media (max-width:800px) {
+@media (max-width: 800px) {
 	header {
 		height: 150px;
 	}
@@ -87,15 +100,14 @@ header i {
 	text-align: center;
 	padding-bottom: 20px;
 	border-bottom: 1px solid #ededed;
-	font-family: 'Montserrat', sans-serif;
+	font-family: "Montserrat", sans-serif;
 }
-
 
 .number-stat {
 	padding: 0px;
 	font-size: 14pt;
 	font-weight: bold;
-	font-family: 'Montserrat', sans-serif;
+	font-family: "Montserrat", sans-serif;
 	color: #fff;
 }
 

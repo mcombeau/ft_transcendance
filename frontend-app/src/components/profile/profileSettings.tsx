@@ -38,10 +38,10 @@ function ProfileSettings(
 		}
 	}, [user]);
 
-	useEffect(() => {
-		console.log("Changing 2fa status");
-		setIs2faEnabled(getIs2faEnabled(cookies));
-	}, [cookies]);
+	// useEffect(() => {
+	// 	console.log("Changing 2fa status");
+	// 	setIs2faEnabled(getIs2faEnabled(cookies));
+	// }, [cookies]);
 
 	async function enable2Fa() {
 		var result: Uint8Array;

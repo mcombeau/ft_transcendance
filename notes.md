@@ -2,8 +2,6 @@
 
 - Cleanup
   - change alerts to smth else (notifs ?)
-  - move to typescript everywhere
-  - cleanup all errors/warnings front
   - allow access to chat/leaderboard ... but prompt for sign in
 
 - Game
@@ -14,15 +12,11 @@
   - Make it possible for challenger to leave game room with button. make invite expire for the player's opponent.
 
 - Profile
-  - Ladder level
-  - ladder (whatever that is ?)
-  - frontend give feedback when invalid avatar image sent to back (400 response from back)
-  - see friends avatar
+  - ladder (whatever that is ?) history ?
   - My profile
     - change 2fa activation
     - disable
-  - other people
-    - ( dm button )
+  - Dm button on other people
 
 - Bugs
   - 404 if page not exist (not tostring business)
@@ -70,4 +64,8 @@
   - you won/ you lost screen + replay button
   - limit game history to X games
   - Achievements
+<<<<<<< HEAD
   - use 42 profile picture as default user pic
+=======
+  - Extended navbar
+>>>>>>> main

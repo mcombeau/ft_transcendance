@@ -7,49 +7,50 @@ import {
 	ParseIntPipe,
 	Post,
 	UseGuards,
-} from '@nestjs/common';
+} from "@nestjs/common";
 import {
 	ApiBadRequestResponse,
 	ApiCreatedResponse,
 	ApiOkResponse,
 	ApiTags,
 	ApiUnprocessableEntityResponse,
-} from '@nestjs/swagger';
-import {JwtAuthGuard} from 'src/auth/guards/jwt-auth.guard';
-import {DeleteResult} from 'typeorm';
-import {FriendsService} from 'src/friends/friends.service';
-import {sendFriendDto} from 'src/friends/dtos/sendFriend.dto';
-import {createFriendDto} from 'src/friends/dtos/createFriend.dto';
-import {updateFriendDto} from 'src/friends/dtos/updateFriend.dto';
-import {FriendEntity} from 'src/friends/entities/Friend.entity';
+} from "@nestjs/swagger";
+import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
+import { DeleteResult } from "typeorm";
+import { FriendsService } from "src/friends/friends.service";
+import { sendFriendDto } from "src/friends/dtos/sendFriend.dto";
+import { createFriendDto } from "src/friends/dtos/createFriend.dto";
+import { updateFriendDto } from "src/friends/dtos/updateFriend.dto";
+import { FriendEntity } from "src/friends/entities/Friend.entity";
 
 @UseGuards(JwtAuthGuard)
-@ApiTags('friends')
-@Controller('friends')
+@ApiTags("friends")
+@Controller("friends")
 export class FriendsController {
 	constructor(private friendService: FriendsService) {}
 
-	@Post('friend')
+	@Post("isMyFriend")
 	@ApiOkResponse({
 		type: sendFriendDto,
-		description: 'Get one friend relationship.',
+		description: "Check if friend relation exists by user ids",
 	})
-	getOneFriendByUserIDs(
-		@Body() friendDto: createFriendDto,
-	): Promise<sendFriendDto> {
-		return this.friendService.fetchFriendByUserIDs(
+	async checkIfFriendRelationExistByUserIDs(
+		@Body() friendDto: createFriendDto
+	): Promise<{ areFriends: boolean }> {
+		const areFriends = await this.friendService.doesFriendRelationExist(
 			friendDto.userID1,
-			friendDto.userID2,
+			friendDto.userID2
 		);
+		return { areFriends: areFriends };
 	}
 
-	@Get(':id')
+	@Get(":id")
 	@ApiOkResponse({
 		type: sendFriendDto,
-		description: 'Get friend relationship by ID.',
+		description: "Get friend relationship by ID.",
 	})
-	@ApiBadRequestResponse({description: 'Bad request.'})
-	getFriendByID(@Param('id', ParseIntPipe) id: number): Promise<sendFriendDto> {
+	@ApiBadRequestResponse({ description: "Bad request." })
+	getFriendByID(@Param("id", ParseIntPipe) id: number): Promise<sendFriendDto> {
 		return this.friendService.fetchFriendByID(id);
 	}
 
@@ -57,7 +58,7 @@ export class FriendsController {
 	@ApiOkResponse({
 		type: sendFriendDto,
 		isArray: true,
-		description: 'Get all friend relationships.',
+		description: "Get all friend relationships.",
 	})
 	getAllFriends(): Promise<sendFriendDto[]> {
 		return this.friendService.fetchFriends();
@@ -66,36 +67,36 @@ export class FriendsController {
 	@Post()
 	@ApiCreatedResponse({
 		type: FriendEntity,
-		description: 'Record created.',
+		description: "Record created.",
 	})
-	@ApiBadRequestResponse({description: 'Bad request.'})
+	@ApiBadRequestResponse({ description: "Bad request." })
 	@ApiUnprocessableEntityResponse({
-		description: 'Database error. (Unprocessable entity)',
+		description: "Database error. (Unprocessable entity)",
 	})
 	createFriend(@Body() friendDto: createFriendDto): Promise<FriendEntity> {
 		return this.friendService.createFriend(friendDto);
 	}
 
 	@Delete()
-	@ApiOkResponse({description: 'Record deleted by user IDs.'})
-	@ApiBadRequestResponse({description: 'Bad request'})
+	@ApiOkResponse({ description: "Record deleted by user IDs." })
+	@ApiBadRequestResponse({ description: "Bad request" })
 	@ApiUnprocessableEntityResponse({
-		description: 'Database error. (Unprocessable entity)',
+		description: "Database error. (Unprocessable entity)",
 	})
 	deleteFriendByUserIDs(
-		@Body() updateFriendDto: updateFriendDto,
+		@Body() updateFriendDto: updateFriendDto
 	): Promise<DeleteResult> {
 		return this.friendService.deleteFriendByUserIDs(updateFriendDto);
 	}
 
-	@Delete(':id')
-	@ApiOkResponse({description: 'Record deleted by ID.'})
-	@ApiBadRequestResponse({description: 'Bad request'})
+	@Delete(":id")
+	@ApiOkResponse({ description: "Record deleted by ID." })
+	@ApiBadRequestResponse({ description: "Bad request" })
 	@ApiUnprocessableEntityResponse({
-		description: 'Database error. (Unprocessable entity)',
+		description: "Database error. (Unprocessable entity)",
 	})
 	deleteFriendByID(
-		@Param('id', ParseIntPipe) id: number,
+		@Param("id", ParseIntPipe) id: number
 	): Promise<DeleteResult> {
 		return this.friendService.deleteFriendByID(id);
 	}

@@ -10,11 +10,11 @@ export type Game = {
 	otherPlayerScore: number;
 };
 
-function displayGame(game: Game) {
+function displayGame(game: Game, key: number) {
 	const splitDate = game.date.toString().split("T");
 	const dateString = splitDate[0] + " " + splitDate[1].split(".")[0];
 	return (
-		<p>
+		<p key={key}>
 			{game.didIWin ? "Won" : "Lost"} game against{" "}
 			<a href={"/user/" + game.otherPlayerID}>{game.otherPlayerName}</a> :{" "}
 			{game.myScore} - {game.otherPlayerScore} ({dateString})

@@ -1,7 +1,7 @@
-import {Dispatch, SetStateAction} from "react";
-import {Socket} from "socket.io-client";
-import {getUserID} from "../../cookies";
-import {ReceivedInfo, ChatRoom} from "./types";
+import { Dispatch, SetStateAction } from "react";
+import { Socket } from "socket.io-client";
+import { getUserID } from "../../cookies";
+import { ReceivedInfo, ChatRoom } from "./types";
 
 export const SidePannel = (
 	newchannel: string,
@@ -85,7 +85,7 @@ export const SidePannel = (
 		);
 	};
 
-	const channelInfo = (channel: ChatRoom) => {
+	const channelInfo = (channel: ChatRoom, key: number) => {
 		var isCurrent = channel.chatRoomID == currentChatRoomID;
 		// var unreadMessages: number = messages
 		//   .filter((msg: Message) => {
@@ -105,7 +105,7 @@ export const SidePannel = (
 			classname += " dm";
 		}
 		return (
-			<div id="channel-info">
+			<div id="channel-info" key={key}>
 				<li
 					value={channel.chatRoomID}
 					onClick={(e) => {
@@ -163,7 +163,7 @@ export const SidePannel = (
 				{publicChatsPannelElement()}
 				{myChats
 					.sort((a, b) => a.name.localeCompare(b.name))
-					.map((channel: ChatRoom) => channelInfo(channel))}
+					.map((channel: ChatRoom, key: number) => channelInfo(channel, key))}
 			</div>
 		</div>
 	);

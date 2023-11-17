@@ -1,9 +1,9 @@
-import {Dispatch, SetStateAction, useState} from "react";
-import {NavigateFunction} from "react-router-dom";
-import {Socket} from "socket.io-client";
-import {Message, ChatRoom, Invite, PublicChatRoom} from "./types";
-import {ContextMenuEl} from "./ContextMenu";
-import {ReceivedInfo, typeInvite} from "./types";
+import { Dispatch, SetStateAction, useState } from "react";
+import { NavigateFunction } from "react-router-dom";
+import { Socket } from "socket.io-client";
+import { Message, ChatRoom, Invite, PublicChatRoom } from "./types";
+import { ContextMenuEl } from "./ContextMenu";
+import { ReceivedInfo, typeInvite } from "./types";
 
 export const Messages = (
 	currentChatRoom: ChatRoom,
@@ -22,23 +22,23 @@ export const Messages = (
 	blockedUsers: number[],
 	setBlockedUsers: Dispatch<SetStateAction<number[]>>
 ) => {
-	const [contextMenuPos, setContextMenuPos] = useState({x: 0, y: 0});
+	const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
 	const [contextMenuTarget, setContextMenuTarget] = useState({
 		id: null,
 		username: null,
 	});
 
-	const messageStatus = (msg: Message) => {
+	const messageStatus = (msg: Message, key: number) => {
 		if (msg.system) {
 			return (
-				<div id="announcement">
+				<div id="announcement" key={key}>
 					<li>{msg.msg}</li>
 				</div>
 			);
 		}
 		if (msg.senderID === authenticatedUserID) {
 			return (
-				<div id="rightmessage">
+				<div id="rightmessage" key={key}>
 					<span
 						id="sender"
 						onClick={() => {
@@ -53,7 +53,7 @@ export const Messages = (
 			);
 		}
 		return (
-			<div id="leftmessage">
+			<div id="leftmessage" key={key}>
 				<span
 					id="sender"
 					onClick={() => {
@@ -63,7 +63,7 @@ export const Messages = (
 						e.preventDefault();
 						if (currentChatRoom.name !== "" && settings === false) {
 							setContextMenu(true);
-							setContextMenuPos({x: e.pageX, y: e.pageY});
+							setContextMenuPos({ x: e.pageX, y: e.pageY });
 							setContextMenuTarget({
 								id: msg.senderID,
 								username: msg.senderUsername,
@@ -226,11 +226,12 @@ export const Messages = (
 
 	function displayMessages(currentChatRoom: ChatRoom) {
 		if (currentChatRoom === undefined) return <div></div>;
-		return currentChatRoom.messages
+		const messages = currentChatRoom.messages
 			.filter((message: Message) => {
 				return !blockedUsers.includes(message.senderID);
 			})
 			.map(messageStatus);
+		return <div>{messages}</div>;
 	}
 
 	return (

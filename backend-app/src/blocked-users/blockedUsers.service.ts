@@ -1,15 +1,15 @@
-import {Inject, Injectable, forwardRef} from '@nestjs/common';
-import {InjectRepository} from '@nestjs/typeorm';
-import {BlockedUserEntity} from 'src/blocked-users/entities/BlockedUser.entity';
-import {DeleteResult, Repository} from 'typeorm';
+import { Inject, Injectable, forwardRef } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { BlockedUserEntity } from "src/blocked-users/entities/BlockedUser.entity";
+import { DeleteResult, Repository } from "typeorm";
 import {
 	createBlockedUserParams,
 	updateBlockedUserParams,
-} from './utils/types';
-import {sendBlockedUserDto} from './dtos/sendBlockedUser.dto';
-import {UsersService} from 'src/users/users.service';
-import {BadRequestException} from '@nestjs/common';
-import {FriendsService} from 'src/friends/friends.service';
+} from "./utils/types";
+import { sendBlockedUserDto } from "./dtos/sendBlockedUser.dto";
+import { UsersService } from "src/users/users.service";
+import { BadRequestException } from "@nestjs/common";
+import { FriendsService } from "src/friends/friends.service";
 
 @Injectable()
 export class BlockedUsersService {
@@ -19,11 +19,11 @@ export class BlockedUsersService {
 		@Inject(forwardRef(() => UsersService))
 		private userService: UsersService,
 		@Inject(forwardRef(() => FriendsService))
-		private friendService: FriendsService,
+		private friendService: FriendsService
 	) {}
 
 	private formatBlockedUserForSending(
-		blockedUser: BlockedUserEntity,
+		blockedUser: BlockedUserEntity
 	): sendBlockedUserDto {
 		const sendBlockedUser: sendBlockedUserDto = {
 			blockingUserID: blockedUser.blockingUser.id,
@@ -37,118 +37,132 @@ export class BlockedUsersService {
 	}
 
 	private formatBlockedUserArrayForSending(
-		blockedUsers: BlockedUserEntity[],
+		blockedUsers: BlockedUserEntity[]
 	): sendBlockedUserDto[] {
 		return blockedUsers.map(this.formatBlockedUserForSending);
 	}
 
 	async fetchBlockedUsers(): Promise<sendBlockedUserDto[]> {
 		const blockedUsers = await this.blockedUserRepository.find({
-			relations: ['blockingUser', 'blockedUser'],
+			relations: ["blockingUser", "blockedUser"],
 		});
 		return this.formatBlockedUserArrayForSending(blockedUsers);
 	}
 
 	async fetchBlockedUserByID(id: number): Promise<sendBlockedUserDto> {
 		const blockedUser = await this.blockedUserRepository.findOne({
-			where: {id},
-			relations: ['blockingUser', 'blockedUser'],
+			where: { id },
+			relations: ["blockingUser", "blockedUser"],
 		});
 		return this.formatBlockedUserForSending(blockedUser);
 	}
 
 	async fetchBlockedUsersByUserID(
-		userID: number,
+		userID: number
 	): Promise<sendBlockedUserDto[]> {
 		const usersIAmBlocking = await this.blockedUserRepository.find({
-			where: [{blockingUser: {id: userID}}],
-			relations: ['blockingUser', 'blockedUser'],
+			where: [{ blockingUser: { id: userID } }],
+			relations: ["blockingUser", "blockedUser"],
 		});
 		return this.formatBlockedUserArrayForSending(usersIAmBlocking);
 	}
 
 	async fetchBlockingUsersByUserID(
-		userID: number,
+		userID: number
 	): Promise<sendBlockedUserDto[]> {
 		const usersBlockingMe = await this.blockedUserRepository.find({
-			where: [{blockedUser: {id: userID}}],
-			relations: ['blockingUser', 'blockedUser'],
+			where: [{ blockedUser: { id: userID } }],
+			relations: ["blockingUser", "blockedUser"],
 		});
 		return this.formatBlockedUserArrayForSending(usersBlockingMe);
 	}
 
 	async usersAreBlockingEachOtherByUserIDs(
 		userID1: number,
-		userID2: number,
+		userID2: number
 	): Promise<boolean> {
 		const foundRecord = await this.blockedUserRepository.find({
 			where: [
 				{
-					blockingUser: {id: userID1},
-					blockedUser: {id: userID2},
+					blockingUser: { id: userID1 },
+					blockedUser: { id: userID2 },
 				},
 				{
-					blockingUser: {id: userID2},
-					blockedUser: {id: userID1},
+					blockingUser: { id: userID2 },
+					blockedUser: { id: userID1 },
 				},
 			],
-			relations: ['blockingUser', 'blockedUser'],
+			relations: ["blockingUser", "blockedUser"],
 		});
 		return foundRecord.length > 0;
 	}
 
 	async fetchBlockedUserEntityByUserIDs(
 		blockingUserID: number,
-		blockedUserID: number,
+		blockedUserID: number
 	): Promise<BlockedUserEntity> {
 		const blockingUser = await this.userService.fetchUserByID(blockingUserID);
 		const blockedUser = await this.userService.fetchUserByID(blockedUserID);
 		if (!blockingUser || !blockedUser)
-			throw new BadRequestException('User not found');
+			throw new BadRequestException("User not found");
 		const foundRecord = await this.blockedUserRepository.findOne({
 			where: [
 				{
-					blockingUser: {id: blockingUser.id},
-					blockedUser: {id: blockedUser.id},
+					blockingUser: { id: blockingUser.id },
+					blockedUser: { id: blockedUser.id },
 				},
 			],
-			relations: ['blockingUser', 'blockedUser'],
+			relations: ["blockingUser", "blockedUser"],
 		});
 		return foundRecord;
 	}
 
+	async isUserBlockedByUserIDs(
+		blockingUserID: number,
+		blockedUserID: number
+	): Promise<boolean> {
+		const blockedUserEntity = await this.fetchBlockedUserEntityByUserIDs(
+			blockingUserID,
+			blockedUserID
+		);
+		if (!blockedUserEntity) {
+			return false;
+		}
+		return true;
+	}
+
 	async fetchBlockedUserByUserIDs(
 		blockingUserID: number,
-		blockedUserID: number,
+		blockedUserID: number
 	): Promise<sendBlockedUserDto> {
 		const blockedUserEntity = await this.fetchBlockedUserEntityByUserIDs(
 			blockingUserID,
-			blockedUserID,
+			blockedUserID
 		);
 		if (!blockedUserEntity) {
-			throw new BadRequestException('Could not find blockedUser relation');
+			throw new BadRequestException("Could not find blockedUser relation");
 		}
 		return this.formatBlockedUserForSending(blockedUserEntity);
 	}
 
 	async createBlockedUser(
-		blockedUserDetails: createBlockedUserParams,
+		blockedUserDetails: createBlockedUserParams
 	): Promise<BlockedUserEntity> {
 		if (blockedUserDetails.blockingUserID === blockedUserDetails.blockedUserID)
-			throw new BadRequestException('Cannot blocked yourself !');
+			throw new BadRequestException("Cannot blocked yourself !");
 		const blockingUser = await this.userService.fetchUserByID(
-			blockedUserDetails.blockingUserID,
+			blockedUserDetails.blockingUserID
 		);
 		const blockedUser = await this.userService.fetchUserByID(
-			blockedUserDetails.blockedUserID,
+			blockedUserDetails.blockedUserID
 		);
 		if (!blockingUser || !blockedUser)
-			throw new BadRequestException('User not found');
+			throw new BadRequestException("User not found");
 		const foundRecord = await this.blockedUserRepository.find({
 			where: [
 				{
-					blockingUser: {id: blockingUser.id},
-					blockedUser: {id: blockedUser.id},
+					blockingUser: { id: blockingUser.id },
+					blockedUser: { id: blockedUser.id },
 				},
 			],
 		});
@@ -165,21 +179,21 @@ export class BlockedUsersService {
 				userID2: blockedUser.id,
 			});
 		} catch (e) {
-			console.log('[BlockedUser service] Caught error');
+			console.log("[BlockedUser service] Caught error");
 		}
 		return this.blockedUserRepository.save(newBlockedUser);
 	}
 
 	async deleteBlockedUserByID(id: number): Promise<DeleteResult> {
-		return this.blockedUserRepository.delete({id});
+		return this.blockedUserRepository.delete({ id });
 	}
 
 	async deleteBlockedUserByUserIDs(
-		blockedUserDetails: updateBlockedUserParams,
+		blockedUserDetails: updateBlockedUserParams
 	): Promise<DeleteResult> {
 		const blockedUserRelationship = await this.fetchBlockedUserEntityByUserIDs(
 			blockedUserDetails.blockingUserID,
-			blockedUserDetails.blockedUserID,
+			blockedUserDetails.blockedUserID
 		);
 		if (blockedUserRelationship)
 			return this.deleteBlockedUserByID(blockedUserRelationship.id);
