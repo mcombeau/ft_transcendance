@@ -33,7 +33,9 @@ function App() {
 			},
 		};
 
-		fetch(`http://localhost/backend/users/${getUserID(cookies)}`, request).then(
+		const currentUserID: number = getUserID(cookies);
+		if (!currentUserID) return;
+		fetch(`http://localhost/backend/users/${currentUserID}`, request).then(
 			async (response) => {
 				await response.json();
 				if (!response.ok) {
