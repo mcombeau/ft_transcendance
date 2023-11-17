@@ -50,7 +50,7 @@ function App() {
 		<>
 			<Router>
 				<AuthenticationContext.Provider value={value}>
-					<NavBar className="Nav" />
+					<NavBar />
 					<Routes>
 						<Route path="/" element={<Home />} />
 						<Route path="/login" element={<Login />} />

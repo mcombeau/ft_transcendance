@@ -16,7 +16,7 @@ function Login() {
 	let navigate = useNavigate();
 	const { setAuthenticatedUserID } = useContext(AuthenticationContext);
 
-	const sendAuth = async (e) => {
+	const sendAuth = async (e: any) => {
 		e.preventDefault();
 		if (username === "" || password === "") return;
 		var request = {
@@ -46,7 +46,7 @@ function Login() {
 		navigate(`/user/${loggedUserID}`);
 	};
 
-	const signIn = (e) => {
+	const signIn = (e: any) => {
 		e.preventDefault();
 		if (newUsername === "" || newPassword === "" || email === "") return;
 		var request = {

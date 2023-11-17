@@ -1,20 +1,18 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { AuthenticationContext } from "../authenticationState";
 
 import {
 	NavbarContainer,
 	LeftContainer,
 	RightContainer,
-	NavbarExtendedContainer,
 	NavbarInnerContainer,
 	NavbarLinkContainer,
 	NavbarLink,
 	Logo,
 } from "./NavBar.style";
-import LogoImg from "./../../ping.svg";
+import LogoImg from "/app/src/inc/img/ping.svg";
 
 function Navbar() {
-	// const [extendNavbar, setExtendNavbar] = useState(false);
 	const { authenticatedUserID } = useContext(AuthenticationContext);
 
 	useEffect(() => {
@@ -54,33 +52,5 @@ function Navbar() {
 		</NavbarContainer>
 	);
 }
-// TODO: if add type to navbarcontainer to make it work
-// <OpenLinksButton
-// 	onClick={() => {
-// 		setExtendNavbar((curr) => !curr);
-// 	}}
-// >
-// 	{extendNavbar ? <>&#10005;</> : <> &#8801;</>}
-// </OpenLinksButton>
-// {extendNavbar && (
-//   <NavbarExtendedContainer>
-//     <NavbarLinkExtended to="/"> Home</NavbarLinkExtended>
-//     <NavbarLinkExtended to="/login"> Login</NavbarLinkExtended>
-//     <NavbarLinkExtended to="/chat"> Chat</NavbarLinkExtended>
-//     <NavbarLinkExtended to="/play"> Play</NavbarLinkExtended>
-//     <NavbarLinkExtended to="/leaderboard">
-//       {" "}
-//       Leaderboard
-//     </NavbarLinkExtended>
-//     {authenticatedUserID && (
-//       <NavbarLinkExtended to={"/user/" + authenticatedUserID}>
-//         Profile
-//       </NavbarLinkExtended>
-//     )}
-//     {authenticatedUserID && (
-//       <NavbarLinkExtended to="/logout">Logout</NavbarLinkExtended>
-//     )}
-//   </NavbarExtendedContainer>
-// )}
 
 export default Navbar;
