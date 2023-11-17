@@ -126,14 +126,14 @@ async function checkIfIsMyFriend(
 			userID2: user.id,
 		}),
 	};
-	await fetch(`http://localhost/backend/friends/friend`, request).then(
+	await fetch(`http://localhost/backend/friends/isMyFriend`, request).then(
 		async (response) => {
+			const data = await response.json();
 			if (!response.ok) {
-				console.log("Fetch friends bad request???");
-				setIsMyFriend(false);
-			} else {
-				setIsMyFriend(true);
+				console.log("Fetch friends bad request");
+				return;
 			}
+			setIsMyFriend(data);
 		}
 	);
 }
