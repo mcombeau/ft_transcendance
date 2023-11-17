@@ -8,7 +8,7 @@
 
 #login {
 	display: flex;
-	background-image: url("/app/src/inc/img/pong.jpg");
+	background-image: url("/app/src/inc/img/backgroundUnblurred.jpg");
 	background-size: cover;
 	background-position: center;
 	background-repeat: no-repeat;

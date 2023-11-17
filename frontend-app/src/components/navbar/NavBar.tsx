@@ -10,7 +10,7 @@ import {
 	NavbarLink,
 	Logo,
 } from "./NavBar.style";
-import LogoImg from "/app/src/inc/img/ping.svg";
+import LogoImg from "/app/src/inc/img/logo.svg";
 
 function Navbar() {
 	const { authenticatedUserID } = useContext(AuthenticationContext);

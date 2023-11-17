@@ -18,7 +18,7 @@
 body {
 	margin: 0;
 	padding: 0;
-	background: url("/app/src/inc/img/back2.jpg");
+	background: url("/app/src/inc/img/lowerBackground.jpg");
 	font-family: "Montserrat", sans-serif;
 	background-repeat: no-repeat;
 	background-position: center;
@@ -43,7 +43,7 @@ body {
 header {
 	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1), 0 3px 6 px rgba(0, 0, 0, 0.1);
 	background: #eee;
-	background-image: url("/app/src/inc/img/4307571.jpg");
+	background-image: url("/app/src/inc/img/upperBackground.jpg");
 	background-repeat: no-repeat;
 	background-position: center;
 	background-size: cover;
