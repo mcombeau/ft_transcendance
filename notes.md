@@ -33,6 +33,7 @@
 
   - 404 if page not exist (not tostring business)
   - people offline when logged
+  - Error in back if token expired => handle it
 
 - validation:
 
