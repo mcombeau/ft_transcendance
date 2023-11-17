@@ -133,7 +133,7 @@ async function checkIfIsMyFriend(
 				console.log("Fetch friends bad request");
 				return;
 			}
-			setIsMyFriend(data);
+			setIsMyFriend(data.areFriends);
 		}
 	);
 }
@@ -165,7 +165,7 @@ async function checkIfIsBlocked(
 			console.log("Fetch is user blocked bad request");
 			return;
 		}
-		setIsBlocked(data);
+		setIsBlocked(data.isBlocked);
 	});
 }
 

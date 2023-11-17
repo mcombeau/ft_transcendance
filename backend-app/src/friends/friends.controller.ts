@@ -34,13 +34,14 @@ export class FriendsController {
 		type: sendFriendDto,
 		description: "Check if friend relation exists by user ids",
 	})
-	checkIfFriendRelationExistByUserIDs(
+	async checkIfFriendRelationExistByUserIDs(
 		@Body() friendDto: createFriendDto
-	): Promise<boolean> {
-		return this.friendService.doesFriendRelationExist(
+	): Promise<{ areFriends: boolean }> {
+		const areFriends = await this.friendService.doesFriendRelationExist(
 			friendDto.userID1,
 			friendDto.userID2
 		);
+		return { areFriends: areFriends };
 	}
 
 	@Get(":id")

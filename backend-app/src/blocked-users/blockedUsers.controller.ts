@@ -34,13 +34,14 @@ export class BlockedUsersController {
 		type: sendBlockedUserDto,
 		description: "Get one blockedUser relationship.",
 	})
-	checkIfIsBlockedUserByUserIDs(
+	async checkIfIsBlockedUserByUserIDs(
 		@Body() blockedUserDto: createBlockedUserDto
-	): Promise<boolean> {
-		return this.blockedUserService.isUserBlockedByUserIDs(
+	): Promise<{ isBlocked: boolean }> {
+		const isBlocked = await this.blockedUserService.isUserBlockedByUserIDs(
 			blockedUserDto.blockingUserID,
 			blockedUserDto.blockedUserID
 		);
+		return { isBlocked: isBlocked };
 	}
 
 	@Get(":id")
