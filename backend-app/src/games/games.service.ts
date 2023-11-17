@@ -39,8 +39,11 @@ export class GamesService {
 		);
 	}
 
-	fetchGames() {
-		return this.gameRepository.find();
+	async fetchGames(): Promise<sendGameDto[]> {
+		const allGames = await this.gameRepository.find({
+			relations: ["winner", "loser"],
+		});
+		return this.formatGamesArrayForSending(allGames);
 	}
 
 	async saveGame(gameDetails: createGameParams) {
