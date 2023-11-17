@@ -3,7 +3,6 @@
 - Cleanup
 
   - change alerts to smth else (notifs ?)
-  * cleanup all errors/warnings front
   - allow access to chat/leaderboard ... but prompt for sign in
 
 - Game
