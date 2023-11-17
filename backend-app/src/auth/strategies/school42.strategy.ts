@@ -10,14 +10,15 @@ import { UsersService } from "src/users/users.service";
 import axios from "axios";
 import { UserEntity } from "src/users/entities/user.entity";
 
+const CALLBACKURL = "http://localhost/backend/auth/callback";
 @Injectable()
 export class school42Strategy extends PassportStrategy(Strategy, "42") {
 	constructor(
 		@Inject(forwardRef(() => UsersService)) private userService: UsersService
 	) {
 		super({
-			callbackURL: "http://localhost:3001/auth/callback",
-			authorizationURL: `https://api.intra.42.fr/oauth/authorize?client_id=${process.env.AUTH42_CLIENT_ID}&redirect_uri=http%3A%2F%2Flocalhost%3A3001%2Fauth%2Fcallback&response_type=code&grant_type=authorization_code`,
+			callbackURL: CALLBACKURL,
+			authorizationURL: `https://api.intra.42.fr/oauth/authorize?client_id=${process.env.AUTH42_CLIENT_ID}&redirect_uri=${CALLBACKURL}&response_type=code&grant_type=authorization_code`,
 			tokenURL: "https://api.intra.42.fr/oauth/token",
 			clientID: process.env.AUTH42_CLIENT_ID,
 			clientSecret: process.env.AUTH42_CLIENT_SECRET,
