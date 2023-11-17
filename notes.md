@@ -6,6 +6,7 @@
   - move to typescript everywhere
   - cleanup all errors/warnings front
   - allow access to chat/leaderboard ... but prompt for sign in
+  - move pictures to includes
 
 - Game
 
