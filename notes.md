@@ -1,10 +1,12 @@
 %% TODO: Update with subject todo (from notion)
 
 - Cleanup
+
   - change alerts to smth else (notifs ?)
   - allow access to chat/leaderboard ... but prompt for sign in
 
 - Game
+
   - explain controls
   - draw background in css
   - personalization
@@ -19,24 +21,29 @@
   - Dm button on other people
 
 - Bugs
+
   - 404 if page not exist (not tostring business)
   - people offline when logged
   - Error in back if token expired => handle it
 
 - validation:
+
   - validation channel name
   - validate passwords
 
 - passwords:
+
   - limit number of passwgrd retries on join/accept invite
   - tell user to fuck off if wrong username/password
 
 - Appearance
+
   - css for game/lobby/endgamescreen
   - css profile settings
   - redo the login page (without styled components)
 
 - Project validation
+
   - check we are protected against sql injections
   - all libraries are in latest stable version
   - server side validation for forms and user input
@@ -64,8 +71,5 @@
   - you won/ you lost screen + replay button
   - limit game history to X games
   - Achievements
-<<<<<<< HEAD
   - use 42 profile picture as default user pic
-=======
   - Extended navbar
->>>>>>> main
