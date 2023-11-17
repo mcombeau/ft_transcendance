@@ -160,13 +160,12 @@ async function checkIfIsBlocked(
 		`http://localhost/backend/blocked-users/isUserBlocked`,
 		request
 	).then(async (response) => {
-		console.log("is blocked response");
-		console.log(response);
+		const data = await response.json();
 		if (!response.ok) {
-			setIsBlocked(false);
-		} else {
-			setIsBlocked(true);
+			console.log("Fetch is user blocked bad request");
+			return;
 		}
+		setIsBlocked(data);
 	});
 }
 
