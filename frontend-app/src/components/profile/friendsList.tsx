@@ -7,6 +7,7 @@ export type Friend = {
 	id: number;
 	username: string;
 	status: UserStatus;
+	avatar?: string;
 };
 
 export type PlayerInfo = {
@@ -123,7 +124,8 @@ function displayFriend(
 		return (
 			<li key={key}>
 				<a href={"/user/" + friend.id}>
-					{friend.username} ({friend.status}{" "}
+					<img src={friend.avatar} width={30} height={30} /> {friend.username} (
+					{friend.status}{" "}
 					{friendGame ? <div> - {linkToGame(friendGame)}</div> : ""})
 				</a>
 				{blockButton(myID, friend.id, cookies, setFriends)}
@@ -131,6 +133,16 @@ function displayFriend(
 			</li>
 		);
 	}
+	// TODO: maybe add an add friend/unfriend button
+	return (
+		<li key={key}>
+			<a href={"/user/" + friend.id}>
+				<img src={friend.avatar} width={30} height={30} /> {friend.username} (
+				{friend.status}{" "}
+				{friendGame ? <div> - {linkToGame(friendGame)}</div> : ""})
+			</a>
+		</li>
+	);
 }
 
 function displayFriends(
@@ -176,33 +188,53 @@ function FriendsList(isMyPage: boolean, user: User, cookies: any) {
 				Authorization: `Bearer ${cookies["token"]}`,
 			},
 		};
-		fetch(`http://localhost/backend/users/${userID}/friends`, request).then(
-			async (response) => {
-				const friendsData = await response.json();
-				if (!response.ok) {
-					console.log("error response loading friends list");
-					return <h1>No Friends loaded</h1>;
-				}
-				var fetchedFriends = friendsData.map((fetchedFriend: any) => {
+		await fetch(
+			`http://localhost/backend/users/${userID}/friends`,
+			request
+		).then(async (response) => {
+			const friendsData = await response.json();
+			if (!response.ok) {
+				console.log("error response loading friends list");
+				return <h1>No Friends loaded</h1>;
+			}
+			var fetchedFriends = await Promise.all(
+				friendsData.map(async (fetchedFriend: any) => {
 					const amIUser1 = fetchedFriend.userID1 === user.id;
+
+					const avatar: string = await fetch(
+						`http://localhost/backend/users/${
+							amIUser1 ? fetchedFriend.userID2 : fetchedFriend.userID1
+						}/avatar`,
+						request
+					).then(async (response) => {
+						const data = await response.blob();
+						if (!response.ok) {
+							console.log("error fetching avatar");
+							return null;
+						}
+						const src = URL.createObjectURL(data);
+						return src;
+					});
 					if (!amIUser1) {
 						var newFriend: Friend = {
 							id: fetchedFriend.userID1,
 							username: fetchedFriend.username1,
 							status: fetchedFriend.userStatus1,
+							avatar: avatar,
 						};
 					} else {
 						var newFriend: Friend = {
 							id: fetchedFriend.userID2,
 							username: fetchedFriend.username2,
 							status: fetchedFriend.userStatus2,
+							avatar: avatar,
 						};
 					}
 					return newFriend;
-				});
-				setFriends([...fetchedFriends]);
-			}
-		);
+				})
+			);
+			setFriends([...fetchedFriends]);
+		});
 		fetch(
 			`http://localhost/backend/users/${userID}/blockedUsers`,
 			request
