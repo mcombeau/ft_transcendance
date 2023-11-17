@@ -1,5 +1,3 @@
-//TODO: PUT THIS IN ENV OR SOMETHING!
 export const jwtConstants = {
-  secret: 'FT_TRANSCENDENCE_JSONWEBTOKEN1029384756',
+	secret: process.env.JWT_SECRET,
 };
-

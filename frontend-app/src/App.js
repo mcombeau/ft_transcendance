@@ -14,57 +14,58 @@ import { AuthenticationContext } from "./components/authenticationState";
 import Logout from "./components/logout/logout";
 
 function App() {
-  const [cookies, , removeCookie] = useCookies(["token"]);
-  const [authenticatedUserID, setAuthenticatedUserID] = useState(
-    getUserID(cookies)
-  );
-  const value = useMemo(
-    () => ({ authenticatedUserID, setAuthenticatedUserID }),
-    [authenticatedUserID]
-  );
+	const [cookies, , removeCookie] = useCookies(["token"]);
+	const [authenticatedUserID, setAuthenticatedUserID] = useState(
+		getUserID(cookies)
+	);
+	const value = useMemo(
+		() => ({ authenticatedUserID, setAuthenticatedUserID }),
+		[authenticatedUserID]
+	);
 
-  useEffect(() => {
-    // Check user with id actually exists in database
+	useEffect(() => {
+		// Check user with id actually exists in database
 
-    var request = {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${cookies["token"]}`,
-      },
-    };
+		var request = {
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${cookies["token"]}`,
+			},
+		};
 
-    fetch(`http://localhost:3001/users/${getUserID(cookies)}`, request).then(
-      async (response) => {
-        await response.json();
-        if (!response.ok) {
-          setAuthenticatedUserID(null);
-          removeCookie("token", { path: "/" });
-          return;
-        }
-        setAuthenticatedUserID(getUserID(cookies));
-      }
-    );
-  }, []);
+		fetch(`http://localhost/backend/users/${getUserID(cookies)}`, request).then(
+			async (response) => {
+				await response.json();
+				if (!response.ok) {
+					setAuthenticatedUserID(null);
+					removeCookie("token", { path: "/" });
+					return;
+				}
+				setAuthenticatedUserID(getUserID(cookies));
+			}
+		);
+	}, []);
 
-  return (
-    <>
-      <Router>
-        <AuthenticationContext.Provider value={value}>
-          <NavBar className="Nav" />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/chat" element={<Chat />} />
-            <Route path="/play/:inviteID" element={<Play />} />
-            <Route path="/play" element={<Play />} />
-            <Route path="/leaderboard" element={<Leaderboard />} />
-            <Route path="/user/:id" element={<Profile />} />
-            <Route path="/logout" element={<Logout />} />
-          </Routes>
-        </AuthenticationContext.Provider>
-      </Router>
-    </>
-  );
+	return (
+		<>
+			<Router>
+				<AuthenticationContext.Provider value={value}>
+					<NavBar className="Nav" />
+					<Routes>
+						<Route path="/" element={<Home />} />
+						<Route path="/login" element={<Login />} />
+						<Route path="/chat" element={<Chat />} />
+						<Route path="/play/:inviteID" element={<Play />} />
+						<Route path="/watch/:gameID" element={<Play />} />
+						<Route path="/play" element={<Play />} />
+						<Route path="/leaderboard" element={<Leaderboard />} />
+						<Route path="/user/:id" element={<Profile />} />
+						<Route path="/logout" element={<Logout />} />
+					</Routes>
+				</AuthenticationContext.Provider>
+			</Router>
+		</>
+	);
 }
 
 export default App;

@@ -1,24 +1,24 @@
-import { ApiProperty } from '@nestjs/swagger';
+import {ApiProperty} from '@nestjs/swagger';
 
 export class sendParticipantDto {
-  @ApiProperty()
-  userID: number;
+	@ApiProperty()
+	userID: number;
 
-  @ApiProperty()
-  username: string;
+	@ApiProperty()
+	username: string;
 
-  @ApiProperty()
-  chatRoomID: number;
+	@ApiProperty()
+	chatRoomID: number;
 
-  @ApiProperty()
-  isOwner: boolean;
+	@ApiProperty()
+	isOwner: boolean;
 
-  @ApiProperty()
-  isOperator: boolean;
+	@ApiProperty()
+	isOperator: boolean;
 
-  @ApiProperty()
-  isBanned: boolean;
+	@ApiProperty()
+	isBanned: boolean;
 
-  @ApiProperty()
-  mutedUntil: number;
+	@ApiProperty()
+	mutedUntil: number;
 }
