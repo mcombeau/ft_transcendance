@@ -17,15 +17,11 @@
 
 - Profile
 
-  - Ladder level
-  - ladder (whatever that is ?)
-  - frontend give feedback when invalid avatar image sent to back (400 response from back)
-  - see friends avatar
+  - ladder (whatever that is ?) history ?
   - My profile
     - change 2fa activation
     - disable
-  - other people
-    - ( dm button )
+  - Dm button on other people
 
 - Bugs
 
