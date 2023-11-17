@@ -1,5 +1,5 @@
 import "./App.css";
-import NavBar from "./components/navbar/navbar";
+import NavBar from "./components/navbar/NavBar";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Home from "./components/home/home";
 import Login from "./components/login/login";
@@ -33,7 +33,9 @@ function App() {
 			},
 		};
 
-		fetch(`http://localhost/backend/users/${getUserID(cookies)}`, request).then(
+		const currentUserID: number = getUserID(cookies);
+		if (!currentUserID) return;
+		fetch(`http://localhost/backend/users/${currentUserID}`, request).then(
 			async (response) => {
 				await response.json();
 				if (!response.ok) {
@@ -44,13 +46,13 @@ function App() {
 				setAuthenticatedUserID(getUserID(cookies));
 			}
 		);
-	}, []);
+	}, [cookies, removeCookie]);
 
 	return (
 		<>
 			<Router>
 				<AuthenticationContext.Provider value={value}>
-					<NavBar className="Nav" />
+					<NavBar />
 					<Routes>
 						<Route path="/" element={<Home />} />
 						<Route path="/login" element={<Login />} />

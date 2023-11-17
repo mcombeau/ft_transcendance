@@ -3,8 +3,6 @@
 - Cleanup
 
   - change alerts to smth else (notifs ?)
-  - move to typescript everywhere
-  - cleanup all errors/warnings front
   - allow access to chat/leaderboard ... but prompt for sign in
 
 - Game
@@ -79,3 +77,4 @@
   - you won/ you lost screen + replay button
   - limit game history to X games
   - Achievements
+  - Extended navbar

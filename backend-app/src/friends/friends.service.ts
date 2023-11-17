@@ -1,12 +1,12 @@
-import {Inject, Injectable, forwardRef} from '@nestjs/common';
-import {InjectRepository} from '@nestjs/typeorm';
-import {FriendEntity} from 'src/friends/entities/Friend.entity';
-import {DeleteResult, Repository} from 'typeorm';
-import {createFriendParams, updateFriendParams} from './utils/types';
-import {sendFriendDto} from './dtos/sendFriend.dto';
-import {UsersService} from 'src/users/users.service';
-import {BadRequestException} from '@nestjs/common';
-import {BlockedUsersService} from 'src/blocked-users/blockedUsers.service';
+import { Inject, Injectable, forwardRef } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { FriendEntity } from "src/friends/entities/Friend.entity";
+import { DeleteResult, Repository } from "typeorm";
+import { createFriendParams, updateFriendParams } from "./utils/types";
+import { sendFriendDto } from "./dtos/sendFriend.dto";
+import { UsersService } from "src/users/users.service";
+import { BadRequestException } from "@nestjs/common";
+import { BlockedUsersService } from "src/blocked-users/blockedUsers.service";
 
 @Injectable()
 export class FriendsService {
@@ -16,7 +16,7 @@ export class FriendsService {
 		@Inject(forwardRef(() => UsersService))
 		private userService: UsersService,
 		@Inject(forwardRef(() => BlockedUsersService))
-		private blockedUserService: BlockedUsersService,
+		private blockedUserService: BlockedUsersService
 	) {}
 
 	private formatFriendForSending(friend: FriendEntity): sendFriendDto {
@@ -32,95 +32,109 @@ export class FriendsService {
 	}
 
 	private formatFriendArrayForSending(
-		friends: FriendEntity[],
+		friends: FriendEntity[]
 	): sendFriendDto[] {
 		return friends.map(this.formatFriendForSending);
 	}
 
 	async fetchFriends(): Promise<sendFriendDto[]> {
 		const friends = await this.friendRepository.find({
-			relations: ['user1', 'user2'],
+			relations: ["user1", "user2"],
 		});
 		return this.formatFriendArrayForSending(friends);
 	}
 
 	async fetchFriendByID(id: number): Promise<sendFriendDto> {
 		const friend = await this.friendRepository.findOne({
-			where: {id},
-			relations: ['user1', 'user2'],
+			where: { id },
+			relations: ["user1", "user2"],
 		});
 		return this.formatFriendForSending(friend);
 	}
 
 	async fetchFriendsByUserID(id: number): Promise<sendFriendDto[]> {
 		const friends = await this.friendRepository.find({
-			where: [{user1: {id: id}}, {user2: {id: id}}],
-			relations: ['user1', 'user2'],
+			where: [{ user1: { id: id } }, { user2: { id: id } }],
+			relations: ["user1", "user2"],
 		});
 		return this.formatFriendArrayForSending(friends);
 	}
 
 	async fetchFriendEntityByUserIDs(
 		userID1: number,
-		userID2: number,
+		userID2: number
 	): Promise<FriendEntity> {
 		const user1 = await this.userService.fetchUserByID(userID1);
 		const user2 = await this.userService.fetchUserByID(userID2);
-		if (!user1 || !user2) throw new BadRequestException('User not found');
+		if (!user1 || !user2) throw new BadRequestException("User not found");
 		const foundRecord = await this.friendRepository.findOne({
 			where: [
 				{
-					user1: {id: user1.id},
-					user2: {id: user2.id},
+					user1: { id: user1.id },
+					user2: { id: user2.id },
 				},
 				{
-					user1: {id: user2.id},
-					user2: {id: user1.id},
+					user1: { id: user2.id },
+					user2: { id: user1.id },
 				},
 			],
-			relations: ['user1', 'user2'],
+			relations: ["user1", "user2"],
 		});
 		return foundRecord;
 	}
 
+	async doesFriendRelationExist(
+		userID1: number,
+		userID2: number
+	): Promise<boolean> {
+		const friendEntity = await this.fetchFriendEntityByUserIDs(
+			userID1,
+			userID2
+		);
+		if (!friendEntity) {
+			return false;
+		}
+		return true;
+	}
+
 	async fetchFriendByUserIDs(
 		userID1: number,
-		userID2: number,
+		userID2: number
 	): Promise<sendFriendDto> {
 		const friendEntity = await this.fetchFriendEntityByUserIDs(
 			userID1,
-			userID2,
+			userID2
 		);
 		if (!friendEntity) {
-			throw new BadRequestException('Could not find friend relation');
+			throw new BadRequestException("Could not find friend relation");
 		}
 		return this.formatFriendForSending(friendEntity);
 	}
 
 	async createFriend(friendDetails: createFriendParams): Promise<FriendEntity> {
 		if (friendDetails.userID1 === friendDetails.userID2)
-			throw new BadRequestException('Cannot friend yourself !');
+			throw new BadRequestException("Cannot friend yourself !");
 		const user1 = await this.userService.fetchUserByID(friendDetails.userID1);
 		const user2 = await this.userService.fetchUserByID(friendDetails.userID2);
-		if (!user1 || !user2) throw new BadRequestException('User not found');
+		if (!user1 || !user2) throw new BadRequestException("User not found");
 		const areBlocked =
 			await this.blockedUserService.usersAreBlockingEachOtherByUserIDs(
 				user1.id,
-				user2.id,
+				user2.id
 			);
 		if (areBlocked) {
-			throw new BadRequestException('Cannot friend a blocked user');
+			throw new BadRequestException("Cannot friend a blocked user");
 		}
 
 		const foundRecord = await this.friendRepository.find({
 			where: [
 				{
-					user1: {id: user1.id},
-					user2: {id: user2.id},
+					user1: { id: user1.id },
+					user2: { id: user2.id },
 				},
 				{
-					user1: {id: user2.id},
-					user2: {id: user1.id},
+					user1: { id: user2.id },
+					user2: { id: user1.id },
 				},
 			],
 		});
@@ -135,15 +149,15 @@ export class FriendsService {
 	}
 
 	async deleteFriendByID(id: number): Promise<DeleteResult> {
-		return this.friendRepository.delete({id});
+		return this.friendRepository.delete({ id });
 	}
 
 	async deleteFriendByUserIDs(
-		friendDetails: updateFriendParams,
+		friendDetails: updateFriendParams
 	): Promise<DeleteResult> {
 		const friendRelationship = await this.fetchFriendEntityByUserIDs(
 			friendDetails.userID1,
-			friendDetails.userID2,
+			friendDetails.userID2
 		);
 		if (friendRelationship) return this.deleteFriendByID(friendRelationship.id);
 	}

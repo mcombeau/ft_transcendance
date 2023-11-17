@@ -104,11 +104,12 @@ function displayFriend(
 	cookies: any,
 	setFriends: any,
 	gameInfos: GameInfo[],
+	key: number,
 	blocked: boolean = false
 ) {
 	if (blocked) {
 		return (
-			<li>
+			<li key={key}>
 				<a href={"/user/" + friend.id}>
 					{friend.username} ({friend.status})
 				</a>
@@ -120,7 +121,7 @@ function displayFriend(
 	// TODO: add a challenge button
 	if (isMyPage) {
 		return (
-			<li>
+			<li key={key}>
 				<a href={"/user/" + friend.id}>
 					{friend.username} ({friend.status}{" "}
 					{friendGame ? <div> - {linkToGame(friendGame)}</div> : ""})
@@ -145,7 +146,7 @@ function displayFriends(
 		return <ul>{blocked ? "Nobody blocked" : "No friends"}</ul>;
 	return (
 		<ul>
-			{friends.map((friend: Friend) =>
+			{friends.map((friend: Friend, key: number) =>
 				displayFriend(
 					friend,
 					isMyPage,
@@ -153,6 +154,7 @@ function displayFriends(
 					cookies,
 					setFriends,
 					gameInfos,
+					key,
 					blocked
 				)
 			)}
