@@ -20,6 +20,7 @@ import {
 } from "@nestjs/swagger";
 import { GameEntity } from "./entities/game.entity";
 import { updateGameDto } from "./dtos/updateGame.dto";
+import { sendGameDto } from "./dtos/sendGame.dto";
 
 @ApiTags("games")
 @Controller("games")
@@ -28,11 +29,11 @@ export class GamesController {
 
 	@Get()
 	@ApiOkResponse({
-		type: GameEntity,
+		type: sendGameDto,
 		isArray: true,
 		description: "Get all games.",
 	})
-	getGames() {
+	getGames(): Promise<sendGameDto[]> {
 		return this.gameService.fetchGames();
 	}
 
