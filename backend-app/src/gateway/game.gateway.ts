@@ -208,9 +208,9 @@ export class GameGateway implements OnModuleInit {
 			return gameRoom;
 		});
 		if (!gameRoom) return false;
-		gameRoom.watchers.push(watcher);
 		await watcher.socket.join(gameRoom.socketRoomID);
 		delete watcher.socket;
+		gameRoom.watchers.push(watcher);
 		return true;
 	}
 
