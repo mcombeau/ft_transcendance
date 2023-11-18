@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { getLadderLevelDescription } from "./ladder";
 import { User } from "./profile";
 
 export type Game = {
@@ -42,6 +43,7 @@ function displayStats(games: Game[]) {
 		games.length;
 	return (
 		<div>
+			<p>Ladder Level : {getLadderLevelDescription(nbWins)}</p>
 			<p>Played games : {games.length}</p>
 			<p>Won games : {nbWins}</p>
 			<p>Lost games : {nbLose}</p>
