@@ -37,7 +37,7 @@ function removeFriendFromList(userID: number, setFriends: any) {
 	);
 }
 
-function linkToGame(gameInfo: GameInfo) {
+export function linkToGame(gameInfo: GameInfo) {
 	return <a href={"/watch/" + gameInfo.socketRoomID}>[watch game]</a>;
 }
 
