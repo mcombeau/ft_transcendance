@@ -205,6 +205,7 @@ export const Chat = () => {
 	const [publicChatsPannel, setPublicChatsPannel] = useState(false);
 	const [blockedUsers, setBlockedUsers] = useState([]);
 	const [invites, setInvites] = useState([]);
+	const [redirected, setRedirected] = useState(false);
 	const { authenticatedUserID } = useContext(AuthenticationContext);
 	var urlUserID: string = useParams().userID;
 	let navigate = useNavigate();
@@ -861,7 +862,7 @@ export const Chat = () => {
 
 	// Open dm corresponding to userID if param in url
 	useEffect(() => {
-		if (!urlUserID) return;
+		if (!urlUserID || myChats.length === 0 || redirected) return;
 		const targetUserID: number = Number(urlUserID);
 		const targetDM: ChatRoom = myChats.find(
 			(chatRoom: ChatRoom) =>
@@ -871,7 +872,8 @@ export const Chat = () => {
 		if (!targetDM) return;
 		const targetDMID: number = targetDM.chatRoomID;
 		setCurrentChatRoomID(targetDMID);
-	}, []);
+		setRedirected(true);
+	}, [myChats]);
 
 	return (
 		<WebSocketProvider value={socket}>
