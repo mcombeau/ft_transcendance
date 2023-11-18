@@ -341,9 +341,9 @@ export class ChatGateway implements OnModuleInit {
 		} catch (e) {
 			const err_msg = "[Chat Gateway]: DM creation error:" + e.message;
 			console.log(err_msg);
-			this.server
-				.to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
-				.emit("error", err_msg);
+			// this.server
+			// 	.to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
+			// 	.emit("error", err_msg);
 		}
 	}
 
