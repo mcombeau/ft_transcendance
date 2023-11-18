@@ -19,7 +19,6 @@
   - My profile
     - change 2fa activation
     - disable
-  - Dm button on other people
 
 - Bugs
 
