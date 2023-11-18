@@ -25,6 +25,7 @@ function Navbar() {
 						{authenticatedUserID && (
 							<NavbarLinkContainer>
 								<NavbarLink to="/chat"> Chat</NavbarLink>
+								<NavbarLink to="/liveGames"> Live Games</NavbarLink>
 								<NavbarLink to="/play"> Play</NavbarLink>
 								<NavbarLink to={"/user/" + authenticatedUserID}>
 									Profile
