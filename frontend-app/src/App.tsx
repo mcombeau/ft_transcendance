@@ -24,8 +24,6 @@ function App() {
 	);
 
 	useEffect(() => {
-		// Check user with id actually exists in database
-
 		var request = {
 			headers: {
 				"Content-Type": "application/json",
@@ -49,25 +47,23 @@ function App() {
 	}, [cookies, removeCookie]);
 
 	return (
-		<>
-			<Router>
-				<AuthenticationContext.Provider value={value}>
-					<NavBar />
-					<Routes>
-						<Route path="/" element={<Home />} />
-						<Route path="/login" element={<Login />} />
-						<Route path="/chat" element={<Chat />} />
-						<Route path="/chat/:userID" element={<Chat />} />
-						<Route path="/play/:inviteID" element={<Play />} />
-						<Route path="/watch/:gameID" element={<Play />} />
-						<Route path="/play" element={<Play />} />
-						<Route path="/leaderboard" element={<Leaderboard />} />
-						<Route path="/user/:id" element={<Profile />} />
-						<Route path="/logout" element={<Logout />} />
-					</Routes>
-				</AuthenticationContext.Provider>
-			</Router>
-		</>
+		<Router>
+			<AuthenticationContext.Provider value={value}>
+				<NavBar />
+				<Routes>
+					<Route path="/" element={<Home />} />
+					<Route path="/login" element={<Login />} />
+					<Route path="/chat" element={<Chat />} />
+					<Route path="/chat/:userID" element={<Chat />} />
+					<Route path="/play/:inviteID" element={<Play />} />
+					<Route path="/watch/:gameID" element={<Play />} />
+					<Route path="/play" element={<Play />} />
+					<Route path="/leaderboard" element={<Leaderboard />} />
+					<Route path="/user/:id" element={<Profile />} />
+					<Route path="/logout" element={<Logout />} />
+				</Routes>
+			</AuthenticationContext.Provider>
+		</Router>
 	);
 }
 
