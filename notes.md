@@ -11,13 +11,10 @@
   - draw background in css
   - personalization
   - deal with broadband/network issues
-  - end game page
-  - spectator mode
   - Make it possible for challenger to leave game room with button. make invite expire for the player's opponent.
 
 - Profile
 
-  - ladder (whatever that is ?) history ?
   - My profile
     - change 2fa activation
     - disable
@@ -42,6 +39,9 @@
 - Appearance
 
   - css for lobby play
+  - css for login page
+  - css for settings profile
+  - make friend avatars look pretty
 
 - Project validation
 
@@ -74,3 +74,5 @@
   - limit game history to X games
   - Achievements
   - Extended navbar
+  - ladder in history ?
+  - avatars in chats
