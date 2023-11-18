@@ -177,6 +177,9 @@ export class InvitesService {
 	private async createChatInvite(
 		inviteDetails: inviteParams
 	): Promise<InviteEntity> {
+		if (inviteDetails.senderID === inviteDetails.invitedUserID) {
+			throw new InviteCreationError("Cannot invite yourself.");
+		}
 		const sender = await this.userService.fetchUserByID(inviteDetails.senderID);
 		const invitedUser = await this.userService.fetchUserByID(
 			inviteDetails.invitedUserID
@@ -233,6 +236,9 @@ export class InvitesService {
 	private async createGameInvite(
 		inviteDetails: inviteParams
 	): Promise<InviteEntity> {
+		if (inviteDetails.senderID === inviteDetails.invitedUserID) {
+			throw new InviteCreationError("Cannot invite yourself.");
+		}
 		const sender = await this.userService.fetchUserByID(inviteDetails.senderID);
 		const invitedUser = await this.userService.fetchUserByID(
 			inviteDetails.invitedUserID
@@ -283,6 +289,9 @@ export class InvitesService {
 	private async createFriendInvite(
 		inviteDetails: inviteParams
 	): Promise<InviteEntity> {
+		if (inviteDetails.senderID === inviteDetails.invitedUserID) {
+			throw new InviteCreationError("Cannot invite yourself.");
+		}
 		const sender = await this.userService.fetchUserByID(inviteDetails.senderID);
 		const invitedUser = await this.userService.fetchUserByID(
 			inviteDetails.invitedUserID
