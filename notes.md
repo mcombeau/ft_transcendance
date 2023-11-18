@@ -12,6 +12,7 @@
   - personalization
   - deal with broadband/network issues
   - Make it possible for challenger to leave game room with button. make invite expire for the player's opponent.
+  - make it impossible to watch a game you are playing in 
 
 - Profile
 
