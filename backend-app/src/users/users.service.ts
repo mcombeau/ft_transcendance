@@ -24,6 +24,7 @@ import { sendGameDto } from "src/games/dtos/sendGame.dto";
 import { sendFriendDto } from "src/friends/dtos/sendFriend.dto";
 import { sendBlockedUserDto } from "src/blocked-users/dtos/sendBlockedUser.dto";
 import { join, extname } from "path";
+import { ValidateInputService } from "src/validate-input/validate-input.service";
 
 @Injectable()
 export class UsersService {
@@ -32,6 +33,8 @@ export class UsersService {
 		private userRepository: Repository<UserEntity>,
 		@Inject(forwardRef(() => PasswordService))
 		private passwordService: PasswordService,
+		@Inject(forwardRef(() => ValidateInputService))
+		private validationService: ValidateInputService,
 		@Inject(forwardRef(() => ChatsService))
 		private chatsService: ChatsService,
 		@Inject(forwardRef(() => GamesService))
@@ -143,6 +146,10 @@ export class UsersService {
 			userDetails.password
 		);
 		userDetails.password = hashedPassword;
+		await this.validationService.validateUsername(userDetails.username);
+		if (userDetails.password) {
+			await this.validationService.validatePassword(userDetails.password);
+		}
 		const newUserInfo: UserEntity = this.userRepository.create({
 			...userDetails,
 			isTwoFactorAuthenticationEnabled: false,
@@ -245,7 +252,10 @@ export class UsersService {
 		userDetails: updateUserParams
 	): Promise<UpdateResult> {
 		const updatedInfo: updateUserParams = {};
-		if (userDetails.username) updatedInfo.username = userDetails.username;
+		if (userDetails.username) {
+			await this.validationService.validateUsername(userDetails.username);
+			updatedInfo.username = userDetails.username;
+		}
 		if (userDetails.email) updatedInfo.email = userDetails.email;
 		if (userDetails.avatarUrl) updatedInfo.avatarUrl = userDetails.avatarUrl;
 		if (userDetails.status) {
@@ -259,6 +269,7 @@ export class UsersService {
 		}
 
 		if (userDetails.currentPassword) {
+			await this.validationService.validatePassword(userDetails.newPassword);
 			const user = await this.fetchUserByID(id);
 			const isValidCurrentPassword = await this.passwordService.checkPassword(
 				userDetails.currentPassword,

@@ -1,20 +1,16 @@
-import {ApiProperty} from '@nestjs/swagger';
+import { ApiProperty } from "@nestjs/swagger";
 import {
-	IsAlphanumeric,
 	IsBoolean,
 	IsInt,
 	IsNotEmpty,
 	IsOptional,
 	IsPositive,
-	Length,
-} from 'class-validator';
+} from "class-validator";
 
 export class createChatDto {
 	@ApiProperty()
 	@IsOptional()
 	@IsNotEmpty()
-	@IsAlphanumeric()
-	@Length(3, 20)
 	name: string;
 
 	@ApiProperty()
@@ -26,8 +22,6 @@ export class createChatDto {
 
 	@ApiProperty()
 	@IsOptional()
-	@Length(3, 20)
-	@IsAlphanumeric()
 	password?: string;
 
 	@ApiProperty()
