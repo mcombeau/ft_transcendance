@@ -142,14 +142,14 @@ export class UsersService {
 	}
 
 	async createUser(userDetails: createUserParams): Promise<UserEntity> {
+		if (userDetails.password) {
+			await this.validationService.validatePassword(userDetails.password);
+		}
 		const hashedPassword: string = await this.passwordService.hashPassword(
 			userDetails.password
 		);
 		userDetails.password = hashedPassword;
 		await this.validationService.validateUsername(userDetails.username);
-		if (userDetails.password) {
-			await this.validationService.validatePassword(userDetails.password);
-		}
 		const newUserInfo: UserEntity = this.userRepository.create({
 			...userDetails,
 			isTwoFactorAuthenticationEnabled: false,
