@@ -43,6 +43,7 @@
   - css for login page
   - css for settings profile
   - make friend avatars look pretty
+  - css live game page
 
 - Project validation
 
