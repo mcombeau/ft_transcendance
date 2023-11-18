@@ -4,7 +4,7 @@ import {
 	WebSocketProvider,
 } from "../../contexts/WebsocketContext";
 import { useCookies } from "react-cookie";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import "./Chat.css";
 import Messages from "./Messages";
 import SettingsMenu from "./SettingsMenu";
@@ -205,7 +205,9 @@ export const Chat = () => {
 	const [publicChatsPannel, setPublicChatsPannel] = useState(false);
 	const [blockedUsers, setBlockedUsers] = useState([]);
 	const [invites, setInvites] = useState([]);
+	const [redirected, setRedirected] = useState(false);
 	const { authenticatedUserID } = useContext(AuthenticationContext);
+	var urlUserID: string = useParams().userID;
 	let navigate = useNavigate();
 
 	function getChannel(chatRoomID: number): ChatRoom {
@@ -857,6 +859,21 @@ export const Chat = () => {
 			alert("You have no username"); // TODO : remove = for debug purposes
 		}
 	}, [cookies]);
+
+	// Open dm corresponding to userID if param in url
+	useEffect(() => {
+		if (!urlUserID || myChats.length === 0 || redirected) return;
+		const targetUserID: number = Number(urlUserID);
+		const targetDM: ChatRoom = myChats.find(
+			(chatRoom: ChatRoom) =>
+				chatRoom.isDM &&
+				chatRoom.participants.find((user: User) => user.userID === targetUserID)
+		);
+		if (!targetDM) return;
+		const targetDMID: number = targetDM.chatRoomID;
+		setCurrentChatRoomID(targetDMID);
+		setRedirected(true);
+	}, [myChats]);
 
 	return (
 		<WebSocketProvider value={socket}>

@@ -1,3 +1,4 @@
+import { ReceivedInfo } from "../chat/types";
 import { useContext, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
@@ -9,6 +10,7 @@ import ProfileSettings from "./profileSettings";
 import { AuthenticationContext } from "../authenticationState";
 import { typeInvite } from "../chat/types";
 import "./profile.css";
+import { Socket } from "socket.io-client";
 
 export enum UserStatus {
 	Offline = "offline",
@@ -343,6 +345,24 @@ function challengeButton(
 	);
 }
 
+function DM(user: User, cookies: any, navigate: any, socket: Socket) {
+	var info: ReceivedInfo = {
+		token: cookies["token"],
+		chatRoomID: null,
+		targetID: user.id,
+	};
+	socket.emit("dm", info);
+	navigate("/chat/" + user.id);
+}
+
+function DMButton(user: User, cookies: any, navigate: any, socket: Socket) {
+	return (
+		<button onClick={() => DM(user, cookies, navigate, socket)}>
+			Send message
+		</button>
+	);
+}
+
 function interactWithUser(
 	isMyPage: boolean,
 	isMyFriend: boolean,
@@ -352,7 +372,8 @@ function interactWithUser(
 	user: User,
 	authenticatedUserID: number,
 	cookies: any,
-	navigate: any
+	navigate: any,
+	socket: Socket
 ) {
 	if (user === undefined) return <div />;
 	if (isMyPage) return <p></p>;
@@ -368,7 +389,7 @@ function interactWithUser(
 			)}
 			{blockButton(user, authenticatedUserID, cookies, isBlocked, setIsBlocked)}
 			{challengeButton(user, authenticatedUserID, cookies, navigate)}
-			<button>Send DM</button>
+			{DMButton(user, cookies, navigate, socket)}
 		</p>
 	);
 }
@@ -483,7 +504,8 @@ function Profile() {
 						user,
 						authenticatedUserID,
 						cookies,
-						navigate
+						navigate,
+						socket
 					)}
 					{editProfile(isMyPage, user, isEditingProfile, setIsEditingProfile)}
 					{ProfileSettings(
