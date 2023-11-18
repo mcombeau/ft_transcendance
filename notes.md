@@ -1,5 +1,3 @@
-%% TODO: Update with subject todo (from notion)
-
 - Cleanup
 
   - change alerts to smth else (notifs ?)
@@ -29,11 +27,6 @@
   - people offline when logged
   - Error in back if token expired => handle it
 
-- validation:
-
-  - validation channel name
-  - validate passwords
-
 - passwords:
 
   - limit number of passwgrd retries on join/accept invite
@@ -45,10 +38,7 @@
 
 - Project validation
 
-  - check we are protected against sql injections
   - all libraries are in latest stable version
-  - server side validation for forms and user input
-  - check no credientials are in git
   - remove passwords for users
 
 - Prompt for info first sign
