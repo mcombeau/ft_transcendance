@@ -60,8 +60,6 @@
 
   - have an actual url
 
-- Live games page
-
 - Nice to have
   - invite notif on profile ?
   - reload chat when joining ?
