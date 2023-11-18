@@ -352,7 +352,7 @@ function DM(user: User, cookies: any, navigate: any, socket: Socket) {
 		targetID: user.id,
 	};
 	socket.emit("dm", info);
-	navigate("/chat");
+	navigate("/chat/" + user.id);
 }
 
 function DMButton(user: User, cookies: any, navigate: any, socket: Socket) {
