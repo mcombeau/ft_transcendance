@@ -1,4 +1,4 @@
-import {BadRequestException} from '@nestjs/common';
+import { BadRequestException } from "@nestjs/common";
 
 export class ChatCreationException extends BadRequestException {
 	constructor(message: string) {
@@ -9,6 +9,18 @@ export class ChatCreationException extends BadRequestException {
 export class InviteCreationException extends BadRequestException {
 	constructor(message: string) {
 		super(`Could not invite user: ${message}`);
+	}
+}
+
+export class InvalidNameException extends BadRequestException {
+	constructor(message: string) {
+		super(`Invalid name: ${message}`);
+	}
+}
+
+export class InvalidPasswordException extends BadRequestException {
+	constructor(message: string) {
+		super(`Invalid password: ${message}`);
 	}
 }
 
