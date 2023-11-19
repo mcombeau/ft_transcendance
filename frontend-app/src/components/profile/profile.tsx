@@ -70,15 +70,13 @@ async function befriend(
 			invitedUserID: userID,
 		}),
 	};
-	return fetch(`http://localhost/backend/invites`, request).then(
-		async (response) => {
-			if (!response.ok) {
-				console.log("Error inviting friend");
-				return false;
-			}
-			return true;
+	return fetch(`/backend/invites`, request).then(async (response) => {
+		if (!response.ok) {
+			console.log("Error inviting friend");
+			return false;
 		}
-	);
+		return true;
+	});
 }
 
 export async function unfriend(
@@ -97,17 +95,15 @@ export async function unfriend(
 			userID2: userID,
 		}),
 	};
-	return fetch(`http://localhost/backend/friends`, request).then(
-		async (response) => {
-			console.log("response");
-			console.log(response);
-			if (!response.ok) {
-				console.log("Error removing friend");
-				return false;
-			}
-			return true;
+	return fetch(`/backend/friends`, request).then(async (response) => {
+		console.log("response");
+		console.log(response);
+		if (!response.ok) {
+			console.log("Error removing friend");
+			return false;
 		}
-	);
+		return true;
+	});
 }
 
 async function checkIfIsMyFriend(
@@ -128,16 +124,14 @@ async function checkIfIsMyFriend(
 			userID2: user.id,
 		}),
 	};
-	await fetch(`http://localhost/backend/friends/isMyFriend`, request).then(
-		async (response) => {
-			const data = await response.json();
-			if (!response.ok) {
-				console.log("Fetch friends bad request");
-				return;
-			}
-			setIsMyFriend(data.areFriends);
+	await fetch(`/backend/friends/isMyFriend`, request).then(async (response) => {
+		const data = await response.json();
+		if (!response.ok) {
+			console.log("Fetch friends bad request");
+			return;
 		}
-	);
+		setIsMyFriend(data.areFriends);
+	});
 }
 
 async function checkIfIsBlocked(
@@ -158,17 +152,16 @@ async function checkIfIsBlocked(
 			blockedUserID: user.id,
 		}),
 	};
-	await fetch(
-		`http://localhost/backend/blocked-users/isUserBlocked`,
-		request
-	).then(async (response) => {
-		const data = await response.json();
-		if (!response.ok) {
-			console.log("Fetch is user blocked bad request");
-			return;
+	await fetch(`/backend/blocked-users/isUserBlocked`, request).then(
+		async (response) => {
+			const data = await response.json();
+			if (!response.ok) {
+				console.log("Fetch is user blocked bad request");
+				return;
+			}
+			setIsBlocked(data.isBlocked);
 		}
-		setIsBlocked(data.isBlocked);
-	});
+	);
 }
 
 export async function blockUser(
@@ -188,15 +181,13 @@ export async function blockUser(
 			blockedUserID: userID,
 		}),
 	};
-	return fetch(`http://localhost/backend/blocked-users`, request).then(
-		async (response) => {
-			if (!response.ok) {
-				console.log("Error blocking user");
-				return false;
-			}
-			return true;
+	return fetch(`/backend/blocked-users`, request).then(async (response) => {
+		if (!response.ok) {
+			console.log("Error blocking user");
+			return false;
 		}
-	);
+		return true;
+	});
 }
 
 export async function unblockUser(
@@ -216,17 +207,15 @@ export async function unblockUser(
 			blockedUserID: userID,
 		}),
 	};
-	return fetch(`http://localhost/backend/blocked-users`, request).then(
-		async (response) => {
-			console.log("response");
-			console.log(response);
-			if (!response.ok) {
-				console.log("Error unblocking user");
-				return false;
-			}
-			return true;
+	return fetch(`/backend/blocked-users`, request).then(async (response) => {
+		console.log("response");
+		console.log(response);
+		if (!response.ok) {
+			console.log("Error unblocking user");
+			return false;
 		}
-	);
+		return true;
+	});
 }
 
 function friendButton(
@@ -314,17 +303,16 @@ async function challenge(
 			invitedUserID: user.id,
 		}),
 	};
-	const inviteID = await fetch(
-		`http://localhost/backend/invites`,
-		request
-	).then(async (response) => {
-		const data = await response.json();
-		if (!response.ok) {
-			console.log("Error inviting friend to play");
-			return null;
+	const inviteID = await fetch("/backend/invites", request).then(
+		async (response) => {
+			const data = await response.json();
+			if (!response.ok) {
+				console.log("Error inviting friend to play");
+				return null;
+			}
+			return data.id;
 		}
-		return data.id;
-	});
+	);
 	if (inviteID) {
 		navigate("/play/" + inviteID);
 	}
@@ -436,37 +424,34 @@ function Profile() {
 			},
 		};
 
-		fetch(`http://localhost/backend/users/${profileUserID}`, request).then(
-			async (response) => {
-				const data = await response.json();
-				if (!response.ok) {
-					console.log("error response load channels");
-					return <h1>No such user</h1>;
-				}
-				setUserExists(true);
-				setUser({
-					id: data.id,
-					username: data.username,
-					email: data.email,
-					login42: data.login42 ? data.login42 : "",
-					isTwoFaEnabled: data.isTwoFactorAuthenticationEnabled,
-					status: data.status,
-				});
-			}
-		);
-
-		fetch(
-			`http://localhost/backend/users/${profileUserID}/avatar`,
-			request
-		).then(async (response) => {
-			const data = await response.blob();
+		fetch(`/backend/users/${profileUserID}`, request).then(async (response) => {
+			const data = await response.json();
 			if (!response.ok) {
-				console.log("error fetching avatar");
+				console.log("error response load channels");
 				return <h1>No such user</h1>;
 			}
-			const src = URL.createObjectURL(data);
-			setProfilePicture(src);
+			setUserExists(true);
+			setUser({
+				id: data.id,
+				username: data.username,
+				email: data.email,
+				login42: data.login42 ? data.login42 : "",
+				isTwoFaEnabled: data.isTwoFactorAuthenticationEnabled,
+				status: data.status,
+			});
 		});
+
+		fetch(`/backend/users/${profileUserID}/avatar`, request).then(
+			async (response) => {
+				const data = await response.blob();
+				if (!response.ok) {
+					console.log("error fetching avatar");
+					return <h1>No such user</h1>;
+				}
+				const src = URL.createObjectURL(data);
+				setProfilePicture(src);
+			}
+		);
 	}
 
 	useEffect(() => {

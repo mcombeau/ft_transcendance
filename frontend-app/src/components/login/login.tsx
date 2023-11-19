@@ -26,18 +26,17 @@ function Login() {
 			},
 			body: JSON.stringify({ username: username, password: password }),
 		};
-		const access_token = await fetch(
-			"http://localhost/backend/auth/login",
-			request
-		).then(async (response) => {
-			const data = await response.json();
-			if (!response.ok) {
-				console.log("error user login");
-				return;
+		const access_token = await fetch("/backend/auth/login", request).then(
+			async (response) => {
+				const data = await response.json();
+				if (!response.ok) {
+					console.log("error user login");
+					return;
+				}
+				setCookie("token", data.access_token, { path: "/" }); // TODO: check if await is needed/if it does anything
+				return data.access_token;
 			}
-			setCookie("token", data.access_token, { path: "/" }); // TODO: check if await is needed/if it does anything
-			return data.access_token;
-		});
+		);
 		if (!access_token) return;
 		const loggedUserID = jwtDecode(access_token)["userID"];
 		setAuthenticatedUserID(loggedUserID);
@@ -60,7 +59,7 @@ function Login() {
 				email: email,
 			}),
 		};
-		fetch("http://localhost/backend/users", request).then(async (response) => {
+		fetch("/backend/users", request).then(async (response) => {
 			const data = await response.json();
 			if (!response.ok) {
 				console.log("error user creation");
@@ -126,7 +125,7 @@ function Login() {
 					<button>Sign up</button>
 				</form>
 				<h2>or login with</h2>
-				<form action="http://localhost/backend/auth/42login">
+				<form action="/backend/auth/42login">
 					<button>Login with 42</button>
 				</form>
 			</div>

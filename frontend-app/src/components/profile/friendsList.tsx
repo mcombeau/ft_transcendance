@@ -188,81 +188,79 @@ function FriendsList(isMyPage: boolean, user: User, cookies: any) {
 				Authorization: `Bearer ${cookies["token"]}`,
 			},
 		};
-		await fetch(
-			`http://localhost/backend/users/${userID}/friends`,
-			request
-		).then(async (response) => {
-			const friendsData = await response.json();
-			if (!response.ok) {
-				console.log("error response loading friends list");
-				return <h1>No Friends loaded</h1>;
-			}
-			var fetchedFriends = await Promise.all(
-				friendsData.map(async (fetchedFriend: any) => {
-					const amIUser1 = fetchedFriend.userID1 === user.id;
+		await fetch(`/backend/users/${userID}/friends`, request).then(
+			async (response) => {
+				const friendsData = await response.json();
+				if (!response.ok) {
+					console.log("error response loading friends list");
+					return <h1>No Friends loaded</h1>;
+				}
+				var fetchedFriends = await Promise.all(
+					friendsData.map(async (fetchedFriend: any) => {
+						const amIUser1 = fetchedFriend.userID1 === user.id;
 
-					const avatar: string = await fetch(
-						`http://localhost/backend/users/${
-							amIUser1 ? fetchedFriend.userID2 : fetchedFriend.userID1
-						}/avatar`,
-						request
-					).then(async (response) => {
-						const data = await response.blob();
-						if (!response.ok) {
-							console.log("error fetching avatar");
-							return null;
+						const avatar: string = await fetch(
+							`/backend/users/${
+								amIUser1 ? fetchedFriend.userID2 : fetchedFriend.userID1
+							}/avatar`,
+							request
+						).then(async (response) => {
+							const data = await response.blob();
+							if (!response.ok) {
+								console.log("error fetching avatar");
+								return null;
+							}
+							const src = URL.createObjectURL(data);
+							return src;
+						});
+						if (!amIUser1) {
+							var newFriend: Friend = {
+								id: fetchedFriend.userID1,
+								username: fetchedFriend.username1,
+								status: fetchedFriend.userStatus1,
+								avatar: avatar,
+							};
+						} else {
+							var newFriend: Friend = {
+								id: fetchedFriend.userID2,
+								username: fetchedFriend.username2,
+								status: fetchedFriend.userStatus2,
+								avatar: avatar,
+							};
 						}
-						const src = URL.createObjectURL(data);
-						return src;
-					});
+						return newFriend;
+					})
+				);
+				setFriends([...fetchedFriends]);
+			}
+		);
+		fetch(`/backend/users/${userID}/blockedUsers`, request).then(
+			async (response) => {
+				const blockedData = await response.json();
+				if (!response.ok) {
+					console.log("error response loading blocked users list");
+					return <h1>No Blocked Users loaded</h1>;
+				}
+				var fetchedBlockedUsers = blockedData.map((fetchedBlockedUser: any) => {
+					const amIUser1 = fetchedBlockedUser.userID1 === user.id;
 					if (!amIUser1) {
-						var newFriend: Friend = {
-							id: fetchedFriend.userID1,
-							username: fetchedFriend.username1,
-							status: fetchedFriend.userStatus1,
-							avatar: avatar,
+						var newBlockedUser: BlockedUser = {
+							id: fetchedBlockedUser.blockedUserID,
+							username: fetchedBlockedUser.blockedUsername,
+							status: fetchedBlockedUser.blockedUserStatus,
 						};
 					} else {
-						var newFriend: Friend = {
-							id: fetchedFriend.userID2,
-							username: fetchedFriend.username2,
-							status: fetchedFriend.userStatus2,
-							avatar: avatar,
+						var newBlockedUser: BlockedUser = {
+							id: fetchedBlockedUser.blockedUserID,
+							username: fetchedBlockedUser.blockedUsername,
+							status: fetchedBlockedUser.blockedUserStatus,
 						};
 					}
-					return newFriend;
-				})
-			);
-			setFriends([...fetchedFriends]);
-		});
-		fetch(
-			`http://localhost/backend/users/${userID}/blockedUsers`,
-			request
-		).then(async (response) => {
-			const blockedData = await response.json();
-			if (!response.ok) {
-				console.log("error response loading blocked users list");
-				return <h1>No Blocked Users loaded</h1>;
+					return newBlockedUser;
+				});
+				setBlockedUsers([...fetchedBlockedUsers]);
 			}
-			var fetchedBlockedUsers = blockedData.map((fetchedBlockedUser: any) => {
-				const amIUser1 = fetchedBlockedUser.userID1 === user.id;
-				if (!amIUser1) {
-					var newBlockedUser: BlockedUser = {
-						id: fetchedBlockedUser.blockedUserID,
-						username: fetchedBlockedUser.blockedUsername,
-						status: fetchedBlockedUser.blockedUserStatus,
-					};
-				} else {
-					var newBlockedUser: BlockedUser = {
-						id: fetchedBlockedUser.blockedUserID,
-						username: fetchedBlockedUser.blockedUsername,
-						status: fetchedBlockedUser.blockedUserStatus,
-					};
-				}
-				return newBlockedUser;
-			});
-			setBlockedUsers([...fetchedBlockedUsers]);
-		});
+		);
 	}
 
 	useEffect(() => {

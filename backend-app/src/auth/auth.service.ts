@@ -76,7 +76,7 @@ export class AuthService {
 		const user: UserEntity = req.user;
 		const access_token = await this.login(user);
 		res.cookie("token", access_token.access_token);
-		res.redirect(302, `http://localhost/user/${user.id}`);
+		res.redirect(302, "/user/${user.id}");
 	}
 
 	async generateTwoFactorAuthenticationSecret(userInfo: any) {

@@ -1,9 +1,4 @@
-import {
-	OnModuleInit,
-	Inject,
-	forwardRef,
-	BadRequestException,
-} from "@nestjs/common";
+import { OnModuleInit, Inject, forwardRef } from "@nestjs/common";
 import {
 	ConnectedSocket,
 	SubscribeMessage,
@@ -76,7 +71,11 @@ type GameInfo = {
 
 @WebSocketGateway({
 	cors: {
-		origin: ["http://localhost:3000", "http://localhost"],
+		origin: [
+			"http://localhost:3000",
+			"http://localhost",
+			process.env.FT_TRANSCENDANCE_DOMAIN,
+		],
 	},
 })
 export class GameGateway implements OnModuleInit {

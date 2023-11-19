@@ -53,7 +53,11 @@ enum RoomType {
 
 @WebSocketGateway({
 	cors: {
-		origin: ["http://localhost:3000", "http://localhost"],
+		origin: [
+			"http://localhost:3000",
+			"http://localhost",
+			process.env.FT_TRANSCENDANCE_DOMAIN,
+		],
 	},
 })
 @UseFilters(WebsocketExceptionsFilter)
