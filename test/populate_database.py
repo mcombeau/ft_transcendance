@@ -1,15 +1,21 @@
 import time
 import typing
-
+from dotenv import load_dotenv
+import os
 import requests
 from tqdm.auto import tqdm
+from pathlib import Path
+
 
 Res = requests.Response
 Any = typing.Any
+dotenv_path: Path = Path('.env')
+load_dotenv(dotenv_path=dotenv_path)
+DOMAIN = os.environ['FT_TRANSCENDANCE_DOMAIN']
 
 USER_AGENT = "user_agent"
-URL_USER_CREATION = "http://localhost:3001/users"
-URL_USER_LOGIN = "http://localhost:3001/auth/login"
+URL_USER_CREATION = f"{DOMAIN}/backend/users"
+URL_USER_LOGIN = f"{DOMAIN}/backend/auth/login"
 
 # ---------------------------
 # Prettify
@@ -89,10 +95,10 @@ def post_to_url(url: str, body: dict[str, str], token: str = "") -> Res:
 def add_user_to_db(body: dict[str, str]) -> str:
     try:
         print(f"Creating user: {body}{color.RESET}")
-        r: Res = post_to_url("http://localhost:3001/users", body)
+        r: Res = post_to_url(f"{DOMAIN}/backend/users", body)
         return r.json()["id"]
     except Exception:
-        r: Res = get_from_url("http://localhost:3001/users")
+        r: Res = get_from_url(f"{DOMAIN}/backend/users")
         for i in tqdm(r.json()):
             if i["username"] == body["username"]:
                 print(
@@ -104,7 +110,7 @@ def add_user_to_db(body: dict[str, str]) -> str:
 
 def get_user_access_token(body: dict[str, str]) -> str:
     try:
-        r: Res = post_to_url("http://localhost:3001/auth/login", body)
+        r: Res = post_to_url(f"{DOMAIN}/backend/auth/login", body)
         return r.json()["access_token"]
     except Exception:
         return ""
@@ -151,7 +157,7 @@ def create_game(
         "loserScore": loseScore,
     }
     print(f"Creating game {body}")
-    post_to_url("http://localhost:3001/games", body, users[winner]["token"])
+    post_to_url(f"{DOMAIN}/backend/games", body, users[winner]["token"])
 
 
 def create_games(users: dict[str, dict[str, str]]) -> None:
@@ -176,7 +182,7 @@ def create_friendship(users: dict[str, dict[str, str]],
         "userID2": users[user2]['id']
     }
     print(f'Creating friendship {body}')
-    post_to_url('http://localhost:3001/friends', body, users[user1]['token'])
+    post_to_url(f'{DOMAIN}/backend/friends', body, users[user1]['token'])
 
 def create_friends(users: dict[str, dict[str, str]]) -> None:
     print_header('Creating friend relations')
@@ -197,10 +203,10 @@ def create_chat_room(users: dict[str, dict[str, str]],
             "ownerID": users[owner]['id']
         }
         print(f'Creating chat room {body}')
-        r: Res = post_to_url('http://localhost:3001/chats', body, users[owner]['token'])
+        r: Res = post_to_url(f'{DOMAIN}/backend/chats', body, users[owner]['token'])
         chat_rooms[chat_room_name] = r.json()['id']
     except Exception:
-        r: Res = get_from_url('http://localhost:3001/chats', users[owner]['token'])
+        r: Res = get_from_url(f'{DOMAIN}/backend/chats', users[owner]['token'])
         for chat in r.json():
             if chat["name"] == chat_room_name:
                 print(
@@ -219,10 +225,10 @@ def create_dm_room(users: dict[str, dict[str, str]],
             "userID2": users[user2]['id']
         }
         print(f'Creating DM {body}')
-        r: Res = post_to_url('http://localhost:3001/chats/dm', body, users[user1]['token'])
+        r: Res = post_to_url(f'{DOMAIN}/backend/chats/dm', body, users[user1]['token'])
         chat_rooms[r.json()['name']] = r.json()['id']
     except Exception:
-        # r: Res = get_from_url('http://localhost:3001/chats', users[user1]['token'])
+        # r: Res = get_from_url(f'{DOMAIN}/backend/chats', users[user1]['token'])
         # for chat in r.json():
         #     if (chat["userID1"] == users[user1]['id'] or chat["userID1"] == users[user2]['id']) and (chat["userID2"] == users[user2]['id'] or chat["userID2"] == users[user1]['id']):
         #         print(
@@ -248,7 +254,7 @@ def create_chats(users: dict[str, dict[str, str]]) -> None:
 # ---------------------------
 def populate_database() -> None:
     try:
-        wait_for_database("http://localhost:3000")
+        wait_for_database(f"{DOMAIN}/backend")
         userInfo: dict[str, dict[str, str]] = create_users()
         print()
         print_users(userInfo)
