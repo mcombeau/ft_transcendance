@@ -10,7 +10,7 @@
   - personalization
   - deal with broadband/network issues
   - Make it possible for challenger to leave game room with button. make invite expire for the player's opponent.
-  - make it impossible to watch a game you are playing in 
+  - make it impossible to watch a game you are playing in
 
 - Profile
 
@@ -26,7 +26,7 @@
 
 - passwords:
 
-  - limit number of passwgrd retries on join/accept invite
+  - limit number of password retries on join/accept invite
   - tell user to fuck off if wrong username/password
 
 - Appearance
@@ -47,7 +47,7 @@
 
 - Nginx
 
-  - have an actual url
+  - fix callback URL for 42 auth
 
 - Nice to have
   - invite notif on profile ?
