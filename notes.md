@@ -48,6 +48,7 @@
 - Nginx
 
   - fix callback URL for 42 auth
+  - use HTTPS/443 instead of HTTP/80
 
 - Nice to have
   - invite notif on profile ?
