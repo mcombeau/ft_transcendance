@@ -43,9 +43,10 @@ export class ValidateInputService {
 
 	async validateChatRoomName(name: string) {
 		this.validateNameString(name);
-		const chatRoom = this.chatService.fetchChatByName(name);
-		if (chatRoom)
+		const chatRoom = await this.chatService.fetchChatByName(name);
+		if (chatRoom) {
 			throw new InvalidNameError(`chat by name '${name}' already exists`);
+		}
 	}
 
 	async validateUsername(username: string) {

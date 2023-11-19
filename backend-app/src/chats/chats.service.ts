@@ -86,7 +86,7 @@ export class ChatsService {
 	}
 
 	async createChat(chatDetails: createChatParams): Promise<ChatEntity> {
-		await this.validationService.validateChatRoomName(chatDetails.name);
+		// await this.validationService.validateChatRoomName(chatDetails.name);
 		if (chatDetails.password) {
 			await this.validationService.validatePassword(chatDetails.password);
 		}
