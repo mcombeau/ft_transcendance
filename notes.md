@@ -63,5 +63,4 @@
   - limit game history to X games
   - Achievements
   - Extended navbar
-  - ladder in history ?
   - avatars in chats
