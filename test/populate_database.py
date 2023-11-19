@@ -250,6 +250,21 @@ def create_chats(users: dict[str, dict[str, str]]) -> None:
     print(f'Chat rooms {chat_rooms}')
 
 # ---------------------------
+# Logout Users Creation
+# ---------------------------
+def logout_user(users: dict[str, dict[str, str]], username: str) -> None:
+    try:
+        print(f'Logging out user {username}')
+        post_to_url(f'{DOMAIN}/backend/auth/logout', {}, users[username]['token'])
+    except Exception:
+        return
+
+def logout_users(users: dict[str, dict[str, str]]) -> None:
+    print_header('Logout users')
+    for user in users:
+        logout_user(users, user)
+
+# ---------------------------
 # Main
 # ---------------------------
 def populate_database() -> None:
@@ -261,6 +276,7 @@ def populate_database() -> None:
         create_friends(userInfo)
         create_games(userInfo)
         create_chats(userInfo)
+        logout_users(userInfo)
     except Exception as e:
         print(f"{color.ERROR}Error: {e}{color.RESET}")
 
