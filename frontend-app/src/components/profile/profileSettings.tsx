@@ -52,17 +52,16 @@ function ProfileSettings(
 				Authorization: `Bearer ${cookies["token"]}`,
 			},
 		};
-		return await fetch(
-			"http://localhost/backend/auth/2fa/generate",
-			request
-		).then(async (response) => {
-			const data = await response.json();
-			if (!response.ok) {
-				console.log("error QR code generation");
-				return;
+		return await fetch("/backend/auth/2fa/generate", request).then(
+			async (response) => {
+				const data = await response.json();
+				if (!response.ok) {
+					console.log("error QR code generation");
+					return;
+				}
+				setQrcode(data);
 			}
-			setQrcode(data);
-		});
+		);
 		// TODO: post it to turn on and if it works close everything
 	}
 
@@ -79,15 +78,13 @@ function ProfileSettings(
 			}),
 		};
 
-		fetch(`http://localhost/backend/auth/2fa/turn-on`, request).then(
-			async (response) => {
-				const data = await response.json();
-				if (!response.ok) {
-					alert("Error with enabling 2fa: " + data.error + ": " + data.message);
-					return;
-				}
+		fetch(`/backend/auth/2fa/turn-on`, request).then(async (response) => {
+			const data = await response.json();
+			if (!response.ok) {
+				alert("Error with enabling 2fa: " + data.error + ": " + data.message);
+				return;
 			}
-		);
+		});
 
 		setTwoFaValidationCode("");
 		setQrcode(null);
@@ -113,15 +110,14 @@ function ProfileSettings(
 			}),
 		};
 		e.preventDefault();
-		fetch(
-			`http://localhost/backend/users/${authenticatedUserID}`,
-			request
-		).then(async (response) => {
-			if (!response.ok) {
-				const error = await response.json();
-				alert("Error: " + error.error + ": " + error.message);
+		fetch(`/backend/users/${authenticatedUserID}`, request).then(
+			async (response) => {
+				if (!response.ok) {
+					const error = await response.json();
+					alert("Error: " + error.error + ": " + error.message);
+				}
 			}
-		});
+		);
 	}
 
 	function submitNewPassword(e: any) {
@@ -137,15 +133,14 @@ function ProfileSettings(
 			}),
 		};
 		e.preventDefault();
-		fetch(
-			`http://localhost/backend/users/${authenticatedUserID}`,
-			request
-		).then(async (response) => {
-			if (!response.ok) {
-				const error = await response.json();
-				alert("Error: " + error.error + ": " + error.message);
+		fetch(`/backend/users/${authenticatedUserID}`, request).then(
+			async (response) => {
+				if (!response.ok) {
+					const error = await response.json();
+					alert("Error: " + error.error + ": " + error.message);
+				}
 			}
-		});
+		);
 	}
 
 	async function submitNewAvatar(e: any) {
@@ -161,16 +156,15 @@ function ProfileSettings(
 			},
 			body: formData,
 		};
-		await fetch(
-			`http://localhost/backend/users/${authenticatedUserID}/avatar`,
-			request
-		).then(async (response) => {
-			if (!response.ok) {
-				console.log("There was an issue with changing your avatar");
-			} else {
-				// TODO: change current image
+		await fetch(`/backend/users/${authenticatedUserID}/avatar`, request).then(
+			async (response) => {
+				if (!response.ok) {
+					console.log("There was an issue with changing your avatar");
+				} else {
+					// TODO: change current image
+				}
 			}
-		});
+		);
 	}
 
 	async function removeAvatar(e: any) {
@@ -181,14 +175,13 @@ function ProfileSettings(
 				Authorization: `Bearer ${cookies["token"]}`,
 			},
 		};
-		await fetch(
-			`http://localhost/backend/users/${authenticatedUserID}/avatar`,
-			request
-		).then(async (response) => {
-			if (!response.ok) {
-				console.log("There was an issue with removing your avatar");
+		await fetch(`/backend/users/${authenticatedUserID}/avatar`, request).then(
+			async (response) => {
+				if (!response.ok) {
+					console.log("There was an issue with removing your avatar");
+				}
 			}
-		});
+		);
 	}
 
 	if (!isEditingProfile) return <div></div>;

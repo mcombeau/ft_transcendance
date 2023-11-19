@@ -65,32 +65,30 @@ function GameHistory(user: User, cookies: any) {
 				Authorization: `Bearer ${cookies["token"]}`,
 			},
 		};
-		fetch(`http://localhost/backend/users/${userID}/games`, request).then(
-			async (response) => {
-				const gamesData = await response.json();
-				if (!response.ok) {
-					console.log("error response load games");
-					return <h1>No Games loaded</h1>;
-				}
-				var fetchedGames = gamesData.map((fetchedGame: any) => {
-					const didIWin = fetchedGame.winnerID === userID ? true : false;
-					var newGame: Game = {
-						didIWin: didIWin,
-						otherPlayerID: didIWin ? fetchedGame.loserID : fetchedGame.winnerID,
-						otherPlayerName: didIWin
-							? fetchedGame.loserUsername
-							: fetchedGame.winnerUsername,
-						date: fetchedGame.createdAt,
-						myScore: didIWin ? fetchedGame.winnerScore : fetchedGame.loserScore,
-						otherPlayerScore: didIWin
-							? fetchedGame.loserScore
-							: fetchedGame.winnerScore,
-					};
-					return newGame;
-				});
-				setGames([...fetchedGames]);
+		fetch(`/backend/users/${userID}/games`, request).then(async (response) => {
+			const gamesData = await response.json();
+			if (!response.ok) {
+				console.log("error response load games");
+				return <h1>No Games loaded</h1>;
 			}
-		);
+			var fetchedGames = gamesData.map((fetchedGame: any) => {
+				const didIWin = fetchedGame.winnerID === userID ? true : false;
+				var newGame: Game = {
+					didIWin: didIWin,
+					otherPlayerID: didIWin ? fetchedGame.loserID : fetchedGame.winnerID,
+					otherPlayerName: didIWin
+						? fetchedGame.loserUsername
+						: fetchedGame.winnerUsername,
+					date: fetchedGame.createdAt,
+					myScore: didIWin ? fetchedGame.winnerScore : fetchedGame.loserScore,
+					otherPlayerScore: didIWin
+						? fetchedGame.loserScore
+						: fetchedGame.winnerScore,
+				};
+				return newGame;
+			});
+			setGames([...fetchedGames]);
+		});
 	}
 
 	useEffect(() => {

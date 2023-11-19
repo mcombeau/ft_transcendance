@@ -120,7 +120,7 @@ export async function fetchChatParticipants(
 	request: any
 ): Promise<User[]> {
 	var participant_list = await fetch(
-		`http://localhost/backend/chats/${chatRoomID}/participants`,
+		`/backend/chats/${chatRoomID}/participants`,
 		request
 	).then(async (response) => {
 		const participant_data = await response.json();
@@ -150,7 +150,7 @@ export async function fetchChatMessages(
 	request: any
 ): Promise<Message[]> {
 	var message_list = await fetch(
-		`http://localhost/backend/chats/${chatRoomID}/messages`,
+		`/backend/chats/${chatRoomID}/messages`,
 		request
 	).then(async (response) => {
 		const message_data = await response.json();
@@ -179,17 +179,16 @@ export async function fetchHasPassword(
 	chatRoomID: number,
 	request: any
 ): Promise<boolean> {
-	return await fetch(
-		`http://localhost/backend/chats/${chatRoomID}/has_password`,
-		request
-	).then(async (response) => {
-		const hasPassword = await response.json();
-		if (!response.ok) {
-			console.log("error response load has password");
-			return null;
+	return await fetch(`/backend/chats/${chatRoomID}/has_password`, request).then(
+		async (response) => {
+			const hasPassword = await response.json();
+			if (!response.ok) {
+				console.log("error response load has password");
+				return null;
+			}
+			return hasPassword;
 		}
-		return hasPassword;
-	});
+	);
 }
 
 export const Chat = () => {
@@ -734,88 +733,83 @@ export const Chat = () => {
 		console.log("authenticated user id ", authenticatedUserID);
 		if (myChats.length === 0 && authenticatedUserID) {
 			// Fetching Chats
-			fetch(
-				`http://localhost/backend/users/${authenticatedUserID}/chats`,
-				request
-			).then(async (response) => {
-				const chat_data = await response.json();
-				if (!response.ok) {
-					console.log("error response load channels");
-					return;
-				}
-				console.log("RECEIVED private CHAT DATA", chat_data);
-				chat_data.map(async (chatRoom: any) => {
-					var chan = await fetchChatData(
-						chatRoom.id,
-						chatRoom.name,
-						chatRoom.isPrivate,
-						chatRoom.isDirectMessage,
-						request
-					);
-					setMyChats((prev) => [...prev, chan]);
-					return chatRoom;
-				});
-			});
-		}
-
-		if (blockedUsers.length === 0 && authenticatedUserID) {
-			// Fetching Chats
-			fetch(
-				`http://localhost/backend/users/${authenticatedUserID}/blockedUsers`,
-				request
-			).then(async (response) => {
-				const data = await response.json();
-				if (!response.ok) {
-					console.log("error response load channels");
-					return;
-				}
-				console.log("RECEIVED blocked users data", data);
-				data.map(async (blockedRelationship: any) => {
-					setBlockedUsers((prev) => [
-						...prev,
-						blockedRelationship.blockedUserID,
-					]);
-				});
-			});
-		}
-
-		if (publicChats.length === 0 && authenticatedUserID) {
-			fetch(`http://localhost/backend/chats/public`, request).then(
+			fetch(`/backend/users/${authenticatedUserID}/chats`, request).then(
 				async (response) => {
 					const chat_data = await response.json();
 					if (!response.ok) {
 						console.log("error response load channels");
 						return;
 					}
-					console.log("RECEIVED public CHAT DATA", chat_data);
+					console.log("RECEIVED private CHAT DATA", chat_data);
 					chat_data.map(async (chatRoom: any) => {
-						const newPublicChat: PublicChatRoom = {
-							chatRoomID: chatRoom.id,
-							name: chatRoom.name,
-							hasPassword: await fetchHasPassword(chatRoom.id, request),
-						};
-						setPublicChats((prev) => [...prev, newPublicChat]);
+						var chan = await fetchChatData(
+							chatRoom.id,
+							chatRoom.name,
+							chatRoom.isPrivate,
+							chatRoom.isDirectMessage,
+							request
+						);
+						setMyChats((prev) => [...prev, chan]);
 						return chatRoom;
 					});
 				}
 			);
 		}
 
-		if (invites.length === 0 && authenticatedUserID) {
-			fetch(
-				`http://localhost/backend/invites/received/${authenticatedUserID}`,
-				request
-			).then(async (response) => {
-				const data = await response.json();
+		if (blockedUsers.length === 0 && authenticatedUserID) {
+			// Fetching Chats
+			fetch(`/backend/users/${authenticatedUserID}/blockedUsers`, request).then(
+				async (response) => {
+					const data = await response.json();
+					if (!response.ok) {
+						console.log("error response load channels");
+						return;
+					}
+					console.log("RECEIVED blocked users data", data);
+					data.map(async (blockedRelationship: any) => {
+						setBlockedUsers((prev) => [
+							...prev,
+							blockedRelationship.blockedUserID,
+						]);
+					});
+				}
+			);
+		}
+
+		if (publicChats.length === 0 && authenticatedUserID) {
+			fetch(`/backend/chats/public`, request).then(async (response) => {
+				const chat_data = await response.json();
 				if (!response.ok) {
-					console.log("error response load invites");
+					console.log("error response load channels");
 					return;
 				}
-				data.map((invite: Invite) => {
-					console.log("fetching invites", invite);
-					setInvites((prev) => [...prev, invite]);
+				console.log("RECEIVED public CHAT DATA", chat_data);
+				chat_data.map(async (chatRoom: any) => {
+					const newPublicChat: PublicChatRoom = {
+						chatRoomID: chatRoom.id,
+						name: chatRoom.name,
+						hasPassword: await fetchHasPassword(chatRoom.id, request),
+					};
+					setPublicChats((prev) => [...prev, newPublicChat]);
+					return chatRoom;
 				});
 			});
+		}
+
+		if (invites.length === 0 && authenticatedUserID) {
+			fetch(`/backend/invites/received/${authenticatedUserID}`, request).then(
+				async (response) => {
+					const data = await response.json();
+					if (!response.ok) {
+						console.log("error response load invites");
+						return;
+					}
+					data.map((invite: Invite) => {
+						console.log("fetching invites", invite);
+						setInvites((prev) => [...prev, invite]);
+					});
+				}
+			);
 		}
 
 		return () => {

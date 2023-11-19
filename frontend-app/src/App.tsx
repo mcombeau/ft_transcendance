@@ -34,17 +34,15 @@ function App() {
 
 		const currentUserID: number = getUserID(cookies);
 		if (!currentUserID) return;
-		fetch(`http://localhost/backend/users/${currentUserID}`, request).then(
-			async (response) => {
-				await response.json();
-				if (!response.ok) {
-					setAuthenticatedUserID(null);
-					removeCookie("token", { path: "/" });
-					return;
-				}
-				setAuthenticatedUserID(getUserID(cookies));
+		fetch(`/backend/users/${currentUserID}`, request).then(async (response) => {
+			await response.json();
+			if (!response.ok) {
+				setAuthenticatedUserID(null);
+				removeCookie("token", { path: "/" });
+				return;
 			}
-		);
+			setAuthenticatedUserID(getUserID(cookies));
+		});
 	}, [cookies, removeCookie]);
 
 	return (

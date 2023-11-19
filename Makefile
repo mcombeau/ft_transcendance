@@ -1,11 +1,13 @@
 .PHONY: all re up down start stop status logs prune clean fclean db blog flog nlog plog
+include .env
+export
 
 DATA_PATH = ${HOME}/ft_transcendance
 ENV =		DATA_PATH=${DATA_PATH}
 
-all: up
+all: up blog
 
-re: down up
+re: down up blog
 
 up: setup
 	 ${ENV} docker-compose -f docker-compose.yml up -d --build
@@ -26,6 +28,7 @@ logs:
 	docker-compose logs
 
 setup:
+	./configure-host.sh
 	mkdir -p ${DATA_PATH}
 	mkdir -p ${DATA_PATH}/database
 
