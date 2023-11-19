@@ -23,6 +23,7 @@
   - 404 if page not exist (not tostring business)
   - people offline when logged
   - Error in back if token expired => handle it
+  - When user plays a game and goes to another page during the game, when they return to the play page, they are not correctly added back to the game.
 
 - passwords:
 
