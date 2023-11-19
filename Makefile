@@ -5,9 +5,9 @@ export
 DATA_PATH = ${HOME}/ft_transcendance
 ENV =		DATA_PATH=${DATA_PATH}
 
-all: up
+all: up blog
 
-re: down up
+re: down up blog
 
 up: setup
 	 ${ENV} docker-compose -f docker-compose.yml up -d --build
