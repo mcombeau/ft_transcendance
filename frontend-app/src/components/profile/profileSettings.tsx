@@ -1,6 +1,5 @@
 import { User } from "./profile";
-import { useEffect, useState } from "react";
-import { getIs2faEnabled } from "../../cookies";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 async function readStream(response: any) {
 	const reader = response.body.getReader();
@@ -17,8 +16,8 @@ async function readStream(response: any) {
 function ProfileSettings(
 	user: User,
 	cookies: any,
-	isEditingProfile,
-	setIsEditingProfile,
+	isEditingProfile: boolean,
+	setIsEditingProfile: Dispatch<SetStateAction<boolean>>,
 	authenticatedUserID: number
 ) {
 	const [newUsername, setNewUsername] = useState("");
@@ -44,8 +43,7 @@ function ProfileSettings(
 	// }, [cookies]);
 
 	async function enable2Fa() {
-		var result: Uint8Array;
-		var request = {
+		var request: any = {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -98,6 +96,7 @@ function ProfileSettings(
 	}
 
 	function submitUserInfo(e: any) {
+		// TODO: dont send username if username has not changed
 		var request = {
 			method: "PATCH",
 			headers: {

@@ -1,6 +1,5 @@
 import { Dispatch, SetStateAction } from "react";
 import { Socket } from "socket.io-client";
-import { getUserID } from "../../cookies";
 import { ReceivedInfo, ChatRoom } from "./types";
 
 export const SidePannel = (
