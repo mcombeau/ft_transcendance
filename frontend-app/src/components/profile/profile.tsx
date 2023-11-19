@@ -427,9 +427,10 @@ function Profile() {
 		fetch(`/backend/users/${profileUserID}`, request).then(async (response) => {
 			const data = await response.json();
 			if (!response.ok) {
-				console.log("error response load channels");
+				console.log("error response fetching user");
 				return <h1>No such user</h1>;
 			}
+
 			setUserExists(true);
 			setUser({
 				id: data.id,
@@ -456,8 +457,6 @@ function Profile() {
 
 	useEffect(() => {
 		if (authenticatedUserID === profileUserID) {
-			socket.emit("login", cookies["token"]);
-			socket.emit("connection");
 			setIsMyPage(true);
 		}
 
@@ -467,7 +466,30 @@ function Profile() {
 	useEffect(() => {
 		checkIfIsMyFriend(user, authenticatedUserID, cookies, setIsMyFriend);
 		checkIfIsBlocked(user, authenticatedUserID, cookies, setIsBlocked);
+		console.log("USER", user);
 	}, [user]);
+
+	useEffect(() => {
+		socket.on(
+			"status change",
+			(body: { userID: number; userStatus: UserStatus }) => {
+				console.log("Triggered status change");
+				setUser((user: User) => {
+					console.log("user inside", user);
+					if (user.id === body.userID) {
+						console.log("Heeere");
+						return {
+							...user,
+							status: body.userStatus,
+						};
+					}
+				});
+			}
+		);
+		return () => {
+			socket.off("status change");
+		};
+	}, []);
 
 	return (
 		<div id="profile">

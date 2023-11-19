@@ -35,7 +35,6 @@ import { sendFriendDto } from "src/friends/dtos/sendFriend.dto";
 import { UpdateResult, DeleteResult } from "typeorm";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { Response, Express } from "express";
-import { max } from "rxjs";
 
 @ApiTags("users")
 @Controller("users")
