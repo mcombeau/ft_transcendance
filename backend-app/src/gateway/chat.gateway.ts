@@ -183,8 +183,7 @@ export class ChatGateway implements OnModuleInit {
 			const userID = await this.checkIdentity(token, socket);
 			socket.data.userID = userID;
 
-			const user = await this.userService.fetchUserByID(userID);
-			await this.authService.logout(user);
+			await this.authService.logout(userID);
 			socket.rooms.forEach(async (room: string) => {
 				if (room !== socket.id) await socket.leave(room);
 			});

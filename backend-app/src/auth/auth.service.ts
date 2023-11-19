@@ -54,12 +54,12 @@ export class AuthService {
 		};
 	}
 
-	async logout(user: UserEntity): Promise<void> {
-		console.log("[Auth Service]: logout user", user);
-		const dbUser = await this.userService.fetchUserByUsername(user.username);
+	async logout(userID: number): Promise<void> {
+		const dbUser = await this.userService.fetchUserByID(userID);
 		if (!dbUser) {
 			throw new UserNotFoundError();
 		}
+		console.log("[Auth Service]: logout user", dbUser);
 		await this.userService.updateUserByID(dbUser.id, {
 			status: userStatus.OFFLINE,
 		});
