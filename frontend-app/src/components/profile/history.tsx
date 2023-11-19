@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getLadderLevelDescription } from "./ladder";
+import { getLadderLevel, getLadderLevelDescription } from "./ladder";
 import { User } from "./profile";
 
 export type Game = {
@@ -11,14 +11,20 @@ export type Game = {
 	otherPlayerScore: number;
 };
 
-function displayGame(game: Game, key: number) {
+function displayGame(game: Game, key: number, nbWins: number) {
 	const splitDate = game.date.toString().split("T");
 	const dateString = splitDate[0] + " " + splitDate[1].split(".")[0];
+	let newLadderLevel: string;
+	if (getLadderLevel(nbWins - 1) !== getLadderLevel(nbWins)) {
+		newLadderLevel = getLadderLevelDescription(nbWins);
+	}
+
 	return (
 		<p key={key}>
 			{game.didIWin ? "Won" : "Lost"} game against{" "}
 			<a href={"/user/" + game.otherPlayerID}>{game.otherPlayerName}</a> :{" "}
-			{game.myScore} - {game.otherPlayerScore} ({dateString})
+			{game.myScore} - {game.otherPlayerScore} ({dateString}){" "}
+			{newLadderLevel ? " - " + newLadderLevel : ""}
 		</p>
 	);
 }
@@ -28,9 +34,16 @@ function displayGames(games: Game[]) {
 	return games
 		.sort(
 			(a: Game, b: Game) =>
-				new Date(b.date).getTime() - new Date(a.date).getTime()
+				new Date(a.date).getTime() - new Date(b.date).getTime()
 		)
-		.map(displayGame);
+		.map(
+			function (game: Game, key: number) {
+				if (game.didIWin) this.nbWins++;
+				return displayGame(game, key, this.nbWins);
+			},
+			{ nbWins: 0 }
+		)
+		.reverse();
 }
 
 function displayStats(games: Game[]) {
