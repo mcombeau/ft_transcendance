@@ -27,6 +27,13 @@ export type User = {
 	status: UserStatus;
 };
 
+export type Friend = {
+	id: number;
+	username: string;
+	status: UserStatus;
+	avatar?: string;
+};
+
 function titleProfile(isMyPage: boolean, user: User) {
 	if (user === undefined) return <h2>User not found</h2>;
 	if (isMyPage)
@@ -414,6 +421,7 @@ function Profile() {
 	const [isBlocked, setIsBlocked] = useState(false);
 	const { authenticatedUserID } = useContext(AuthenticationContext);
 	const [profilePicture, setProfilePicture] = useState(null);
+	const [friends, setFriends] = useState<Friend[]>();
 	const navigate = useNavigate();
 
 	async function fetchUser() {
@@ -473,16 +481,28 @@ function Profile() {
 		socket.on(
 			"status change",
 			(body: { userID: number; userStatus: UserStatus }) => {
-				console.log("Triggered status change");
 				setUser((user: User) => {
+					if (!user) return user;
 					console.log("user inside", user);
 					if (user.id === body.userID) {
-						console.log("Heeere");
 						return {
 							...user,
 							status: body.userStatus,
 						};
+					} else {
+						return user;
 					}
+				});
+				setFriends((friends: Friend[]) => {
+					if (!friends) return friends;
+					return friends.map((friend: Friend) => {
+						if (friend.id === body.userID) {
+							return {
+								...friend,
+								status: body.userStatus,
+							};
+						} else return friend;
+					});
 				});
 			}
 		);
@@ -526,7 +546,7 @@ function Profile() {
 				<div className="right-section">
 					<div className="stats row">
 						<div className="stat col-xs-4">
-							{FriendsList(isMyPage, user, cookies)}
+							{FriendsList(isMyPage, user, cookies, friends, setFriends)}
 						</div>
 						<div className="stat col-xs-4">{GameHistory(user, cookies)}</div>
 					</div>

@@ -1,14 +1,14 @@
-import { useContext, useEffect, useState } from "react";
+import {
+	Dispatch,
+	SetStateAction,
+	useContext,
+	useEffect,
+	useState,
+} from "react";
 import { WebSocketContext } from "../../contexts/WebsocketContext";
 import { AuthenticationContext } from "../authenticationState";
-import { blockUser, unblockUser, unfriend, User, UserStatus } from "./profile";
-
-export type Friend = {
-	id: number;
-	username: string;
-	status: UserStatus;
-	avatar?: string;
-};
+import { blockUser, unblockUser, unfriend, User } from "./profile";
+import { Friend } from "./profile";
 
 export type PlayerInfo = {
 	userID: number;
@@ -174,8 +174,13 @@ function displayFriends(
 	);
 }
 
-function FriendsList(isMyPage: boolean, user: User, cookies: any) {
-	const [friends, setFriends] = useState<Friend[]>();
+function FriendsList(
+	isMyPage: boolean,
+	user: User,
+	cookies: any,
+	friends: Friend[],
+	setFriends: Dispatch<SetStateAction<Friend[]>>
+) {
 	const [gameInfos, setGameInfos] = useState<GameInfo[]>([]);
 	const [blockedUsers, setBlockedUsers] = useState<BlockedUser[]>();
 	const { authenticatedUserID } = useContext(AuthenticationContext);
