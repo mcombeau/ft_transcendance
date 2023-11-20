@@ -27,6 +27,13 @@ export type User = {
 	status: UserStatus;
 };
 
+export type Friend = {
+	id: number;
+	username: string;
+	status: UserStatus;
+	avatar?: string;
+};
+
 function titleProfile(isMyPage: boolean, user: User) {
 	if (user === undefined) return <h2>User not found</h2>;
 	if (isMyPage)
@@ -414,6 +421,7 @@ function Profile() {
 	const [isBlocked, setIsBlocked] = useState(false);
 	const { authenticatedUserID } = useContext(AuthenticationContext);
 	const [profilePicture, setProfilePicture] = useState(null);
+	const [friends, setFriends] = useState<Friend[]>();
 	const navigate = useNavigate();
 
 	async function fetchUser() {
@@ -427,9 +435,10 @@ function Profile() {
 		fetch(`/backend/users/${profileUserID}`, request).then(async (response) => {
 			const data = await response.json();
 			if (!response.ok) {
-				console.log("error response load channels");
+				console.log("error response fetching user");
 				return <h1>No such user</h1>;
 			}
+
 			setUserExists(true);
 			setUser({
 				id: data.id,
@@ -456,8 +465,6 @@ function Profile() {
 
 	useEffect(() => {
 		if (authenticatedUserID === profileUserID) {
-			socket.emit("login", cookies["token"]);
-			socket.emit("connection");
 			setIsMyPage(true);
 		}
 
@@ -467,7 +474,42 @@ function Profile() {
 	useEffect(() => {
 		checkIfIsMyFriend(user, authenticatedUserID, cookies, setIsMyFriend);
 		checkIfIsBlocked(user, authenticatedUserID, cookies, setIsBlocked);
+		console.log("USER", user);
 	}, [user]);
+
+	useEffect(() => {
+		socket.on(
+			"status change",
+			(body: { userID: number; userStatus: UserStatus }) => {
+				setUser((user: User) => {
+					if (!user) return user;
+					console.log("user inside", user);
+					if (user.id === body.userID) {
+						return {
+							...user,
+							status: body.userStatus,
+						};
+					} else {
+						return user;
+					}
+				});
+				setFriends((friends: Friend[]) => {
+					if (!friends) return friends;
+					return friends.map((friend: Friend) => {
+						if (friend.id === body.userID) {
+							return {
+								...friend,
+								status: body.userStatus,
+							};
+						} else return friend;
+					});
+				});
+			}
+		);
+		return () => {
+			socket.off("status change");
+		};
+	}, []);
 
 	return (
 		<div id="profile">
@@ -504,7 +546,7 @@ function Profile() {
 				<div className="right-section">
 					<div className="stats row">
 						<div className="stat col-xs-4">
-							{FriendsList(isMyPage, user, cookies)}
+							{FriendsList(isMyPage, user, cookies, friends, setFriends)}
 						</div>
 						<div className="stat col-xs-4">{GameHistory(user, cookies)}</div>
 					</div>

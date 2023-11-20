@@ -7,12 +7,13 @@ import Chat from "./components/chat/Chat";
 import Play from "./components/play/play";
 import Leaderboard from "./components/leaderboard/leaderboard";
 import Profile from "./components/profile/profile";
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useCookies } from "react-cookie";
 import { getUserID } from "./cookies";
 import { AuthenticationContext } from "./components/authenticationState";
 import Logout from "./components/logout/logout";
 import LiveGames from "./components/live-games/LiveGames";
+import { WebSocketContext } from "./contexts/WebsocketContext";
 
 function App() {
 	const [cookies, , removeCookie] = useCookies(["token"]);
@@ -23,6 +24,7 @@ function App() {
 		() => ({ authenticatedUserID, setAuthenticatedUserID }),
 		[authenticatedUserID]
 	);
+	const socket = useContext(WebSocketContext);
 
 	useEffect(() => {
 		var request = {
@@ -42,6 +44,8 @@ function App() {
 				return;
 			}
 			setAuthenticatedUserID(getUserID(cookies));
+			socket.emit("login", cookies["token"]);
+			socket.emit("connection");
 		});
 	}, [cookies, removeCookie]);
 

@@ -239,8 +239,12 @@ export class GameGateway implements OnModuleInit {
 		return null;
 	}
 
-	private async updatePlayerStatus(status: userStatus, userID: number) {
-		await this.usersService.updateUserByID(userID, { status: status });
+	private async updatePlayerStatus(userStatus: userStatus, userID: number) {
+		await this.usersService.updateUserByID(userID, { status: userStatus });
+		this.server.emit("status change", {
+			userID: userID,
+			userStatus: userStatus,
+		});
 	}
 
 	private async addWatcherToGameRoom(watcher: Watcher, gameID: string) {

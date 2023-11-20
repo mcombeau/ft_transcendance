@@ -183,8 +183,7 @@ export class ChatGateway implements OnModuleInit {
 			const userID = await this.checkIdentity(token, socket);
 			socket.data.userID = userID;
 
-			const user = await this.userService.fetchUserByID(userID);
-			await this.authService.logout(user);
+			await this.authService.logout(userID);
 			socket.rooms.forEach(async (room: string) => {
 				if (room !== socket.id) await socket.leave(room);
 			});
@@ -193,6 +192,10 @@ export class ChatGateway implements OnModuleInit {
 			console.log(
 				`[Chat Gateway]: Logout event: A user logged out: ${username} - ${userID} (${socket.id})`
 			);
+			this.server.emit("status change", {
+				userID: userID,
+				userStatus: userStatus.OFFLINE,
+			});
 		} catch (e) {
 			const err_msg = "[Chat Gateway]: logout error:" + e.message;
 			console.log(err_msg);
@@ -226,6 +229,10 @@ export class ChatGateway implements OnModuleInit {
 			this.server
 				.to(this.getSocketRoomIdentifier(userID, RoomType.User))
 				.emit("login", username);
+			this.server.emit("status change", {
+				userID: userID,
+				userStatus: userStatus.ONLINE,
+			});
 		} catch (e) {
 			const err_msg = "[Chat Gateway]: login error:" + e.message;
 			console.log(err_msg);
