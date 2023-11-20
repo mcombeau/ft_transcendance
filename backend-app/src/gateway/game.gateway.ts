@@ -297,6 +297,7 @@ export class GameGateway implements OnModuleInit {
 	private async reconnect(socket: Socket, userID: number) {
 		const myGameRoom: GameRoom = await this.getRoom(userID);
 		if (myGameRoom) {
+			await this.updatePlayerStatus(userStatus.INGAME, userID);
 			await socket.join(myGameRoom.socketRoomID);
 			console.log("[Game Gateway]: reconnect", this.gameToGameInfo(myGameRoom));
 			socket.emit("rejoin game", this.gameToGameInfo(myGameRoom));
@@ -765,7 +766,7 @@ export class GameGateway implements OnModuleInit {
 			throw new UserNotFoundError();
 		}
 		// if user is playing in any room, they can't watch
-		if (this.getRoom(userID)) {
+		if (await this.getRoom(userID)) {
 			console.log(
 				"[Game Gateway]: User cannot watch because already in a game"
 			);
