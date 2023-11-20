@@ -239,6 +239,14 @@ export class GameGateway implements OnModuleInit {
 		return null;
 	}
 
+	private async getWatchingRoom(userID: number) {
+		return this.gameRooms.find((gameRoom: GameRoom) => {
+			gameRoom.watchers.find((watcher: Watcher) => {
+				watcher.userID === userID;
+			});
+		});
+	}
+
 	private async updatePlayerStatus(userStatus: userStatus, userID: number) {
 		await this.usersService.updateUserByID(userID, { status: userStatus });
 		this.server.emit("status change", {
@@ -249,9 +257,15 @@ export class GameGateway implements OnModuleInit {
 
 	private async addWatcherToGameRoom(watcher: Watcher, gameID: string) {
 		const gameRoom: GameRoom = this.gameRooms.find((gameRoom: GameRoom) => {
-			gameRoom.socketRoomID == gameID;
-			return gameRoom;
+			if (gameRoom.socketRoomID === gameID) {
+				return gameRoom;
+			}
 		});
+		console.log(
+			"[Game Gateway]:",
+			"found gameroom for watcher",
+			this.gameToGameInfo(gameRoom)
+		);
 		if (!gameRoom) return null;
 		await watcher.socket.join(gameRoom.socketRoomID);
 		delete watcher.socket;
@@ -723,6 +737,7 @@ export class GameGateway implements OnModuleInit {
 	}
 
 	gameToGameInfo(game: GameRoom): GameInfo {
+		if (!game) return;
 		const gameInfo: GameInfo = {
 			player1: {
 				userID: game.player1.userID,
@@ -765,14 +780,30 @@ export class GameGateway implements OnModuleInit {
 		if (!user) {
 			throw new UserNotFoundError();
 		}
+		console.log(
+			"[Game Gateway]:",
+			"User",
+			userID,
+			"wants to watch",
+			body.gameID
+		);
 		// if user is playing in any room, they can't watch
 		if (await this.getRoom(userID)) {
 			console.log(
-				"[Game Gateway]: User cannot watch because already in a game"
+				"[Game Gateway]: User cannot watch because already in a game or watching one"
 			);
 			socket.emit("watch", { authorized: false });
 			return;
 		}
+		const gameAlreadyWatched: GameRoom = await this.getWatchingRoom(userID);
+		if (gameAlreadyWatched) {
+			await this.rmWatcherFromGameRoom(
+				userID,
+				gameAlreadyWatched.socketRoomID,
+				socket
+			);
+		}
+
 		const watcher: Watcher = {
 			userID: userID,
 			username: user.username,
