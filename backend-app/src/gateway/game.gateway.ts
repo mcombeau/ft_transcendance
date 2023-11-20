@@ -764,6 +764,14 @@ export class GameGateway implements OnModuleInit {
 		if (!user) {
 			throw new UserNotFoundError();
 		}
+		// if user is playing in any room, they can't watch
+		if (this.getRoom(userID)) {
+			console.log(
+				"[Game Gateway]: User cannot watch because already in a game"
+			);
+			socket.emit("watch", { authorized: false });
+			return;
+		}
 		const watcher: Watcher = {
 			userID: userID,
 			username: user.username,
@@ -774,9 +782,14 @@ export class GameGateway implements OnModuleInit {
 			body.gameID
 		);
 		if (!gameRoom) {
+			console.log(
+				"[Game Gateway]:",
+				"User cannot watch gameroom that does not exist"
+			);
 			socket.emit("watch", { authorized: false });
 		} else {
 			const gameInfo = this.gameToGameInfo(gameRoom);
+			console.log("[Game Gateway]:", "User", userID, "started watching a game");
 			socket.emit("watch", { authorized: true, gameInfo: gameInfo });
 		}
 	}
