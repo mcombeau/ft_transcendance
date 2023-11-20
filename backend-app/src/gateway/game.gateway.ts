@@ -239,20 +239,49 @@ export class GameGateway implements OnModuleInit {
 		return null;
 	}
 
-	private async getWatchingRoom(userID: number) {
-		return this.gameRooms.find((gameRoom: GameRoom) => {
-			gameRoom.watchers.find((watcher: Watcher) => {
-				watcher.userID === userID;
-			});
-		});
-	}
-
 	private async updatePlayerStatus(userStatus: userStatus, userID: number) {
 		await this.usersService.updateUserByID(userID, { status: userStatus });
 		this.server.emit("status change", {
 			userID: userID,
 			userStatus: userStatus,
 		});
+	}
+
+	private getWatchingRooms(userID: number) {
+		return this.gameRooms.filter((gameRoom: GameRoom) => {
+			return gameRoom.watchers.some((watcher: Watcher) => {
+				return watcher.userID === userID;
+			});
+		});
+	}
+
+	private async stopWatchingEverything(userID: number, socket: Socket) {
+		const gameAlreadyWatched: GameRoom[] = this.getWatchingRooms(userID);
+		await Promise.all(
+			gameAlreadyWatched.map(async (gameRoom: GameRoom) => {
+				return await this.rmWatcherFromGameRoom(
+					userID,
+					gameRoom.socketRoomID,
+					socket
+				);
+			})
+		);
+	}
+
+	private async rmWatcherFromGameRoom(
+		userID: number,
+		gameID: string,
+		socket: Socket
+	) {
+		const gameRoom: GameRoom = this.gameRooms.find((gameRoom: GameRoom) => {
+			gameRoom.socketRoomID == gameID;
+			return gameRoom;
+		});
+		if (!gameRoom) return;
+		gameRoom.watchers = gameRoom.watchers.filter(
+			(watcher: Watcher) => watcher.userID !== userID
+		);
+		socket.leave(gameRoom.socketRoomID);
 	}
 
 	private async addWatcherToGameRoom(watcher: Watcher, gameID: string) {
@@ -271,22 +300,6 @@ export class GameGateway implements OnModuleInit {
 		delete watcher.socket;
 		gameRoom.watchers.push(watcher);
 		return gameRoom;
-	}
-
-	private async rmWatcherFromGameRoom(
-		userID: number,
-		gameID: string,
-		socket: Socket
-	) {
-		const gameRoom: GameRoom = this.gameRooms.find((gameRoom: GameRoom) => {
-			gameRoom.socketRoomID == gameID;
-			return gameRoom;
-		});
-		if (!gameRoom) return;
-		gameRoom.watchers = gameRoom.watchers.filter(
-			(watcher: Watcher) => watcher.userID !== userID
-		);
-		socket.leave(gameRoom.socketRoomID);
 	}
 
 	private placeBall() {
@@ -693,6 +706,8 @@ export class GameGateway implements OnModuleInit {
 			throw new UserNotFoundError();
 		}
 
+		this.stopWatchingEverything(userID, socket);
+
 		const inviteIsValid = await this.checkInviteIsValid(inviteID, user.id);
 		socket.emit("waiting", inviteIsValid || !inviteID);
 		if (!inviteIsValid) return;
@@ -795,14 +810,8 @@ export class GameGateway implements OnModuleInit {
 			socket.emit("watch", { authorized: false });
 			return;
 		}
-		const gameAlreadyWatched: GameRoom = await this.getWatchingRoom(userID);
-		if (gameAlreadyWatched) {
-			await this.rmWatcherFromGameRoom(
-				userID,
-				gameAlreadyWatched.socketRoomID,
-				socket
-			);
-		}
+
+		this.stopWatchingEverything(userID, socket);
 
 		const watcher: Watcher = {
 			userID: userID,
