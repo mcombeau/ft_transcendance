@@ -436,11 +436,9 @@ export class GameGateway implements OnModuleInit {
 		return null;
 	}
 
-	private async getRoomOrWait(player: Player) {
+	private async getRoomOrWait(player: Player, isAcceptingInvite?: boolean) {
 		let opponent: Player;
 		if (player.inviteID) {
-			// TODO: if this player is accepting invite, check if anyone with invite is waiting,
-			// if not, then delete invite because it's invaliiiid
 			opponent = this.getInvitedPlayer(player);
 		} else {
 			opponent = this.getFreePlayer(player);
@@ -460,7 +458,9 @@ export class GameGateway implements OnModuleInit {
 			"with invite",
 			player.inviteID
 		);
-		this.waitList.push(player);
+		if (!isAcceptingInvite) {
+			this.waitList.push(player);
+		}
 		return null;
 	}
 
@@ -700,26 +700,27 @@ export class GameGateway implements OnModuleInit {
 		socket.emit("get games", gameInfos);
 	}
 
-	private async checkInviteIsValid(
+	private async getValidInvite(
 		inviteID: number,
 		userID: number
-	): Promise<boolean> {
+	): Promise<sendInviteDto> {
 		if (!inviteID) {
-			return true;
+			return null;
 		}
+		let invitation: sendInviteDto;
 		try {
-			const invitation = await this.invitesService.fetchInviteByID(inviteID);
+			invitation = await this.invitesService.fetchInviteByID(inviteID);
 			if (!invitation) {
-				return false;
+				return null;
 			}
 			if (invitation.invitedID !== userID && invitation.senderID !== userID) {
-				return false;
+				return null;
 			}
 			await this.chatGateway.checkUserInviteHasNotExpired(invitation);
 		} catch (e) {
-			return false;
+			return null;
 		}
-		return true;
+		return invitation;
 	}
 
 	@SubscribeMessage("leave game")
@@ -876,14 +877,12 @@ export class GameGateway implements OnModuleInit {
 			socket.emit("wait invite", { success: false });
 			return;
 		}
-		const inviteIsValid: boolean = await this.checkInviteIsValid(
-			inviteID,
-			user.id
-		);
-		if (!inviteIsValid) {
+		const invite: sendInviteDto = await this.getValidInvite(inviteID, user.id);
+		if (!invite) {
 			socket.emit("wait invite", { success: false });
 			return;
 		}
+		const isAcceptingInvite: boolean = user.id === invite.invitedID;
 
 		const player: Player = {
 			userID: user.id,
@@ -891,13 +890,20 @@ export class GameGateway implements OnModuleInit {
 			socket: socket,
 			inviteID: inviteID,
 		};
-		const myGameRoom: GameRoom = await this.getRoomOrWait(player);
+		const myGameRoom: GameRoom = await this.getRoomOrWait(
+			player,
+			isAcceptingInvite
+		);
 		if (!myGameRoom) {
 			console.log(
 				`[Game Gateway][Wait Invite]: ${player.username} is waiting for an opponent:`,
 				player.userID,
 				player.username
 			);
+			if (isAcceptingInvite) {
+				socket.emit("wait invite", { success: false });
+				return;
+			}
 			socket.emit("wait invite", { success: true });
 		} else {
 			this.startGame(myGameRoom);
