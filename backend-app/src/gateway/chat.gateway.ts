@@ -179,7 +179,6 @@ export class ChatGateway implements OnModuleInit {
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() token: string
 	): Promise<void> {
-		console.log("[Chat Gateway]: Logout", token);
 		try {
 			const userID = await this.checkIdentity(token, socket);
 			socket.data.userID = userID;
@@ -208,7 +207,6 @@ export class ChatGateway implements OnModuleInit {
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() token: string
 	): Promise<void> {
-		console.log("[Chat Gateway]: Login", token);
 		try {
 			const userID = await this.checkIdentity(token, socket);
 			socket.data.userID = userID;
