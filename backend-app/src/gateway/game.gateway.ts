@@ -327,31 +327,6 @@ export class GameGateway implements OnModuleInit {
 		};
 	}
 
-	// private async reconnect(socket: Socket, userID: number) {
-	// 	const myGameRoom: GameRoom = await this.getCurrentPlayRoom(userID);
-	// 	if (!myGameRoom) {
-	// 		socket.emit("rejoin game", { authorized: false, data: null });
-	// 	}
-	// 	if (myGameRoom) {
-	// 		await this.updatePlayerStatus(userStatus.INGAME, userID);
-	// 		await socket.join(myGameRoom.socketRoomID);
-	// 		console.log("[Game Gateway]: reconnect", this.gameToGameInfo(myGameRoom));
-	// 		socket.emit("rejoin game", {
-	// 			authorized: true,
-	// 			data: this.gameToGameInfo(myGameRoom),
-	// 		});
-	// 		console.log(
-	// 			"[Game Gateway]:",
-	// 			"Setting up user",
-	// 			userID,
-	// 			"to join back gameroom",
-	// 			myGameRoom.socketRoomID
-	// 		);
-	// 		return true;
-	// 	}
-	// 	return false;
-	// }
-
 	private async reconnect(socket: Socket, userID: number): Promise<GameRoom> {
 		const myGameRoom: GameRoom = await this.getCurrentPlayRoom(userID);
 		if (!myGameRoom) {
@@ -464,6 +439,8 @@ export class GameGateway implements OnModuleInit {
 	private async getRoomOrWait(player: Player) {
 		let opponent: Player;
 		if (player.inviteID) {
+			// TODO: if this player is accepting invite, check if anyone with invite is waiting,
+			// if not, then delete invite because it's invaliiiid
 			opponent = this.getInvitedPlayer(player);
 		} else {
 			opponent = this.getFreePlayer(player);
