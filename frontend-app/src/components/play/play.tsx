@@ -258,7 +258,7 @@ export const Play = () => {
 			const urlState: UrlState = checkUrlState();
 			switch (urlState) {
 				case UrlState.Invite:
-					socket.emit("invite", {
+					socket.emit("wait invite", {
 						token: cookies["token"],
 						inviteID: inviteID,
 					});
