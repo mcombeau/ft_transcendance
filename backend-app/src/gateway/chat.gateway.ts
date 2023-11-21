@@ -126,22 +126,23 @@ export class ChatGateway implements OnModuleInit {
 	}
 
 	// -------------------- EVENTS
+	// TODO: GET TOKEN FROM SOCKET NOT FROM PASSED TOKEN!!!
 	async checkIdentity(token: string, socket: Socket): Promise<number> {
 		const socketToken = socket.handshake.headers.authorization.split(" ")[1];
 		if (token !== socketToken) {
 			// TODO: why is socketToken sometimes undefined ? Investigate.
-			console.log("[WARNING] Socket token and token DON'T MATCH!");
-			console.log("[WARNING] Socket token:", socketToken);
-			console.log(
-				"[WARNING] Letting this mismatched token pass anyway if it is undefined for now"
-			);
+			// console.log("[WARNING] Socket token and token DON'T MATCH!");
+			// console.log("[WARNING] Socket token:", socketToken);
+			// console.log(
+			// 	"[WARNING] Letting this mismatched token pass anyway if it is undefined for now"
+			// );
 		}
 		if (socketToken === "undefined") {
-			console.log("[WARNING] Socket token is undefined:", socketToken);
+			// console.log("[WARNING] Socket token is undefined:", socketToken);
 			// throw new ChatPermissionError('socket token is undefined');
 		}
 		if (socketToken !== token) {
-			console.log("[WARNING] Socket token does not match given token");
+			// console.log("[WARNING] Socket token does not match given token");
 		}
 		const isTokenVerified = await this.authService
 			.validateToken(token)
