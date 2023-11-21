@@ -281,9 +281,10 @@ export class GameGateway implements OnModuleInit {
 		userID: number,
 		socket: Socket
 	): Promise<void> {
-		const gameAlreadyWatched: GameRoom[] = this.getWatchingRooms(userID);
+		const gamesAlreadyWatched: GameRoom[] = this.getWatchingRooms(userID);
+
 		await Promise.all(
-			gameAlreadyWatched.map(async (gameRoom: GameRoom) => {
+			gamesAlreadyWatched.map(async (gameRoom: GameRoom) => {
 				return await this.rmWatcherFromGameRoom(
 					userID,
 					gameRoom.socketRoomID,
@@ -735,50 +736,6 @@ export class GameGateway implements OnModuleInit {
 		return true;
 	}
 
-	// @SubscribeMessage("waiting")
-	// async onWaiting(
-	// 	@ConnectedSocket() socket: Socket,
-	// 	@MessageBody() info: { token: string; inviteID: number }
-	// ) {
-	// 	const token = info.token;
-	// 	const inviteID = info.inviteID;
-
-	// 	const userID: number = await this.chatGateway.checkIdentity(token, socket);
-	// 	const user = await this.usersService.fetchUserByID(userID);
-	// 	if (!user) {
-	// 		throw new UserNotFoundError();
-	// 	}
-
-	// 	this.stopWatchingAllGames(userID, socket);
-
-	// 	const inviteIsValid = await this.checkInviteIsValid(inviteID, user.id);
-	// 	socket.emit("waiting", inviteIsValid || !inviteID);
-	// 	if (!inviteIsValid) return;
-
-	// 	console.log(`[Game Gateway] Waitlist in waiting:`, this.waitList);
-	// 	if (await this.reconnect(socket, user.id)) {
-	// 		return;
-	// 	}
-	// 	const player: Player = {
-	// 		userID: user.id,
-	// 		username: user.username,
-	// 		socket: socket,
-	// 	};
-	// 	if (inviteID) {
-	// 		player.inviteID = inviteID;
-	// 	}
-	// 	const myGameRoom: GameRoom = await this.getRoomOrWait(player);
-	// 	if (!myGameRoom) {
-	// 		console.log(
-	// 			`[Game Gateway]: ${player.username} is waiting for an opponent:`,
-	// 			player.userID,
-	// 			player.username
-	// 		);
-	// 	} else {
-	// 		this.startGame(myGameRoom);
-	// 	}
-	// }
-
 	@SubscribeMessage("leave game")
 	async onLeaveGame(
 		@ConnectedSocket() socket: Socket,
@@ -809,9 +766,9 @@ export class GameGateway implements OnModuleInit {
 	@SubscribeMessage("stop watching")
 	async onStopWatch(
 		@ConnectedSocket() socket: Socket,
-		@MessageBody() body: { token: string; gameID: string }
+		@MessageBody() token: string
 	) {
-		const user: UserEntity = await this.getUserOrFail(body.token, socket);
+		const user: UserEntity = await this.getUserOrFail(token, socket);
 		await this.stopWatchingAllGames(user.id, socket);
 	}
 

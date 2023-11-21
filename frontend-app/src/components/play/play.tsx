@@ -250,6 +250,7 @@ export const Play = () => {
 				console.log("[Reconnect]: reconnected");
 				setPage(Page.Play);
 				setPlayers(data.gameInfo);
+				setWatching(false);
 				return;
 			}
 			console.log("[Reconnect]: fail");
@@ -283,6 +284,7 @@ export const Play = () => {
 			// maybe remove
 			setWatching(true);
 			setPlayers(data.gameInfo);
+			setPage(Page.Play);
 		});
 
 		socket.on("wait invite", (data: Response) => {
@@ -340,9 +342,6 @@ export const Play = () => {
 	}, []);
 
 	switch (page) {
-		case Page.Waiting:
-			return waitForGamePage();
-
 		case Page.GameError:
 			return gameDoesNotExitPage();
 
@@ -359,7 +358,7 @@ export const Play = () => {
 		case Page.EndGame:
 			return winPage(endGameDetails, authenticatedUserID);
 
-		default:
+		case Page.Play:
 			return (
 				<div className="App">
 					<div className="center-container">
@@ -395,6 +394,9 @@ export const Play = () => {
 					</div>
 				</div>
 			);
+
+		default:
+			return waitForGamePage();
 	}
 };
 
