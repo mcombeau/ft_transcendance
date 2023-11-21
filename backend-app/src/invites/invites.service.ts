@@ -98,6 +98,16 @@ export class InvitesService {
 		return this.formatInvitesArrayForSending(invites);
 	}
 
+	async fetchGameInvitesBySenderID(userID: number): Promise<sendInviteDto[]> {
+		await this.deleteExpiredInvites();
+		const user = await this.userService.fetchUserByID(userID);
+		const invites = await this.inviteRepository.find({
+			where: { inviteSender: user, type: inviteType.GAME },
+			relations: ["inviteSender", "invitedUser", "chatRoom"],
+		});
+		return this.formatInvitesArrayForSending(invites);
+	}
+
 	async fetchInvitesByChatRoomID(chatRoomID: number): Promise<sendInviteDto[]> {
 		await this.deleteExpiredInvites();
 		const chatRoom = await this.chatService.fetchChatByID(chatRoomID);

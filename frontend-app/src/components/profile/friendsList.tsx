@@ -14,7 +14,7 @@ export type PlayerInfo = {
 	userID: number;
 	username: string;
 };
-
+// TODO: move to play.tsx
 export type GameInfo = {
 	player1: PlayerInfo;
 	player2: PlayerInfo;
