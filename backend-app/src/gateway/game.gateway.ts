@@ -170,8 +170,6 @@ export class GameGateway implements OnModuleInit {
 
 	private startGame(gameRoom: GameRoom) {
 		console.log("[Game Gateway]: Game started");
-		// TODO: send to everybody everywhere that the game started
-
 		this.server
 			.to(gameRoom.socketRoomID)
 			.emit("start game", this.gameToGameInfo(gameRoom));
@@ -231,15 +229,6 @@ export class GameGateway implements OnModuleInit {
 
 		await this.updatePlayerStatus(userStatus.ONLINE, gameRoom.player1.userID);
 		await this.updatePlayerStatus(userStatus.ONLINE, gameRoom.player2.userID);
-
-		// TODO: think about invites
-		const invite1ID = gameRoom.player1.inviteID;
-		const invite2ID = gameRoom.player2.inviteID;
-		if (invite1ID) {
-			await this.invitesService.deleteInviteByID(invite1ID);
-		} else if (invite2ID) {
-			await this.invitesService.deleteInviteByID(invite2ID);
-		}
 	}
 
 	private async getCurrentPlayRoom(userID: number) {
@@ -380,6 +369,25 @@ export class GameGateway implements OnModuleInit {
 		return myGameRoom;
 	}
 
+	private async clearAcceptedInvite(
+		player1: Player,
+		player2: Player
+	): Promise<void> {
+		if (!player1.inviteID && !player2.inviteID) {
+			return;
+		}
+		if (
+			player1.inviteID &&
+			player2.inviteID &&
+			player1.inviteID === player2.inviteID
+		) {
+			console.log("[Game Gateway][Clear Accepted Invite]:", player1.inviteID);
+			await this.invitesService.deleteInviteByID(player1.inviteID);
+		} else {
+			throw new Error("Player invites mismatched! (clear accepted invite)");
+		}
+	}
+
 	private async createRoom(
 		player1: Player,
 		player2: Player
@@ -387,6 +395,7 @@ export class GameGateway implements OnModuleInit {
 		const socketRoomID = this.gameRoomID.toString();
 		this.gameRoomID++;
 
+		await this.clearAcceptedInvite(player1, player2);
 		console.log(
 			"[Game Gateway]: Create new GameRoom of id",
 			socketRoomID,
@@ -729,7 +738,7 @@ export class GameGateway implements OnModuleInit {
 			if (invitation.invitedID !== userID && invitation.senderID !== userID) {
 				return false;
 			}
-			this.chatGateway.checkUserInviteHasNotExpired(invitation);
+			await this.chatGateway.checkUserInviteHasNotExpired(invitation);
 		} catch (e) {
 			return false;
 		}
