@@ -167,7 +167,9 @@ export class GameGateway implements OnModuleInit {
 	}
 
 	private startGame(gameRoom: GameRoom) {
-		this.logger.debug("[Start Game]: game starting");
+		this.logger.log(
+			`[Start Game]: game starting (${gameRoom.player1.username} - ${gameRoom.player2.username})`
+		);
 		this.server
 			.to(gameRoom.socketRoomID)
 			.emit("start game", this.gameToGameInfo(gameRoom));
@@ -208,7 +210,9 @@ export class GameGateway implements OnModuleInit {
 		isGameFinished: boolean,
 		leavingUserID?: number
 	) {
-		this.logger.debug("[Stop Game]: game stopping");
+		this.logger.debug(
+			`[Stop Game]: game stopping (${gameRoom.player1.username} - ${gameRoom.player2.username})`
+		);
 
 		clearInterval(gameRoom.interval);
 
