@@ -283,6 +283,11 @@ export class UsersService {
 
 	async setTwoFactorAuthentication(username: string, state: boolean) {
 		const user = await this.fetchUserByUsername(username);
+		this.logger.log(
+			`[Set Two Factor Authentication]: ${
+				state ? "Enable" : "Disable"
+			} 2FA for user ${user.username}`
+		);
 		await this.userRepository.update(
 			{ id: user.id },
 			{ isTwoFactorAuthenticationEnabled: state }
