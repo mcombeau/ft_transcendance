@@ -75,7 +75,9 @@ export const ContextMenuEl = (
 
 	useEffect(() => {
 		socket.emit("is in game", cookies["token"]);
+		setInvitesMenu(false);
 	}, [contextMenu]);
+
 	if (!contextMenu) {
 		return <div></div>;
 	}
