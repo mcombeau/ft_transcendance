@@ -239,6 +239,12 @@ export const Chat = () => {
 	}
 
 	useEffect(() => {
+		var request = {
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${cookies["token"]}`,
+			},
+		};
 		socket.on("error", (error_msg: string) => {
 			alert(error_msg);
 		});
@@ -724,6 +730,28 @@ export const Chat = () => {
 			setMyChats((prev) => [...prev, channel]);
 		});
 
+		return () => {
+			console.log("unregistering events");
+			socket.off("chat message");
+			socket.off("error");
+			socket.off("delete chat");
+			socket.off("add chat");
+			socket.off("join chat");
+			socket.off("leave chat");
+			socket.off("mute");
+			socket.off("kick");
+			socket.off("ban");
+			socket.off("operator");
+			socket.off("toggle private");
+			socket.off("invite");
+			socket.off("accept invite");
+			socket.off("dm");
+			socket.off("refuse invite");
+			socket.off("set password");
+		};
+	}, []);
+
+	useEffect(() => {
 		var request = {
 			headers: {
 				"Content-Type": "application/json",
@@ -796,7 +824,7 @@ export const Chat = () => {
 			});
 		}
 
-		if (invites.length === 0 && authenticatedUserID) {
+		if (authenticatedUserID) {
 			fetch(`/backend/invites/received/${authenticatedUserID}`, request).then(
 				async (response) => {
 					const data = await response.json();
@@ -804,6 +832,7 @@ export const Chat = () => {
 						console.log("error response load invites");
 						return;
 					}
+					setInvites([]);
 					data.map((invite: Invite) => {
 						console.log("fetching invites", invite);
 						setInvites((prev) => [...prev, invite]);
@@ -811,27 +840,7 @@ export const Chat = () => {
 				}
 			);
 		}
-
-		return () => {
-			console.log("unregistering events");
-			socket.off("chat message");
-			socket.off("error");
-			socket.off("delete chat");
-			socket.off("add chat");
-			socket.off("join chat");
-			socket.off("leave chat");
-			socket.off("mute");
-			socket.off("kick");
-			socket.off("ban");
-			socket.off("operator");
-			socket.off("toggle private");
-			socket.off("invite");
-			socket.off("accept invite");
-			socket.off("dm");
-			socket.off("refuse invite");
-			socket.off("set password");
-		};
-	}, []);
+	}, [invitesPannel, currentChatRoomID]);
 
 	useEffect(() => {
 		var message_els = document.getElementById("messages");
