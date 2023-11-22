@@ -1,5 +1,3 @@
-- remove socket from Player game gateway
-
 - Cleanup
 
   - change alerts to smth else (notifs ?)
@@ -10,6 +8,7 @@
   - draw background in css (refacto constants)
   - personalization
   - deal with broadband/network issues
+  - remove socket from Player game gateway
 
 - Profile
 
@@ -21,15 +20,20 @@
 
   - 404 if page not exist (not tostring business)
   - Error in back if token expired => handle it
-  - When user plays a game and goes to another page during the game, when they return to the play page, they are not correctly added back to the game.
 
-- passwords:
+- Passwords
 
   - limit number of password retries on join/accept invite
   - tell user to fuck off if wrong username/password
 
+- Sign in
+
+  - Prompt for info on first sign
+  - Prompt for 2fa when signing in when activated in profile settings
+
 - Appearance
 
+  - use Tailwind CSS
   - css for lobby play
   - css for login page
   - css for settings profile
@@ -39,15 +43,10 @@
 - Project validation
 
   - all libraries are in latest stable version
+  - remove unused libraries/modules + fix dependancy issues on frontend backend container creation?
   - remove passwords for users
-
-- Prompt for info first sign
-- Prompt for 2fa when activated
-
-- Nginx
-
-  - fix callback URL for 42 auth
-  - use HTTPS/443 instead of HTTP/80
+  - force HTTPS and force redirect HTTP port 80 to HTTPS port 443
+  - choose domain (localhost or ft_transcendance or whatever) and then fix callback URL for 42 auth
 
 - Nice to have
   - invite notif on profile ?
