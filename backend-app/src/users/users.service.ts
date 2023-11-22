@@ -1,4 +1,4 @@
-import { Inject, Injectable, forwardRef } from "@nestjs/common";
+import { Inject, Injectable, forwardRef, Logger } from "@nestjs/common";
 import {
 	createReadStream,
 	writeFile,
@@ -44,6 +44,8 @@ export class UsersService {
 		@Inject(forwardRef(() => BlockedUsersService))
 		private blockedUserService: BlockedUsersService
 	) {}
+
+	private readonly logger: Logger = new Logger("Users Service");
 
 	defaultAvatarURL = "src/images/defaultProfilePicture.jpg";
 
@@ -169,14 +171,12 @@ export class UsersService {
 		}
 		unlink(filename, (err) => {
 			if (err) {
-				console.log(
-					"[User Service][Remove avatar] Failed to remove avatar...",
-					filename
+				this.logger.error(
+					`[Remove Avatar] Failed to remove avatar ${filename}`
 				);
 			} else {
-				console.log(
-					"[User Service][Remove avatar] Avatar removed successfully !",
-					filename
+				this.logger.debug(
+					`[Remove Avatar] Avatar ${filename} removed successfully!`
 				);
 			}
 		});
@@ -201,7 +201,6 @@ export class UsersService {
 		) as Promise<typeof import("file-type")>);
 
 		const type = await fileTypeFromBuffer(file.buffer);
-		console.log("[User Service] Actual file type:", type);
 		if (!type) {
 			throw new BadRequestException("Invalid file type");
 		}
@@ -231,11 +230,8 @@ export class UsersService {
 
 		writeFile(filepath, file.buffer, "binary", (err) => {
 			if (!err)
-				console.log(
-					"[User Service][Upload avatar] Avatar uploaded successfully !",
-					filename,
-					"at path",
-					filepath
+				this.logger.debug(
+					`[Upload Avatar] Avatar ${filename} uploaded successfully! Path: ${filepath}`
 				);
 		});
 		await this.updateUserByID(user.id, { avatarUrl: "user_data/" + filename });
@@ -253,11 +249,8 @@ export class UsersService {
 		if (userDetails.email) updatedInfo.email = userDetails.email;
 		if (userDetails.avatarUrl) updatedInfo.avatarUrl = userDetails.avatarUrl;
 		if (userDetails.status) {
-			console.log(
-				"[User Service]: updating user",
-				id,
-				"status to ",
-				userDetails.status
+			this.logger.log(
+				`[Update User]: Updating user ${id} status to ${userDetails.status}`
 			);
 			updatedInfo.status = userDetails.status;
 		}
