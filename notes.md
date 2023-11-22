@@ -1,9 +1,11 @@
 - Fix game
-	- Fix leave page and rejoin
-	- fix watch
-	- forbid room creation/watching if you have a game on
-	- forbid challenge (game invite) when you are in game 
-	- Make it possible for challenger to leave game room with button. make invite expire for the player's opponent.
+
+  - Fix leave page and rejoin
+  - fix watch
+  - forbid room creation/watching if you have a game on
+  - forbid challenge (game invite) when you are in game
+  - Make it possible for challenger to leave game room with button. make invite expire for the player's opponent.
+    - If oppenent logs out, game keeps goins when it should do leave game
 
 - Cleanup
 
