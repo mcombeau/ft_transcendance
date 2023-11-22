@@ -42,7 +42,6 @@ export class AuthController {
 		if (req.user === undefined) {
 			throw new BadRequestException("No user to log out");
 		}
-		console.log("[Auth Controller] logout request user:", req.user);
 		return this.authService.logout(req.user.userID);
 	}
 
@@ -91,7 +90,6 @@ export class AuthController {
 		);
 		await this.userService.setTwoFactorAuthentication(user.username, true);
 		user = await this.userService.fetchUserByUsername(request.user.username);
-		console.log("---- Turn on 2fa for user:", user);
 	}
 
 	@Post("auth/2fa/turn-off")
@@ -104,7 +102,6 @@ export class AuthController {
 		const user = await this.userService.fetchUserByUsername(
 			request.user.username
 		);
-		console.log("---- Turn off 2fa for user:", user);
 	}
 
 	@Post("auth/2fa/authenticate")
