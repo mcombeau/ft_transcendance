@@ -27,6 +27,7 @@
 - Bugs
 
   - Error in back if token expired => handle it
+  - "bob invites you to join chat [object Object]" -> Chat room name missing
 
 - Appearance
 

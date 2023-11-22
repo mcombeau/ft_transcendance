@@ -32,13 +32,10 @@ export class BadRequestInterceptor implements NestInterceptor {
 				if (error instanceof ChatCreationError) {
 					throw new ChatCreationException(error.message);
 				} else if (error instanceof InviteCreationError) {
-					console.log("THROWING HTTP INVITE EXCEPTION");
 					throw new InviteCreationException(error.message);
 				} else if (error instanceof InvalidNameError) {
-					console.log("THROWING HTTP INVALID USERNAME EXCEPTION");
 					throw new InvalidNameException(error.message);
 				} else if (error instanceof InvalidPasswordError) {
-					console.log("THROWING HTTP INVALID USERNAME EXCEPTION");
 					throw new InvalidPasswordException(error.message);
 				} else {
 					throw error;
