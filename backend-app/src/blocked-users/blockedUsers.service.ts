@@ -1,4 +1,4 @@
-import { Inject, Injectable, forwardRef } from "@nestjs/common";
+import { Inject, Injectable, forwardRef, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { BlockedUserEntity } from "src/blocked-users/entities/BlockedUser.entity";
 import { DeleteResult, Repository } from "typeorm";
@@ -21,6 +21,8 @@ export class BlockedUsersService {
 		@Inject(forwardRef(() => FriendsService))
 		private friendService: FriendsService
 	) {}
+
+	private readonly logger: Logger = new Logger("Blocked Users Service");
 
 	private formatBlockedUserForSending(
 		blockedUser: BlockedUserEntity
@@ -179,7 +181,7 @@ export class BlockedUsersService {
 				userID2: blockedUser.id,
 			});
 		} catch (e) {
-			console.log("[BlockedUser service] Caught error");
+			this.logger.error("[Create Blocked User]: Error:", e.message);
 		}
 		return this.blockedUserRepository.save(newBlockedUser);
 	}
