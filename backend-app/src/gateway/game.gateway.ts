@@ -155,10 +155,6 @@ export class GameGateway implements OnModuleInit {
 				`[Game Gateway]: A user connected: ${user.username} - ${user.userID} (${socket.id})`
 			);
 			socket.broadcast.emit("connection event"); // TODO: probably remove
-			// TODO: deal with reconnection
-			// if (await this.reconnect(socket, user.userID)) {
-			// 	console.log(`[Game Gateway]: A user rejoined: ${user.username} a game`);
-			// }
 			socket.on("disconnect", () => {
 				console.log(
 					`[Game Gateway]: A user disconnected: ${user.username} - ${user.userID} (${socket.id})`
