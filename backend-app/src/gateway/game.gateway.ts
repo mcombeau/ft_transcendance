@@ -927,4 +927,15 @@ export class GameGateway implements OnModuleInit {
 			this.startGame(myGameRoom);
 		}
 	}
+
+	@SubscribeMessage("is in game")
+	async onIsActive(
+		@ConnectedSocket() socket: Socket,
+		@MessageBody() token: string
+	) {
+		const user: UserEntity = await this.getUserOrFail(token, socket);
+
+		const isInGame: boolean = Boolean(await this.getCurrentPlayRoom(user.id));
+		socket.emit("is in game", isInGame);
+	}
 }
