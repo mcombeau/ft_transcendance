@@ -401,6 +401,12 @@ export const Play = () => {
 								<div className="gate gate2" />
 							</div>
 						</div>
+						<div className="controls">
+							<p>
+								[Hint]: <br /> Use W or ↑ to move your paddle up and S or ↓ to
+								move your paddle down.
+							</p>
+						</div>
 					</div>
 				</div>
 			);
