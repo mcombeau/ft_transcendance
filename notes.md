@@ -1,9 +1,12 @@
 - Fix game
-	- Fix leave page and rejoin
-	- fix watch
-	- forbid room creation/watching if you have a game on
+	- forbid room creation if you have a game on
+		- join automatically if coming back to play
+		- securité at game creation / waiting
+		- deal with invites/challenge
 	- forbid challenge (game invite) when you are in game 
 	- Make it possible for challenger to leave game room with button. make invite expire for the player's opponent.
+
+- remove socket from Player game gateway
 
 - Cleanup
 
