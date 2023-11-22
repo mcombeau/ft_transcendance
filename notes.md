@@ -20,6 +20,7 @@
 
   - **(Done?)** 404 if page not exist (not tostring business)
   - Error in back if token expired => handle it
+  - "bob invites you to join chat [object Object]" -> Chat room name missing
 
 - Passwords
 
