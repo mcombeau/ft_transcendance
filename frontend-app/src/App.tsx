@@ -13,6 +13,7 @@ import { getUserID } from "./cookies";
 import { AuthenticationContext } from "./components/authenticationState";
 import Logout from "./components/logout/logout";
 import { WebSocketContext } from "./contexts/WebsocketContext";
+import NotFound from "./components/notfound/notfound";
 
 function App() {
 	const [cookies, , removeCookie] = useCookies(["token"]);
@@ -63,6 +64,7 @@ function App() {
 					<Route path="/leaderboard" element={<Leaderboard />} />
 					<Route path="/user/:id" element={<Profile />} />
 					<Route path="/logout" element={<Logout />} />
+					<Route path="*" element={<NotFound />} />
 				</Routes>
 			</AuthenticationContext.Provider>
 		</Router>
