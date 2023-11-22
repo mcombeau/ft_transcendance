@@ -1,4 +1,4 @@
-import { OnModuleInit, Inject, forwardRef } from "@nestjs/common";
+import { OnModuleInit, Inject, forwardRef, Logger } from "@nestjs/common";
 import {
 	ConnectedSocket,
 	SubscribeMessage,
@@ -120,6 +120,8 @@ export class GameGateway implements OnModuleInit {
 	waitList: Player[];
 	gameRoomID: number;
 
+	private readonly logger: Logger = new Logger("Game Gateway");
+
 	onModuleInit() {
 		this.delay = 6;
 		this.player1x = 42;
@@ -151,13 +153,13 @@ export class GameGateway implements OnModuleInit {
 					return true;
 				});
 
-			console.log(
-				`[Game Gateway]: A user connected: ${user.username} - ${user.userID} (${socket.id})`
+			this.logger.log(
+				`[Connection Event]: A user connected: ${user.username} - ${user.userID} (${socket.id})`
 			);
 			socket.broadcast.emit("connection event"); // TODO: probably remove
 			socket.on("disconnect", () => {
-				console.log(
-					`[Game Gateway]: A user disconnected: ${user.username} - ${user.userID} (${socket.id})`
+				this.logger.log(
+					`[Disconnection Event]: A user disconnected: ${user.username} - ${user.userID} (${socket.id})`
 				);
 				socket.broadcast.emit("disconnection event");
 			});
@@ -165,7 +167,7 @@ export class GameGateway implements OnModuleInit {
 	}
 
 	private startGame(gameRoom: GameRoom) {
-		console.log("[Game Gateway]: Game started");
+		this.logger.debug("[Start Game]: game starting");
 		this.server
 			.to(gameRoom.socketRoomID)
 			.emit("start game", this.gameToGameInfo(gameRoom));
@@ -206,7 +208,7 @@ export class GameGateway implements OnModuleInit {
 		isGameFinished: boolean,
 		leavingUserID?: number
 	) {
-		console.log("[Game Gateway]: Game stopped");
+		this.logger.debug("[Stop Game]: game stopping");
 
 		clearInterval(gameRoom.interval);
 
@@ -330,12 +332,8 @@ export class GameGateway implements OnModuleInit {
 		}
 		await this.updatePlayerStatus(userStatus.INGAME, userID);
 		await socket.join(myGameRoom.socketRoomID);
-		console.log(
-			"[Game Gateway][Reconnect]:",
-			"Setting up user",
-			userID,
-			"to join back gameroom",
-			myGameRoom.socketRoomID
+		this.logger.debug(
+			`[Reconnect]: setting up user ${userID} to join game room ${myGameRoom.socketRoomID}`
 		);
 		return myGameRoom;
 	}
@@ -352,7 +350,9 @@ export class GameGateway implements OnModuleInit {
 			player2.inviteID &&
 			player1.inviteID === player2.inviteID
 		) {
-			console.log("[Game Gateway][Clear Accepted Invite]:", player1.inviteID);
+			this.logger.debug(
+				`[Clear Accepted Invite]: clearing invite ${player1.inviteID} for user ${player1.username}`
+			);
 			await this.invitesService.deleteInviteByID(player1.inviteID);
 		} else {
 			throw new Error("Player invites mismatched! (clear accepted invite)");
@@ -367,17 +367,8 @@ export class GameGateway implements OnModuleInit {
 		this.gameRoomID++;
 
 		await this.clearAcceptedInvite(player1, player2);
-		console.log(
-			"[Game Gateway]: Create new GameRoom of id",
-			socketRoomID,
-			"with player1",
-			player1.userID,
-			"of username",
-			player1.username,
-			"and player2",
-			player2.userID,
-			"of username",
-			player2.username
+		this.logger.debug(
+			`[Create Game Room]: Creating game room of id ${socketRoomID}, with player1 ${player1.userID} of username ${player1.username} and player2 ${player2.userID} of username ${player2.username}`
 		);
 		await player1.socket.join(socketRoomID);
 		await player2.socket.join(socketRoomID);
@@ -415,15 +406,8 @@ export class GameGateway implements OnModuleInit {
 				opponent.inviteID === player.inviteID &&
 				opponent.userID !== player.userID
 			) {
-				console.log(
-					"[Game Gateway]: Found opponent",
-					opponent.username,
-					"with invite",
-					opponent.inviteID,
-					"for player",
-					player.username,
-					"with invite",
-					player.inviteID
+				this.logger.debug(
+					`[Get Invited Player]: Found opponent ${opponent.username} with invite ${opponent.inviteID} for player ${player.username} with invite ${player.inviteID}`
 				);
 				this.waitList.splice(i, 1);
 				return opponent;
@@ -440,19 +424,13 @@ export class GameGateway implements OnModuleInit {
 			opponent = this.getFreePlayer(player);
 		}
 		if (opponent) {
-			console.log(
-				"[Game Gateway]: Found opponent",
-				opponent.username,
-				"with invite",
-				opponent.inviteID
+			this.logger.debug(
+				`[Get Room or Wait]: Found opponent ${opponent.username} with invite ${opponent.inviteID}`
 			);
 			return this.createRoom(player, opponent);
 		}
-		console.log(
-			"[Game Gateway]: Did not found opponent for",
-			player.username,
-			"with invite",
-			player.inviteID
+		this.logger.debug(
+			`[Get Room or Wait]: Did not find opponent for ${player.username} with invite ${player.inviteID}`
 		);
 		if (!isAcceptingInvite) {
 			this.waitList.push(player);
@@ -622,7 +600,7 @@ export class GameGateway implements OnModuleInit {
 			!gameRoom.gameState.isPaused
 		) {
 			this.pause(gameRoom.gameState);
-			console.log("[Game Gateway]: a player won !");
+			this.logger.log("[Check Game Over]: A player won!");
 
 			await this.stopGame(gameRoom, true);
 		}
@@ -634,7 +612,7 @@ export class GameGateway implements OnModuleInit {
 
 		const gameRoom: GameRoom = this.getCurrentPlayRoom(user.id);
 		if (gameRoom === null) {
-			console.log("[Game Gateway][On Up]: GameRoom not found");
+			this.logger.warn("[On Up]: GameRoom not found");
 			return;
 		}
 
@@ -662,7 +640,7 @@ export class GameGateway implements OnModuleInit {
 		const user: UserEntity = await this.getUserOrFail(token, socket);
 		const gameRoom: GameRoom = this.getCurrentPlayRoom(user.id);
 		if (gameRoom === null) {
-			console.log("[Game Gateway][On Down]: GameRoom not found");
+			this.logger.warn("[On Down]: GameRoom not found");
 			return;
 		}
 
@@ -692,7 +670,6 @@ export class GameGateway implements OnModuleInit {
 			throw new UserNotFoundError();
 		}
 		const gameInfos: GameInfo[] = this.gameRooms.map(this.gameToGameInfo);
-		console.log("[Game Gateway]:", "Game Infos", gameInfos);
 		socket.emit("get games", gameInfos);
 	}
 
@@ -794,8 +771,8 @@ export class GameGateway implements OnModuleInit {
 		socket: Socket,
 		inviteID: number = null
 	) {
-		console.log("[Game Gateway][Cleanup]");
-		const currentPlayRoom: GameRoom = await this.getCurrentPlayRoom(userID);
+		this.logger.log("[Cleanup]: Cleaning up player games");
+		const currentPlayRoom: GameRoom = this.getCurrentPlayRoom(userID);
 		if (currentPlayRoom) {
 			throw new Error(
 				"User is in playroom and hasn't been reconnected (cleanup)"
@@ -891,11 +868,6 @@ export class GameGateway implements OnModuleInit {
 			isAcceptingInvite
 		);
 		if (!myGameRoom) {
-			console.log(
-				`[Game Gateway][Wait Invite]: ${player.username} is waiting for an opponent:`,
-				player.userID,
-				player.username
-			);
 			if (isAcceptingInvite) {
 				await this.invitesService.deleteInviteByID(inviteID);
 				socket.emit("wait invite", { success: false });
