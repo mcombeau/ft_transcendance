@@ -230,6 +230,17 @@ export const Play = () => {
 		});
 	}
 
+	function stopWaiting() {}
+
+	function lobbyPage() {
+		return (
+			<div>
+				Waiting for other player{" "}
+				<button onClick={stopWaiting}>Stop waiting</button>
+			</div>
+		);
+	}
+
 	useEffect(() => {
 		if (page !== Page.Play) return;
 		activateKeyHandler(cookies);
@@ -353,7 +364,7 @@ export const Play = () => {
 			);
 
 		case Page.Lobby:
-			return <div>Waiting for other player</div>;
+			return lobbyPage();
 
 		case Page.EndGame:
 			return winPage(endGameDetails, authenticatedUserID);
