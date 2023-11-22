@@ -1,6 +1,20 @@
+- Sign in
+
+  - Prompt for info on first sign
+  - Prompt for 2fa when signing in when activated in profile settings
+
+- Profile
+
+  - My profile
+    - change 2fa activation
+    - disable
+
 - Cleanup
 
-  - change alerts to smth else (notifs ?)
+  - deal with all issues from backend in the front
+	- passwords
+	  - limit number of password retries on join/accept invite
+	  - tell user to fuck off if wrong username/password
   - allow access to chat/leaderboard ... but prompt for sign in
 
 - Game
@@ -10,26 +24,9 @@
   - deal with broadband/network issues
   - remove socket from Player game gateway
 
-- Profile
-
-  - My profile
-    - change 2fa activation
-    - disable
-
 - Bugs
 
-  - **(Done?)** 404 if page not exist (not tostring business)
   - Error in back if token expired => handle it
-
-- Passwords
-
-  - limit number of password retries on join/accept invite
-  - tell user to fuck off if wrong username/password
-
-- Sign in
-
-  - Prompt for info on first sign
-  - Prompt for 2fa when signing in when activated in profile settings
 
 - Appearance
 
@@ -51,7 +48,6 @@
 - Nice to have
   - invite notif on profile ?
   - reload chat when joining ?
-  - fix going to page for user that does not exist -- Make 404 page
   - notifs dans la navbar
   - pop up de notification
   - achievements (display in profile)
