@@ -3,6 +3,7 @@ import { useCookies } from "react-cookie";
 import { useNavigate, useParams } from "react-router-dom";
 import { WebSocketContext } from "../../contexts/WebsocketContext";
 import { AuthenticationContext } from "../authenticationState";
+import LiveGames from "../live-games/LiveGames";
 import { GameInfo } from "../profile/friendsList";
 import "./styles.css";
 
@@ -154,6 +155,7 @@ export const Play = () => {
 	const navigate = useNavigate();
 	const [page, setPage] = useState<Page>(Page.Waiting);
 	const [watching, setWatching] = useState<boolean>(true);
+	const [gameInfos, setGameInfos] = useState<GameInfo[]>([]);
 
 	function getPlayerUsername(player: number) {
 		switch (player) {
@@ -335,6 +337,17 @@ export const Play = () => {
 		socket.on("end game", (gameDetails: any) => {
 			endGame(true, gameDetails);
 		});
+		socket.on("get games", (data: GameInfo[]) => {
+			if (data) {
+				setGameInfos(
+					data.filter(
+						(game: GameInfo) =>
+							game.player1.userID !== authenticatedUserID &&
+							game.player2.userID !== authenticatedUserID
+					)
+				);
+			}
+		});
 
 		return () => {
 			socket.off("reconnect");
@@ -344,10 +357,12 @@ export const Play = () => {
 			socket.off("start game");
 			socket.off("end game");
 			socket.off("leave game");
+			socket.off("get games");
 		};
 	}, []);
 
 	useEffect(() => {
+		socket.emit("get games", cookies["token"]);
 		socket.emit("reconnect", cookies["token"]);
 	}, []);
 
@@ -359,6 +374,13 @@ export const Play = () => {
 			return (
 				<div>
 					<button onClick={enterLobby}>Play</button>
+					{LiveGames(
+						gameInfos,
+						setGameInfos,
+						authenticatedUserID,
+						socket,
+						cookies
+					)}
 				</div>
 			);
 

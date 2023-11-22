@@ -12,7 +12,6 @@ import { useCookies } from "react-cookie";
 import { getUserID } from "./cookies";
 import { AuthenticationContext } from "./components/authenticationState";
 import Logout from "./components/logout/logout";
-import LiveGames from "./components/live-games/LiveGames";
 import { WebSocketContext } from "./contexts/WebsocketContext";
 
 function App() {
@@ -61,7 +60,6 @@ function App() {
 					<Route path="/play/:inviteID" element={<Play />} />
 					<Route path="/watch/:watchGameID" element={<Play />} />
 					<Route path="/play" element={<Play />} />
-					<Route path="/liveGames" element={<LiveGames />} />
 					<Route path="/leaderboard" element={<Leaderboard />} />
 					<Route path="/user/:id" element={<Profile />} />
 					<Route path="/logout" element={<Logout />} />
