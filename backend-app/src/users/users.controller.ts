@@ -160,7 +160,6 @@ export class UsersController {
 		)
 		file: Express.Multer.File
 	) {
-		console.log("[User Controller] Uploading file", file);
 		await this.userService.saveUserAvatarByUserID(id, file);
 	}
 
