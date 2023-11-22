@@ -368,7 +368,8 @@ function interactWithUser(
 	authenticatedUserID: number,
 	cookies: any,
 	navigate: any,
-	socket: Socket
+	socket: Socket,
+	iCanChallenge: boolean
 ) {
 	if (user === undefined) return <div />;
 	if (isMyPage) return <p></p>;
@@ -383,7 +384,11 @@ function interactWithUser(
 				isBlocked
 			)}
 			{blockButton(user, authenticatedUserID, cookies, isBlocked, setIsBlocked)}
-			{challengeButton(user, authenticatedUserID, cookies, navigate)}
+			{iCanChallenge ? (
+				challengeButton(user, authenticatedUserID, cookies, navigate)
+			) : (
+				<></>
+			)}
 			{DMButton(user, cookies, navigate, socket)}
 		</p>
 	);
@@ -422,6 +427,7 @@ function Profile() {
 	const { authenticatedUserID } = useContext(AuthenticationContext);
 	const [profilePicture, setProfilePicture] = useState(null);
 	const [friends, setFriends] = useState<Friend[]>();
+	const [iCanChallenge, setICanChallenge] = useState<boolean>(false);
 	const navigate = useNavigate();
 
 	async function fetchUser() {
@@ -506,9 +512,18 @@ function Profile() {
 				});
 			}
 		);
+		socket.on("is in game", (isActive: boolean) => {
+			// cannot challenge the user if I'm in a game
+			setICanChallenge(!isActive);
+		});
 		return () => {
 			socket.off("status change");
+			socket.off("in a game");
 		};
+	}, []);
+
+	useEffect(() => {
+		socket.emit("is in game", cookies["token"]);
 	}, []);
 
 	return (
@@ -532,7 +547,8 @@ function Profile() {
 						authenticatedUserID,
 						cookies,
 						navigate,
-						socket
+						socket,
+						iCanChallenge
 					)}
 					{editProfile(isMyPage, user, isEditingProfile, setIsEditingProfile)}
 					{ProfileSettings(

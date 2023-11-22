@@ -9,6 +9,11 @@ import "./styles.css";
 const UP = "ArrowUp";
 const DOWN = "ArrowDown";
 
+type Response = {
+	success: boolean;
+	gameInfo?: GameInfo;
+};
+
 type Position = {
 	x: number;
 	y: number;
@@ -42,14 +47,20 @@ type GameDetails = {
 	loserScore: number;
 	winnerScore: number;
 };
-enum StatePlay {
-	WaitingForSocket = "waiting for socket",
-	NotFound = "not found",
-	OnPage = "on page",
-	InLobby = "in lobby",
-	InGame = "in game",
-	Watching = "watching",
-	GameEnded = "game ended",
+
+enum Page {
+	Waiting = "waiting",
+	Home = "home",
+	Lobby = "lobby",
+	GameError = "game error",
+	Play = "play",
+	EndGame = "end game",
+}
+
+enum UrlState {
+	Play,
+	Watch,
+	Invite,
 }
 
 function gameDoesNotExitPage() {
@@ -70,6 +81,15 @@ function waitForGamePage() {
 
 // TODO: @inaara improve css for winpage
 function winPage(gameDetails: GameDetails, authenticatedUserID: number) {
+	if (!gameDetails) {
+		return (
+			<div
+				style={{ textAlign: "center", textEmphasis: "true", color: "green" }}
+			>
+				<p>A player left the game</p>
+			</div>
+		);
+	}
 	const scoreDisplay = (
 		<p>
 			({gameDetails.winnerUsername}: {gameDetails.winnerScore} -{" "}
@@ -124,30 +144,16 @@ export const Play = () => {
 	});
 	const ballRadius: number = 10;
 	const socket = useContext(WebSocketContext);
-	var inviteID: number = Number(useParams().inviteID);
-	var gameID: string = useParams().gameID;
+	var inviteID: string = useParams().inviteID;
+	var watchGameID: string = useParams().watchGameID;
 	const [cookies] = useCookies(["token"]);
 	const [player1, setPlayer1] = useState<Player>({ id: null, username: "" });
 	const [player2, setPlayer2] = useState<Player>({ id: null, username: "" });
-	const [statePlay, setStatePlay] = useState<StatePlay>(
-		StatePlay.WaitingForSocket
-	);
-	const [endGameDetails, setEndGameDetails] = useState<GameDetails>({
-		winnerID: null,
-		winnerUsername: "",
-		loserID: null,
-		loserUsername: "",
-		loserScore: null,
-		winnerScore: null,
-	});
+	const [endGameDetails, setEndGameDetails] = useState<GameDetails>(null);
 	const { authenticatedUserID } = useContext(AuthenticationContext);
 	const navigate = useNavigate();
-
-	function isUserPlaying() {
-		return (
-			player1.id === authenticatedUserID || player2.id === authenticatedUserID
-		);
-	}
+	const [page, setPage] = useState<Page>(Page.Waiting);
+	const [watching, setWatching] = useState<boolean>(true);
 
 	function getPlayerUsername(player: number) {
 		switch (player) {
@@ -175,51 +181,38 @@ export const Play = () => {
 	}
 
 	function handleKeyPress(event: any, cookies: any) {
-		if (isUserPlaying()) {
-			if (event.key === "w" || event.key === UP) {
-				event.preventDefault();
-				socket.emit("up", cookies["token"]);
-			} else if (event.key === "s" || event.key === DOWN) {
-				event.preventDefault();
-				socket.emit("down", cookies["token"]);
-			}
+		if (event.key === "w" || event.key === UP) {
+			event.preventDefault();
+			socket.emit("up", cookies["token"]);
+		} else if (event.key === "s" || event.key === DOWN) {
+			event.preventDefault();
+			socket.emit("down", cookies["token"]);
 		}
 	}
 
 	function enterLobby() {
 		console.log("Entered Lobby");
-		setStatePlay(StatePlay.InLobby);
-		socket.emit("waiting", { token: cookies["token"] });
+		setPage(Page.Lobby);
+		socket.emit("enter lobby", { token: cookies["token"] });
 	}
 
-	function startGame() {
-		console.log("Game started");
-		if (!gameID) {
-			setStatePlay(StatePlay.InGame);
-		}
-	}
-
-	async function endGame(gameDetails: GameDetails) {
+	async function endGame(gameFinished: boolean, gameDetails?: GameDetails) {
 		console.log("Game ended", gameDetails);
-		setEndGameDetails(gameDetails);
-		setStatePlay(StatePlay.GameEnded);
-		await new Promise((r) => setTimeout(r, 4000));
-		setStatePlay(StatePlay.WaitingForSocket);
-		navigate("/user/" + authenticatedUserID);
+		if (gameFinished) {
+			setEndGameDetails(gameDetails);
+		}
+		setPage(Page.EndGame);
 	}
 
 	function leaveGame() {
 		console.log("Leave game");
-		if (statePlay === StatePlay.Watching) {
-			socket.emit("stop watching");
-			setStatePlay(StatePlay.WaitingForSocket);
-			navigate("/user/" + authenticatedUserID);
-			return;
+		if (watching) {
+			socket.emit("stop watching", cookies["token"]);
 		} else {
 			socket.emit("leave game", cookies["token"]);
-			setStatePlay(StatePlay.WaitingForSocket);
-			navigate("/user/" + authenticatedUserID);
 		}
+		setPage(Page.Waiting);
+		navigate("/user/" + authenticatedUserID);
 	}
 
 	function setPlayers(gameInfo: GameInfo) {
@@ -233,111 +226,149 @@ export const Play = () => {
 		});
 	}
 
+	function leaveLobby() {
+		socket.emit("leave lobby", cookies["token"]);
+		navigate("/user/" + authenticatedUserID);
+	}
+
+	function lobbyPage() {
+		return (
+			<div>
+				Waiting for other player{" "}
+				<button onClick={leaveLobby}>Stop waiting</button>
+			</div>
+		);
+	}
+
 	useEffect(() => {
-		// TODO: double check they work fine
-		if (statePlay !== StatePlay.InGame) return;
+		if (page !== Page.Play) return;
 		activateKeyHandler(cookies);
 		return () => {
 			deactivateKeyHandler(cookies);
 		};
-	}, [statePlay]);
+	}, [page]);
+
+	function checkUrlState(): UrlState {
+		if (watchGameID) return UrlState.Watch;
+		if (inviteID) return UrlState.Invite;
+		return UrlState.Play;
+	}
 
 	useEffect(() => {
-		socket.on("tick", (data: any) => {
-			console.log("tick");
-			setGameState(data.gameState);
+		socket.on("reconnect", (data: Response) => {
+			if (data.success) {
+				console.log("[Reconnect]: reconnected");
+				setPage(Page.Play);
+				setPlayers(data.gameInfo);
+				setWatching(false);
+				return;
+			}
+			console.log("[Reconnect]: fail");
+
+			const urlState: UrlState = checkUrlState();
+			switch (urlState) {
+				case UrlState.Invite:
+					socket.emit("wait invite", {
+						token: cookies["token"],
+						inviteID: inviteID,
+					});
+					break;
+
+				case UrlState.Watch:
+					socket.emit("watch", {
+						token: cookies["token"],
+						gameID: watchGameID,
+					});
+					break;
+
+				default:
+					setPage(Page.Home);
+			}
+		});
+
+		socket.on("watch", (data: Response) => {
+			if (!data.success) {
+				setPage(Page.GameError);
+				return;
+			}
+			// maybe remove
+			setWatching(true);
+			setPlayers(data.gameInfo);
+			setPage(Page.Play);
+		});
+
+		socket.on("wait invite", (data: Response) => {
+			if (!data.success) {
+				setPage(Page.GameError);
+				return;
+			}
+			setPage(Page.Lobby);
 		});
 
 		socket.on("start game", (data: GameInfo) => {
 			console.log("Start Game");
 			setPlayers(data);
-			startGame();
-		});
-
-		socket.on("leave game", (userID: number) => {
-			if (userID !== authenticatedUserID) {
-				console.log("The other player left the game");
-				alert("Game ended because the other player left");
-				navigate("/user/" + authenticatedUserID);
+			if (
+				data.player1.userID === authenticatedUserID ||
+				data.player2.userID === authenticatedUserID
+			) {
+				setWatching(false);
+			} else {
+				// maybe unnecessary
+				setWatching(true);
 			}
+			setPage(Page.Play);
 		});
 
-		socket.on("rejoin game", (data: GameInfo) => {
-			console.log("rejoined game");
-			setPlayers(data);
-			startGame();
+		socket.on("tick", (data: any) => {
+			console.log("tick");
+			setGameState(data.gameState);
+		});
+
+		socket.on("leave game", (leavingUserID: number) => {
+			if (leavingUserID !== authenticatedUserID) {
+				console.log("The other player left the game");
+				endGame(false);
+			}
 		});
 
 		socket.on("end game", (gameDetails: any) => {
-			endGame(gameDetails);
-		});
-
-		socket.on("waiting", (authorized: boolean) => {
-			console.log("Waiting socket");
-			if (!authorized) {
-				setStatePlay(StatePlay.NotFound);
-			} else {
-				setStatePlay(StatePlay.InLobby);
-			}
-		});
-
-		socket.on("watch", (data: { authorized: boolean; gameInfo?: GameInfo }) => {
-			console.log("Watching socket");
-			if (!data.authorized) {
-				setStatePlay(StatePlay.NotFound);
-			} else {
-				setPlayers(data.gameInfo);
-				setStatePlay(StatePlay.Watching);
-			}
+			endGame(true, gameDetails);
 		});
 
 		return () => {
-			socket.off("tick");
+			socket.off("reconnect");
 			socket.off("watch");
-			socket.off("waiting");
+			socket.off("wait invite");
+			socket.off("tick");
 			socket.off("start game");
-			socket.off("leave game");
-			socket.off("rejoin game");
 			socket.off("end game");
+			socket.off("leave game");
 		};
 	}, []);
 
 	useEffect(() => {
-		if (inviteID) {
-			socket.emit("waiting", { token: cookies["token"], inviteID: inviteID });
-		} else if (gameID) {
-			socket.emit("watch", { token: cookies["token"], gameID: gameID });
-		} else {
-			setStatePlay(StatePlay.OnPage);
-		}
+		socket.emit("reconnect", cookies["token"]);
 	}, []);
 
-	useEffect(() => {
-		console.log("player1", player1);
-		console.log("player2", player2);
-	}, [player1, player2]);
-
-	switch (statePlay) {
-		case StatePlay.WaitingForSocket:
-			return waitForGamePage();
-
-		case StatePlay.NotFound:
+	switch (page) {
+		case Page.GameError:
 			return gameDoesNotExitPage();
 
-		case StatePlay.OnPage:
+		case Page.Home:
 			return (
 				<div>
 					<button onClick={enterLobby}>Play</button>
 				</div>
 			);
 
-		case StatePlay.InLobby:
-			return <div>Waiting for other player</div>;
+		case Page.Lobby:
+			return lobbyPage();
 
-		case StatePlay.GameEnded:
+		case Page.EndGame:
 			return winPage(endGameDetails, authenticatedUserID);
 
-		default:
+		case Page.Play:
 			return (
 				<div className="App">
 					<div className="center-container">
@@ -351,9 +382,7 @@ export const Play = () => {
 							</span>
 							<span>
 								<button onClick={leaveGame}>
-									{statePlay === StatePlay.Watching
-										? "Stop watching"
-										: "Leave game"}
+									{watching ? "Stop watching" : "Leave game"}
 								</button>
 							</span>
 							<div className="gameField">
@@ -375,6 +404,9 @@ export const Play = () => {
 					</div>
 				</div>
 			);
+
+		default:
+			return waitForGamePage();
 	}
 };
 

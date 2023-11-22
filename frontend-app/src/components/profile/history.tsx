@@ -15,7 +15,7 @@ function displayGame(game: Game, key: number, nbWins: number) {
 	const splitDate = game.date.toString().split("T");
 	const dateString = splitDate[0] + " " + splitDate[1].split(".")[0];
 	let newLadderLevel: string;
-	if (getLadderLevel(nbWins - 1) !== getLadderLevel(nbWins)) {
+	if (getLadderLevel(nbWins - 1) !== getLadderLevel(nbWins) && game.didIWin) {
 		newLadderLevel = getLadderLevelDescription(nbWins);
 	}
 

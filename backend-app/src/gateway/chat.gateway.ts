@@ -126,22 +126,23 @@ export class ChatGateway implements OnModuleInit {
 	}
 
 	// -------------------- EVENTS
+	// TODO: GET TOKEN FROM SOCKET NOT FROM PASSED TOKEN!!!
 	async checkIdentity(token: string, socket: Socket): Promise<number> {
 		const socketToken = socket.handshake.headers.authorization.split(" ")[1];
 		if (token !== socketToken) {
 			// TODO: why is socketToken sometimes undefined ? Investigate.
-			console.log("[WARNING] Socket token and token DON'T MATCH!");
-			console.log("[WARNING] Socket token:", socketToken);
-			console.log(
-				"[WARNING] Letting this mismatched token pass anyway if it is undefined for now"
-			);
+			// console.log("[WARNING] Socket token and token DON'T MATCH!");
+			// console.log("[WARNING] Socket token:", socketToken);
+			// console.log(
+			// 	"[WARNING] Letting this mismatched token pass anyway if it is undefined for now"
+			// );
 		}
 		if (socketToken === "undefined") {
-			console.log("[WARNING] Socket token is undefined:", socketToken);
+			// console.log("[WARNING] Socket token is undefined:", socketToken);
 			// throw new ChatPermissionError('socket token is undefined');
 		}
 		if (socketToken !== token) {
-			console.log("[WARNING] Socket token does not match given token");
+			// console.log("[WARNING] Socket token does not match given token");
 		}
 		const isTokenVerified = await this.authService
 			.validateToken(token)
@@ -178,7 +179,6 @@ export class ChatGateway implements OnModuleInit {
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() token: string
 	): Promise<void> {
-		console.log("[Chat Gateway]: Logout", token);
 		try {
 			const userID = await this.checkIdentity(token, socket);
 			socket.data.userID = userID;
@@ -199,9 +199,6 @@ export class ChatGateway implements OnModuleInit {
 		} catch (e) {
 			const err_msg = "[Chat Gateway]: logout error:" + e.message;
 			console.log(err_msg);
-			// this.server
-			//   .to(this.getSocketRoomIdentifier(userID, RoomType.User))
-			//   .emit('error', err_msg);
 		}
 	}
 
@@ -210,7 +207,6 @@ export class ChatGateway implements OnModuleInit {
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() token: string
 	): Promise<void> {
-		console.log("[Chat Gateway]: Login", token);
 		try {
 			const userID = await this.checkIdentity(token, socket);
 			socket.data.userID = userID;
@@ -218,17 +214,10 @@ export class ChatGateway implements OnModuleInit {
 			await this.userService.updateUserByID(userID, {
 				status: userStatus.ONLINE,
 			});
-			socket.rooms.forEach(async (room: string) => {
-				if (room !== socket.id) await socket.leave(room);
-			});
-			await this.joinSocketRooms(socket, userID);
 			const username = (await this.userService.fetchUserByID(userID)).username;
 			console.log(
 				`[Chat Gateway]: Login event: A user logged in: ${username} - ${userID} (${socket.id})`
 			);
-			this.server
-				.to(this.getSocketRoomIdentifier(userID, RoomType.User))
-				.emit("login", username);
 			this.server.emit("status change", {
 				userID: userID,
 				userStatus: userStatus.ONLINE,
@@ -236,9 +225,6 @@ export class ChatGateway implements OnModuleInit {
 		} catch (e) {
 			const err_msg = "[Chat Gateway]: login error:" + e.message;
 			console.log(err_msg);
-			// this.server
-			//   .to(this.getSocketRoomIdentifier(userID, RoomType.User))
-			//   .emit('error', err_msg);
 		}
 	}
 

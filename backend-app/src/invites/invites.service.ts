@@ -10,6 +10,7 @@ import { InviteCreationError } from "src/exceptions/bad-request.interceptor";
 import { UserChatInfo } from "src/chat-participants/utils/types";
 import { sendInviteDto } from "./dtos/sendInvite.dto";
 import { InviteNotFoundError } from "src/exceptions/not-found.interceptor";
+import { GameGateway } from "src/gateway/game.gateway";
 
 @Injectable()
 export class InvitesService {
@@ -21,7 +22,9 @@ export class InvitesService {
 		@Inject(forwardRef(() => UsersService))
 		private userService: UsersService,
 		@Inject(forwardRef(() => BlockedUsersService))
-		private blockedUserService: BlockedUsersService
+		private blockedUserService: BlockedUsersService,
+		@Inject(forwardRef(() => GameGateway))
+		private gameGateway: GameGateway
 	) {}
 
 	private async formatInviteForSending(
@@ -93,6 +96,16 @@ export class InvitesService {
 		const user = await this.userService.fetchUserByID(userID);
 		const invites = await this.inviteRepository.find({
 			where: { inviteSender: user },
+			relations: ["inviteSender", "invitedUser", "chatRoom"],
+		});
+		return this.formatInvitesArrayForSending(invites);
+	}
+
+	async fetchGameInvitesBySenderID(userID: number): Promise<sendInviteDto[]> {
+		await this.deleteExpiredInvites();
+		const user = await this.userService.fetchUserByID(userID);
+		const invites = await this.inviteRepository.find({
+			where: { inviteSender: user, type: inviteType.GAME },
 			relations: ["inviteSender", "invitedUser", "chatRoom"],
 		});
 		return this.formatInvitesArrayForSending(invites);
@@ -258,6 +271,13 @@ export class InvitesService {
 			);
 		}
 
+		await this.deleteAllSenderGameInvites(sender.id);
+		if (this.gameGateway.getCurrentPlayRoom(sender.id)) {
+			throw new InviteCreationError(
+				"cannot invite when playing or watching a game."
+			);
+		}
+
 		let inviteExpiry = 0;
 		inviteExpiry = new Date(
 			Date.now() + 1 * (60 * 60 * 1000) // time + 1 hour
@@ -351,6 +371,16 @@ export class InvitesService {
 
 	async deleteInviteByID(id: number): Promise<DeleteResult> {
 		return this.inviteRepository.delete({ id });
+	}
+
+	async deleteAllSenderGameInvites(senderID: number) {
+		const sender = await this.userService.fetchUserByID(senderID);
+		const invites = await this.inviteRepository.find({
+			where: { inviteSender: sender, type: inviteType.GAME },
+		});
+		invites.map(async (e) => {
+			await this.deleteInviteByID(e.id);
+		});
 	}
 
 	async deleteExpiredInvites() {

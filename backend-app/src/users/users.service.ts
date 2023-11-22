@@ -127,15 +127,9 @@ export class UsersService {
 
 		let file: ReadStream;
 		if (existsSync(filename)) {
-			console.log("---------- File", filename, "exists");
 			file = createReadStream(filename);
 			return file;
 		} else {
-			console.log(
-				"----------- File",
-				filename,
-				"did not exists, defaulting default profile picture"
-			);
 			file = createReadStream(join(process.cwd(), this.defaultAvatarURL));
 			return file;
 		}

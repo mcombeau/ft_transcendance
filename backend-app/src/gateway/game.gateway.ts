@@ -12,13 +12,15 @@ import { Socket } from "socket.io";
 import { MessageBody } from "@nestjs/websockets";
 import { ChatGateway } from "./chat.gateway";
 import { createGameParams } from "src/games/utils/types";
-import { userStatus } from "src/users/entities/user.entity";
+import { UserEntity, userStatus } from "src/users/entities/user.entity";
 import { UsersService } from "src/users/users.service";
 import { UserNotFoundError } from "src/exceptions/not-found.interceptor";
 import { InvitesService } from "src/invites/invites.service";
+import { sendInviteDto } from "src/invites/dtos/sendInvite.dto";
+import { isInt, isPositive } from "class-validator";
 
 // TODO: move constants here (game speed ...)
-const WINNING_SCORE = 2;
+const WINNING_SCORE = 4;
 
 type Player = {
 	userID: number;
@@ -67,6 +69,11 @@ type GameInfo = {
 	player1: PlayerInfo;
 	player2: PlayerInfo;
 	socketRoomID: string;
+};
+
+type Response = {
+	success: boolean;
+	gameInfo?: GameInfo;
 };
 
 @WebSocketGateway({
@@ -148,9 +155,6 @@ export class GameGateway implements OnModuleInit {
 				`[Game Gateway]: A user connected: ${user.username} - ${user.userID} (${socket.id})`
 			);
 			socket.broadcast.emit("connection event"); // TODO: probably remove
-			if (await this.reconnect(socket, user.userID)) {
-				console.log(`[Game Gateway]: A user rejoined: ${user.username} a game`);
-			}
 			socket.on("disconnect", () => {
 				console.log(
 					`[Game Gateway]: A user disconnected: ${user.username} - ${user.userID} (${socket.id})`
@@ -162,9 +166,6 @@ export class GameGateway implements OnModuleInit {
 
 	private startGame(gameRoom: GameRoom) {
 		console.log("[Game Gateway]: Game started");
-		// TODO: send to everybody everywhere that the game started
-
-		console.log("[Game Gateway]: start game", this.gameToGameInfo(gameRoom));
 		this.server
 			.to(gameRoom.socketRoomID)
 			.emit("start game", this.gameToGameInfo(gameRoom));
@@ -176,57 +177,57 @@ export class GameGateway implements OnModuleInit {
 		}, this.delay);
 	}
 
+	private createGameDetails(gameRoom: GameRoom): createGameParams {
+		let gameDetails: createGameParams;
+		if (gameRoom.gameState.result[0] === WINNING_SCORE) {
+			gameDetails = {
+				winnerID: gameRoom.player1.userID,
+				winnerUsername: gameRoom.player1.username,
+				loserID: gameRoom.player2.userID,
+				loserUsername: gameRoom.player2.username,
+				loserScore: gameRoom.gameState.result[1],
+				winnerScore: WINNING_SCORE,
+			};
+		} else {
+			gameDetails = {
+				winnerID: gameRoom.player2.userID,
+				winnerUsername: gameRoom.player2.username,
+				loserID: gameRoom.player1.userID,
+				loserUsername: gameRoom.player1.username,
+				loserScore: gameRoom.gameState.result[0],
+				winnerScore: WINNING_SCORE,
+			};
+		}
+		return gameDetails;
+	}
+
 	private async stopGame(
 		gameRoom: GameRoom,
 		isGameFinished: boolean,
 		leavingUserID?: number
 	) {
 		console.log("[Game Gateway]: Game stopped");
-		await this.updatePlayerStatus(userStatus.ONLINE, gameRoom.player1.userID);
-		await this.updatePlayerStatus(userStatus.ONLINE, gameRoom.player2.userID);
-		clearInterval(gameRoom.interval);
-		if (isGameFinished) {
-			let gameDetails: createGameParams;
-			// TODO: maybe move to another function
-			if (gameRoom.gameState.result[0] === WINNING_SCORE) {
-				gameDetails = {
-					winnerID: gameRoom.player1.userID,
-					winnerUsername: gameRoom.player1.username,
-					loserID: gameRoom.player2.userID,
-					loserUsername: gameRoom.player2.username,
-					loserScore: gameRoom.gameState.result[1],
-					winnerScore: WINNING_SCORE,
-				};
-			} else {
-				gameDetails = {
-					winnerID: gameRoom.player2.userID,
-					winnerUsername: gameRoom.player2.username,
-					loserID: gameRoom.player1.userID,
-					loserUsername: gameRoom.player1.username,
-					loserScore: gameRoom.gameState.result[0],
-					winnerScore: WINNING_SCORE,
-				};
-			}
 
+		clearInterval(gameRoom.interval);
+
+		if (isGameFinished) {
+			const gameDetails: createGameParams = this.createGameDetails(gameRoom);
 			this.server.to(gameRoom.socketRoomID).emit("end game", gameDetails);
 			await this.gameService.saveGame(gameDetails);
 		} else {
 			this.server.to(gameRoom.socketRoomID).emit("leave game", leavingUserID);
 		}
+
 		this.server.in(gameRoom.socketRoomID).socketsLeave(gameRoom.socketRoomID);
 		this.gameRooms = this.gameRooms.filter(
 			(gr: GameRoom) => gr.socketRoomID !== gameRoom.socketRoomID
 		);
-		const invite1ID = gameRoom.player1.inviteID;
-		const invite2ID = gameRoom.player2.inviteID;
-		if (invite1ID) {
-			await this.invitesService.deleteInviteByID(invite1ID);
-		} else if (invite2ID) {
-			await this.invitesService.deleteInviteByID(invite2ID);
-		}
+
+		await this.updatePlayerStatus(userStatus.ONLINE, gameRoom.player1.userID);
+		await this.updatePlayerStatus(userStatus.ONLINE, gameRoom.player2.userID);
 	}
 
-	private async getRoom(userID: number) {
+	getCurrentPlayRoom(userID: number) {
 		for (let i = this.gameRooms.length - 1; i >= 0; i--) {
 			const gameRoom = this.gameRooms[i];
 			if (
@@ -239,6 +240,12 @@ export class GameGateway implements OnModuleInit {
 		return null;
 	}
 
+	private getRoomByID(gameID: string): GameRoom {
+		return this.gameRooms.find((gameRoom: GameRoom) => {
+			return gameRoom.socketRoomID === gameID;
+		});
+	}
+
 	private async updatePlayerStatus(userStatus: userStatus, userID: number) {
 		await this.usersService.updateUserByID(userID, { status: userStatus });
 		this.server.emit("status change", {
@@ -247,16 +254,29 @@ export class GameGateway implements OnModuleInit {
 		});
 	}
 
-	private async addWatcherToGameRoom(watcher: Watcher, gameID: string) {
-		const gameRoom: GameRoom = this.gameRooms.find((gameRoom: GameRoom) => {
-			gameRoom.socketRoomID == gameID;
-			return gameRoom;
+	getWatchingRooms(userID: number) {
+		return this.gameRooms.filter((gameRoom: GameRoom) => {
+			return gameRoom.watchers.some((watcher: Watcher) => {
+				return watcher.userID === userID;
+			});
 		});
-		if (!gameRoom) return null;
-		await watcher.socket.join(gameRoom.socketRoomID);
-		delete watcher.socket;
-		gameRoom.watchers.push(watcher);
-		return gameRoom;
+	}
+
+	private async stopWatchingAllGames(
+		userID: number,
+		socket: Socket
+	): Promise<void> {
+		const gamesAlreadyWatched: GameRoom[] = this.getWatchingRooms(userID);
+
+		await Promise.all(
+			gamesAlreadyWatched.map(async (gameRoom: GameRoom) => {
+				return await this.rmWatcherFromGameRoom(
+					userID,
+					gameRoom.socketRoomID,
+					socket
+				);
+			})
+		);
 	}
 
 	private async rmWatcherFromGameRoom(
@@ -273,6 +293,15 @@ export class GameGateway implements OnModuleInit {
 			(watcher: Watcher) => watcher.userID !== userID
 		);
 		socket.leave(gameRoom.socketRoomID);
+	}
+
+	private async addWatcherToGameRoom(
+		watcher: Watcher,
+		gameRoom: GameRoom
+	): Promise<void> {
+		await watcher.socket.join(gameRoom.socketRoomID);
+		delete watcher.socket;
+		gameRoom.watchers.push(watcher);
 	}
 
 	private placeBall() {
@@ -294,22 +323,40 @@ export class GameGateway implements OnModuleInit {
 		};
 	}
 
-	private async reconnect(socket: Socket, userID: number) {
-		const myGameRoom: GameRoom = await this.getRoom(userID);
-		if (myGameRoom) {
-			await socket.join(myGameRoom.socketRoomID);
-			console.log("[Game Gateway]: reconnect", this.gameToGameInfo(myGameRoom));
-			socket.emit("rejoin game", this.gameToGameInfo(myGameRoom));
-			console.log(
-				"[Game Gateway]:",
-				"Setting up user",
-				userID,
-				"to join back gameroom",
-				myGameRoom.socketRoomID
-			);
-			return true;
+	private async reconnect(socket: Socket, userID: number): Promise<GameRoom> {
+		const myGameRoom: GameRoom = this.getCurrentPlayRoom(userID);
+		if (!myGameRoom) {
+			return null;
 		}
-		return false;
+		await this.updatePlayerStatus(userStatus.INGAME, userID);
+		await socket.join(myGameRoom.socketRoomID);
+		console.log(
+			"[Game Gateway][Reconnect]:",
+			"Setting up user",
+			userID,
+			"to join back gameroom",
+			myGameRoom.socketRoomID
+		);
+		return myGameRoom;
+	}
+
+	private async clearAcceptedInvite(
+		player1: Player,
+		player2: Player
+	): Promise<void> {
+		if (!player1.inviteID && !player2.inviteID) {
+			return;
+		}
+		if (
+			player1.inviteID &&
+			player2.inviteID &&
+			player1.inviteID === player2.inviteID
+		) {
+			console.log("[Game Gateway][Clear Accepted Invite]:", player1.inviteID);
+			await this.invitesService.deleteInviteByID(player1.inviteID);
+		} else {
+			throw new Error("Player invites mismatched! (clear accepted invite)");
+		}
 	}
 
 	private async createRoom(
@@ -319,6 +366,7 @@ export class GameGateway implements OnModuleInit {
 		const socketRoomID = this.gameRoomID.toString();
 		this.gameRoomID++;
 
+		await this.clearAcceptedInvite(player1, player2);
 		console.log(
 			"[Game Gateway]: Create new GameRoom of id",
 			socketRoomID,
@@ -384,7 +432,7 @@ export class GameGateway implements OnModuleInit {
 		return null;
 	}
 
-	private async waitForOpponent(player: Player) {
+	private async getRoomOrWait(player: Player, isAcceptingInvite?: boolean) {
 		let opponent: Player;
 		if (player.inviteID) {
 			opponent = this.getInvitedPlayer(player);
@@ -406,8 +454,9 @@ export class GameGateway implements OnModuleInit {
 			"with invite",
 			player.inviteID
 		);
-		console.log(`[Game Gateway] Waitlist :`, this.waitList);
-		this.waitList.push(player);
+		if (!isAcceptingInvite) {
+			this.waitList.push(player);
+		}
 		return null;
 	}
 
@@ -581,23 +630,18 @@ export class GameGateway implements OnModuleInit {
 
 	@SubscribeMessage("up")
 	async onUp(@ConnectedSocket() socket: Socket, @MessageBody() token: string) {
-		const userID: number = await this.chatGateway.checkIdentity(token, socket);
-		const user = await this.usersService.fetchUserByID(userID);
-		if (!user) {
-			console.log("[Game Gateway][On Up]: User not found");
-			return;
-		}
+		const user: UserEntity = await this.getUserOrFail(token, socket);
 
-		const gameRoom: GameRoom = await this.getRoom(userID);
+		const gameRoom: GameRoom = this.getCurrentPlayRoom(user.id);
 		if (gameRoom === null) {
 			console.log("[Game Gateway][On Up]: GameRoom not found");
 			return;
 		}
 
 		let playerIndex = 1;
-		if (gameRoom.player1.userID === userID) {
+		if (gameRoom.player1.userID === user.id) {
 			gameRoom.gameState.p1 -= this.step;
-		} else {
+		} else if (gameRoom.player2.userID === user.id) {
 			playerIndex = 2;
 			gameRoom.gameState.p2 -= this.step;
 		}
@@ -615,22 +659,17 @@ export class GameGateway implements OnModuleInit {
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() token: string
 	) {
-		const userID: number = await this.chatGateway.checkIdentity(token, socket);
-		const user = await this.usersService.fetchUserByID(userID);
-		if (!user) {
-			console.log("[Game Gateway][On Down]: User not found");
-			return;
-		}
-		const gameRoom: GameRoom = await this.getRoom(userID);
+		const user: UserEntity = await this.getUserOrFail(token, socket);
+		const gameRoom: GameRoom = this.getCurrentPlayRoom(user.id);
 		if (gameRoom === null) {
 			console.log("[Game Gateway][On Down]: GameRoom not found");
 			return;
 		}
 
 		let playerIndex = 1;
-		if (gameRoom.player1.userID === userID) {
+		if (gameRoom.player1.userID === user.id) {
 			gameRoom.gameState.p1 += this.step;
-		} else {
+		} else if (gameRoom.player2.userID === user.id) {
 			playerIndex = 2;
 			gameRoom.gameState.p2 += this.step;
 		}
@@ -640,100 +679,6 @@ export class GameGateway implements OnModuleInit {
 				gameRoom.gameState
 			);
 		}
-	}
-
-	private async checkInviteIsValid(
-		inviteID: number,
-		userID: number
-	): Promise<boolean> {
-		if (!inviteID) {
-			return true;
-		}
-		try {
-			const invitation = await this.invitesService.fetchInviteByID(inviteID);
-			if (!invitation) {
-				return false;
-			}
-			if (invitation.invitedID !== userID && invitation.senderID !== userID) {
-				return false;
-			}
-			this.chatGateway.checkUserInviteHasNotExpired(invitation);
-		} catch (e) {
-			return false;
-		}
-		return true;
-	}
-
-	@SubscribeMessage("waiting")
-	async onWaiting(
-		@ConnectedSocket() socket: Socket,
-		@MessageBody() info: { token: string; inviteID: number }
-	) {
-		const token = info.token;
-		const inviteID = info.inviteID;
-
-		const userID: number = await this.chatGateway.checkIdentity(token, socket);
-		const user = await this.usersService.fetchUserByID(userID);
-		if (!user) {
-			throw new UserNotFoundError();
-		}
-
-		const inviteIsValid = await this.checkInviteIsValid(inviteID, user.id);
-		socket.emit("waiting", inviteIsValid || !inviteID);
-		if (!inviteIsValid) return;
-
-		console.log(`[Game Gateway] Waitlist in waiting:`, this.waitList);
-		if (await this.reconnect(socket, user.id)) {
-			return;
-		}
-		const player: Player = {
-			userID: user.id,
-			username: user.username,
-			socket: socket,
-		};
-		if (inviteID) {
-			player.inviteID = inviteID;
-		}
-		const myGameRoom: GameRoom = await this.waitForOpponent(player);
-		if (!myGameRoom) {
-			console.log(
-				`[Game Gateway]: ${player.username} is waiting for an opponent:`,
-				player.userID,
-				player.username
-			);
-		} else {
-			this.startGame(myGameRoom);
-		}
-	}
-
-	@SubscribeMessage("leave game")
-	async onLeaveGame(
-		@ConnectedSocket() socket: Socket,
-		@MessageBody() token: string
-	) {
-		const userID: number = await this.chatGateway.checkIdentity(token, socket);
-		const user = await this.usersService.fetchUserByID(userID);
-		if (!user) {
-			throw new UserNotFoundError();
-		}
-		const gameRoom: GameRoom = await this.getRoom(userID);
-
-		await this.stopGame(gameRoom, false, userID);
-	}
-
-	gameToGameInfo(game: GameRoom): GameInfo {
-		const gameInfo: GameInfo = {
-			player1: {
-				userID: game.player1.userID,
-				username: game.player1.username,
-			},
-			player2: {
-				userID: game.player2.userID,
-				username: game.player2.username,
-			},
-			socketRoomID: game.socketRoomID,
-		};
-		return gameInfo;
 	}
 
 	@SubscribeMessage("get games")
@@ -751,49 +696,263 @@ export class GameGateway implements OnModuleInit {
 		socket.emit("get games", gameInfos);
 	}
 
-	@SubscribeMessage("watch")
-	async onWatch(
+	private async getValidInvite(
+		inviteID: number,
+		userID: number
+	): Promise<sendInviteDto> {
+		if (!inviteID) {
+			return null;
+		}
+		let invitation: sendInviteDto;
+		try {
+			invitation = await this.invitesService.fetchInviteByID(inviteID);
+			if (!invitation) {
+				return null;
+			}
+			if (invitation.invitedID !== userID && invitation.senderID !== userID) {
+				return null;
+			}
+			await this.chatGateway.checkUserInviteHasNotExpired(invitation);
+		} catch (e) {
+			return null;
+		}
+		return invitation;
+	}
+
+	@SubscribeMessage("leave game")
+	async onLeaveGame(
 		@ConnectedSocket() socket: Socket,
-		@MessageBody() body: { token: string; gameID: string }
+		@MessageBody() token: string
 	) {
-		const userID: number = await this.chatGateway.checkIdentity(
-			body.token,
-			socket
-		);
-		const user = await this.usersService.fetchUserByID(userID);
-		if (!user) {
-			throw new UserNotFoundError();
-		}
-		const watcher: Watcher = {
-			userID: userID,
-			username: user.username,
-			socket: socket,
+		const user: UserEntity = await this.getUserOrFail(token, socket);
+		const gameRoom: GameRoom = this.getCurrentPlayRoom(user.id);
+
+		await this.stopGame(gameRoom, false, user.id);
+	}
+
+	gameToGameInfo(game: GameRoom): GameInfo {
+		if (!game) return null;
+		const gameInfo: GameInfo = {
+			player1: {
+				userID: game.player1.userID,
+				username: game.player1.username,
+			},
+			player2: {
+				userID: game.player2.userID,
+				username: game.player2.username,
+			},
+			socketRoomID: game.socketRoomID,
 		};
-		const gameRoom: GameRoom = await this.addWatcherToGameRoom(
-			watcher,
-			body.gameID
-		);
-		if (!gameRoom) {
-			socket.emit("watch", { authorized: false });
-		} else {
-			const gameInfo = this.gameToGameInfo(gameRoom);
-			socket.emit("watch", { authorized: true, gameInfo: gameInfo });
-		}
+		return gameInfo;
 	}
 
 	@SubscribeMessage("stop watching")
 	async onStopWatch(
 		@ConnectedSocket() socket: Socket,
-		@MessageBody() body: { token: string; gameID: string }
+		@MessageBody() token: string
 	) {
-		const userID: number = await this.chatGateway.checkIdentity(
-			body.token,
-			socket
-		);
+		const user: UserEntity = await this.getUserOrFail(token, socket);
+		await this.stopWatchingAllGames(user.id, socket);
+	}
+
+	private async getUserOrFail(
+		token: string,
+		socket: Socket
+	): Promise<UserEntity> {
+		const userID: number = await this.chatGateway.checkIdentity(token, socket);
 		const user = await this.usersService.fetchUserByID(userID);
 		if (!user) {
+			// TODO: maybe deal with that ?
 			throw new UserNotFoundError();
 		}
-		await this.rmWatcherFromGameRoom(userID, body.gameID, socket);
+		return user;
+	}
+
+	private leaveWaitlist(userID: number): void {
+		this.waitList = this.waitList.filter((player: Player) => {
+			return player.userID !== userID;
+		});
+	}
+
+	private async expireOutdatedInvites(
+		userID: number,
+		keepInviteID: number = null
+	) {
+		const invites: sendInviteDto[] =
+			await this.invitesService.fetchGameInvitesBySenderID(userID);
+		await Promise.all(
+			invites.map(async (invite: sendInviteDto) => {
+				if (invite.id !== keepInviteID) {
+					await this.invitesService.deleteInviteByID(invite.id);
+				}
+			})
+		);
+	}
+
+	private async cleanupUserGames(
+		userID: number,
+		socket: Socket,
+		inviteID: number = null
+	) {
+		console.log("[Game Gateway][Cleanup]");
+		const currentPlayRoom: GameRoom = await this.getCurrentPlayRoom(userID);
+		if (currentPlayRoom) {
+			throw new Error(
+				"User is in playroom and hasn't been reconnected (cleanup)"
+			);
+		}
+		await this.stopWatchingAllGames(userID, socket);
+		this.leaveWaitlist(userID);
+		await this.expireOutdatedInvites(userID, inviteID);
+	}
+
+	@SubscribeMessage("reconnect")
+	async onRejoinGame(
+		@ConnectedSocket() socket: Socket,
+		@MessageBody() token: string
+	) {
+		const user: UserEntity = await this.getUserOrFail(token, socket);
+		const currentGameRoom: GameRoom = await this.reconnect(socket, user.id);
+
+		let data: Response = {
+			success: Boolean(currentGameRoom),
+			gameInfo: this.gameToGameInfo(currentGameRoom),
+		};
+
+		socket.emit("reconnect", data);
+	}
+
+	@SubscribeMessage("watch")
+	async onWatch(
+		@ConnectedSocket() socket: Socket,
+		@MessageBody() body: { token: string; gameID: string }
+	) {
+		const user: UserEntity = await this.getUserOrFail(body.token, socket);
+
+		await this.cleanupUserGames(user.id, socket);
+
+		const targetGameRoom: GameRoom = this.getRoomByID(body.gameID);
+
+		let data: Response = {
+			success: Boolean(targetGameRoom),
+			gameInfo: this.gameToGameInfo(targetGameRoom),
+		};
+
+		if (data.success) {
+			const watcher: Watcher = {
+				userID: user.id,
+				username: user.username,
+				socket: socket,
+			};
+			await this.addWatcherToGameRoom(watcher, targetGameRoom);
+		}
+		socket.emit("watch", data);
+	}
+
+	private convertInviteIDFromString(inviteID: string): number {
+		const convertedInviteID = Number(inviteID);
+		if (
+			isNaN(convertedInviteID) ||
+			!isInt(convertedInviteID) ||
+			!isPositive(convertedInviteID)
+		)
+			return null;
+		return convertedInviteID;
+	}
+
+	@SubscribeMessage("wait invite")
+	async onWaitInvite(
+		@ConnectedSocket() socket: Socket,
+		@MessageBody() body: { token: string; inviteID: string }
+	) {
+		const user: UserEntity = await this.getUserOrFail(body.token, socket);
+
+		const inviteID: number = this.convertInviteIDFromString(body.inviteID);
+		await this.cleanupUserGames(user.id, socket, inviteID);
+		if (!inviteID) {
+			socket.emit("wait invite", { success: false });
+			return;
+		}
+		const invite: sendInviteDto = await this.getValidInvite(inviteID, user.id);
+		if (!invite) {
+			socket.emit("wait invite", { success: false });
+			return;
+		}
+		const isAcceptingInvite: boolean = user.id === invite.invitedID;
+
+		const player: Player = {
+			userID: user.id,
+			username: user.username,
+			socket: socket,
+			inviteID: inviteID,
+		};
+		const myGameRoom: GameRoom = await this.getRoomOrWait(
+			player,
+			isAcceptingInvite
+		);
+		if (!myGameRoom) {
+			console.log(
+				`[Game Gateway][Wait Invite]: ${player.username} is waiting for an opponent:`,
+				player.userID,
+				player.username
+			);
+			if (isAcceptingInvite) {
+				await this.invitesService.deleteInviteByID(inviteID);
+				socket.emit("wait invite", { success: false });
+				return;
+			}
+			socket.emit("wait invite", { success: true });
+		} else {
+			this.startGame(myGameRoom);
+		}
+	}
+
+	@SubscribeMessage("enter lobby")
+	async onEnterLobby(
+		@ConnectedSocket() socket: Socket,
+		@MessageBody() body: { token: string; inviteID: string }
+	) {
+		const user: UserEntity = await this.getUserOrFail(body.token, socket);
+
+		const player: Player = {
+			userID: user.id,
+			username: user.username,
+			socket: socket,
+		};
+		const myGameRoom: GameRoom = await this.getRoomOrWait(player);
+		if (myGameRoom) {
+			this.startGame(myGameRoom);
+		}
+	}
+
+	@SubscribeMessage("leave lobby")
+	async onLeaveLobby(
+		@ConnectedSocket() socket: Socket,
+		@MessageBody() token: string
+	) {
+		const user: UserEntity = await this.getUserOrFail(token, socket);
+
+		const players: Player[] = this.waitList.filter((player: Player) => {
+			return player.userID === user.id;
+		});
+		await Promise.all(
+			players.map(async (player: Player) => {
+				if (player.inviteID) {
+					await this.invitesService.deleteInviteByID(player.inviteID);
+				}
+			})
+		);
+		this.leaveWaitlist(user.id);
+	}
+
+	@SubscribeMessage("is in game")
+	async onIsActive(
+		@ConnectedSocket() socket: Socket,
+		@MessageBody() token: string
+	) {
+		const user: UserEntity = await this.getUserOrFail(token, socket);
+
+		const isInGame: boolean = Boolean(this.getCurrentPlayRoom(user.id));
+		socket.emit("is in game", isInGame);
 	}
 }
