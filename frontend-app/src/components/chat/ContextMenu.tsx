@@ -1,16 +1,16 @@
-import {Status, ChatRoom, typeInvite} from "./types";
-import {ChangeStatus} from "./Chat";
-import {Dispatch, SetStateAction, useEffect, useRef, useState} from "react";
-import {Socket} from "socket.io-client";
-import {checkStatus} from "./Chat";
-import {ReceivedInfo} from "./types";
-import {blockUser, unblockUser} from "../profile/profile";
+import { Status, ChatRoom, typeInvite } from "./types";
+import { ChangeStatus } from "./Chat";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import { Socket } from "socket.io-client";
+import { checkStatus } from "./Chat";
+import { ReceivedInfo } from "./types";
+import { blockUser, unblockUser } from "../profile/profile";
 
 export const ContextMenuEl = (
 	contextMenu: boolean,
-	target: {id: number; username: string},
+	target: { id: number; username: string },
 	setContextMenu: Dispatch<SetStateAction<boolean>>,
-	contextMenuPos: {x: number; y: number},
+	contextMenuPos: { x: number; y: number },
 	socket: Socket,
 	channel: ChatRoom,
 	cookies: any,
@@ -22,6 +22,7 @@ export const ContextMenuEl = (
 	const menuRef = useRef<HTMLDivElement>(null);
 	const [invitesMenu, setInvitesMenu] = useState(false);
 	const [userIsBlocked, setUserIsBlocked] = useState(false);
+	const [iCanChallenge, setICanChallenge] = useState<boolean>(false);
 
 	useEffect(() => {
 		setUserIsBlocked(blockedUsers.includes(target.id));
@@ -29,7 +30,7 @@ export const ContextMenuEl = (
 
 	function invite(
 		e: any,
-		target: {id: number; username: string},
+		target: { id: number; username: string },
 		type: typeInvite
 	) {
 		var info: ReceivedInfo = {
@@ -62,6 +63,19 @@ export const ContextMenuEl = (
 		);
 	}
 
+	useEffect(() => {
+		socket.on("is in game", (isActive: boolean) => {
+			// cannot challenge the user if I'm in a game
+			setICanChallenge(!isActive);
+		});
+		return () => {
+			socket.off("in a game");
+		};
+	}, [contextMenu]);
+
+	useEffect(() => {
+		socket.emit("is in game", cookies["token"]);
+	}, [contextMenu]);
 	if (!contextMenu) {
 		return <div></div>;
 	}
@@ -114,14 +128,18 @@ export const ContextMenuEl = (
 				>
 					Invite to chat
 				</li>
-				<li
-					onClick={(e) => {
-						console.log("Challenged " + target.username);
-						invite(e, target, typeInvite.Game);
-					}}
-				>
-					Challenge
-				</li>
+				{iCanChallenge ? (
+					<li
+						onClick={(e) => {
+							console.log("Challenged " + target.username);
+							invite(e, target, typeInvite.Game);
+						}}
+					>
+						Challenge
+					</li>
+				) : (
+					<></>
+				)}
 				<li
 					onClick={(e) => {
 						console.log("Added as friend " + target.username);
@@ -145,7 +163,7 @@ export const ContextMenuEl = (
 					DM
 				</li>
 				{checkStatus(channel, authenticatedUserID) !== Status.Operator && // TODO: double check logic
-					checkStatus(channel, target.id) !== Status.Owner ? (
+				checkStatus(channel, target.id) !== Status.Owner ? (
 					<div>
 						<li
 							onClick={() => {
