@@ -925,6 +925,26 @@ export class GameGateway implements OnModuleInit {
 		}
 	}
 
+	@SubscribeMessage("leave lobby")
+	async onLeaveLobby(
+		@ConnectedSocket() socket: Socket,
+		@MessageBody() token: string
+	) {
+		const user: UserEntity = await this.getUserOrFail(token, socket);
+
+		const players: Player[] = this.waitList.filter((player: Player) => {
+			return player.userID === user.id;
+		});
+		await Promise.all(
+			players.map(async (player: Player) => {
+				if (player.inviteID) {
+					await this.invitesService.deleteInviteByID(player.inviteID);
+				}
+			})
+		);
+		this.leaveWaitlist(user.id);
+	}
+
 	@SubscribeMessage("is in game")
 	async onIsActive(
 		@ConnectedSocket() socket: Socket,
@@ -932,7 +952,7 @@ export class GameGateway implements OnModuleInit {
 	) {
 		const user: UserEntity = await this.getUserOrFail(token, socket);
 
-		const isInGame: boolean = Boolean(await this.getCurrentPlayRoom(user.id));
+		const isInGame: boolean = Boolean(this.getCurrentPlayRoom(user.id));
 		socket.emit("is in game", isInGame);
 	}
 }

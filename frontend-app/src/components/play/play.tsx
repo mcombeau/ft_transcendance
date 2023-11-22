@@ -202,9 +202,6 @@ export const Play = () => {
 			setEndGameDetails(gameDetails);
 		}
 		setPage(Page.EndGame);
-		await new Promise((r) => setTimeout(r, 4000));
-		setPage(Page.Waiting);
-		navigate("/user/" + authenticatedUserID);
 	}
 
 	function leaveGame() {
@@ -229,13 +226,16 @@ export const Play = () => {
 		});
 	}
 
-	function stopWaiting() {}
+	function leaveLobby() {
+		socket.emit("leave lobby", cookies["token"]);
+		navigate("/user/" + authenticatedUserID);
+	}
 
 	function lobbyPage() {
 		return (
 			<div>
 				Waiting for other player{" "}
-				<button onClick={stopWaiting}>Stop waiting</button>
+				<button onClick={leaveLobby}>Stop waiting</button>
 			</div>
 		);
 	}
