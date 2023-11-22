@@ -199,7 +199,6 @@ export const Play = () => {
 	async function endGame(gameFinished: boolean, gameDetails?: GameDetails) {
 		console.log("Game ended", gameDetails);
 		if (gameFinished) {
-			// TODO: do differently if not game finisehd
 			setEndGameDetails(gameDetails);
 		}
 		setPage(Page.EndGame);

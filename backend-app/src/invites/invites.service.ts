@@ -10,6 +10,7 @@ import { InviteCreationError } from "src/exceptions/bad-request.interceptor";
 import { UserChatInfo } from "src/chat-participants/utils/types";
 import { sendInviteDto } from "./dtos/sendInvite.dto";
 import { InviteNotFoundError } from "src/exceptions/not-found.interceptor";
+import { GameGateway } from "src/gateway/game.gateway";
 
 @Injectable()
 export class InvitesService {
@@ -21,7 +22,9 @@ export class InvitesService {
 		@Inject(forwardRef(() => UsersService))
 		private userService: UsersService,
 		@Inject(forwardRef(() => BlockedUsersService))
-		private blockedUserService: BlockedUsersService
+		private blockedUserService: BlockedUsersService,
+		@Inject(forwardRef(() => GameGateway))
+		private gameGateway: GameGateway
 	) {}
 
 	private async formatInviteForSending(
@@ -269,6 +272,11 @@ export class InvitesService {
 		}
 
 		await this.deleteAllSenderGameInvites(sender.id);
+		if (this.gameGateway.getCurrentPlayRoom(sender.id)) {
+			throw new InviteCreationError(
+				"cannot invite when playing or watching a game."
+			);
+		}
 
 		let inviteExpiry = 0;
 		inviteExpiry = new Date(

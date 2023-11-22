@@ -1,10 +1,6 @@
 - Fix game
-	- forbid room creation if you have a game on
-		- join automatically if coming back to play
-		- securité at game creation / waiting
-		- deal with invites/challenge
-	- forbid challenge (game invite) when you are in game 
-	- Make it possible for challenger to leave game room with button. make invite expire for the player's opponent.
+  - Make it possible for challenger to leave game room with button. make invite expire for the player's opponent.
+    - If oppenent logs out, game keeps goins when it should do leave game
 
 - remove socket from Player game gateway
 
