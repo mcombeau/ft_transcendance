@@ -227,7 +227,7 @@ export class GameGateway implements OnModuleInit {
 		await this.updatePlayerStatus(userStatus.ONLINE, gameRoom.player2.userID);
 	}
 
-	private async getCurrentPlayRoom(userID: number) {
+	getCurrentPlayRoom(userID: number) {
 		for (let i = this.gameRooms.length - 1; i >= 0; i--) {
 			const gameRoom = this.gameRooms[i];
 			if (
@@ -254,7 +254,7 @@ export class GameGateway implements OnModuleInit {
 		});
 	}
 
-	private getWatchingRooms(userID: number) {
+	getWatchingRooms(userID: number) {
 		return this.gameRooms.filter((gameRoom: GameRoom) => {
 			return gameRoom.watchers.some((watcher: Watcher) => {
 				return watcher.userID === userID;
@@ -324,7 +324,7 @@ export class GameGateway implements OnModuleInit {
 	}
 
 	private async reconnect(socket: Socket, userID: number): Promise<GameRoom> {
-		const myGameRoom: GameRoom = await this.getCurrentPlayRoom(userID);
+		const myGameRoom: GameRoom = this.getCurrentPlayRoom(userID);
 		if (!myGameRoom) {
 			return null;
 		}
@@ -632,7 +632,7 @@ export class GameGateway implements OnModuleInit {
 	async onUp(@ConnectedSocket() socket: Socket, @MessageBody() token: string) {
 		const user: UserEntity = await this.getUserOrFail(token, socket);
 
-		const gameRoom: GameRoom = await this.getCurrentPlayRoom(user.id);
+		const gameRoom: GameRoom = this.getCurrentPlayRoom(user.id);
 		if (gameRoom === null) {
 			console.log("[Game Gateway][On Up]: GameRoom not found");
 			return;
@@ -660,7 +660,7 @@ export class GameGateway implements OnModuleInit {
 		@MessageBody() token: string
 	) {
 		const user: UserEntity = await this.getUserOrFail(token, socket);
-		const gameRoom: GameRoom = await this.getCurrentPlayRoom(user.id);
+		const gameRoom: GameRoom = this.getCurrentPlayRoom(user.id);
 		if (gameRoom === null) {
 			console.log("[Game Gateway][On Down]: GameRoom not found");
 			return;
@@ -725,7 +725,7 @@ export class GameGateway implements OnModuleInit {
 		@MessageBody() token: string
 	) {
 		const user: UserEntity = await this.getUserOrFail(token, socket);
-		const gameRoom: GameRoom = await this.getCurrentPlayRoom(user.id);
+		const gameRoom: GameRoom = this.getCurrentPlayRoom(user.id);
 
 		await this.stopGame(gameRoom, false, user.id);
 	}
@@ -897,6 +897,7 @@ export class GameGateway implements OnModuleInit {
 				player.username
 			);
 			if (isAcceptingInvite) {
+				await this.invitesService.deleteInviteByID(inviteID);
 				socket.emit("wait invite", { success: false });
 				return;
 			}
