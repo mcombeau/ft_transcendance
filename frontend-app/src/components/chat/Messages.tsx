@@ -98,25 +98,27 @@ export const Messages = (
 	}
 
 	const inviteStatus = (invite: Invite) => {
-		// MAKE SURE THIS WORKS BECAUSE ITS FUCKING WEIIIIIIRD
 		var date = new Date(parseInt(invite.expiresAt.toString()));
-		var messageInvite: string;
 		switch (invite.type) {
 			case typeInvite.Game:
-				messageInvite = "wants to play";
+				var messageInvite = <>wants to play</>;
 				break;
 
 			case typeInvite.Friend:
-				messageInvite = "wants to be your friend";
+				messageInvite = <>wants to be your friend</>;
 				break;
 
 			case typeInvite.Chat:
-				messageInvite =
-					"invites you to join chat " + <i>invite.chatRoomName</i>;
+				const chatRoomName: string = invite.chatRoomName;
+				messageInvite = (
+					<>
+						invites you to join chat <i>{chatRoomName}</i>
+					</>
+				);
 				break;
 
 			default:
-				messageInvite = "sent you an unknown invite";
+				messageInvite = <>sent you an unknown invite</>;
 				break;
 		}
 		return (
