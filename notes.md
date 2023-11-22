@@ -1,7 +1,3 @@
-- Fix game
-  - Make it possible for challenger to leave game room with button. make invite expire for the player's opponent.
-    - If oppenent logs out, game keeps goins when it should do leave game
-
 - remove socket from Player game gateway
 
 - Cleanup
