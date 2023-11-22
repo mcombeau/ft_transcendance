@@ -18,7 +18,7 @@
 
 - Bugs
 
-  - 404 if page not exist (not tostring business)
+  - **(Done?)** 404 if page not exist (not tostring business)
   - Error in back if token expired => handle it
 
 - Passwords
