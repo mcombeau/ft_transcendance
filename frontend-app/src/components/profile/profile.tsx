@@ -415,7 +415,6 @@ function editProfile(
 }
 
 function Profile() {
-	const [userExists, setUserExists] = useState(false);
 	var profileUserID: number = Number(useParams().id);
 	const [user, setUser] = useState<User>();
 	const [isMyPage, setIsMyPage] = useState(false);
@@ -442,10 +441,10 @@ function Profile() {
 			const data = await response.json();
 			if (!response.ok) {
 				console.log("error response fetching user");
-				return <h1>No such user</h1>;
+				navigate("/not-found");
+				return;
 			}
 
-			setUserExists(true);
 			setUser({
 				id: data.id,
 				username: data.username,
@@ -470,17 +469,15 @@ function Profile() {
 	}
 
 	useEffect(() => {
+		fetchUser();
 		if (authenticatedUserID === profileUserID) {
 			setIsMyPage(true);
 		}
-
-		fetchUser();
 	}, [cookies, socket, profileUserID]);
 
 	useEffect(() => {
 		checkIfIsMyFriend(user, authenticatedUserID, cookies, setIsMyFriend);
 		checkIfIsBlocked(user, authenticatedUserID, cookies, setIsBlocked);
-		console.log("USER", user);
 	}, [user]);
 
 	useEffect(() => {
@@ -534,7 +531,6 @@ function Profile() {
 				</header>
 				<div className="left-section">
 					<img src={profilePicture} className="photo"></img>
-					{!userExists ? "User is not logged in" : ""}
 					{titleProfile(isMyPage, user)}
 					{userDetails(user)}
 					{interactWithUser(

@@ -65,6 +65,7 @@ function App() {
 					<Route path="/user/:id" element={<Profile />} />
 					<Route path="/logout" element={<Logout />} />
 					<Route path="*" element={<NotFound />} />
+					<Route path="/not-found" element={<NotFound />} />
 				</Routes>
 			</AuthenticationContext.Provider>
 		</Router>
