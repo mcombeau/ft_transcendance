@@ -5,7 +5,6 @@ import {
 } from "../../contexts/WebsocketContext";
 import { useCookies } from "react-cookie";
 import { useNavigate, useParams } from "react-router-dom";
-import "./Chat.css";
 import Messages from "./Messages";
 import SettingsMenu from "./SettingsMenu";
 import SidePannel from "./SidePannel";

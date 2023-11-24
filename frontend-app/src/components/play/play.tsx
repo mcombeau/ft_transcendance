@@ -5,7 +5,6 @@ import { WebSocketContext } from "../../contexts/WebsocketContext";
 import { AuthenticationContext } from "../authenticationState";
 import LiveGames from "../live-games/LiveGames";
 import { GameInfo } from "../profile/friendsList";
-import "./styles.css";
 
 const UP = "ArrowUp";
 const DOWN = "ArrowDown";

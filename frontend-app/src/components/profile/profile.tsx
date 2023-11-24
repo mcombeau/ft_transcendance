@@ -9,7 +9,6 @@ import GameHistory from "./history";
 import ProfileSettings from "./profileSettings";
 import { AuthenticationContext } from "../authenticationState";
 import { typeInvite } from "../chat/types";
-import "./profile.css";
 import { Socket } from "socket.io-client";
 
 export enum UserStatus {

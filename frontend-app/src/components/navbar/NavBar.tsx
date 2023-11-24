@@ -1,47 +1,34 @@
 import { useContext } from "react";
 import { AuthenticationContext } from "../authenticationState";
 
-import {
-	NavbarContainer,
-	LeftContainer,
-	RightContainer,
-	NavbarInnerContainer,
-	NavbarLinkContainer,
-	NavbarLink,
-	Logo,
-} from "./NavBar.style";
 import LogoImg from "/app/src/inc/img/logo.svg";
 
 function Navbar() {
 	const { authenticatedUserID } = useContext(AuthenticationContext);
 
 	return (
-		<NavbarContainer>
-			<NavbarInnerContainer>
-				<LeftContainer>
-					<NavbarLinkContainer>
-						<NavbarLink to="/"> Home</NavbarLink>
-						<NavbarLink to="/leaderboard"> Leaderboard</NavbarLink>
+		<div>
+			<div>
+				<div>
+					<div>
+						<a href="/"> Home</a>
+						<a href="/leaderboard"> Leaderboard</a>
 						{authenticatedUserID && (
-							<NavbarLinkContainer>
-								<NavbarLink to="/chat"> Chat</NavbarLink>
-								<NavbarLink to="/play"> Play</NavbarLink>
-								<NavbarLink to={"/user/" + authenticatedUserID}>
-									Profile
-								</NavbarLink>
-								<NavbarLink to="/logout">Logout</NavbarLink>
-							</NavbarLinkContainer>
+							<div>
+								<a href="/chat"> Chat</a>
+								<a href="/play"> Play</a>
+								<a href={"/user/" + authenticatedUserID}>Profile</a>
+								<a href="/logout">Logout</a>
+							</div>
 						)}
-						{!authenticatedUserID && (
-							<NavbarLink to="/login"> Login</NavbarLink>
-						)}
-					</NavbarLinkContainer>
-				</LeftContainer>
-				<RightContainer>
-					<Logo src={LogoImg}></Logo>
-				</RightContainer>
-			</NavbarInnerContainer>
-		</NavbarContainer>
+						{!authenticatedUserID && <a href="/login"> Login</a>}
+					</div>
+				</div>
+				<div>
+					<img src={LogoImg}></img>
+				</div>
+			</div>
+		</div>
 	);
 }
 

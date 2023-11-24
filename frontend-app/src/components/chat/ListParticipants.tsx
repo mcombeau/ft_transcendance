@@ -1,8 +1,8 @@
-import {ChatRoom, ReceivedInfo, Status, User} from "./types";
-import {NavigateFunction} from "react-router-dom";
-import {Socket} from "socket.io-client";
-import {ChangeStatus, isUserMuted} from "./Chat";
-import {checkStatus} from "./Chat";
+import { ChatRoom, ReceivedInfo, Status, User } from "./types";
+import { NavigateFunction } from "react-router-dom";
+import { Socket } from "socket.io-client";
+import { ChangeStatus, isUserMuted } from "./Chat";
+import { checkStatus } from "./Chat";
 
 export const ListParticipants = (
 	channel: ChatRoom,
@@ -15,13 +15,13 @@ export const ListParticipants = (
 		var name = participant.username;
 		var style = {};
 		if (participant.isOwner) {
-			style = {textDecoration: "underline"};
+			style = { textDecoration: "underline" };
 		} else if (participant.isOperator) {
 			name += " ★";
 		}
 		if (isUserMuted(participant)) {
 			name += " 🔇";
-			style = {fontStyle: "italic"};
+			style = { fontStyle: "italic" };
 		}
 		return (
 			<li
@@ -41,8 +41,8 @@ export const ListParticipants = (
 					<div>
 						{displayUser(participant)}
 						{checkStatus(channel, authenticatedUserID) !== Status.Normal &&
-							checkStatus(channel, participant.userID) !== Status.Owner &&
-							authenticatedUserID !== participant.userID ? (
+						checkStatus(channel, participant.userID) !== Status.Owner &&
+						authenticatedUserID !== participant.userID ? (
 							<div>
 								{isUserMuted(participant) ? (
 									<button
@@ -122,8 +122,8 @@ export const ListParticipants = (
 							<div></div>
 						)}
 						{checkStatus(channel, authenticatedUserID) === Status.Owner &&
-							checkStatus(channel, participant.userID) !== Status.Owner &&
-							authenticatedUserID !== participant.userID ? (
+						checkStatus(channel, participant.userID) !== Status.Owner &&
+						authenticatedUserID !== participant.userID ? (
 							<div>
 								<button
 									onClick={() => {

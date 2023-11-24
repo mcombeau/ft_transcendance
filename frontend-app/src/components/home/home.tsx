@@ -5,7 +5,7 @@ function Home() {
 				<div className="box-main">
 					<div className="firstHalf">
 						<h1 className="text-big">Let's Play PONG !</h1>
-						<p className="text-small">
+						<p className="bg-blue-100">
 							We made a great implementation of Pong you can play here !
 						</p>
 					</div>
