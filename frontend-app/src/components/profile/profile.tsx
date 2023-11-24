@@ -51,7 +51,7 @@ function titleProfile(isMyPage: boolean, user: User) {
 			break;
 	}
 	return (
-		<div className="flex items-center">
+		<div className="flex items-center mb-3">
 			<h2 className="w-full font-bold text-3xl ">{user.username}</h2>
 			<div className="flex items-center bg-sage rounded-lg p-1.5">
 				<span className={`rounded-full w-1 h-1 p-1.5 m-2 ${statusColor}`} />
@@ -64,10 +64,18 @@ function titleProfile(isMyPage: boolean, user: User) {
 function userDetails(user: User) {
 	if (user === undefined) return <div />;
 	return (
-		<p>
-			{user.login42 ? " aka " + user.login42 : ""}
-			<br /> Email is : {user.email}
-		</p>
+		<div>
+			<p>
+				{user.login42 ? (
+					<>
+						aka <i>{user.login42}</i>
+					</>
+				) : (
+					<></>
+				)}
+			</p>
+			<p>{user.email}</p>
+		</div>
 	);
 }
 
@@ -416,6 +424,7 @@ function editProfile(
 	if (isEditingProfile) return <div></div>;
 	return (
 		<button
+			className="absolute bottom-0 right-0"
 			onClick={() => {
 				setIsEditingProfile(true);
 			}}
@@ -555,7 +564,7 @@ function Profile() {
 						src={profilePicture}
 						className="rounded-full w-60 h-60 m-4"
 					></img>
-					<div>
+					<div className="relative">
 						{titleProfile(isMyPage, user)}
 						{userDetails(user)}
 						{interactWithUser(
