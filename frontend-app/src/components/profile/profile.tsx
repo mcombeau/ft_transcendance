@@ -10,6 +10,7 @@ import ProfileSettings from "./profileSettings";
 import { AuthenticationContext } from "../authenticationState";
 import { typeInvite } from "../chat/types";
 import { Socket } from "socket.io-client";
+import { LuGamepad } from "react-icons/lu";
 
 export enum UserStatus {
 	Offline = "offline",
@@ -257,25 +258,53 @@ function friendButton(
 	if (isMyFriend) {
 		return (
 			<button
+				className="button"
 				onClick={() => {
 					if (unfriend(user.id, authenticatedUserID, cookies)) {
 						setIsMyFriend(false);
 					}
 				}}
 			>
-				Unfriend
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+					strokeWidth={1.5}
+					stroke="currentColor"
+					className="button-icon"
+				>
+					<path
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						d="M22 10.5h-6m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z"
+					/>
+				</svg>
 			</button>
 		);
 	}
 	return (
 		<button
+			className="button"
 			onClick={() => {
 				if (befriend(user.id, authenticatedUserID, cookies)) {
 					setIsMyFriend(true);
 				}
 			}}
 		>
-			Add friend
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				fill="none"
+				viewBox="0 0 24 24"
+				strokeWidth={1.5}
+				stroke="currentColor"
+				className="button-icon"
+			>
+				<path
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z"
+				/>
+			</svg>
 		</button>
 	);
 }
@@ -290,23 +319,51 @@ function blockButton(
 	if (isBlocked) {
 		return (
 			<button
+				className="button"
 				onClick={() => {
 					if (unblockUser(user.id, authenticatedUserID, cookies))
 						setIsBlocked(false);
 				}}
 			>
-				Unblock
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+					strokeWidth={1.5}
+					stroke="currentColor"
+					className="button-icon"
+				>
+					<path
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+					/>
+				</svg>
 			</button>
 		);
 	}
 	return (
 		<button
+			className="button"
 			onClick={() => {
 				if (blockUser(user.id, authenticatedUserID, cookies))
 					setIsBlocked(true);
 			}}
 		>
-			Block
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				fill="none"
+				viewBox="0 0 24 24"
+				strokeWidth={1.5}
+				stroke="currentColor"
+				className="button-icon"
+			>
+				<path
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+				/>
+			</svg>
 		</button>
 	);
 }
@@ -352,9 +409,10 @@ function challengeButton(
 ) {
 	return (
 		<button
+			className="button"
 			onClick={() => challenge(user, authenticatedUserID, cookies, navigate)}
 		>
-			Challenge
+			<LuGamepad className="button-icon"></LuGamepad>
 		</button>
 	);
 }
@@ -371,8 +429,24 @@ function DM(user: User, cookies: any, navigate: any, socket: Socket) {
 
 function DMButton(user: User, cookies: any, navigate: any, socket: Socket) {
 	return (
-		<button onClick={() => DM(user, cookies, navigate, socket)}>
-			Send message
+		<button
+			className="button"
+			onClick={() => DM(user, cookies, navigate, socket)}
+		>
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				fill="none"
+				viewBox="0 0 24 24"
+				stroke-width="1.5"
+				stroke="currentColor"
+				className="button-icon"
+			>
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"
+				/>
+			</svg>
 		</button>
 	);
 }
@@ -393,7 +467,7 @@ function interactWithUser(
 	if (user === undefined) return <div />;
 	if (isMyPage) return <p></p>;
 	return (
-		<p>
+		<p className="absolute bottom-0 right-0">
 			{friendButton(
 				user,
 				authenticatedUserID,
@@ -424,7 +498,7 @@ function editProfile(
 	if (isEditingProfile) return <div></div>;
 	return (
 		<button
-			className="absolute bottom-0 right-0"
+			className="button absolute bottom-0 right-0"
 			onClick={() => {
 				setIsEditingProfile(true);
 			}}
@@ -435,7 +509,7 @@ function editProfile(
 				viewBox="0 0 24 24"
 				stroke-width="1.5"
 				stroke="currentColor"
-				className="w-10 h-10"
+				className="button-icon"
 			>
 				<path
 					stroke-linecap="round"

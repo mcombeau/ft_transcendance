@@ -22,3 +22,11 @@
 .title-element {
 	@apply font-bold text-lg mb-4;
 }
+
+.button {
+	@apply bg-darkblue text-sage hover:bg-teal p-1 m-2 rounded-md;
+}
+
+.button-icon {
+	@apply w-10 h-10;
+}
