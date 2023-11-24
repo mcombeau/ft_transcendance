@@ -14,3 +14,11 @@
 .navlink-extended {
 	@apply navlink border-b border-sage;
 }
+
+.background-element {
+	@apply bg-lightblue rounded-lg m-4 p-4 text-darkblue;
+}
+
+.title-element {
+	@apply font-bold text-lg mb-4;
+}

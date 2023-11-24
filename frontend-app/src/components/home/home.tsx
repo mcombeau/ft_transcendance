@@ -1,7 +1,7 @@
 function Home() {
 	return (
-		<div className="bg-lightblue rounded-lg m-4 p-4 text-darkblue">
-			<h1 className="font-bold text-lg mb-4">Let's Play PONG !</h1>
+		<div className="background-element">
+			<h1 className="title-element">Let's Play PONG !</h1>
 			<p className="">
 				Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
 				tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim

@@ -24,8 +24,8 @@ function LiveGames(
 	cookies: any
 ) {
 	return (
-		<div>
-			<h1>Games currently live !</h1>
+		<div className="background-element">
+			<h1 className="title-element">Games currently live !</h1>
 			{displayLiveGames(gameInfos)}
 		</div>
 	);

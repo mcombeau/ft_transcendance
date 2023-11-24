@@ -372,7 +372,14 @@ export const Play = () => {
 		case Page.Home:
 			return (
 				<div>
-					<button onClick={enterLobby}>Play</button>
+					<div className="grid place-content-center">
+						<button
+							className="p-4 m-6 px-20 bg-darkblue text-sage rounded-lg text-lg hover:bg-teal"
+							onClick={enterLobby}
+						>
+							Play
+						</button>
+					</div>
 					{LiveGames(
 						gameInfos,
 						setGameInfos,
