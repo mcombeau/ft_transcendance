@@ -108,7 +108,7 @@ function unfriendButton(
 				}
 			}}
 		>
-			{getButtonIcon(ButtonIconType.friend, "button-icon-sm")}
+			{getButtonIcon(ButtonIconType.unfriend, "button-icon-sm")}
 		</button>
 	);
 }
