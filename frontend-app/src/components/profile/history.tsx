@@ -67,11 +67,13 @@ function displayGame(game: Game, key: number, nbWins: number) {
 				{game.myScore} - {game.otherPlayerScore}
 			</span>{" "}
 			<span className="hidden font-light lg:block">{dateString}</span>
-			<span className="flex justify-between space-x-1 hidden sm:block ">
-				<span className="p-1">
-					{newLadderLevel ? <FaArrowUpShortWide /> : <></>}
+			<span className=" hidden sm:block ">
+				<span className="flex justify-between space-x-1">
+					<span className="p-1">
+						{newLadderLevel ? <FaArrowUpShortWide /> : <></>}
+					</span>
+					<span className="">{getLadderLevelDescription(nbWins)}</span>
 				</span>
-				<span className="">{getLadderLevelDescription(nbWins)}</span>
 			</span>
 		</p>
 	);
