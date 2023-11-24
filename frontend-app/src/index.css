@@ -28,11 +28,11 @@
 }
 
 .button-icon {
-	@apply w-10 h-10;
+	@apply w-6 h-6 md:w-10 md:h-10;
 }
 
 .button-icon-sm {
-	@apply w-6 h-6;
+	@apply w-4 h-4 md:w-6 md:h-6;
 }
 
 .button-sm {
