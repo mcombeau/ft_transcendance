@@ -1,90 +1,90 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { AuthenticationContext } from "../authenticationState";
-
-import LogoImg from "/app/src/inc/img/logo.svg";
+import { AiOutlineClose, AiOutlineMenu } from "react-icons/ai";
 
 function Navbar() {
 	const { authenticatedUserID } = useContext(AuthenticationContext);
 
+	const [nav, setNav] = useState(false);
+
+	const handleNav = () => {
+		setNav(!nav);
+	};
+
 	return (
-		<div className="flex justify-between items-center h-24 max-w-[1240px] mx-auto px-4 text-white bg-teal-600">
-			<div className="hidden md:flex font-mono text-lg">
-				<a className="p-4" href="/">
-					{" "}
-					Home
-				</a>
-				<a className="p-4" href="/leaderboard">
-					{" "}
-					Leaderboard
-				</a>
+		<div className="flex justify-between items-center h-24 px-4 text-sage bg-teal">
+			<h1 className={nav ? "w-full text-teal" : "w-full text-3xl font-bold"}>
+				ft_transcendance
+			</h1>
+			<ul className="hidden md:flex font-mono text-lg">
+				<li className="navlink">
+					<a href="/">Home</a>
+				</li>
+				<li className="navlink">
+					<a href="/leaderboard">Leaderboard</a>
+				</li>
 				{authenticatedUserID && (
 					<>
-						<a className="p-4" href="/chat">
-							{" "}
-							Chat
-						</a>
-						<a className="p-4" href="/play">
-							{" "}
-							Play
-						</a>
-						<a className="p-4" href={"/user/" + authenticatedUserID}>
-							Profile
-						</a>
-						<a className="p-4" href="/logout">
-							Logout
-						</a>
+						<li className="navlink">
+							<a href="/chat">Chat</a>
+						</li>
+						<li className="navlink">
+							<a href="/play"> Play</a>
+						</li>
+						<li className="navlink">
+							<a href={"/user/" + authenticatedUserID}>Profile</a>
+						</li>
+						<li className="navlink">
+							<a href="/logout">Logout</a>
+						</li>
 					</>
 				)}
-				{!authenticatedUserID && <a href="/login"> Login</a>}
+				{!authenticatedUserID && (
+					<li className="navlink">
+						<a href="/login">Login</a>
+					</li>
+				)}
+			</ul>
+			<div onClick={handleNav} className="block md:hidden">
+				{nav ? <AiOutlineClose size={20} /> : <AiOutlineMenu size={20} />}
 			</div>
-			<div>
-				<img src={LogoImg}></img>
-			</div>
+			<ul
+				className={
+					nav
+						? "fixed left-0 top-0 right-0 w-[60%] h-full bg-teal ease-in-out duration-500"
+						: "ease-in-out duration-500 fixed left-[-100%]"
+				}
+			>
+				<h1 className="w-full text-3xl font-bold m-4">ft_transcendance</h1>
+				<li className="navlink-extended">
+					<a href="/">Home</a>
+				</li>
+				<li className="navlink-extended">
+					<a href="/leaderboard">Leaderboard</a>
+				</li>
+				{authenticatedUserID && (
+					<>
+						<li className="navlink-extended">
+							<a href="/chat">Chat</a>
+						</li>
+						<li className="navlink-extended">
+							<a href="/play">Play</a>
+						</li>
+						<li className="navlink-extended">
+							<a href={"/user/" + authenticatedUserID}>Profile</a>
+						</li>
+						<li className="navlink-extended">
+							<a href="/logout">Logout</a>
+						</li>
+					</>
+				)}
+				{!authenticatedUserID && (
+					<li className="navlink-extended">
+						<a href="/login">Login</a>
+					</li>
+				)}
+			</ul>
 		</div>
 	);
 }
-
 export default Navbar;
-
-// import React, { useState } from "react";
-// import { AiOutlineClose, AiOutlineMenu } from "react-icons/ai";
-
-// const Navbar = () => {
-// 	const [nav, setNav] = useState(false);
-
-// 	const handleNav = () => {
-// 		setNav(!nav);
-// 	};
-
-// 	return (
-// 		<div className="flex justify-between items-center h-24 max-w-[1240px] mx-auto px-4 text-white">
-// 			<h1 className="w-full text-3xl font-bold text-[#00df9a]">REACT.</h1>
-// 			<ul className="hidden md:flex">
-// 				<li className="p-4">Home</li>
-// 				<li className="p-4">Company</li>
-// 				<li className="p-4">Resources</li>
-// 				<li className="p-4">About</li>
-// 				<li className="p-4">Contact</li>
-// 			</ul>
-// 			<div onClick={handleNav} className="block md:hidden">
-// 				{nav ? <AiOutlineClose size={20} /> : <AiOutlineMenu size={20} />}
-// 			</div>
-// 			<ul
-// 				className={
-// 					nav
-// 						? "fixed left-0 top-0 w-[60%] h-full border-r border-r-gray-900 bg-[#000300] ease-in-out duration-500"
-// 						: "ease-in-out duration-500 fixed left-[-100%]"
-// 				}
-// 			>
-// 				<h1 className="w-full text-3xl font-bold text-[#00df9a] m-4">REACT.</h1>
-// 				<li className="p-4 border-b border-gray-600">Home</li>
-// 				<li className="p-4 border-b border-gray-600">Company</li>
-// 				<li className="p-4 border-b border-gray-600">Resources</li>
-// 				<li className="p-4 border-b border-gray-600">About</li>
-// 				<li className="p-4">Contact</li>
-// 			</ul>
-// 		</div>
-// 	);
-// };
-
-// export default Navbar;

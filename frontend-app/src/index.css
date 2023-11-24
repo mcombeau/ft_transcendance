@@ -2,3 +2,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@layer base {
+	body {
+		@apply bg-sage;
+	}
+}
+
+.navlink {
+	@apply p-4;
+}
+.navlink-extended {
+	@apply navlink border-b border-sage;
+}
