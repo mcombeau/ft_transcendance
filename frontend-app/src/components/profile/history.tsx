@@ -66,8 +66,8 @@ function displayGame(game: Game, key: number, nbWins: number) {
 			<span className="font-bold">
 				{game.myScore} - {game.otherPlayerScore}
 			</span>{" "}
-			<span className="font-light">{dateString}</span>
-			<span className="flex justify-between space-x-1">
+			<span className="hidden font-light lg:block">{dateString}</span>
+			<span className="flex justify-between space-x-1 hidden sm:block ">
 				<span className="p-1">
 					{newLadderLevel ? <FaArrowUpShortWide /> : <></>}
 				</span>
