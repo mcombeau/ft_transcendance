@@ -116,10 +116,10 @@ function GameHistory(user: User, cookies: any) {
 
 	return (
 		<div>
-			<h3>History:</h3>
-			{displayGames(games)}
 			<h3>Stats:</h3>
 			{displayStats(games)}
+			<h3>History:</h3>
+			{displayGames(games)}
 		</div>
 	);
 }
