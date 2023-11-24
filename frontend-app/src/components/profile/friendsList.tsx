@@ -127,23 +127,30 @@ function displayFriend(
 	if (isMyPage) {
 		return (
 			<li key={key}>
-				<a href={"/user/" + friend.id}>
-					<img src={friend.avatar} width={30} height={30} /> {friend.username} (
-					{friend.status}{" "}
+				<a className="flex items-center" href={"/user/" + friend.id}>
+					<img className="rounded-full h-8 w-8 m-2" src={friend.avatar} />
+					{friend.username} ({friend.status}{" "}
 					{friendGame ? <div> - {linkToGame(friendGame)}</div> : ""})
 				</a>
 				{blockButton(myID, friend.id, cookies, setFriends)}
 				{unfriendButton(myID, friend.id, cookies, setFriends)}
+				<button>Challenge</button>
 			</li>
 		);
 	}
 	// TODO: maybe add an add friend/unfriend button
 	return (
 		<li key={key}>
-			<a href={"/user/" + friend.id}>
-				<img src={friend.avatar} width={30} height={30} /> {friend.username} (
-				{friend.status}{" "}
+			<a className="flex items-center" href={"/user/" + friend.id}>
+				<img
+					className="rounded-full h-8 w-8 m-2"
+					src={friend.avatar}
+					width={30}
+					height={30}
+				/>
+				{friend.username} ({friend.status}{" "}
 				{friendGame ? <div> - {linkToGame(friendGame)}</div> : ""})
+				<button>Friend</button>
 			</a>
 		</li>
 	);
@@ -293,8 +300,8 @@ function FriendsList(
 	}
 
 	return (
-		<div>
-			<h3>Friends list:</h3>
+		<div className="background-element flex-1">
+			<h3 className="title-element">Friends list:</h3>
 			{displayFriends(
 				friends,
 				isMyPage,

@@ -63,6 +63,7 @@ function titleProfile(isMyPage: boolean, user: User) {
 }
 
 function userDetails(user: User) {
+	// TODO : add ladder level
 	if (user === undefined) return <div />;
 	return (
 		<div>
@@ -631,8 +632,8 @@ function Profile() {
 	}, []);
 
 	return (
-		<div id="profile" className="grid grid-cols-2 gap-4">
-			<div>
+		<div id="profile" className="grid grid-cols-2 ">
+			<div className="flex flex-col">
 				<div className="background-element grid grid-cols-2">
 					<img
 						src={profilePicture}
