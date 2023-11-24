@@ -35,21 +35,27 @@ function getColorLadderLevel(level: LadderLevels) {
 	}
 }
 
-function displayGame(game: Game, key: number, nbWins: number) {
+function displayGame(
+	game: Game,
+	key: number,
+	nbWins: number,
+	showMore: boolean
+) {
 	const splitDate = game.date.toString().split("T");
 	const dateString = splitDate[0] + " " + splitDate[1].split(".")[0];
 	let newLadderLevel: string;
 	if (getLadderLevel(nbWins - 1) !== getLadderLevel(nbWins) && game.didIWin) {
 		newLadderLevel = getLadderLevelDescription(nbWins);
 	}
-	const ladder = <span>{newLadderLevel ? " - " + newLadderLevel : ""}</span>;
 	const border_color = newLadderLevel
 		? getColorLadderLevel(getLadderLevel(nbWins))
 		: "border-sage";
 
 	return (
 		<p
-			className={`group bg-sage border-4 ${border_color} m-2 p-2 rounded-md flex justify-between`}
+			className={`group bg-sage border-4 ${border_color} m-2 p-2 rounded-md flex justify-between ${
+				key < 10 || showMore ? "" : "hidden"
+			}`}
 			key={key}
 		>
 			<span className="">
@@ -79,7 +85,7 @@ function displayGame(game: Game, key: number, nbWins: number) {
 	);
 }
 
-function displayGames(games: Game[]) {
+function displayGames(games: Game[], showMore: boolean) {
 	if (games === undefined) return <div></div>;
 	return games
 		.sort(
@@ -89,7 +95,7 @@ function displayGames(games: Game[]) {
 		.map(
 			function (game: Game, key: number) {
 				if (game.didIWin) this.nbWins++;
-				return displayGame(game, key, this.nbWins);
+				return displayGame(game, games.length - key, this.nbWins, showMore);
 			},
 			{ nbWins: 0 }
 		)
@@ -130,6 +136,7 @@ function displayStats(games: Game[]) {
 
 function GameHistory(user: User, cookies: any) {
 	const [games, setGames] = useState<Game[]>();
+	const [showMore, setShowMore] = useState<boolean>(false);
 
 	async function fetchGames(userID: number, cookies: any) {
 		var request = {
@@ -180,9 +187,19 @@ function GameHistory(user: User, cookies: any) {
 				<h3 className="title-element">Stats:</h3>
 				{displayStats(games)}
 			</div>
-			<div className="background-element">
+			<div className="background-element ">
 				<h3 className="title-element">History:</h3>
-				{displayGames(games)}
+				{displayGames(games, showMore)}
+				<span className="w-full flex justify-center">
+					<button
+						className="button"
+						onClick={() => {
+							setShowMore((prev: boolean) => !prev);
+						}}
+					>
+						{showMore ? "Show Less" : "Show More"}
+					</button>
+				</span>
 			</div>
 		</>
 	);
