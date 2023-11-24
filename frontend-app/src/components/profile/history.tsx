@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { getLadderLevel, getLadderLevelDescription } from "./ladder";
+import { FaArrowUpShortWide } from "react-icons/fa6";
+import {
+	getLadderLevel,
+	getLadderLevelDescription,
+	LadderLevels,
+} from "./ladder";
 import { User } from "./profile";
 
 export type Game = {
@@ -11,6 +16,25 @@ export type Game = {
 	otherPlayerScore: number;
 };
 
+function getColorLadderLevel(level: LadderLevels) {
+	switch (level) {
+		case LadderLevels.Platinum:
+			return "border-platinum";
+		case LadderLevels.Diamond:
+			return "border-diamond";
+		case LadderLevels.Gold:
+			return "border-gold";
+		case LadderLevels.Silver:
+			return "border-silver";
+		case LadderLevels.Copper:
+			return "border-copper";
+		case LadderLevels.Wood:
+			return "border-wood";
+		default:
+			return "border-sage";
+	}
+}
+
 function displayGame(game: Game, key: number, nbWins: number) {
 	const splitDate = game.date.toString().split("T");
 	const dateString = splitDate[0] + " " + splitDate[1].split(".")[0];
@@ -18,10 +42,17 @@ function displayGame(game: Game, key: number, nbWins: number) {
 	if (getLadderLevel(nbWins - 1) !== getLadderLevel(nbWins) && game.didIWin) {
 		newLadderLevel = getLadderLevelDescription(nbWins);
 	}
+	const ladder = <span>{newLadderLevel ? " - " + newLadderLevel : ""}</span>;
+	const border_color = newLadderLevel
+		? getColorLadderLevel(getLadderLevel(nbWins))
+		: "border-sage";
 
 	return (
-		<p className="bg-sage m-2 p-2 rounded-md flex justify-between" key={key}>
-			<span>
+		<p
+			className={`group bg-sage border-4 ${border_color} m-2 p-2 rounded-md flex justify-between`}
+			key={key}
+		>
+			<span className="">
 				<span className="uppercase font-bold ">
 					{game.didIWin ? "Victory" : "Defeat"}{" "}
 				</span>
@@ -35,8 +66,13 @@ function displayGame(game: Game, key: number, nbWins: number) {
 			<span className="font-bold">
 				{game.myScore} - {game.otherPlayerScore}
 			</span>{" "}
-			<span className="font-light">{dateString}</span>{" "}
-			<span>{newLadderLevel ? " - " + newLadderLevel : ""}</span>
+			<span className="font-light">{dateString}</span>
+			<span className="flex justify-between space-x-1">
+				<span className="p-1">
+					{newLadderLevel ? <FaArrowUpShortWide /> : <></>}
+				</span>
+				<span className="">{getLadderLevelDescription(nbWins)}</span>
+			</span>
 		</p>
 	);
 }
@@ -61,8 +97,8 @@ function displayGames(games: Game[]) {
 function displayStat(title: string, value: any) {
 	return (
 		<div className="flex justify-between border-b border-sage py-2">
-			<div className="font-bold">{title}</div>
-			<div className="">{value}</div>
+			<div className="">{title}</div>
+			<div className="font-bold">{value}</div>
 		</div>
 	);
 }
