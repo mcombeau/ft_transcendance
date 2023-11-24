@@ -20,7 +20,7 @@
 }
 
 .title-element {
-	@apply font-bold text-lg mb-4;
+	@apply font-bold text-lg my-4;
 }
 
 .button {
@@ -29,4 +29,13 @@
 
 .button-icon {
 	@apply w-10 h-10;
+}
+
+.button-icon-sm {
+	@apply w-6 h-6;
+}
+
+.button-sm {
+	@apply button;
+	@apply bg-sage text-darkblue hover:bg-darkblue hover:text-sage;
 }

@@ -1,5 +1,6 @@
 import {
 	Dispatch,
+	ReactElement,
 	SetStateAction,
 	useContext,
 	useEffect,
@@ -7,7 +8,14 @@ import {
 } from "react";
 import { WebSocketContext } from "../../contexts/WebsocketContext";
 import { AuthenticationContext } from "../authenticationState";
-import { blockUser, unblockUser, unfriend, User } from "./profile";
+import { ButtonIconType, getButtonIcon } from "./icons";
+import {
+	blockUser,
+	getUserStatusColor,
+	unblockUser,
+	unfriend,
+	User,
+} from "./profile";
 import { Friend } from "./profile";
 
 export type PlayerInfo = {
@@ -53,13 +61,14 @@ function blockButton(
 ) {
 	return (
 		<button
+			className="button-sm"
 			onClick={() => {
 				if (blockUser(targetID, myID, cookies)) {
 					removeFriendFromList(targetID, setFriends);
 				}
 			}}
 		>
-			Block
+			{getButtonIcon(ButtonIconType.block, "button-icon-sm")}
 		</button>
 	);
 }
@@ -72,13 +81,14 @@ function unblockButton(
 ) {
 	return (
 		<button
+			className="button-sm"
 			onClick={() => {
 				if (unblockUser(targetID, myID, cookies)) {
 					removeFriendFromList(targetID, setFriends);
 				}
 			}}
 		>
-			Unblock
+			{getButtonIcon(ButtonIconType.unblock, "button-icon-sm")}
 		</button>
 	);
 }
@@ -91,13 +101,14 @@ function unfriendButton(
 ) {
 	return (
 		<button
+			className="button-sm"
 			onClick={() => {
 				if (unfriend(targetID, myID, cookies)) {
 					removeFriendFromList(targetID, setFriends);
 				}
 			}}
 		>
-			Unfriend
+			{getButtonIcon(ButtonIconType.friend, "button-icon-sm")}
 		</button>
 	);
 }
@@ -114,44 +125,61 @@ function displayFriend(
 ) {
 	if (blocked) {
 		return (
-			<li key={key}>
-				<a href={"/user/" + friend.id}>
-					{friend.username} ({friend.status})
+			<li
+				className="grid grid-cols-2 border border-sage rounded-md my-2"
+				key={key}
+			>
+				<a className="flex items-center" href={"/user/" + friend.id}>
+					<span
+						className={`absolute bottom-0 right-0 rounded-full w-1 h-1 p-1.5 m-2 ${getUserStatusColor(
+							friend.status
+						)}`}
+					/>
+					<p className="font-bold m-2">{friend.username}</p>
 				</a>
-				{unblockButton(myID, friend.id, cookies, setFriends)}
+				<div className="justify-self-end">
+					{unblockButton(myID, friend.id, cookies, setFriends)}
+				</div>
 			</li>
 		);
 	}
 	const friendGame = getFriendGame(friend, gameInfos);
-	// TODO: add a challenge button
+
+	let showButtons: ReactElement;
 	if (isMyPage) {
-		return (
-			<li key={key}>
-				<a className="flex items-center" href={"/user/" + friend.id}>
-					<img className="rounded-full h-8 w-8 m-2" src={friend.avatar} />
-					{friend.username} ({friend.status}{" "}
-					{friendGame ? <div> - {linkToGame(friendGame)}</div> : ""})
-				</a>
+		showButtons = (
+			<div className="justify-self-end">
 				{blockButton(myID, friend.id, cookies, setFriends)}
 				{unfriendButton(myID, friend.id, cookies, setFriends)}
-				<button>Challenge</button>
-			</li>
+				<button className="button-sm">
+					{getButtonIcon(ButtonIconType.challenge, "button-icon-sm")}
+				</button>
+			</div>
 		);
+	} else {
+		showButtons = <div></div>;
 	}
+
+	// TODO: add a challenge button
 	// TODO: maybe add an add friend/unfriend button
 	return (
-		<li key={key}>
+		<li
+			className="grid grid-cols-2 border border-sage rounded-md my-2"
+			key={key}
+		>
 			<a className="flex items-center" href={"/user/" + friend.id}>
-				<img
-					className="rounded-full h-8 w-8 m-2"
-					src={friend.avatar}
-					width={30}
-					height={30}
-				/>
-				{friend.username} ({friend.status}{" "}
-				{friendGame ? <div> - {linkToGame(friendGame)}</div> : ""})
-				<button>Friend</button>
+				<div className="relative px-1">
+					<img className="rounded-full h-8 w-8 m-2" src={friend.avatar} />
+					<span
+						className={`absolute bottom-0 right-0 rounded-full w-1 h-1 p-1.5 m-2 ${getUserStatusColor(
+							friend.status
+						)}`}
+					/>
+				</div>
+				<p className="font-bold m-2">{friend.username}</p>
+				{friendGame ? <div> - {linkToGame(friendGame)}</div> : ""}
 			</a>
+			{showButtons}
 		</li>
 	);
 }
@@ -301,18 +329,20 @@ function FriendsList(
 
 	return (
 		<div className="background-element flex-1">
-			<h3 className="title-element">Friends list:</h3>
-			{displayFriends(
-				friends,
-				isMyPage,
-				authenticatedUserID,
-				cookies,
-				setFriends,
-				gameInfos
-			)}
+			<div className="my-2">
+				<h3 className="title-element">Friends list:</h3>
+				{displayFriends(
+					friends,
+					isMyPage,
+					authenticatedUserID,
+					cookies,
+					setFriends,
+					gameInfos
+				)}
+			</div>
 			{isMyPage ? (
-				<div>
-					<h3>Blocked Users</h3>
+				<div className="border-t">
+					<h3 className="title-element">Blocked Users:</h3>
 					{displayFriends(
 						blockedUsers,
 						isMyPage,
