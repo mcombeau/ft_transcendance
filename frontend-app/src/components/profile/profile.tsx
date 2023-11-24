@@ -588,7 +588,7 @@ function Profile() {
 				</div>
 				{FriendsList(isMyPage, user, cookies, friends, setFriends)}
 			</div>
-			<div className="background-element">{GameHistory(user, cookies)}</div>
+			<div className="">{GameHistory(user, cookies)}</div>
 		</div>
 	);
 }

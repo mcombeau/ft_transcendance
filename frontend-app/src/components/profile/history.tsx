@@ -46,6 +46,15 @@ function displayGames(games: Game[]) {
 		.reverse();
 }
 
+function displayStat(title: string, value: any) {
+	return (
+		<div className="flex justify-between border-b border-sage py-2">
+			<div className="font-bold">{title}</div>
+			<div className="">{value}</div>
+		</div>
+	);
+}
+
 function displayStats(games: Game[]) {
 	if (games === undefined) return <div></div>;
 	const nbWins = games.filter((game: Game) => game.didIWin === true).length;
@@ -55,16 +64,17 @@ function displayStats(games: Game[]) {
 		games.map((game: Game) => game.myScore).reduce((p, c) => p + c, 0) /
 		games.length;
 	return (
-		<div>
-			<p>Ladder Level : {getLadderLevelDescription(nbWins)}</p>
-			<p>Played games : {games.length}</p>
-			<p>Won games : {nbWins}</p>
-			<p>Lost games : {nbLose}</p>
-			<p>Win Rate : {isNaN(winrate) ? "-" : winrate.toFixed(2)}</p>
-			<p>
-				Average Score : {isNaN(averageScore) ? "-" : averageScore.toFixed(2)}
-			</p>
-		</div>
+		<table className="w-full">
+			{displayStat("Ladder Level", getLadderLevelDescription(nbWins))}
+			{displayStat("Played games", games.length)}
+			{displayStat("Won games", nbWins)}
+			{displayStat("Lost games", nbLose)}
+			{displayStat("Win Rate", isNaN(winrate) ? "-" : winrate.toFixed(2))}
+			{displayStat(
+				"Average Score",
+				isNaN(averageScore) ? "-" : averageScore.toFixed(2)
+			)}
+		</table>
 	);
 }
 
@@ -115,12 +125,16 @@ function GameHistory(user: User, cookies: any) {
 	}
 
 	return (
-		<div>
-			<h3>Stats:</h3>
-			{displayStats(games)}
-			<h3>History:</h3>
-			{displayGames(games)}
-		</div>
+		<>
+			<div className="background-element">
+				<h3 className="title-element">Stats:</h3>
+				{displayStats(games)}
+			</div>
+			<div className="background-element">
+				<h3 className="title-element">History:</h3>
+				{displayGames(games)}
+			</div>
+		</>
 	);
 }
 

@@ -20,7 +20,7 @@
 }
 
 .title-element {
-	@apply font-bold text-lg my-4;
+	@apply font-bold text-lg m-2 mb-4;
 }
 
 .button {
