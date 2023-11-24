@@ -20,11 +20,23 @@ function displayGame(game: Game, key: number, nbWins: number) {
 	}
 
 	return (
-		<p key={key}>
-			{game.didIWin ? "Won" : "Lost"} game against{" "}
-			<a href={"/user/" + game.otherPlayerID}>{game.otherPlayerName}</a> :{" "}
-			{game.myScore} - {game.otherPlayerScore} ({dateString}){" "}
-			{newLadderLevel ? " - " + newLadderLevel : ""}
+		<p className="bg-sage m-2 p-2 rounded-md flex justify-between" key={key}>
+			<span>
+				<span className="uppercase font-bold ">
+					{game.didIWin ? "Victory" : "Defeat"}{" "}
+				</span>
+				<span className="">
+					vs{" "}
+					<a className="hover:underline" href={"/user/" + game.otherPlayerID}>
+						{game.otherPlayerName}
+					</a>
+				</span>{" "}
+			</span>
+			<span className="font-bold">
+				{game.myScore} - {game.otherPlayerScore}
+			</span>{" "}
+			<span className="font-light">{dateString}</span>{" "}
+			<span>{newLadderLevel ? " - " + newLadderLevel : ""}</span>
 		</p>
 	);
 }
