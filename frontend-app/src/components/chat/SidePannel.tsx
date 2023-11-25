@@ -146,7 +146,7 @@ export const SidePannel = (
 		);
 	};
 	return (
-		<div className="sidebar">
+		<div className="sidepannel">
 			<form className="newchan" onSubmit={createChannel}>
 				<input
 					type="text"

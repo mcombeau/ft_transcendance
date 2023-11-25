@@ -39,3 +39,23 @@
 	@apply button;
 	@apply bg-sage text-darkblue hover:bg-darkblue hover:text-sage;
 }
+
+.app {
+	@apply h-screen w-screen flex flex-col;
+}
+
+.navbar {
+	@apply flex justify-between items-center h-24 px-4 text-sage bg-teal w-full;
+}
+
+.chat {
+	@apply bg-sage flex flex-row justify-between flex-1;
+}
+
+.sidepannel {
+	@apply bg-darkblue flex flex-col w-2/5 overflow-y-auto;
+}
+
+.messages {
+	@apply bg-lightblue w-full flex flex-col justify-between;
+}

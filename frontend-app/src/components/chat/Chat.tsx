@@ -879,7 +879,7 @@ export const Chat = () => {
 
 	return (
 		<WebSocketProvider value={socket}>
-			<div className="chat-container">
+			<div className="chat">
 				{SidePannel(
 					newchannel,
 					setNewchannel,
@@ -897,7 +897,7 @@ export const Chat = () => {
 					cookies,
 					authenticatedUserID
 				)}
-				<div className="chat">
+				<div className="messages">
 					{SettingsMenu(
 						settings,
 						setSettings,

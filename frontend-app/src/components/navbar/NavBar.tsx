@@ -12,7 +12,7 @@ function Navbar() {
 	};
 
 	return (
-		<div className="flex justify-between items-center h-24 px-4 text-sage bg-teal">
+		<div className="navbar">
 			<h1 className={nav ? "w-full text-teal" : "w-full text-3xl font-bold"}>
 				ft_transcendance
 			</h1>
