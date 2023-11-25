@@ -42,7 +42,7 @@ function titleProfile(isMyPage: boolean, user: User) {
 			<h2 className="w-full font-bold text-3xl ">{user.username}</h2>
 			<div className="flex items-center bg-sage rounded-lg p-1.5">
 				<span className={`rounded-full w-1 h-1 p-1.5 m-2 ${statusColor}`} />
-				<p className="px-2 hidden md:block"> {user.status}</p>
+				<p className="px-2 hidden lg:block"> {user.status}</p>
 			</div>
 		</div>
 	);
@@ -553,12 +553,12 @@ function Profile() {
 	}, []);
 
 	return (
-		<div id="profile" className="grid grid-cols-2 ">
+		<div id="profile" className="grid grid-cols-2">
 			<div className="flex flex-col">
 				<div className="background-element grid grid-cols-2">
 					<img
 						src={profilePicture}
-						className="w-20 h-20 rounded-full md:w-60 md:h-60 m-4"
+						className="w-20 h-20 rounded-full lg:w-60 lg:h-60 m-4"
 					></img>
 					<div className="relative">
 						{titleProfile(isMyPage, user)}
