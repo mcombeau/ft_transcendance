@@ -55,6 +55,7 @@ export const SidePannel = (
 		let settingButton: ReactElement;
 
 		let select = (type: ChanType) => {
+			setContextMenu(false);
 			setSettings(!settings);
 			setCurrentChatRoomID(null);
 			setPublicChatsPannel(false);
@@ -94,7 +95,15 @@ export const SidePannel = (
 					<>{channel.name}</>
 				);
 				settingButton = (
-					<button onClick={() => {}}>
+					<button
+						onClick={() => {
+							setSettings(!settings);
+							setCurrentChatRoomID(channel.chatRoomID);
+							setInvitesPannel(false);
+							setContextMenu(false);
+							setPublicChatsPannel(false);
+						}}
+					>
 						{getButtonIcon(ButtonIconType.settings)}
 					</button>
 				);
