@@ -880,7 +880,7 @@ export const Chat = () => {
 	return (
 		<WebSocketProvider value={socket}>
 			<div className="chat bg-sage ">
-				<div className="sidepannel rounded bg-lightblue m-4">
+				<div className="sidepannel rounded bg-lightblue m-4 relative">
 					{SidePannel(
 						newchannel,
 						setNewchannel,

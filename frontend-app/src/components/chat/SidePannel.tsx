@@ -96,7 +96,7 @@ export const SidePannel = (
 				);
 				settingButton = (
 					<button
-						className="button"
+						className="button w-6 h-6"
 						onClick={() => {
 							setSettings(!settings);
 							setCurrentChatRoomID(channel.chatRoomID);
@@ -105,7 +105,7 @@ export const SidePannel = (
 							setPublicChatsPannel(false);
 						}}
 					>
-						{getButtonIcon(ButtonIconType.settings)}
+						{getButtonIcon(ButtonIconType.settings, "h-4 w-4")}
 					</button>
 				);
 				select = () => {
@@ -120,11 +120,11 @@ export const SidePannel = (
 		return (
 			<div
 				onClick={() => select(type)}
-				className={`text-darkblue rounded-md p-2 m-2 flex relative ${
-					isCurrent ? "bg-lightblue border-2 border-darkblue" : "bg-sage"
+				className={`text-darkblue rounded-md p-2 m-2 flex ${
+					isCurrent ? "bg-sage border-2 border-darkblue" : "bg-sage"
 				}`}
 			>
-				{channel_alias}
+				<div className="flex-1 flex">{channel_alias}</div>
 				{settingButton}
 			</div>
 		);
@@ -132,20 +132,24 @@ export const SidePannel = (
 
 	return (
 		<>
-			<form className="" onSubmit={createChannel}>
+			<form className="flex m-2 space-x-2" onSubmit={createChannel}>
 				<input
+					className="rounded-md flex-1 bg-sage"
 					type="text"
 					value={newchannel}
 					onChange={(e) => {
 						setNewchannel(e.target.value);
 					}}
 				/>
-				<button>+</button>
+				<button className="bg-darkblue text-sage hover:bg-teal p-2 px-4 rounded-md">
+					+
+				</button>
 			</form>
+			<hr className="bg-lightblue h-1 border-0 mx-2"></hr>
 			<div id="flex flex-col">
 				{channelInfo(ChanType.Invites)}
 				{channelInfo(ChanType.PublicChans)}
-				<hr className="bg-darkblue h-1 border-0 mx-2"></hr>
+				<hr className="bg-lightblue h-1 border-0 mx-2"></hr>
 				{myChats
 					.sort((a, b) => a.name.localeCompare(b.name))
 					.map((channel: ChatRoom, key: number) =>
