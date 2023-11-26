@@ -86,6 +86,11 @@ export const Messages = (
 		}
 	}
 
+	function getFormattedTime(inputTime: Date) {
+		const time: Date = new Date(inputTime);
+		return time.getHours() + ":" + time.getMinutes();
+	}
+
 	const messageStatus = (msg: Message, key: number, messages: Message[]) => {
 		if (msg.system) {
 			return (
@@ -117,7 +122,7 @@ export const Messages = (
 				>
 					<div
 						key={key}
-						className={`rounded-md text-sage max-w-xl flex flex-col m-2 p-2 ${
+						className={`peer rounded-md text-sage max-w-xl flex flex-col m-2 p-2 ${
 							selfSent ? "bg-teal" : "bg-darkblue "
 						}`}
 					>
@@ -143,9 +148,9 @@ export const Messages = (
 							{msg.senderUsername}
 						</a>
 						<div className="flex-1 break-words">{msg.msg}</div>
-						<div className="hidden">
-							{msg.datestamp.toString().split("G")[0]}
-						</div>
+					</div>
+					<div className="hidden peer-hover:block text-xs text-darkblue">
+						{getFormattedTime(msg.datestamp)}
 					</div>
 				</div>
 			</>
