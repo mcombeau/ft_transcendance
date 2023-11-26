@@ -97,7 +97,11 @@ export const SidePannel = (
 				);
 				settingButton = (
 					<button
-						className="button w-6 h-6"
+						className={`border-2 border-darkblue text-sage m-2 rounded-md w-5 h-5 items-center ${
+							settings && isCurrent
+								? "bg-teal hover:bg-darkblue"
+								: "bg-darkblue hover:bg-teal"
+						}`}
 						onClick={() => {
 							setSettings(!settings);
 							setCurrentChatRoomID(channel.chatRoomID);
