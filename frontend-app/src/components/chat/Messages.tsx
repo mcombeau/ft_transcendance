@@ -36,45 +36,42 @@ export const Messages = (
 				</div>
 			);
 		}
-		if (msg.senderID === authenticatedUserID) {
-			return (
-				<div id="rightmessage" key={key}>
-					<span
-						id="sender"
+		const selfSent: boolean = authenticatedUserID === msg.senderID;
+		return (
+			<div
+				className={`w-full flex ${selfSent ? "justify-start" : "justify-end"}`}
+			>
+				<img></img>
+				<div
+					key={key}
+					className={`rounded-md text-sage max-w-xl flex flex-col m-2 p-2 ${
+						selfSent ? "bg-teal" : "bg-darkblue items-end"
+					}`}
+				>
+					<a
+						className={`text-sm italic hover:text-lightblue hover:underline ${
+							selfSent ? "hidden" : ""
+						}`}
 						onClick={() => {
 							navigate("/user/" + msg.senderID); // TODO: create front profile page and go there
 						}}
+						onContextMenu={(e) => {
+							e.preventDefault();
+							if (currentChatRoom.name !== "" && settings === false) {
+								setContextMenu(true);
+								setContextMenuPos({ x: e.pageX, y: e.pageY });
+								setContextMenuTarget({
+									id: msg.senderID,
+									username: msg.senderUsername,
+								});
+							}
+						}}
 					>
 						{msg.senderUsername}
-					</span>
-					<span id="date">{msg.datestamp.toString().split("G")[0]}</span>
-					<li id="mine">{msg.msg}</li>
+					</a>
+					<div className="flex-1">{msg.msg}</div>
+					<div className="hidden">{msg.datestamp.toString().split("G")[0]}</div>
 				</div>
-			);
-		}
-		return (
-			<div id="leftmessage" key={key}>
-				<span
-					id="sender"
-					onClick={() => {
-						navigate("/user/" + msg.senderID); // TODO: create front profile page and go there
-					}}
-					onContextMenu={(e) => {
-						e.preventDefault();
-						if (currentChatRoom.name !== "" && settings === false) {
-							setContextMenu(true);
-							setContextMenuPos({ x: e.pageX, y: e.pageY });
-							setContextMenuTarget({
-								id: msg.senderID,
-								username: msg.senderUsername,
-							});
-						}
-					}}
-				>
-					{msg.senderUsername}
-				</span>
-				<span id="date">{msg.datestamp.toString().split("G")[0]}</span>
-				<li id="othermsg">{msg.msg}</li>
 			</div>
 		);
 	};
@@ -237,7 +234,7 @@ export const Messages = (
 	}
 
 	return (
-		<div className="absolute top-0 left-0 right-0 bottom-14 overflow-y-scroll">
+		<div className="absolute top-0 left-0 right-0 bottom-14 overflow-y-scroll flex flex-col">
 			{displayMessages(currentChatRoom)}
 			{displayPublicChats()}
 			{ContextMenuEl(
