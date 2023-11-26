@@ -237,7 +237,7 @@ export const Messages = (
 	}
 
 	return (
-		<div id="messages">
+		<div>
 			{displayMessages(currentChatRoom)}
 			{displayPublicChats()}
 			{ContextMenuEl(

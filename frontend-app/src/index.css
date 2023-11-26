@@ -51,19 +51,3 @@
 .content {
 	@apply absolute top-24 bottom-0 left-0 right-0 overflow-y-scroll;
 }
-
-.chat {
-	@apply absolute top-0  bottom-0 left-0 right-0 grid grid-cols-4;
-}
-
-.sidepannel {
-	@apply overflow-y-scroll col-span-1;
-}
-
-.messages {
-	@apply col-span-3 overflow-y-scroll;
-}
-
-.channel {
-	@apply bg-teal rounded-md m-2 text-darkblue p-2;
-}
