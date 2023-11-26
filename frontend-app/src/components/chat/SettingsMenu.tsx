@@ -1,9 +1,10 @@
-import {Status, ChatRoom, ReceivedInfo} from "./types";
-import {checkStatus} from "./Chat";
-import {Socket} from "socket.io-client";
-import {Dispatch, SetStateAction, useState} from "react";
-import {ListParticipants} from "./ListParticipants";
-import {NavigateFunction} from "react-router-dom";
+import { Status, ChatRoom, ReceivedInfo } from "./types";
+import { checkStatus } from "./Chat";
+import { Socket } from "socket.io-client";
+import { Dispatch, SetStateAction, useState } from "react";
+import { ListParticipants } from "./ListParticipants";
+import { NavigateFunction } from "react-router-dom";
+import { CgClose, CgCloseO } from "react-icons/cg";
 
 export const SettingsMenu = (
 	settings: boolean,
@@ -121,9 +122,10 @@ export const SettingsMenu = (
 			);
 		}
 		return (
-			<div className="settings">
+			<div className="relative m-4 text-darkblue">
 				<h3>
-					Settings for {currentChatRoom.name} (
+					<span className="font-bold text-xl">Settings</span> for{" "}
+					{currentChatRoom.name} (
 					{currentChatRoom.isPrivate ? "private" : "public"})
 				</h3>
 				{leave_button} <br></br>
@@ -142,12 +144,12 @@ export const SettingsMenu = (
 					authenticatedUserID
 				)}
 				<button
-					className="closesettings"
+					className="absolute top-0 right-0"
 					onClick={() => {
 						setSettings(false);
 					}}
 				>
-					✕
+					<CgCloseO />
 				</button>
 			</div>
 		);

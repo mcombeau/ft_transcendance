@@ -899,7 +899,9 @@ export const Chat = () => {
 						authenticatedUserID
 					)}
 				</div>
-				<div className="col-span-3 justify-between bg-lightblue rounded m-4 relative">
+				<div
+					className={`col-span-3 justify-between bg-lightblue rounded m-4 relative`}
+				>
 					{SettingsMenu(
 						settings,
 						setSettings,
@@ -910,29 +912,31 @@ export const Chat = () => {
 						cookies,
 						authenticatedUserID
 					)}
-					{Messages(
-						getChannel(currentChatRoomID),
-						navigate,
-						settings,
-						contextMenu,
-						setContextMenu,
-						socket,
-						invitesPannel,
-						invites,
-						publicChats,
-						publicChatsPannel,
-						cookies,
-						myChats,
-						authenticatedUserID,
-						blockedUsers,
-						setBlockedUsers
-					)}
-					{SendForm(
-						getChannel(currentChatRoomID),
-						cookies,
-						socket,
-						authenticatedUserID
-					)}
+					<div className={`${settings ? "hidden" : ""} `}>
+						{Messages(
+							getChannel(currentChatRoomID),
+							navigate,
+							settings,
+							contextMenu,
+							setContextMenu,
+							socket,
+							invitesPannel,
+							invites,
+							publicChats,
+							publicChatsPannel,
+							cookies,
+							myChats,
+							authenticatedUserID,
+							blockedUsers,
+							setBlockedUsers
+						)}
+						{SendForm(
+							getChannel(currentChatRoomID),
+							cookies,
+							socket,
+							authenticatedUserID
+						)}
+					</div>
 				</div>
 			</div>
 		</WebSocketProvider>
