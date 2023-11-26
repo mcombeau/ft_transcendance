@@ -1,9 +1,9 @@
-import {useState} from "react";
-import {Socket} from "socket.io-client";
-import {getUsername} from "../../cookies";
-import {isMuted} from "./Chat";
-import {ReceivedInfo} from "./types";
-import {ChatRoom, User} from "./types";
+import { useState } from "react";
+import { Socket } from "socket.io-client";
+import { getUsername } from "../../cookies";
+import { isMuted } from "./Chat";
+import { ReceivedInfo } from "./types";
+import { ChatRoom, User } from "./types";
 
 export const SendForm = (
 	currentChatRoom: ChatRoom,
@@ -51,15 +51,22 @@ export const SendForm = (
 		return;
 	}
 	return (
-		<form id="form" onSubmit={handleSendMessage}>
+		<form
+			className="bg-lightblue absolute bottom-0 left-0 right-0 h-10 m-2 flex space-x-2"
+			id="form"
+			onSubmit={handleSendMessage}
+		>
 			<input
+				className="rounded-md bg-sage flex-1"
 				type="text"
 				value={value}
 				onChange={(e) => {
 					setValue(e.target.value);
 				}}
 			/>
-			<button>Send</button>
+			<button className="bg-darkblue text-sage hover:bg-teal p-2 px-4 rounded-md">
+				Send
+			</button>
 		</form>
 	);
 };

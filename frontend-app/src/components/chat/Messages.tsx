@@ -237,7 +237,7 @@ export const Messages = (
 	}
 
 	return (
-		<div>
+		<div className="absolute top-0 left-0 right-0 bottom-14 overflow-y-scroll">
 			{displayMessages(currentChatRoom)}
 			{displayPublicChats()}
 			{ContextMenuEl(

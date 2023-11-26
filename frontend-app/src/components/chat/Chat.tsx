@@ -899,7 +899,7 @@ export const Chat = () => {
 						authenticatedUserID
 					)}
 				</div>
-				<div className="col-span-3 overflow-y-scroll justify-between bg-lightblue rounded m-4">
+				<div className="col-span-3 justify-between bg-lightblue rounded m-4 relative">
 					{SettingsMenu(
 						settings,
 						setSettings,
