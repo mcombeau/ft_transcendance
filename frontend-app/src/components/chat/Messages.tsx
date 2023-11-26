@@ -100,7 +100,16 @@ export const Messages = (
 		const selfSent: boolean = authenticatedUserID === msg.senderID;
 		return (
 			<>
-				{firstOfDay ? <div>{formatDate(msg.datestamp)}</div> : <div></div>}
+				{firstOfDay ? (
+					<div className={`w-full flex justify-center mb-4 relative`}>
+						<hr className="bg-sage border-0 h-0.5 w-3/4 mt-2"></hr>
+						<div className="bg-lightblue text-sage text-sm italic absolute px-4 top-0">
+							{formatDate(msg.datestamp)}
+						</div>
+					</div>
+				) : (
+					<div></div>
+				)}
 				<div
 					className={`w-full flex ${
 						selfSent ? "justify-end" : "justify-start"
