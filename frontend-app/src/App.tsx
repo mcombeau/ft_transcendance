@@ -53,20 +53,22 @@ function App() {
 			<div className="app">
 				<AuthenticationContext.Provider value={value}>
 					<NavBar />
-					<Routes>
-						<Route path="/" element={<Home />} />
-						<Route path="/login" element={<Login />} />
-						<Route path="/chat" element={<Chat />} />
-						<Route path="/chat/:userID" element={<Chat />} />
-						<Route path="/play/:inviteID" element={<Play />} />
-						<Route path="/watch/:watchGameID" element={<Play />} />
-						<Route path="/play" element={<Play />} />
-						<Route path="/leaderboard" element={<Leaderboard />} />
-						<Route path="/user/:id" element={<Profile />} />
-						<Route path="/logout" element={<Logout />} />
-						<Route path="*" element={<NotFound />} />
-						<Route path="/not-found" element={<NotFound />} />
-					</Routes>
+					<div className="content">
+						<Routes>
+							<Route path="/" element={<Home />} />
+							<Route path="/login" element={<Login />} />
+							<Route path="/chat" element={<Chat />} />
+							<Route path="/chat/:userID" element={<Chat />} />
+							<Route path="/play/:inviteID" element={<Play />} />
+							<Route path="/watch/:watchGameID" element={<Play />} />
+							<Route path="/play" element={<Play />} />
+							<Route path="/leaderboard" element={<Leaderboard />} />
+							<Route path="/user/:id" element={<Profile />} />
+							<Route path="/logout" element={<Logout />} />
+							<Route path="*" element={<NotFound />} />
+							<Route path="/not-found" element={<NotFound />} />
+						</Routes>
+					</div>
 				</AuthenticationContext.Provider>
 			</div>
 		</Router>

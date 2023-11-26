@@ -96,6 +96,7 @@ export const SidePannel = (
 				);
 				settingButton = (
 					<button
+						className="button"
 						onClick={() => {
 							setSettings(!settings);
 							setCurrentChatRoomID(channel.chatRoomID);
@@ -119,8 +120,8 @@ export const SidePannel = (
 		return (
 			<div
 				onClick={() => select(type)}
-				className={`rounded-md p-2 m-2 flex relative ${
-					isCurrent ? "bg-darkblue" : "bg-teal"
+				className={`text-darkblue rounded-md p-2 m-2 flex relative ${
+					isCurrent ? "bg-lightblue border-2 border-darkblue" : "bg-sage"
 				}`}
 			>
 				{channel_alias}
@@ -144,6 +145,7 @@ export const SidePannel = (
 			<div id="flex flex-col">
 				{channelInfo(ChanType.Invites)}
 				{channelInfo(ChanType.PublicChans)}
+				<hr className="bg-darkblue h-1 border-0 mx-2"></hr>
 				{myChats
 					.sort((a, b) => a.name.localeCompare(b.name))
 					.map((channel: ChatRoom, key: number) =>

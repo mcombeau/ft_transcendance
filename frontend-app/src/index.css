@@ -41,23 +41,27 @@
 }
 
 .app {
-	@apply h-screen w-screen flex flex-col;
+	@apply h-screen w-screen relative;
 }
 
 .navbar {
-	@apply flex justify-between items-center h-24 px-4 text-sage bg-teal w-full;
+	@apply h-24 px-4 w-full absolute top-0 left-0 right-0;
+}
+
+.content {
+	@apply absolute top-24 bottom-0 left-0 right-0 overflow-y-scroll;
 }
 
 .chat {
-	@apply bg-sage flex flex-row justify-between flex-1;
+	@apply absolute top-0  bottom-0 left-0 right-0 grid grid-cols-4;
 }
 
 .sidepannel {
-	@apply w-1/5 overflow-y-auto;
+	@apply overflow-y-scroll col-span-1;
 }
 
 .messages {
-	@apply w-full overflow-y-auto;
+	@apply col-span-3 overflow-y-scroll;
 }
 
 .channel {

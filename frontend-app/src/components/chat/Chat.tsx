@@ -879,7 +879,7 @@ export const Chat = () => {
 
 	return (
 		<WebSocketProvider value={socket}>
-			<div className="chat">
+			<div className="chat bg-sage ">
 				<div className="sidepannel rounded bg-lightblue m-4">
 					{SidePannel(
 						newchannel,
@@ -899,7 +899,7 @@ export const Chat = () => {
 						authenticatedUserID
 					)}
 				</div>
-				<div className="messages  flex flex-col justify-between bg-lightblue rounded m-4">
+				<div className="messages justify-between bg-lightblue rounded m-4">
 					{SettingsMenu(
 						settings,
 						setSettings,
