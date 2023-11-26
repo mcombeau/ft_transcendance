@@ -20,6 +20,7 @@
     "react-scripts": "5.0.1",
     "socket.io-client": "^4.7.1",
     "styled-components": "^6.0.3",
+    "tailwind-scrollbar-hide": "^1.1.7",
     "tailwindcss": "^3.3.5",
     "testing-library": "^0.0.2",
     "typescript": "^5.1.6",

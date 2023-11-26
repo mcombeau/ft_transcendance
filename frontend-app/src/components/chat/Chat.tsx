@@ -880,7 +880,7 @@ export const Chat = () => {
 	return (
 		<WebSocketProvider value={socket}>
 			<div className="absolute top-0  bottom-0 left-0 right-0 grid grid-cols-4 bg-sage ">
-				<div className="overflow-y-scroll col-span-1 rounded bg-lightblue m-4 relative">
+				<div className="overflow-y-scroll col-span-1 rounded bg-lightblue m-4 relative scrollbar-hide">
 					{SidePannel(
 						newchannel,
 						setNewchannel,
