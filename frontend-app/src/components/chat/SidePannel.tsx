@@ -89,7 +89,8 @@ export const SidePannel = (
 				if (channel.chatRoomID == currentChatRoomID) isCurrent = true;
 				channel_alias = channel.isDM ? ( // TODO: change with actual name (get from back)
 					<>
-						<MdOutlineMessage /> {getDMChannelAlias(channel)}
+						<MdOutlineMessage className="m-1 mr-2" />{" "}
+						{getDMChannelAlias(channel)}
 					</>
 				) : (
 					<>{channel.name}</>
@@ -124,7 +125,9 @@ export const SidePannel = (
 					isCurrent ? "bg-sage border-2 border-darkblue" : "bg-sage"
 				}`}
 			>
-				<div className="flex-1 flex">{channel_alias}</div>
+				<div className="flex-1 flex align-middle items-center ml-2">
+					{channel_alias}
+				</div>
 				{settingButton}
 			</div>
 		);
