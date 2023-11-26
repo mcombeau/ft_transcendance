@@ -880,24 +880,26 @@ export const Chat = () => {
 	return (
 		<WebSocketProvider value={socket}>
 			<div className="chat">
-				{SidePannel(
-					newchannel,
-					setNewchannel,
-					currentChatRoomID,
-					setCurrentChatRoomID,
-					socket,
-					settings,
-					setSettings,
-					setContextMenu,
-					myChats,
-					invitesPannel,
-					setInvitesPannel,
-					publicChatsPannel,
-					setPublicChatsPannel,
-					cookies,
-					authenticatedUserID
-				)}
-				<div className="messages">
+				<div className="sidepannel rounded bg-lightblue m-4">
+					{SidePannel(
+						newchannel,
+						setNewchannel,
+						currentChatRoomID,
+						setCurrentChatRoomID,
+						socket,
+						settings,
+						setSettings,
+						setContextMenu,
+						myChats,
+						invitesPannel,
+						setInvitesPannel,
+						publicChatsPannel,
+						setPublicChatsPannel,
+						cookies,
+						authenticatedUserID
+					)}
+				</div>
+				<div className="messages  flex flex-col justify-between bg-lightblue rounded m-4">
 					{SettingsMenu(
 						settings,
 						setSettings,

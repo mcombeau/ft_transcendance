@@ -1,6 +1,15 @@
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, ReactElement, SetStateAction } from "react";
 import { Socket } from "socket.io-client";
 import { ReceivedInfo, ChatRoom } from "./types";
+import { MdOutlineMessage } from "react-icons/md";
+import { getButtonIcon, ButtonIconType } from "../profile/icons";
+
+enum ChanType {
+	Channel,
+	DM,
+	Invites,
+	PublicChans,
+}
 
 export const SidePannel = (
 	newchannel: string,
@@ -40,114 +49,80 @@ export const SidePannel = (
 			.username;
 	}
 
-	const invitesPannelElement = () => {
-		var classname = "channotCurrent";
-		if (invitesPannel) {
-			classname = "chanCurrent";
-		}
-		return (
-			<div id="channel-info">
-				<li
-					value={"INVITES"}
-					onClick={() => {
-						setCurrentChatRoomID(null);
-						setInvitesPannel(true);
-						setPublicChatsPannel(false);
-					}}
-					className={classname}
-				>
-					INVITES
-				</li>
-			</div>
-		);
-	};
+	const channelInfo = (type: ChanType, channel?: ChatRoom, key?: number) => {
+		let isCurrent: boolean = false;
+		let channel_alias: ReactElement;
+		let settingButton: ReactElement;
 
-	const publicChatsPannelElement = () => {
-		var classname = "channotCurrent";
-		if (publicChatsPannel) {
-			classname = "chanCurrent";
-		}
-		return (
-			<div id="channel-info">
-				<li
-					value={"PUBLIC CHATS"}
-					onClick={() => {
-						setCurrentChatRoomID(null);
-						setInvitesPannel(false);
-						setPublicChatsPannel(true);
-					}}
-					className={classname}
-				>
-					PUBLIC CHATS
-				</li>
-			</div>
-		);
-	};
+		let select = (type: ChanType) => {
+			setSettings(!settings);
+			setCurrentChatRoomID(null);
+			setPublicChatsPannel(false);
+			setInvitesPannel(false);
+			switch (type) {
+				case ChanType.Invites:
+					setInvitesPannel(true);
+					break;
+				case ChanType.PublicChans:
+					setPublicChatsPannel(true);
+					break;
+				default:
+					setCurrentChatRoomID(channel.chatRoomID);
+					break;
+			}
+		};
 
-	const channelInfo = (channel: ChatRoom, key: number) => {
-		var isCurrent = channel.chatRoomID == currentChatRoomID;
-		// var unreadMessages: number = messages
-		//   .filter((msg: Message) => {
-		//     return msg.chatRoomID == channel.chatRoomID;
-		//   })
-		//   .filter((msg: Message) => {
-		//     return msg.read == false;
-		//   }).length;
-		var channel_alias = channel.isDM // TODO: change with actual name (get from back)
-			? `💬 ${getDMChannelAlias(channel)}`
-			: channel.name;
-		var classname = "channotCurrent";
-		if (isCurrent) {
-			classname = "chanCurrent";
-		}
-		if (channel.isDM) {
-			classname += " dm";
-		}
-		return (
-			<div id="channel-info" key={key}>
-				<li
-					value={channel.chatRoomID}
-					onClick={(e) => {
-						var targetChannel = parseInt(
-							(e.target as HTMLInputElement).getAttribute("value")
-						);
-						setCurrentChatRoomID(targetChannel);
-						setInvitesPannel(false);
-						setPublicChatsPannel(false);
-						// setMessages(
-						//   messages.map((msg: Message) => {
-						//     if (msg.chatRoomID === targetChannel) {
-						//       return { ...msg, read: true };
-						//     } else {
-						//       return { ...msg };
-						//     }
-						//   })
-						// );
-					}}
-					className={classname}
-				>
-					{/*unreadMessages > 0 && <p>{unreadMessages}</p>*/}
-					{channel_alias}
-					<button
-						value={channel.chatRoomID}
-						onClick={(e) => {
-							setSettings(!settings);
-							setCurrentChatRoomID(
-								parseInt((e.target as HTMLInputElement).getAttribute("value"))
-							);
-							setInvitesPannel(false);
-							setContextMenu(false);
-						}}
-					>
-						⚙
+		switch (type) {
+			case ChanType.Invites:
+				if (invitesPannel) isCurrent = true;
+				channel_alias = <>INVITES</>;
+				settingButton = <></>;
+				break;
+			case ChanType.PublicChans:
+				if (publicChatsPannel) isCurrent = true;
+				channel_alias = <>PUBLIC CHATS</>;
+				settingButton = <></>;
+				break;
+
+			default:
+				if (channel.chatRoomID == currentChatRoomID) isCurrent = true;
+				channel_alias = channel.isDM ? ( // TODO: change with actual name (get from back)
+					<>
+						<MdOutlineMessage /> {getDMChannelAlias(channel)}
+					</>
+				) : (
+					<>{channel.name}</>
+				);
+				settingButton = (
+					<button onClick={() => {}}>
+						{getButtonIcon(ButtonIconType.settings)}
 					</button>
-				</li>
+				);
+				select = () => {
+					var targetChannel = channel.chatRoomID;
+					setCurrentChatRoomID(targetChannel);
+					setInvitesPannel(false);
+					setPublicChatsPannel(false);
+				};
+
+				break;
+		}
+		return (
+			<div
+				onClick={() => select(type)}
+				className={`rounded-md p-2 m-2 flex relative ${
+					isCurrent ? "bg-darkblue" : "bg-teal"
+				}`}
+			>
+				{channel_alias}
+				{settingButton}
 			</div>
 		);
 	};
+
 	return (
-		<div className="sidepannel">
-			<form className="newchan" onSubmit={createChannel}>
+		<>
+			<form className="" onSubmit={createChannel}>
 				<input
 					type="text"
 					value={newchannel}
@@ -157,14 +132,16 @@ export const SidePannel = (
 				/>
 				<button>+</button>
 			</form>
-			<div id="channels">
-				{invitesPannelElement()}
-				{publicChatsPannelElement()}
+			<div id="flex flex-col">
+				{channelInfo(ChanType.Invites)}
+				{channelInfo(ChanType.PublicChans)}
 				{myChats
 					.sort((a, b) => a.name.localeCompare(b.name))
-					.map((channel: ChatRoom, key: number) => channelInfo(channel, key))}
+					.map((channel: ChatRoom, key: number) =>
+						channelInfo(ChanType.Channel, channel, key)
+					)}
 			</div>
-		</div>
+		</>
 	);
 };
 

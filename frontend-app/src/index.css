@@ -53,9 +53,13 @@
 }
 
 .sidepannel {
-	@apply bg-darkblue flex flex-col w-2/5 overflow-y-auto;
+	@apply w-1/5 overflow-y-auto;
 }
 
 .messages {
-	@apply bg-lightblue w-full flex flex-col justify-between;
+	@apply w-full overflow-y-auto;
+}
+
+.channel {
+	@apply bg-teal rounded-md m-2 text-darkblue p-2;
 }
