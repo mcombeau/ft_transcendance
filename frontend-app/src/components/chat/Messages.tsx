@@ -39,13 +39,13 @@ export const Messages = (
 		const selfSent: boolean = authenticatedUserID === msg.senderID;
 		return (
 			<div
-				className={`w-full flex ${selfSent ? "justify-start" : "justify-end"}`}
+				className={`w-full flex ${selfSent ? "justify-end" : "justify-start"}`}
 			>
 				<img></img>
 				<div
 					key={key}
 					className={`rounded-md text-sage max-w-xl flex flex-col m-2 p-2 ${
-						selfSent ? "bg-teal" : "bg-darkblue items-end"
+						selfSent ? "bg-teal" : "bg-darkblue "
 					}`}
 				>
 					<a
@@ -69,7 +69,7 @@ export const Messages = (
 					>
 						{msg.senderUsername}
 					</a>
-					<div className="flex-1">{msg.msg}</div>
+					<div className="flex-1 break-words">{msg.msg}</div>
 					<div className="hidden">{msg.datestamp.toString().split("G")[0]}</div>
 				</div>
 			</div>
