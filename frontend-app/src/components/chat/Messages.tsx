@@ -28,7 +28,65 @@ export const Messages = (
 		username: null,
 	});
 
-	const messageStatus = (msg: Message, key: number) => {
+	function sameDay(date1: Date, date2: Date) {
+		date1 = new Date(date1);
+		date2 = new Date(date2);
+		return (
+			date1.getFullYear() === date2.getFullYear() &&
+			date1.getMonth() === date2.getMonth() &&
+			date1.getDate() === date2.getDate()
+		);
+	}
+
+	function formatDate(inputDate: Date) {
+		const inputDatestamp: number = new Date(inputDate).getTime();
+		const fulldays = [
+			"Sunday",
+			"Monday",
+			"Tuesday",
+			"Wednesday",
+			"Thursday",
+			"Friday",
+			"Saturday",
+		];
+		const months = [
+			"Jan",
+			"Feb",
+			"Mar",
+			"Apr",
+			"May",
+			"Jun",
+			"Jul",
+			"Aug",
+			"Sep",
+			"Oct",
+			"Nov",
+			"Dec",
+		];
+		var dt = new Date(inputDatestamp),
+			date = dt.getDate(),
+			month = months[dt.getMonth()],
+			timeDiff = inputDatestamp - Date.now(),
+			diffDays = new Date().getDate() - date,
+			diffMonths = new Date().getMonth() - dt.getMonth(),
+			diffYears = new Date().getFullYear() - dt.getFullYear();
+
+		if (diffYears === 0 && diffDays === 0 && diffMonths === 0) {
+			return "Today";
+		} else if (diffYears === 0 && diffDays === 1) {
+			return "Yesterday";
+		} else if (diffYears === 0 && diffDays === -1) {
+			return "Tomorrow";
+		} else if (diffYears === 0 && diffDays < -1 && diffDays > -7) {
+			return fulldays[dt.getDay()];
+		} else if (diffYears >= 1) {
+			return month + " " + date + ", " + new Date(inputDatestamp).getFullYear();
+		} else {
+			return month + " " + date;
+		}
+	}
+
+	const messageStatus = (msg: Message, key: number, messages: Message[]) => {
 		if (msg.system) {
 			return (
 				<div id="announcement" key={key}>
@@ -36,43 +94,52 @@ export const Messages = (
 				</div>
 			);
 		}
+		let firstOfDay: boolean;
+		if (key === 0) firstOfDay = true;
+		else firstOfDay = !sameDay(msg.datestamp, messages[key - 1].datestamp);
 		const selfSent: boolean = authenticatedUserID === msg.senderID;
 		return (
-			<div
-				className={`w-full flex ${selfSent ? "justify-end" : "justify-start"}`}
-			>
-				<img></img>
+			<>
+				{firstOfDay ? <div>{formatDate(msg.datestamp)}</div> : <div></div>}
 				<div
-					key={key}
-					className={`rounded-md text-sage max-w-xl flex flex-col m-2 p-2 ${
-						selfSent ? "bg-teal" : "bg-darkblue "
+					className={`w-full flex ${
+						selfSent ? "justify-end" : "justify-start"
 					}`}
 				>
-					<a
-						className={`text-sm italic hover:text-lightblue hover:underline ${
-							selfSent ? "hidden" : ""
+					<div
+						key={key}
+						className={`rounded-md text-sage max-w-xl flex flex-col m-2 p-2 ${
+							selfSent ? "bg-teal" : "bg-darkblue "
 						}`}
-						onClick={() => {
-							navigate("/user/" + msg.senderID); // TODO: create front profile page and go there
-						}}
-						onContextMenu={(e) => {
-							e.preventDefault();
-							if (currentChatRoom.name !== "" && settings === false) {
-								setContextMenu(true);
-								setContextMenuPos({ x: e.pageX, y: e.pageY });
-								setContextMenuTarget({
-									id: msg.senderID,
-									username: msg.senderUsername,
-								});
-							}
-						}}
 					>
-						{msg.senderUsername}
-					</a>
-					<div className="flex-1 break-words">{msg.msg}</div>
-					<div className="hidden">{msg.datestamp.toString().split("G")[0]}</div>
+						<a
+							className={`text-sm italic hover:text-lightblue hover:underline ${
+								selfSent ? "hidden" : ""
+							}`}
+							onClick={() => {
+								navigate("/user/" + msg.senderID); // TODO: create front profile page and go there
+							}}
+							onContextMenu={(e) => {
+								e.preventDefault();
+								if (currentChatRoom.name !== "" && settings === false) {
+									setContextMenu(true);
+									setContextMenuPos({ x: e.pageX, y: e.pageY });
+									setContextMenuTarget({
+										id: msg.senderID,
+										username: msg.senderUsername,
+									});
+								}
+							}}
+						>
+							{msg.senderUsername}
+						</a>
+						<div className="flex-1 break-words">{msg.msg}</div>
+						<div className="hidden">
+							{msg.datestamp.toString().split("G")[0]}
+						</div>
+					</div>
 				</div>
-			</div>
+			</>
 		);
 	};
 
@@ -229,7 +296,9 @@ export const Messages = (
 			.filter((message: Message) => {
 				return !blockedUsers.includes(message.senderID);
 			})
-			.map(messageStatus);
+			.map((message: Message, index: number, messages: Message[]) =>
+				messageStatus(message, index, messages)
+			);
 		return <div>{messages}</div>;
 	}
 
