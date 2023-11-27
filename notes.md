@@ -1,3 +1,9 @@
+- CSS
+	- Removed dot from profile
+	- Context menu chat
+	- game  
+	- profile settigns
+
 - Sign in
 
   - Prompt for info on first sign
