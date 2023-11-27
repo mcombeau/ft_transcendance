@@ -56,7 +56,7 @@ export const SidePannel = (
 
 		let select = (type: ChanType) => {
 			setContextMenu(false);
-			setSettings(!settings);
+			setSettings(false);
 			switch (type) {
 				case ChanType.Invites:
 					setCurrentPannel({ type: PannelType.invite, chatRoomID: null });
