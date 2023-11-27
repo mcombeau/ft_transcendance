@@ -331,12 +331,12 @@ export const Messages = (
 		);
 	}
 
-	return (
-		<>
+	if (currentPannel.type === PannelType.publicChats) {
+		return (
 			<div
-				className={`absolute top-0 left-0 right-0 bottom-14 overflow-y-scroll flex flex-col-reverse scrollbar-hide`}
+				className={`absolute top-0 left-0 right-0 bottom-14 overflow-y-scroll flex scrollbar-hide`}
 			>
-				{displayMessages(currentChatRoom)}
+				{displayPublicChats()}
 				{ContextMenuEl(
 					contextMenu,
 					contextMenuTarget,
@@ -351,12 +351,28 @@ export const Messages = (
 					setBlockedUsers
 				)}
 			</div>
-			<div
-				className={`absolute top-0 left-0 right-0 bottom-14 overflow-y-scroll flex scrollbar-hide`}
-			>
-				{displayPublicChats()}
-			</div>
-		</>
+		);
+	}
+
+	return (
+		<div
+			className={`absolute top-0 left-0 right-0 bottom-14 overflow-y-scroll flex flex-col-reverse scrollbar-hide`}
+		>
+			{displayMessages(currentChatRoom)}
+			{ContextMenuEl(
+				contextMenu,
+				contextMenuTarget,
+				setContextMenu,
+				contextMenuPos,
+				socket,
+				currentChatRoom,
+				cookies,
+				myChats,
+				authenticatedUserID,
+				blockedUsers,
+				setBlockedUsers
+			)}
+		</div>
 	);
 };
 
