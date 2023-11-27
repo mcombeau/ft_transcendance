@@ -18,10 +18,9 @@ export const ListParticipants = (
 		if (participant.isOwner) {
 			style = { textDecoration: "underline" };
 		} else if (participant.isOperator) {
-			name += " ★";
+			name = "★ " + name;
 		}
 		if (isUserMuted(participant)) {
-			name += " 🔇";
 			style = { fontStyle: "italic" };
 		}
 		return (
@@ -38,18 +37,18 @@ export const ListParticipants = (
 
 	function displayParticipant(participant: User) {
 		return (
-			<div className="items-center grid grid-cols-5">
+			<div className="items-center grid grid-cols-5 bg-sage rounded m-2 p-2 py-0">
 				<div id="username" className="col-span-1">
 					{displayUser(participant)}
 				</div>
-				<div id="buttons" className="flex col-span-4">
+				<div id="buttons" className="flex col-span-4 items-center space-x-2">
 					{checkStatus(channel, authenticatedUserID) !== Status.Normal &&
 					checkStatus(channel, participant.userID) !== Status.Owner &&
 					authenticatedUserID !== participant.userID ? (
 						<>
 							{isUserMuted(participant) ? (
 								<button
-									className="button-sm"
+									className="button"
 									onClick={() => {
 										console.log("Muted");
 										var info: ReceivedInfo = {
@@ -67,14 +66,17 @@ export const ListParticipants = (
 								</button>
 							) : (
 								<>
-									<select id={"mute " + participant.username}>
+									<select
+										className="rounded-md bg-sage px-2 py-0 h-8"
+										id={"mute " + participant.username}
+									>
 										<option value="1">1 minute</option>
 										<option value="5">5 minutes</option>
 										<option value="60">1 hour</option>
 										<option value="1440">1 day</option>
 									</select>
 									<button
-										className="button-sm"
+										className="button"
 										onClick={() => {
 											var muteTime = document.getElementById(
 												"mute " + participant.username
@@ -97,7 +99,7 @@ export const ListParticipants = (
 								</>
 							)}
 							<button
-								className="button-sm"
+								className="button"
 								onClick={() => {
 									console.log("Kicked");
 									var info: ReceivedInfo = {
@@ -111,7 +113,7 @@ export const ListParticipants = (
 								{getButtonIcon(ButtonIconType.kick, "button-icon-sm")}
 							</button>
 							<button
-								className="button-sm"
+								className="button"
 								onClick={() => {
 									console.log("Banned " + participant);
 									var info: ReceivedInfo = {
@@ -133,7 +135,7 @@ export const ListParticipants = (
 					authenticatedUserID !== participant.userID ? (
 						<>
 							<button
-								className="button-sm flex"
+								className="button flex"
 								onClick={() => {
 									console.log("Made operator " + participant);
 									var info: ReceivedInfo = {
@@ -160,14 +162,14 @@ export const ListParticipants = (
 
 	function displayBanned(participant: User) {
 		return (
-			<div className="grid grid-cols-5">
+			<div className="grid grid-cols-5 bg-sage rounded m-2 p-2 items-center py-0">
 				<div className="col-span-1">
 					<span>{participant.username}</span>
 				</div>
 				<div className="flex col-span-2">
 					{checkStatus(channel, authenticatedUserID) !== Status.Normal ? (
 						<button
-							className="button-sm"
+							className="button"
 							onClick={() => {
 								console.log("unban " + participant.username);
 								var info: ReceivedInfo = {
@@ -190,7 +192,7 @@ export const ListParticipants = (
 
 	function displayInvited(participant: User) {
 		return (
-			<div>
+			<div className="bg-sage rounded m-2 p-2 py-2 items-center ">
 				<span>{participant.username}</span>
 			</div>
 		);
