@@ -5,6 +5,7 @@ import { MdOutlineMessage } from "react-icons/md";
 import { getButtonIcon, ButtonIconType } from "../styles/icons";
 import { separatorLine } from "../styles/separator";
 import { PiChatsDuotone } from "react-icons/pi";
+import { BiCommentAdd } from "react-icons/bi";
 
 enum ChanType {
 	Channel,
@@ -145,15 +146,16 @@ export const SidePannel = (
 		<>
 			<form className="flex m-2 space-x-2" onSubmit={createChannel}>
 				<input
-					className="rounded-md flex-1 bg-sage"
+					className="rounded-md flex-1 bg-sage p-2 placeholder:text-darkblue placeholder:opacity-50"
 					type="text"
+					placeholder="Create new channel"
 					value={newchannel}
 					onChange={(e) => {
 						setNewchannel(e.target.value);
 					}}
 				/>
-				<button className="bg-darkblue text-sage hover:bg-teal p-2 px-4 rounded-md">
-					+
+				<button className="bg-darkblue text-sage hover:bg-teal py-1 px-4 rounded-md">
+					<BiCommentAdd className="w-5 h-5" />
 				</button>
 			</form>
 			<hr className="bg-lightblue h-1 border-0 mx-2"></hr>
