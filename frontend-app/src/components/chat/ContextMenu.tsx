@@ -5,6 +5,8 @@ import { Socket } from "socket.io-client";
 import { checkStatus } from "./Chat";
 import { ReceivedInfo } from "./types";
 import { blockUser, unblockUser } from "../profile/profile";
+import { ButtonIconType, getButtonIcon } from "../styles/icons";
+import { BsEnvelopePaper } from "react-icons/bs";
 
 export const ContextMenuEl = (
 	contextMenu: boolean,
@@ -63,6 +65,13 @@ export const ContextMenuEl = (
 		);
 	}
 
+	function onPageClick(event: any) {
+		event.stopPropagation();
+		if (menuRef && menuRef.current && !menuRef.current.contains(event.target)) {
+			setContextMenu(false);
+		}
+	}
+
 	useEffect(() => {
 		socket.on("is in game", (isActive: boolean) => {
 			// cannot challenge the user if I'm in a game
@@ -77,6 +86,10 @@ export const ContextMenuEl = (
 		socket.emit("is in game", cookies["token"]);
 		setInvitesMenu(false);
 	}, [contextMenu]);
+
+	useEffect(() => {
+		document.addEventListener("click", onPageClick);
+	}, []);
 
 	if (!contextMenu) {
 		return <div></div>;
@@ -98,7 +111,7 @@ export const ContextMenuEl = (
 						setContextMenu(false);
 					}}
 				>
-					Unblock
+					{getButtonIcon(ButtonIconType.unblock, "button-sm w-6 h- w-6 h-6")}
 				</li>
 			);
 		}
@@ -113,7 +126,7 @@ export const ContextMenuEl = (
 					setContextMenu(false);
 				}}
 			>
-				Block
+				{getButtonIcon(ButtonIconType.block, "button-sm w-6 h- w-6 h-6")}
 			</li>
 		);
 	}
@@ -128,7 +141,7 @@ export const ContextMenuEl = (
 						setInvitesMenu(true);
 					}}
 				>
-					Invite to chat
+					<BsEnvelopePaper className="button-sm w-6 h- w-6 h-6" />
 				</li>
 				{iCanChallenge ? (
 					<li
@@ -137,7 +150,10 @@ export const ContextMenuEl = (
 							invite(e, target, typeInvite.Game);
 						}}
 					>
-						Challenge
+						{getButtonIcon(
+							ButtonIconType.challenge,
+							"button-sm w-6 h- w-6 h-6"
+						)}
 					</li>
 				) : (
 					<></>
@@ -148,7 +164,7 @@ export const ContextMenuEl = (
 						invite(e, target, typeInvite.Friend);
 					}}
 				>
-					Add friend
+					{getButtonIcon(ButtonIconType.friend, "button-sm w-6 h- w-6 h-6")}
 				</li>
 				<li
 					onClick={() => {
@@ -162,7 +178,7 @@ export const ContextMenuEl = (
 						setContextMenu(false);
 					}}
 				>
-					DM
+					{getButtonIcon(ButtonIconType.dm, "button-sm w-6 h- w-6 h-6")}
 				</li>
 				{checkStatus(channel, authenticatedUserID) !== Status.Operator && // TODO: double check logic
 				checkStatus(channel, target.id) !== Status.Owner ? (
@@ -181,7 +197,7 @@ export const ContextMenuEl = (
 								setContextMenu(false);
 							}}
 						>
-							{"Mute (1 min)"}
+							{getButtonIcon(ButtonIconType.mute, "button-sm w-6 h- w-6 h-6")}
 						</li>
 						<li
 							onClick={() => {
@@ -195,7 +211,7 @@ export const ContextMenuEl = (
 								setContextMenu(false);
 							}}
 						>
-							Kick
+							{getButtonIcon(ButtonIconType.kick, "button-sm w-6 h- w-6 h-6")}
 						</li>
 						<li
 							onClick={() => {
@@ -209,7 +225,7 @@ export const ContextMenuEl = (
 								setContextMenu(false);
 							}}
 						>
-							Ban
+							{getButtonIcon(ButtonIconType.ban, "button-sm w-6 h- w-6 h-6")}
 						</li>
 					</div>
 				) : (
@@ -229,9 +245,18 @@ export const ContextMenuEl = (
 								setContextMenu(false);
 							}}
 						>
-							{checkStatus(channel, target.id) === Status.Operator
-								? "Remove from admins"
-								: "Make admin"}
+							{
+								// TODO: find icon for removing from operators
+								checkStatus(channel, target.id) === Status.Operator
+									? getButtonIcon(
+											ButtonIconType.operator,
+											"button-sm w-6 h- w-6 h-6"
+									  )
+									: getButtonIcon(
+											ButtonIconType.operator,
+											"button-sm w-6 h- w-6 h-6"
+									  )
+							}
 						</li>
 					</div>
 				) : (
@@ -251,15 +276,11 @@ export const ContextMenuEl = (
 	return (
 		<div
 			ref={menuRef}
-			className="contextMenu"
-			style={{
-				top: contextMenuPos.y - 10,
-				left: contextMenuPos.x + 15,
-			}}
+			className={`bg-teal rounded-md text-sage absolute p-2 top-${
+				contextMenuPos.y - 10
+			} left-${contextMenuPos.x + 15}`}
 		>
-			<p>{target.username}</p>
 			{options}
-			<button onClick={() => setContextMenu(false)}>✕</button>
 		</div>
 	);
 };
