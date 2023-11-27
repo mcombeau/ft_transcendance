@@ -243,31 +243,10 @@ export const Messages = (
 		);
 	};
 
-	if (invitesPannel) {
-		return (
-			<div id="messages">
-				{invites.map((invite: Invite) => inviteStatus(invite))}
-				{ContextMenuEl(
-					contextMenu,
-					contextMenuTarget,
-					setContextMenu,
-					contextMenuPos,
-					socket,
-					currentChatRoom,
-					cookies,
-					myChats,
-					authenticatedUserID,
-					blockedUsers,
-					setBlockedUsers
-				)}
-			</div>
-		);
-	}
-
 	function displayPublicChat(chat: PublicChatRoom) {
 		var joinButton = (
 			<button
-				className="joinchan"
+				className="bg-sage rounded-md p-2 m-2 text-teal hover:bg-darkblue hover:text-sage "
 				value={chat.chatRoomID}
 				onClick={(e) => {
 					if (chat.hasPassword) {
@@ -295,7 +274,10 @@ export const Messages = (
 			</button>
 		);
 		return (
-			<div id="publicchat">
+			<div
+				className="bg-teal rounded-md p-2 m-2 text-sage flex justify-between "
+				id="publicchat"
+			>
 				{chat.name}
 				{joinButton}
 			</div>
@@ -307,7 +289,7 @@ export const Messages = (
 			return <div></div>;
 		}
 		return (
-			<div>
+			<div className="w-full">
 				{publicChats
 					.sort((a, b) => a.name.localeCompare(b.name))
 					.map((chat: PublicChatRoom) => displayPublicChat(chat))}
@@ -328,25 +310,31 @@ export const Messages = (
 	}
 
 	return (
-		<div
-			className={`absolute top-0 left-0 right-0 bottom-14 overflow-y-scroll flex flex-col-reverse scrollbar-hide`}
-		>
-			{displayMessages(currentChatRoom)}
-			{displayPublicChats()}
-			{ContextMenuEl(
-				contextMenu,
-				contextMenuTarget,
-				setContextMenu,
-				contextMenuPos,
-				socket,
-				currentChatRoom,
-				cookies,
-				myChats,
-				authenticatedUserID,
-				blockedUsers,
-				setBlockedUsers
-			)}
-		</div>
+		<>
+			<div
+				className={`absolute top-0 left-0 right-0 bottom-14 overflow-y-scroll flex flex-col-reverse scrollbar-hide`}
+			>
+				{displayMessages(currentChatRoom)}
+				{ContextMenuEl(
+					contextMenu,
+					contextMenuTarget,
+					setContextMenu,
+					contextMenuPos,
+					socket,
+					currentChatRoom,
+					cookies,
+					myChats,
+					authenticatedUserID,
+					blockedUsers,
+					setBlockedUsers
+				)}
+			</div>
+			<div
+				className={`absolute top-0 left-0 right-0 bottom-14 overflow-y-scroll flex scrollbar-hide`}
+			>
+				{displayPublicChats()}
+			</div>
+		</>
 	);
 };
 
