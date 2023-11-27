@@ -45,7 +45,7 @@
 }
 
 .navbar {
-	@apply h-24 px-4 w-full absolute top-0 left-0 right-0;
+	@apply h-24 px-4 w-full absolute top-0 left-0 right-0 z-50;
 }
 
 .content {
