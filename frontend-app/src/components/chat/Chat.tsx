@@ -190,17 +190,27 @@ export async function fetchHasPassword(
 	);
 }
 
+export type CurrentPannel = { type: PannelType; chatRoomID?: number };
+
+export enum PannelType {
+	home = "home",
+	chat = "chat",
+	invite = "invite",
+	publicChats = "publicChats",
+}
+
 export const Chat = () => {
 	const socket = useContext(WebSocketContext);
 	const [myChats, setMyChats] = useState<ChatRoom[]>([]);
 	const [publicChats, setPublicChats] = useState<PublicChatRoom[]>([]);
 	const [newchannel, setNewchannel] = useState("");
-	const [currentChatRoomID, setCurrentChatRoomID] = useState(null); // TODO: have screen if no channels
 	const [settings, setSettings] = useState(false);
 	const [cookies] = useCookies(["token"]);
 	const [contextMenu, setContextMenu] = useState(false);
-	const [invitesPannel, setInvitesPannel] = useState(false);
-	const [publicChatsPannel, setPublicChatsPannel] = useState(false);
+	const [currentPannel, setCurrentPannel] = useState<CurrentPannel>({
+		type: PannelType.home,
+	});
+
 	const [blockedUsers, setBlockedUsers] = useState([]);
 	const [invites, setInvites] = useState([]);
 	const [redirected, setRedirected] = useState(false);
@@ -272,7 +282,7 @@ export const Chat = () => {
 			);
 			setSettings(false);
 			setContextMenu(false);
-			setCurrentChatRoomID("");
+			setCurrentPannel({ type: PannelType.home, chatRoomID: null });
 		});
 
 		socket.on("toggle private", async (info: ReceivedInfo) => {
@@ -839,7 +849,7 @@ export const Chat = () => {
 				}
 			);
 		}
-	}, [invitesPannel, currentChatRoomID]);
+	}, [currentPannel]);
 
 	useEffect(() => {
 		var message_els = document.getElementById("messages");
@@ -873,7 +883,7 @@ export const Chat = () => {
 		);
 		if (!targetDM) return;
 		const targetDMID: number = targetDM.chatRoomID;
-		setCurrentChatRoomID(targetDMID);
+		setCurrentPannel({ type: PannelType.chat, chatRoomID: targetDMID });
 		setRedirected(true);
 	}, [myChats]);
 
@@ -884,19 +894,15 @@ export const Chat = () => {
 					{SidePannel(
 						newchannel,
 						setNewchannel,
-						currentChatRoomID,
-						setCurrentChatRoomID,
 						socket,
 						settings,
 						setSettings,
 						setContextMenu,
 						myChats,
-						invitesPannel,
-						setInvitesPannel,
-						publicChatsPannel,
-						setPublicChatsPannel,
 						cookies,
-						authenticatedUserID
+						authenticatedUserID,
+						currentPannel,
+						setCurrentPannel
 					)}
 				</div>
 				<div
@@ -905,8 +911,8 @@ export const Chat = () => {
 					{SettingsMenu(
 						settings,
 						setSettings,
-						getChannel(currentChatRoomID),
-						setCurrentChatRoomID,
+						getChannel(currentPannel.chatRoomID),
+						setCurrentPannel,
 						socket,
 						navigate,
 						cookies,
@@ -914,24 +920,24 @@ export const Chat = () => {
 					)}
 					<div className={`${settings ? "hidden" : ""} `}>
 						{Messages(
-							getChannel(currentChatRoomID),
+							getChannel(currentPannel.chatRoomID),
 							navigate,
 							settings,
 							contextMenu,
 							setContextMenu,
 							socket,
-							invitesPannel,
 							invites,
 							publicChats,
-							publicChatsPannel,
 							cookies,
 							myChats,
 							authenticatedUserID,
 							blockedUsers,
-							setBlockedUsers
+							setBlockedUsers,
+							currentPannel,
+							setCurrentPannel
 						)}
 						{SendForm(
-							getChannel(currentChatRoomID),
+							getChannel(currentPannel.chatRoomID),
 							cookies,
 							socket,
 							authenticatedUserID
