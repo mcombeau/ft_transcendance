@@ -57,7 +57,8 @@ export const SendForm = (
 			onSubmit={handleSendMessage}
 		>
 			<input
-				className="rounded-md bg-sage flex-1"
+				className="rounded-md bg-sage flex-1 focus:outline-none p-2 placeholder:text-darkblue placeholder:opacity-40 text-darkblue"
+				placeholder="New message ... "
 				type="text"
 				value={value}
 				onChange={(e) => {

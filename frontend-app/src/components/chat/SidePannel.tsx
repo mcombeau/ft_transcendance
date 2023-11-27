@@ -79,12 +79,12 @@ export const SidePannel = (
 		switch (type) {
 			case ChanType.Invites:
 				if (invitesPannel) isCurrent = true;
-				channel_alias = <>INVITES</>;
+				channel_alias = <>Invites</>;
 				settingButton = <></>;
 				break;
 			case ChanType.PublicChans:
 				if (publicChatsPannel) isCurrent = true;
-				channel_alias = <>PUBLIC CHATS</>;
+				channel_alias = <>Public Chats</>;
 				settingButton = <></>;
 				break;
 
@@ -146,7 +146,7 @@ export const SidePannel = (
 		<>
 			<form className="flex m-2 space-x-2" onSubmit={createChannel}>
 				<input
-					className="rounded-md flex-1 bg-sage p-2 placeholder:text-darkblue placeholder:opacity-50"
+					className="rounded-md flex-1 bg-sage p-2 placeholder:text-darkblue placeholder:opacity-50 focus:outline-none"
 					type="text"
 					placeholder="Create new channel"
 					value={newchannel}
