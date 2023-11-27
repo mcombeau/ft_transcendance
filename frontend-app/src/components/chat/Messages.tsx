@@ -202,34 +202,43 @@ export const Messages = (
 				break;
 		}
 		return (
-			<div id="messages_invite">
-				<p>
-					<b>{invite.senderUsername}</b> {messageInvite} <br />
+			<div
+				id="messages_invite"
+				className="bg-teal rounded-md p-2 m-2 text-sage flex flex-col"
+			>
+				<div className="self-center">
+					<b>{invite.senderUsername}</b> {messageInvite}
+				</div>
+				<div className="self-center">
 					<small>
 						(this invite expires on {date.toString().split("GMT")[0]})
 					</small>
-				</p>
-				<button
-					id="accept"
-					onClick={() => {
-						acceptInvite(invite);
-					}}
-				>
-					Accept
-				</button>
+				</div>
+				<div className="self-center">
+					<button
+						className="bg-sage rounded-md p-2 m-2 text-teal hover:bg-darkblue hover:text-sage "
+						id="accept"
+						onClick={() => {
+							acceptInvite(invite);
+						}}
+					>
+						Accept
+					</button>
 
-				<button
-					id="refuse"
-					onClick={() => {
-						const info = {
-							token: cookies["token"],
-							inviteInfo: invite,
-						};
-						socket.emit("refuse invite", info);
-					}}
-				>
-					Refuse
-				</button>
+					<button
+						id="refuse"
+						className="bg-sage rounded-md p-2 m-2 text-teal hover:bg-darkblue hover:text-sage "
+						onClick={() => {
+							const info = {
+								token: cookies["token"],
+								inviteInfo: invite,
+							};
+							socket.emit("refuse invite", info);
+						}}
+					>
+						Refuse
+					</button>
+				</div>
 			</div>
 		);
 	};
