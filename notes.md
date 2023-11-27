@@ -18,9 +18,9 @@
 - Cleanup
 
   - deal with all issues from backend in the front
-	- passwords
-	  - limit number of password retries on join/accept invite
-	  - tell user to fuck off if wrong username/password
+  - passwords
+    - limit number of password retries on join/accept invite
+    - tell user to fuck off if wrong username/password
   - allow access to chat/leaderboard ... but prompt for sign in
 
 - Game
@@ -33,16 +33,15 @@
 - Bugs
 
   - Error in back if token expired => handle it
-  - "bob invites you to join chat [object Object]" -> Chat room name missing
+  - Create DM from profile page doesn't create DM
+  - Invite to friend from profle sometimes doesn't work ???
 
 - Appearance
 
-  - use Tailwind CSS
   - css for lobby play
   - css for login page
   - css for settings profile
-  - make friend avatars look pretty
-  - css live game page
+  - css for game
 
 - Project validation
 

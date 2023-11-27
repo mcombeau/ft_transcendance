@@ -6,6 +6,7 @@ import { getButtonIcon, ButtonIconType } from "../styles/icons";
 import { separatorLine } from "../styles/separator";
 import { PiChatsDuotone } from "react-icons/pi";
 import { BiCommentAdd } from "react-icons/bi";
+import { CurrentPannel, PannelType } from "./Chat";
 
 enum ChanType {
 	Channel,
@@ -17,19 +18,15 @@ enum ChanType {
 export const SidePannel = (
 	newchannel: string,
 	setNewchannel: Dispatch<SetStateAction<string>>,
-	currentChatRoomID: number,
-	setCurrentChatRoomID: Dispatch<SetStateAction<number>>,
 	socket: Socket,
 	settings: boolean,
 	setSettings: Dispatch<SetStateAction<boolean>>,
 	setContextMenu: Dispatch<SetStateAction<boolean>>,
 	myChats: ChatRoom[],
-	invitesPannel: boolean,
-	setInvitesPannel: Dispatch<SetStateAction<boolean>>,
-	publicChatsPannel: boolean,
-	setPublicChatsPannel: Dispatch<SetStateAction<boolean>>,
 	cookies: any,
-	authenticatedUserID: number
+	authenticatedUserID: number,
+	currentPannel: CurrentPannel,
+	setCurrentPannel: Dispatch<SetStateAction<CurrentPannel>>
 ) => {
 	const createChannel = (e: any) => {
 		console.log(e); // TODO: maybe change any
@@ -59,37 +56,41 @@ export const SidePannel = (
 
 		let select = (type: ChanType) => {
 			setContextMenu(false);
-			setSettings(!settings);
-			setCurrentChatRoomID(null);
-			setPublicChatsPannel(false);
-			setInvitesPannel(false);
+			setSettings(false);
 			switch (type) {
 				case ChanType.Invites:
-					setInvitesPannel(true);
+					setCurrentPannel({ type: PannelType.invite, chatRoomID: null });
 					break;
 				case ChanType.PublicChans:
-					setPublicChatsPannel(true);
+					setCurrentPannel({ type: PannelType.publicChats, chatRoomID: null });
 					break;
 				default:
-					setCurrentChatRoomID(channel.chatRoomID);
+					setCurrentPannel({
+						type: PannelType.chat,
+						chatRoomID: channel.chatRoomID,
+					});
 					break;
 			}
 		};
 
 		switch (type) {
 			case ChanType.Invites:
-				if (invitesPannel) isCurrent = true;
+				if (currentPannel.type === PannelType.invite) isCurrent = true;
 				channel_alias = <>Invites</>;
 				settingButton = <></>;
 				break;
 			case ChanType.PublicChans:
-				if (publicChatsPannel) isCurrent = true;
+				if (currentPannel.type === PannelType.publicChats) isCurrent = true;
 				channel_alias = <>Public Chats</>;
 				settingButton = <></>;
 				break;
 
 			default:
-				if (channel.chatRoomID == currentChatRoomID) isCurrent = true;
+				if (
+					currentPannel.type === PannelType.chat &&
+					channel.chatRoomID === currentPannel.chatRoomID
+				)
+					isCurrent = true;
 				channel_alias = channel.isDM ? ( // TODO: change with actual name (get from back)
 					<>
 						<MdOutlineMessage className="m-1 mr-2" />{" "}
@@ -109,10 +110,11 @@ export const SidePannel = (
 						}`}
 						onClick={() => {
 							setSettings(!settings);
-							setCurrentChatRoomID(channel.chatRoomID);
-							setInvitesPannel(false);
 							setContextMenu(false);
-							setPublicChatsPannel(false);
+							setCurrentPannel({
+								type: PannelType.chat,
+								chatRoomID: channel.chatRoomID,
+							});
 						}}
 					>
 						{getButtonIcon(ButtonIconType.settings, "h-4 w-4")}
@@ -120,9 +122,10 @@ export const SidePannel = (
 				);
 				select = () => {
 					var targetChannel = channel.chatRoomID;
-					setCurrentChatRoomID(targetChannel);
-					setInvitesPannel(false);
-					setPublicChatsPannel(false);
+					setCurrentPannel({
+						type: PannelType.chat,
+						chatRoomID: targetChannel,
+					});
 				};
 
 				break;

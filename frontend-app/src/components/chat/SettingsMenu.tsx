@@ -1,5 +1,5 @@
 import { Status, ChatRoom, ReceivedInfo } from "./types";
-import { checkStatus } from "./Chat";
+import { checkStatus, CurrentPannel, PannelType } from "./Chat";
 import { Socket } from "socket.io-client";
 import { Dispatch, SetStateAction, useState } from "react";
 import { ListParticipants } from "./ListParticipants";
@@ -12,7 +12,7 @@ export const SettingsMenu = (
 	settings: boolean,
 	setSettings: Dispatch<SetStateAction<boolean>>,
 	currentChatRoom: ChatRoom,
-	setCurrentChatRoomID: Dispatch<SetStateAction<number>>,
+	setCurrentPannel: Dispatch<SetStateAction<CurrentPannel>>,
 	socket: Socket,
 	navigate: NavigateFunction,
 	cookies: any,
@@ -58,7 +58,7 @@ export const SettingsMenu = (
 					};
 					socket.emit("leave chat", info);
 					setSettings(false);
-					setCurrentChatRoomID(null);
+					setCurrentPannel({ type: PannelType.home, chatRoomID: null });
 				}}
 			>
 				Leave channel

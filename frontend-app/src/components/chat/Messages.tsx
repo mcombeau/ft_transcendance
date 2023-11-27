@@ -1,10 +1,11 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { NavigateFunction } from "react-router-dom";
 import { Socket } from "socket.io-client";
 import { Message, ChatRoom, Invite, PublicChatRoom } from "./types";
 import { ContextMenuEl } from "./ContextMenu";
 import { ReceivedInfo, typeInvite } from "./types";
 import { separatorLine } from "../styles/separator";
+import { CurrentPannel, PannelType } from "./Chat";
 
 export const Messages = (
 	currentChatRoom: ChatRoom,
@@ -13,15 +14,15 @@ export const Messages = (
 	contextMenu: boolean,
 	setContextMenu: Dispatch<SetStateAction<boolean>>,
 	socket: Socket,
-	invitesPannel: boolean,
 	invites: Invite[],
 	publicChats: PublicChatRoom[],
-	publicChatsPannel: boolean,
 	cookies: any,
 	myChats: ChatRoom[],
 	authenticatedUserID: number,
 	blockedUsers: number[],
-	setBlockedUsers: Dispatch<SetStateAction<number[]>>
+	setBlockedUsers: Dispatch<SetStateAction<number[]>>,
+	currentPannel: CurrentPannel,
+	setCurrentPannel: Dispatch<SetStateAction<CurrentPannel>>
 ) => {
 	const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
 	const [contextMenuTarget, setContextMenuTarget] = useState({
@@ -285,7 +286,7 @@ export const Messages = (
 	}
 
 	function displayPublicChats() {
-		if (!publicChatsPannel) {
+		if (currentPannel.type !== PannelType.publicChats) {
 			return <div></div>;
 		}
 		return (
@@ -307,6 +308,27 @@ export const Messages = (
 				messageStatus(message, index, messages)
 			);
 		return <div>{messages}</div>;
+	}
+
+	if (currentPannel.type === PannelType.invite) {
+		return (
+			<div id="messages">
+				{invites.map((invite: Invite) => inviteStatus(invite))}
+				{ContextMenuEl(
+					contextMenu,
+					contextMenuTarget,
+					setContextMenu,
+					contextMenuPos,
+					socket,
+					currentChatRoom,
+					cookies,
+					myChats,
+					authenticatedUserID,
+					blockedUsers,
+					setBlockedUsers
+				)}
+			</div>
+		);
 	}
 
 	return (
