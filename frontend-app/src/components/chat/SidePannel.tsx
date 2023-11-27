@@ -4,6 +4,7 @@ import { ReceivedInfo, ChatRoom } from "./types";
 import { MdOutlineMessage } from "react-icons/md";
 import { getButtonIcon, ButtonIconType } from "../styles/icons";
 import { separatorLine } from "../styles/separator";
+import { PiChatsDuotone } from "react-icons/pi";
 
 enum ChanType {
 	Channel,
@@ -94,7 +95,9 @@ export const SidePannel = (
 						{getDMChannelAlias(channel)}
 					</>
 				) : (
-					<>{channel.name}</>
+					<>
+						<PiChatsDuotone className="m-1 mr-2" /> {channel.name}
+					</>
 				);
 				settingButton = (
 					<button
