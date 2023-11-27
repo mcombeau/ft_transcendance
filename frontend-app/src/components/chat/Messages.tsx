@@ -116,41 +116,47 @@ export const Messages = (
 					<div></div>
 				)}
 				<div
-					className={`w-full flex ${
-						selfSent ? "justify-end" : "justify-start"
+					className={`w-full flex justify-end ${
+						selfSent ? "flex-row" : "flex-row-reverse"
 					}`}
 				>
 					<div
-						key={key}
-						className={`peer rounded-md text-sage max-w-xl flex flex-col m-2 p-2 ${
-							selfSent ? "bg-teal" : "bg-darkblue "
+						className={`flex flex-col mx-2 my-1 ${
+							selfSent ? "items-end" : "items-start"
 						}`}
 					>
-						<a
-							className={`text-sm italic hover:text-lightblue hover:underline ${
-								selfSent ? "hidden" : ""
+						<div
+							key={key}
+							className={`peer rounded-md text-sage max-w-xl flex flex-col p-2 ${
+								selfSent ? "bg-teal" : "bg-darkblue "
 							}`}
-							onClick={() => {
-								navigate("/user/" + msg.senderID); // TODO: create front profile page and go there
-							}}
-							onContextMenu={(e) => {
-								e.preventDefault();
-								if (currentChatRoom.name !== "" && settings === false) {
-									setContextMenu(true);
-									setContextMenuPos({ x: e.pageX, y: e.pageY });
-									setContextMenuTarget({
-										id: msg.senderID,
-										username: msg.senderUsername,
-									});
-								}
-							}}
 						>
-							{msg.senderUsername}
-						</a>
-						<div className="flex-1 break-words">{msg.msg}</div>
-					</div>
-					<div className="hidden peer-hover:block text-xs text-darkblue">
-						{getFormattedTime(msg.datestamp)}
+							<a
+								className={`text-sm italic hover:text-lightblue hover:underline ${
+									selfSent ? "hidden" : ""
+								}`}
+								onClick={() => {
+									navigate("/user/" + msg.senderID); // TODO: create front profile page and go there
+								}}
+								onContextMenu={(e) => {
+									e.preventDefault();
+									if (currentChatRoom.name !== "" && settings === false) {
+										setContextMenu(true);
+										setContextMenuPos({ x: e.pageX, y: e.pageY });
+										setContextMenuTarget({
+											id: msg.senderID,
+											username: msg.senderUsername,
+										});
+									}
+								}}
+							>
+								{msg.senderUsername}
+							</a>
+							<div className="flex-1 break-words">{msg.msg}</div>
+						</div>
+						<div className="hidden text-xs text-darkblue peer-hover:block">
+							{getFormattedTime(msg.datestamp)}
+						</div>
 					</div>
 				</div>
 			</>
