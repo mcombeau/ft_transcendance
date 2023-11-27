@@ -5,6 +5,7 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { ListParticipants } from "./ListParticipants";
 import { NavigateFunction } from "react-router-dom";
 import { CgClose, CgCloseO } from "react-icons/cg";
+import { separatorLine } from "../styles/separator";
 
 export const SettingsMenu = (
 	settings: boolean,
@@ -47,6 +48,7 @@ export const SettingsMenu = (
 	if (settings && currentChatRoom) {
 		var leave_button = (
 			<button
+				className="button"
 				onClick={() => {
 					console.log("Leaving " + currentChatRoom.name);
 					var info: ReceivedInfo = {
@@ -70,6 +72,7 @@ export const SettingsMenu = (
 		if (checkStatus(currentChatRoom, authenticatedUserID) === Status.Owner) {
 			leave_button = (
 				<button
+					className="button"
 					onClick={() => {
 						var info: ReceivedInfo = {
 							chatRoomID: currentChatRoom.chatRoomID,
@@ -106,6 +109,7 @@ export const SettingsMenu = (
 					<label className="switch">
 						<input
 							type="checkbox"
+							className="mx-2"
 							checked={currentChatRoom.isPrivate}
 							onChange={() => {
 								var info: ReceivedInfo = {
@@ -117,7 +121,7 @@ export const SettingsMenu = (
 						/>
 						<span className="slider round"></span>
 					</label>
-					<p className="private switch">Set channel as private</p>
+					<span className="private switch">Set channel as private</span>
 				</div>
 			);
 		}
@@ -128,14 +132,15 @@ export const SettingsMenu = (
 					{currentChatRoom.name} (
 					{currentChatRoom.isPrivate ? "private" : "public"})
 				</h3>
+				<hr className={`bg-darkblue border-0 h-0.5 mt-1 mb-6`}></hr>
 				{leave_button} <br></br>
 				{private_public}
-				<h3>Password settings</h3>
 				{currentChatRoom.hasPassword
 					? "Password protected"
 					: "Not password protected"}
 				{password_form}
-				<h3>Channel members</h3>
+				<h3 className="font-bold text-xl mb-1 mt-4">Channel members</h3>
+				<hr className={`bg-darkblue border-0 h-0.5 mb-4`}></hr>
 				{ListParticipants(
 					currentChatRoom,
 					navigate,

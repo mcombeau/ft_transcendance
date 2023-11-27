@@ -3,6 +3,7 @@ import { NavigateFunction } from "react-router-dom";
 import { Socket } from "socket.io-client";
 import { ChangeStatus, isUserMuted } from "./Chat";
 import { checkStatus } from "./Chat";
+import { ButtonIconType, getButtonIcon } from "../styles/icons";
 
 export const ListParticipants = (
 	channel: ChatRoom,
@@ -38,14 +39,15 @@ export const ListParticipants = (
 		<ul className="participant_list">
 			{channel.participants.map((participant: User) => {
 				return (
-					<div>
+					<div className="flex items-center">
 						{displayUser(participant)}
 						{checkStatus(channel, authenticatedUserID) !== Status.Normal &&
 						checkStatus(channel, participant.userID) !== Status.Owner &&
 						authenticatedUserID !== participant.userID ? (
-							<div>
+							<>
 								{isUserMuted(participant) ? (
 									<button
+										className="button-sm"
 										onClick={() => {
 											console.log("Muted");
 											var info: ReceivedInfo = {
@@ -59,10 +61,10 @@ export const ListParticipants = (
 											ChangeStatus(info, "mute", socket);
 										}}
 									>
-										Unmute
+										{getButtonIcon(ButtonIconType.unmute, "button-icon-sm")}
 									</button>
 								) : (
-									<div>
+									<>
 										<select id={"mute " + participant.username}>
 											<option value="1">1 minute</option>
 											<option value="5">5 minutes</option>
@@ -70,6 +72,7 @@ export const ListParticipants = (
 											<option value="1440">1 day</option>
 										</select>
 										<button
+											className="button-sm"
 											onClick={() => {
 												var muteTime = document.getElementById(
 													"mute " + participant.username
@@ -87,11 +90,12 @@ export const ListParticipants = (
 												ChangeStatus(info, "mute", socket);
 											}}
 										>
-											Mute
+											{getButtonIcon(ButtonIconType.mute, "button-icon-sm")}
 										</button>
-									</div>
+									</>
 								)}
 								<button
+									className="button-sm"
 									onClick={() => {
 										console.log("Kicked");
 										var info: ReceivedInfo = {
@@ -102,9 +106,10 @@ export const ListParticipants = (
 										ChangeStatus(info, "kick", socket);
 									}}
 								>
-									Kick
+									{getButtonIcon(ButtonIconType.kick, "button-icon-sm")}
 								</button>
 								<button
+									className="button-sm"
 									onClick={() => {
 										console.log("Banned " + participant);
 										var info: ReceivedInfo = {
@@ -115,17 +120,18 @@ export const ListParticipants = (
 										ChangeStatus(info, "ban", socket);
 									}}
 								>
-									Ban
+									{getButtonIcon(ButtonIconType.ban, "button-icon-sm")}
 								</button>
-							</div>
+							</>
 						) : (
 							<div></div>
 						)}
 						{checkStatus(channel, authenticatedUserID) === Status.Owner &&
 						checkStatus(channel, participant.userID) !== Status.Owner &&
 						authenticatedUserID !== participant.userID ? (
-							<div>
+							<>
 								<button
+									className="button-sm flex"
 									onClick={() => {
 										console.log("Made operator " + participant);
 										var info: ReceivedInfo = {
@@ -136,11 +142,12 @@ export const ListParticipants = (
 										ChangeStatus(info, "operator", socket);
 									}}
 								>
+									{getButtonIcon(ButtonIconType.operator, "button-icon-sm")}
 									{checkStatus(channel, participant.userID) == Status.Operator
 										? "Remove from admins"
 										: "Make admin"}
 								</button>
-							</div>
+							</>
 						) : (
 							<div></div>
 						)}
@@ -154,6 +161,7 @@ export const ListParticipants = (
 						<li>{participant.username}</li>
 						{checkStatus(channel, authenticatedUserID) !== Status.Normal ? (
 							<button
+								className="button-sm"
 								onClick={() => {
 									console.log("unban " + participant.username);
 									var info: ReceivedInfo = {
@@ -164,7 +172,7 @@ export const ListParticipants = (
 									ChangeStatus(info, "ban", socket);
 								}}
 							>
-								Unban
+								{getButtonIcon(ButtonIconType.unban, "button-icon-sm")}
 							</button>
 						) : (
 							""

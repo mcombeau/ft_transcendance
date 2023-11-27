@@ -1,8 +1,5 @@
 import { LuGamepad } from "react-icons/lu";
 import { CgUnblock } from "react-icons/cg";
-import { BiVolumeFull, BiVolumeMute } from "react-icons/bi";
-import { RxExit } from "react-icons/rx";
-import { MdAdminPanelSettings } from "react-icons/md";
 
 export enum ButtonIconType {
 	challenge,
@@ -12,12 +9,6 @@ export enum ButtonIconType {
 	unblock,
 	dm,
 	settings,
-	mute,
-	unmute,
-	kick,
-	ban,
-	unban,
-	operator,
 }
 
 export function getButtonIcon(
@@ -25,16 +16,8 @@ export function getButtonIcon(
 	className: string = "button-icon"
 ) {
 	switch (buttonType) {
-		case ButtonIconType.operator:
-			return <MdAdminPanelSettings className={className} />;
 		case ButtonIconType.challenge:
 			return <LuGamepad className={className}></LuGamepad>;
-		case ButtonIconType.kick:
-			return <RxExit className={className} />;
-		case ButtonIconType.mute:
-			return <BiVolumeMute className={className} />;
-		case ButtonIconType.unmute:
-			return <BiVolumeFull className={className} />;
 		case ButtonIconType.friend:
 			return (
 				<svg
@@ -86,27 +69,6 @@ export function getButtonIcon(
 					/>
 				</svg>
 			);
-		case ButtonIconType.ban:
-			return (
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					fill="none"
-					viewBox="0 0 24 24"
-					strokeWidth={1.5}
-					stroke="currentColor"
-					className={className}
-				>
-					<path
-						strokeLinecap="round"
-						strokeLinejoin="round"
-						d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
-					/>
-				</svg>
-			);
-		case ButtonIconType.unban:
-			return <CgUnblock className={className} />;
-		case ButtonIconType.unblock:
-			return <CgUnblock className={className} />;
 		case ButtonIconType.unblock:
 			return <CgUnblock className={className} />;
 		case ButtonIconType.dm:
