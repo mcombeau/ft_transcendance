@@ -28,17 +28,14 @@
 
   - Error in back if token expired => handle it
   - Create DM from profile page doesn't create DM
-  - Select invite/public chats
   - Invite to friend from profle sometimes doesn't work ???
 
 - Appearance
 
-  - use Tailwind CSS
   - css for lobby play
   - css for login page
   - css for settings profile
-  - make friend avatars look pretty
-  - css live game page
+  - css for game
 
 - Project validation
 
