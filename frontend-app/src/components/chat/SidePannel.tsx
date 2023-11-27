@@ -2,7 +2,8 @@ import { Dispatch, ReactElement, SetStateAction } from "react";
 import { Socket } from "socket.io-client";
 import { ReceivedInfo, ChatRoom } from "./types";
 import { MdOutlineMessage } from "react-icons/md";
-import { getButtonIcon, ButtonIconType } from "../profile/icons";
+import { getButtonIcon, ButtonIconType } from "../styles/icons";
+import { separatorLine } from "../styles/separator";
 
 enum ChanType {
 	Channel,
@@ -156,8 +157,16 @@ export const SidePannel = (
 			<div id="flex flex-col">
 				{channelInfo(ChanType.Invites)}
 				{channelInfo(ChanType.PublicChans)}
-				<hr className="bg-lightblue h-1 border-0 mx-2"></hr>
+				{separatorLine("Private messages")}
 				{myChats
+					.filter((chat: ChatRoom) => chat.isDM)
+					.sort((a, b) => a.name.localeCompare(b.name))
+					.map((channel: ChatRoom, key: number) =>
+						channelInfo(ChanType.Channel, channel, key)
+					)}
+				{separatorLine("Public chatrooms")}
+				{myChats
+					.filter((chat: ChatRoom) => !chat.isDM)
 					.sort((a, b) => a.name.localeCompare(b.name))
 					.map((channel: ChatRoom, key: number) =>
 						channelInfo(ChanType.Channel, channel, key)

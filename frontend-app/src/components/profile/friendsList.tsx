@@ -8,7 +8,7 @@ import {
 } from "react";
 import { WebSocketContext } from "../../contexts/WebsocketContext";
 import { AuthenticationContext } from "../authenticationState";
-import { ButtonIconType, getButtonIcon } from "./icons";
+import { getButtonIcon, ButtonIconType } from "../styles/icons";
 import {
 	blockUser,
 	getUserStatusColor,

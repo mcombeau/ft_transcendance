@@ -4,6 +4,7 @@ import { Socket } from "socket.io-client";
 import { Message, ChatRoom, Invite, PublicChatRoom } from "./types";
 import { ContextMenuEl } from "./ContextMenu";
 import { ReceivedInfo, typeInvite } from "./types";
+import { separatorLine } from "../styles/separator";
 
 export const Messages = (
 	currentChatRoom: ChatRoom,
@@ -106,12 +107,7 @@ export const Messages = (
 		return (
 			<>
 				{firstOfDay ? (
-					<div className={`w-full flex justify-center mb-4 relative`}>
-						<hr className="bg-sage border-0 h-0.5 w-3/4 mt-2"></hr>
-						<div className="bg-lightblue text-sage text-sm italic absolute px-4 top-0">
-							{formatDate(msg.datestamp)}
-						</div>
-					</div>
+					separatorLine(formatDate(msg.datestamp), "sage")
 				) : (
 					<div></div>
 				)}
@@ -126,7 +122,7 @@ export const Messages = (
 						}`}
 					>
 						<a
-							className={`text-sm italic text-darkblue hover:text-lightblue hover:underline ${
+							className={`text-sm italic text-darkblue hover:text-teal hover:underline ${
 								selfSent ? "hidden" : ""
 							}`}
 							onClick={() => {

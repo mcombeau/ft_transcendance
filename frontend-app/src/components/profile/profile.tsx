@@ -10,7 +10,7 @@ import ProfileSettings from "./profileSettings";
 import { AuthenticationContext } from "../authenticationState";
 import { typeInvite } from "../chat/types";
 import { Socket } from "socket.io-client";
-import { ButtonIconType, getButtonIcon } from "./icons";
+import { ButtonIconType, getButtonIcon } from "../styles/icons";
 
 export enum UserStatus {
 	Offline = "offline",
