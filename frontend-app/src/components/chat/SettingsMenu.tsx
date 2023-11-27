@@ -6,6 +6,7 @@ import { ListParticipants } from "./ListParticipants";
 import { NavigateFunction } from "react-router-dom";
 import { CgClose, CgCloseO } from "react-icons/cg";
 import { separatorLine } from "../styles/separator";
+import { MdLockOpen, MdLockOutline } from "react-icons/md";
 
 export const SettingsMenu = (
 	settings: boolean,
@@ -87,15 +88,22 @@ export const SettingsMenu = (
 			);
 			password_form = (
 				<div>
-					<form className="set_password" onSubmit={submitNewPassword}>
+					<form
+						className="set_password items-center"
+						onSubmit={submitNewPassword}
+					>
 						<input
+							className="bg-sage rounded-md p-2 placeholder:text-darkblue placeholder:opacity-40"
+							placeholder="password"
 							type="password"
 							value={newPassword}
 							onChange={(e) => {
 								setNewPassword(e.target.value);
 							}}
 						/>
-						<button>{currentChatRoom.hasPassword ? "Update" : "Set"}</button>
+						<button className="button px-2">
+							{currentChatRoom.hasPassword ? "Update" : "Set"}
+						</button>
 					</form>
 					{currentChatRoom.hasPassword ? (
 						<button onClick={removePassword}>Remove password</button>
@@ -105,22 +113,19 @@ export const SettingsMenu = (
 				</div>
 			);
 			var private_public = (
-				<div>
-					<label className="switch">
-						<input
-							type="checkbox"
-							className="mx-2"
-							checked={currentChatRoom.isPrivate}
-							onChange={() => {
-								var info: ReceivedInfo = {
-									chatRoomID: currentChatRoom.chatRoomID,
-									token: cookies["token"],
-								};
-								socket.emit("toggle private", info);
-							}}
-						/>
-						<span className="slider round"></span>
-					</label>
+				<div className="rounded-md my-4">
+					<input
+						type="checkbox"
+						className="mx-2"
+						checked={currentChatRoom.isPrivate}
+						onChange={() => {
+							var info: ReceivedInfo = {
+								chatRoomID: currentChatRoom.chatRoomID,
+								token: cookies["token"],
+							};
+							socket.emit("toggle private", info);
+						}}
+					/>
 					<span className="private switch">Set channel as private</span>
 				</div>
 			);
@@ -133,12 +138,24 @@ export const SettingsMenu = (
 					{currentChatRoom.isPrivate ? "private" : "public"})
 				</h3>
 				<hr className={`bg-darkblue border-0 h-0.5 mt-1 mb-6`}></hr>
-				{leave_button} <br></br>
+				{leave_button}
 				{private_public}
-				{currentChatRoom.hasPassword
-					? "Password protected"
-					: "Not password protected"}
-				{password_form}
+				<hr className={`bg-darkblue border-0 h-0.5 mt-1 mb-6`}></hr>
+				<div className="ml-2">
+					<div className="flex items-center mb-4">
+						{currentChatRoom.hasPassword ? (
+							<>
+								<MdLockOutline className="mr-2" /> Password protected
+							</>
+						) : (
+							<>
+								<MdLockOpen className="mr-2" />
+								Not password protected
+							</>
+						)}
+					</div>
+					{password_form}
+				</div>
 				<h3 className="font-bold text-xl mb-1 mt-4">Channel members</h3>
 				<hr className={`bg-darkblue border-0 h-0.5 mb-4`}></hr>
 				{ListParticipants(
