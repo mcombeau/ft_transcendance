@@ -125,33 +125,33 @@ export const Messages = (
 							selfSent ? "items-end" : "items-start"
 						}`}
 					>
+						<a
+							className={`text-sm italic text-darkblue hover:text-lightblue hover:underline ${
+								selfSent ? "hidden" : ""
+							}`}
+							onClick={() => {
+								navigate("/user/" + msg.senderID); // TODO: create front profile page and go there
+							}}
+							onContextMenu={(e) => {
+								e.preventDefault();
+								if (currentChatRoom.name !== "" && settings === false) {
+									setContextMenu(true);
+									setContextMenuPos({ x: e.pageX, y: e.pageY });
+									setContextMenuTarget({
+										id: msg.senderID,
+										username: msg.senderUsername,
+									});
+								}
+							}}
+						>
+							{msg.senderUsername}
+						</a>
 						<div
 							key={key}
 							className={`peer rounded-md text-sage max-w-xl flex flex-col p-2 ${
 								selfSent ? "bg-teal" : "bg-darkblue "
 							}`}
 						>
-							<a
-								className={`text-sm italic hover:text-lightblue hover:underline ${
-									selfSent ? "hidden" : ""
-								}`}
-								onClick={() => {
-									navigate("/user/" + msg.senderID); // TODO: create front profile page and go there
-								}}
-								onContextMenu={(e) => {
-									e.preventDefault();
-									if (currentChatRoom.name !== "" && settings === false) {
-										setContextMenu(true);
-										setContextMenuPos({ x: e.pageX, y: e.pageY });
-										setContextMenuTarget({
-											id: msg.senderID,
-											username: msg.senderUsername,
-										});
-									}
-								}}
-							>
-								{msg.senderUsername}
-							</a>
 							<div className="flex-1 break-words">{msg.msg}</div>
 						</div>
 						<div className="hidden text-xs text-darkblue peer-hover:block">
