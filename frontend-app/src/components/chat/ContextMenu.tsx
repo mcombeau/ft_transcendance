@@ -147,125 +147,167 @@ export const ContextMenuEl = (
 		);
 	}
 
+	function muteButton() {
+		return (
+			<li
+				onClick={() => {
+					var info: ReceivedInfo = {
+						token: cookies["token"],
+						chatRoomID: channel.chatRoomID,
+						targetID: target.id,
+						participantInfo: {
+							mutedUntil: 1,
+						},
+					};
+					ChangeStatus(info, "mute", socket);
+					setContextMenu(false);
+				}}
+			>
+				{getButtonIcon(ButtonIconType.mute, "button-sm w-6 h-6")}
+			</li>
+		);
+	}
+
+	function kickButton() {
+		return (
+			<li
+				onClick={() => {
+					console.log("Kicked " + target.username);
+					var info: ReceivedInfo = {
+						token: cookies["token"],
+						chatRoomID: channel.chatRoomID,
+						targetID: target.id,
+					};
+					ChangeStatus(info, "kick", socket);
+					setContextMenu(false);
+				}}
+			>
+				{getButtonIcon(ButtonIconType.kick, "button-sm w-6 h-6")}
+			</li>
+		);
+	}
+
+	function banButton() {
+		return (
+			<li
+				onClick={() => {
+					console.log("Banned " + target.username);
+					var info: ReceivedInfo = {
+						token: cookies["token"],
+						chatRoomID: channel.chatRoomID,
+						targetID: target.id,
+					};
+					ChangeStatus(info, "ban", socket);
+					setContextMenu(false);
+				}}
+			>
+				{getButtonIcon(ButtonIconType.ban, "button-sm w-6 h-6")}
+			</li>
+		);
+	}
+	function operatorButton() {
+		return (
+			<li
+				onClick={() => {
+					console.log("Made operator " + target.username);
+					var info: ReceivedInfo = {
+						token: cookies["token"],
+						chatRoomID: channel.chatRoomID,
+						targetID: target.id,
+					};
+					ChangeStatus(info, "operator", socket);
+					setContextMenu(false);
+				}}
+			>
+				{
+					// TODO: find icon for removing from operators
+					checkStatus(channel, target.id) === Status.Operator
+						? getButtonIcon(ButtonIconType.operator, "button-sm w-6 h-6")
+						: getButtonIcon(ButtonIconType.operator, "button-sm w-6 h-6")
+				}
+			</li>
+		);
+	}
+
+	function dmButton() {
+		return (
+			<li
+				onClick={() => {
+					console.log("DM " + target.username);
+					var info: ReceivedInfo = {
+						token: cookies["token"],
+						chatRoomID: channel.chatRoomID,
+						targetID: target.id,
+					};
+					ChangeStatus(info, "dm", socket);
+					setContextMenu(false);
+				}}
+			>
+				{getButtonIcon(ButtonIconType.dm, "button-sm w-6 h-6")}
+			</li>
+		);
+	}
+
+	function inviteToChannelButton() {
+		return (
+			<li
+				onClick={() => {
+					console.log("Invited " + target.username);
+					setInvitesMenu(true);
+				}}
+			>
+				{getButtonIcon(ButtonIconType.invite, "button-sm w-6 h-6")}
+			</li>
+		);
+	}
+
+	function challengeButton() {
+		return (
+			<li
+				onClick={(e) => {
+					console.log("Challenged " + target.username);
+					invite(e, target, typeInvite.Game);
+				}}
+			>
+				{getButtonIcon(ButtonIconType.challenge, "button-sm  w-6 h-6")}
+			</li>
+		);
+	}
+
+	function friendButton() {
+		return (
+			<li
+				onClick={(e) => {
+					console.log("Added as friend " + target.username);
+					invite(e, target, typeInvite.Friend);
+				}}
+			>
+				{getButtonIcon(ButtonIconType.friend, "button-sm w-6 h-6")}
+			</li>
+		);
+	}
+
 	if (!invitesMenu) {
 		var options = (
 			<ul>
 				{blockButton()}
-				<li
-					onClick={() => {
-						console.log("Invited " + target.username);
-						setInvitesMenu(true);
-					}}
-				>
-					{getButtonIcon(ButtonIconType.invite, "button-sm w-6 h-6")}
-				</li>
-				{iCanChallenge ? (
-					<li
-						onClick={(e) => {
-							console.log("Challenged " + target.username);
-							invite(e, target, typeInvite.Game);
-						}}
-					>
-						{getButtonIcon(ButtonIconType.challenge, "button-sm  w-6 h-6")}
-					</li>
-				) : (
-					<></>
-				)}
-				<li
-					onClick={(e) => {
-						console.log("Added as friend " + target.username);
-						invite(e, target, typeInvite.Friend);
-					}}
-				>
-					{getButtonIcon(ButtonIconType.friend, "button-sm w-6 h-6")}
-				</li>
-				<li
-					onClick={() => {
-						console.log("DM " + target.username);
-						var info: ReceivedInfo = {
-							token: cookies["token"],
-							chatRoomID: channel.chatRoomID,
-							targetID: target.id,
-						};
-						ChangeStatus(info, "dm", socket);
-						setContextMenu(false);
-					}}
-				>
-					{getButtonIcon(ButtonIconType.dm, "button-sm w-6 h-6")}
-				</li>
-				{checkStatus(channel, authenticatedUserID) !== Status.Operator && // TODO: double check logic
+				{inviteToChannelButton()}
+				{iCanChallenge ? challengeButton() : <></>}
+				{friendButton()}
+				{channel.isDM === false ? dmButton() : <></>}
+				{channel.isDM === false &&
+				checkStatus(channel, authenticatedUserID) !== Status.Normal &&
 				checkStatus(channel, target.id) !== Status.Owner ? (
 					<div>
-						<li
-							onClick={() => {
-								var info: ReceivedInfo = {
-									token: cookies["token"],
-									chatRoomID: channel.chatRoomID,
-									targetID: target.id,
-									participantInfo: {
-										mutedUntil: 1,
-									},
-								};
-								ChangeStatus(info, "mute", socket);
-								setContextMenu(false);
-							}}
-						>
-							{getButtonIcon(ButtonIconType.mute, "button-sm w-6 h-6")}
-						</li>
-						<li
-							onClick={() => {
-								console.log("Kicked " + target.username);
-								var info: ReceivedInfo = {
-									token: cookies["token"],
-									chatRoomID: channel.chatRoomID,
-									targetID: target.id,
-								};
-								ChangeStatus(info, "kick", socket);
-								setContextMenu(false);
-							}}
-						>
-							{getButtonIcon(ButtonIconType.kick, "button-sm w-6 h-6")}
-						</li>
-						<li
-							onClick={() => {
-								console.log("Banned " + target.username);
-								var info: ReceivedInfo = {
-									token: cookies["token"],
-									chatRoomID: channel.chatRoomID,
-									targetID: target.id,
-								};
-								ChangeStatus(info, "ban", socket);
-								setContextMenu(false);
-							}}
-						>
-							{getButtonIcon(ButtonIconType.ban, "button-sm w-6 h-6")}
-						</li>
+						{muteButton()}
+						{kickButton()}
+						{banButton()}
 					</div>
 				) : (
 					<div></div>
 				)}
 				{checkStatus(channel, authenticatedUserID) === Status.Owner ? ( // TODO: check if admin and switch button
-					<div>
-						<li
-							onClick={() => {
-								console.log("Made operator " + target.username);
-								var info: ReceivedInfo = {
-									token: cookies["token"],
-									chatRoomID: channel.chatRoomID,
-									targetID: target.id,
-								};
-								ChangeStatus(info, "operator", socket);
-								setContextMenu(false);
-							}}
-						>
-							{
-								// TODO: find icon for removing from operators
-								checkStatus(channel, target.id) === Status.Operator
-									? getButtonIcon(ButtonIconType.operator, "button-sm w-6 h-6")
-									: getButtonIcon(ButtonIconType.operator, "button-sm w-6 h-6")
-							}
-						</li>
-					</div>
+					<div>{operatorButton()}</div>
 				) : (
 					<div></div>
 				)}
