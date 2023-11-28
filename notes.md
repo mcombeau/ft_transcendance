@@ -32,7 +32,6 @@
 - Bugs
 
   - Error in back if token expired => handle it
-  - too many options contextMenu in dms
 
 - Chats
 
