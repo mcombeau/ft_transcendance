@@ -4,8 +4,7 @@ import { Socket } from "socket.io-client";
 import { Dispatch, SetStateAction, useState } from "react";
 import { ListParticipants } from "./ListParticipants";
 import { NavigateFunction } from "react-router-dom";
-import { CgClose, CgCloseO } from "react-icons/cg";
-import { separatorLine } from "../styles/separator";
+import { CgCloseO } from "react-icons/cg";
 import { MdLockOpen, MdLockOutline } from "react-icons/md";
 
 export const SettingsMenu = (

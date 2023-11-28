@@ -79,7 +79,7 @@ export class AuthService {
 		);
 		const access_token = await this.login(user);
 		res.cookie("token", access_token.access_token);
-		res.redirect(302, `/user/${user.id}`);
+		res.redirect(302, `/user/${user.id}#settings`);
 	}
 
 	async generateTwoFactorAuthenticationSecret(userInfo: any) {

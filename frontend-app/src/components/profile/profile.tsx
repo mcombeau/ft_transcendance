@@ -1,6 +1,6 @@
 import { ReceivedInfo } from "../chat/types";
 import { useContext, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
 import { useCookies } from "react-cookie";
 import { WebSocketContext } from "../../contexts/WebsocketContext";
@@ -422,7 +422,7 @@ function interactWithUser(
 	);
 }
 
-function editProfile(
+function editProfileButton(
 	isMyPage: boolean,
 	user: User,
 	isEditingProfile: any,
@@ -445,6 +445,7 @@ function editProfile(
 
 function Profile() {
 	var profileUserID: number = Number(useParams().id);
+	let location = useLocation();
 	const [user, setUser] = useState<User>();
 	const [isMyPage, setIsMyPage] = useState(false);
 	const [cookies] = useCookies(["token"]);
@@ -552,6 +553,16 @@ function Profile() {
 		socket.emit("is in game", cookies["token"]);
 	}, []);
 
+	useEffect(() => {
+		if (
+			user &&
+			location.hash === "#settings" &&
+			authenticatedUserID === profileUserID
+		) {
+			setIsEditingProfile(true);
+		}
+	}, [user]);
+
 	return (
 		<div id="profile" className="grid grid-cols-2">
 			<div className="flex flex-col">
@@ -576,19 +587,30 @@ function Profile() {
 							socket,
 							iCanChallenge
 						)}
-						{editProfile(isMyPage, user, isEditingProfile, setIsEditingProfile)}
-						{ProfileSettings(
+						{editProfileButton(
+							isMyPage,
 							user,
-							cookies,
 							isEditingProfile,
-							setIsEditingProfile,
-							authenticatedUserID
+							setIsEditingProfile
 						)}
 					</div>
 				</div>
 				{FriendsList(isMyPage, user, cookies, friends, setFriends)}
 			</div>
 			<div className="">{GameHistory(user, cookies)}</div>
+			<div
+				className={`bg-teal border-2 border-teal border-y-8 rounded-md absolute top-0 bottom-0 left-0 right-0 m-auto w-1/2 h-3/4 overflow-scroll scrollbar-hide ${
+					isEditingProfile ? "" : "hidden"
+				}`}
+			>
+				{ProfileSettings(
+					user,
+					cookies,
+					isEditingProfile,
+					setIsEditingProfile,
+					authenticatedUserID
+				)}
+			</div>
 		</div>
 	);
 }

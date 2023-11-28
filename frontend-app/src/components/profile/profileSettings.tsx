@@ -1,5 +1,6 @@
 import { User } from "./profile";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { ButtonIconType, getButtonIcon } from "../styles/icons";
 
 async function readStream(response: any) {
 	const reader = response.body.getReader();
@@ -186,72 +187,75 @@ function ProfileSettings(
 	if (!isEditingProfile) return <div></div>;
 
 	return (
-		<div>
-			<button
-				onClick={() => {
-					setIsEditingProfile(false);
-				}}
-			>
-				Close settings
-			</button>
-			{newAvatar && (
-				<img
-					alt="not found"
-					width={"250px"}
-					src={URL.createObjectURL(newAvatar)}
-				/>
-			)}
-			<form id="avatar-form">
-				<input
-					type="file"
-					name="file"
-					onChange={(event) => {
-						console.log(event.target.files[0]);
-						setNewAvatar(event.target.files[0]);
+		<div className="text-darkblue">
+			<div className="flex justify-between mx-2">
+				<h2 className="font-bold text-sage text-lg">Settings</h2>
+				<button
+					onClick={() => {
+						setIsEditingProfile(false);
 					}}
-				/>
-				<button onClick={submitNewAvatar}>Save new avatar</button>
-			</form>
-			<button onClick={removeAvatar}>Remove avatar</button>
-			<form className="edit_field" onSubmit={submitUserInfo}>
-				<input
-					value={newUsername}
-					onChange={(e) => {
-						setNewUsername(e.target.value);
-					}}
-				/>
-				<input
-					value={newEmail}
-					onChange={(e) => {
-						setNewEmail(e.target.value);
-					}}
-				/>
-				<button>Save changes</button>
-			</form>
-			{user.login42 === "" ? (
-				<form className="edit_field" onSubmit={submitNewPassword}>
+				>
+					{getButtonIcon(ButtonIconType.closeSettings, "w-6 h-6 text-sage")}
+				</button>
+			</div>
+			<div className="bg-lightblue rounded-md m-2 p-2">
+				<h3 className="font-bold">Avatar</h3>
+				{newAvatar && (
+					<img
+						alt="not found"
+						width={"250px"}
+						src={URL.createObjectURL(newAvatar)}
+						className="w-15 h-15 rounded-full sm:w-30 sm:h-30 m-2"
+					/>
+				)}
+				<form id="avatar-form" className="m-2">
 					<input
-						placeholder="Current password"
-						type="password"
-						value={currentPassword}
-						onChange={(e) => {
-							setCurrentPassword(e.target.value);
+						className="file:text-sage file:bg-darkblue file:border-none file:rounded-md file:p-1 file:text-sm bg-sage rounded-md p-1"
+						type="file"
+						name="file"
+						onChange={(event) => {
+							console.log(event.target.files[0]);
+							setNewAvatar(event.target.files[0]);
 						}}
 					/>
-					<input
-						placeholder="New password"
-						type="password"
-						value={newPassword}
-						onChange={(e) => {
-							setNewPassword(e.target.value);
-						}}
-					/>
-					<button>Change password</button>
+					<button
+						className="rounded-md bg-darkblue text-sage text-sm p-2 py-2 m-2"
+						onClick={submitNewAvatar}
+					>
+						Save new avatar
+					</button>
+					<button
+						className="rounded-md bg-darkblue text-sage text-sm p-2 py-2 m-2"
+						onClick={removeAvatar}
+					>
+						Remove avatar
+					</button>
 				</form>
-			) : (
-				<div />
-			)}
-			<div>
+			</div>
+			<div className="bg-lightblue rounded-md m-2 p-2">
+				<h3 className="font-bold">Personal Information</h3>
+				<form className="edit_field" onSubmit={submitUserInfo}>
+					<input
+						className="bg-sage rounded-md p-2 m-2 focus:outline-none"
+						value={newUsername}
+						onChange={(e) => {
+							setNewUsername(e.target.value);
+						}}
+					/>
+					<input
+						className="bg-sage rounded-md p-2 m-2 focus:outline-none"
+						value={newEmail}
+						onChange={(e) => {
+							setNewEmail(e.target.value);
+						}}
+					/>
+					<button className="rounded-md bg-darkblue text-sage text-sm p-2 py-2 m-2">
+						Save changes
+					</button>
+				</form>
+			</div>
+			<div className="bg-lightblue rounded-md m-2 p-2 mb-0">
+				<h3 className="font-bold">Security</h3>
 				<input
 					type="checkbox"
 					checked={is2faEnabled}
@@ -260,24 +264,26 @@ function ProfileSettings(
 					}}
 				/>
 				<label> Enable two-factor authentication</label>
-			</div>
-			{qrcode && (
-				<div>
-					<img src={qrcode}></img>
+				{qrcode && (
+					<div>
+						<img src={qrcode}></img>
 
-					<form onSubmit={submitTwoFaValidationCode}>
-						<input
-							placeholder="2fa validation code"
-							value={twoFaValidationCode}
-							onChange={(e) => {
-								setTwoFaValidationCode(e.target.value);
-							}}
-						/>
-						<button>Submit</button>
-					</form>
-				</div>
-			)}
-			<canvas id="canvas"></canvas>
+						<form onSubmit={submitTwoFaValidationCode}>
+							<input
+								placeholder="2fa validation code"
+								value={twoFaValidationCode}
+								onChange={(e) => {
+									setTwoFaValidationCode(e.target.value);
+								}}
+							/>
+							<button className="rounded-md bg-darkblue text-sage text-sm p-2 py-2 m-2">
+								Submit
+							</button>
+						</form>
+					</div>
+				)}
+				<canvas id="canvas"></canvas>
+			</div>
 		</div>
 	);
 }

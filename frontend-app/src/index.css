@@ -49,5 +49,5 @@
 }
 
 .content {
-	@apply absolute top-24 bottom-0 left-0 right-0 overflow-y-scroll;
+	@apply absolute top-24 bottom-0 left-0 right-0 overflow-y-scroll scrollbar-hide;
 }
