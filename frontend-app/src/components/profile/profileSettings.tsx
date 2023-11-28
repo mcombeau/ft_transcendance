@@ -188,7 +188,7 @@ function ProfileSettings(
 
 	return (
 		<div className="text-darkblue">
-			<div className="flex justify-between m-2">
+			<div className="flex justify-between mx-2">
 				<h2 className="font-bold text-sage text-lg">Settings</h2>
 				<button
 					onClick={() => {
@@ -205,11 +205,12 @@ function ProfileSettings(
 						alt="not found"
 						width={"250px"}
 						src={URL.createObjectURL(newAvatar)}
-						className="w-8 h-8 rounded-full lg:w-15 lg:h-15 m-2"
+						className="w-15 h-15 rounded-full sm:w-30 sm:h-30 m-2"
 					/>
 				)}
-				<form id="avatar-form">
+				<form id="avatar-form" className="m-2">
 					<input
+						className="file:text-sage file:bg-darkblue file:border-none file:rounded-md file:p-1 file:text-sm bg-sage rounded-md p-1"
 						type="file"
 						name="file"
 						onChange={(event) => {
@@ -217,33 +218,43 @@ function ProfileSettings(
 							setNewAvatar(event.target.files[0]);
 						}}
 					/>
-					<button className="button" onClick={submitNewAvatar}>
+					<button
+						className="rounded-md bg-darkblue text-sage text-sm p-2 py-2 m-2"
+						onClick={submitNewAvatar}
+					>
 						Save new avatar
 					</button>
+					<button
+						className="rounded-md bg-darkblue text-sage text-sm p-2 py-2 m-2"
+						onClick={removeAvatar}
+					>
+						Remove avatar
+					</button>
 				</form>
-				<button className="button" onClick={removeAvatar}>
-					Remove avatar
-				</button>
 			</div>
 			<div className="bg-lightblue rounded-md m-2 p-2">
 				<h3 className="font-bold">Personal Information</h3>
 				<form className="edit_field" onSubmit={submitUserInfo}>
 					<input
+						className="bg-sage rounded-md p-2 m-2"
 						value={newUsername}
 						onChange={(e) => {
 							setNewUsername(e.target.value);
 						}}
 					/>
 					<input
+						className="bg-sage rounded-md p-2 m-2"
 						value={newEmail}
 						onChange={(e) => {
 							setNewEmail(e.target.value);
 						}}
 					/>
-					<button className="button">Save changes</button>
+					<button className="rounded-md bg-darkblue text-sage text-sm p-2 py-2 m-2">
+						Save changes
+					</button>
 				</form>
 			</div>
-			<div className="bg-lightblue rounded-md m-2 p-2">
+			<div className="bg-lightblue rounded-md m-2 p-2 mb-0">
 				<h3 className="font-bold">Security</h3>
 				<input
 					type="checkbox"
@@ -265,7 +276,9 @@ function ProfileSettings(
 									setTwoFaValidationCode(e.target.value);
 								}}
 							/>
-							<button className="button">Submit</button>
+							<button className="rounded-md bg-darkblue text-sage text-sm p-2 py-2 m-2">
+								Submit
+							</button>
 						</form>
 					</div>
 				)}
