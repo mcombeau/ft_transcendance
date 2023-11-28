@@ -1,15 +1,18 @@
-import {Status, ChatRoom, ReceivedInfo} from "./types";
-import {checkStatus} from "./Chat";
-import {Socket} from "socket.io-client";
-import {Dispatch, SetStateAction, useState} from "react";
-import {ListParticipants} from "./ListParticipants";
-import {NavigateFunction} from "react-router-dom";
+import { Status, ChatRoom, ReceivedInfo } from "./types";
+import { checkStatus, CurrentPannel, PannelType } from "./Chat";
+import { Socket } from "socket.io-client";
+import { Dispatch, SetStateAction, useState } from "react";
+import { ListParticipants } from "./ListParticipants";
+import { NavigateFunction } from "react-router-dom";
+import { CgClose, CgCloseO } from "react-icons/cg";
+import { separatorLine } from "../styles/separator";
+import { MdLockOpen, MdLockOutline } from "react-icons/md";
 
 export const SettingsMenu = (
 	settings: boolean,
 	setSettings: Dispatch<SetStateAction<boolean>>,
 	currentChatRoom: ChatRoom,
-	setCurrentChatRoomID: Dispatch<SetStateAction<number>>,
+	setCurrentPannel: Dispatch<SetStateAction<CurrentPannel>>,
 	socket: Socket,
 	navigate: NavigateFunction,
 	cookies: any,
@@ -46,6 +49,7 @@ export const SettingsMenu = (
 	if (settings && currentChatRoom) {
 		var leave_button = (
 			<button
+				className="button"
 				onClick={() => {
 					console.log("Leaving " + currentChatRoom.name);
 					var info: ReceivedInfo = {
@@ -54,7 +58,7 @@ export const SettingsMenu = (
 					};
 					socket.emit("leave chat", info);
 					setSettings(false);
-					setCurrentChatRoomID(null);
+					setCurrentPannel({ type: PannelType.home, chatRoomID: null });
 				}}
 			>
 				Leave channel
@@ -69,6 +73,7 @@ export const SettingsMenu = (
 		if (checkStatus(currentChatRoom, authenticatedUserID) === Status.Owner) {
 			leave_button = (
 				<button
+					className="button"
 					onClick={() => {
 						var info: ReceivedInfo = {
 							chatRoomID: currentChatRoom.chatRoomID,
@@ -83,15 +88,22 @@ export const SettingsMenu = (
 			);
 			password_form = (
 				<div>
-					<form className="set_password" onSubmit={submitNewPassword}>
+					<form
+						className="set_password items-center"
+						onSubmit={submitNewPassword}
+					>
 						<input
+							className="bg-sage rounded-md p-2 placeholder:text-darkblue placeholder:opacity-40"
+							placeholder="password"
 							type="password"
 							value={newPassword}
 							onChange={(e) => {
 								setNewPassword(e.target.value);
 							}}
 						/>
-						<button>{currentChatRoom.hasPassword ? "Update" : "Set"}</button>
+						<button className="button px-2">
+							{currentChatRoom.hasPassword ? "Update" : "Set"}
+						</button>
 					</form>
 					{currentChatRoom.hasPassword ? (
 						<button onClick={removePassword}>Remove password</button>
@@ -101,39 +113,51 @@ export const SettingsMenu = (
 				</div>
 			);
 			var private_public = (
-				<div>
-					<label className="switch">
-						<input
-							type="checkbox"
-							checked={currentChatRoom.isPrivate}
-							onChange={() => {
-								var info: ReceivedInfo = {
-									chatRoomID: currentChatRoom.chatRoomID,
-									token: cookies["token"],
-								};
-								socket.emit("toggle private", info);
-							}}
-						/>
-						<span className="slider round"></span>
-					</label>
-					<p className="private switch">Set channel as private</p>
+				<div className="rounded-md my-4">
+					<input
+						type="checkbox"
+						className="mx-2"
+						checked={currentChatRoom.isPrivate}
+						onChange={() => {
+							var info: ReceivedInfo = {
+								chatRoomID: currentChatRoom.chatRoomID,
+								token: cookies["token"],
+							};
+							socket.emit("toggle private", info);
+						}}
+					/>
+					<span className="private switch">Set channel as private</span>
 				</div>
 			);
 		}
 		return (
-			<div className="settings">
+			<div className="relative m-4 text-darkblue">
 				<h3>
-					Settings for {currentChatRoom.name} (
+					<span className="font-bold text-xl">Settings</span> for{" "}
+					{currentChatRoom.name} (
 					{currentChatRoom.isPrivate ? "private" : "public"})
 				</h3>
-				{leave_button} <br></br>
+				<hr className={`bg-darkblue border-0 h-0.5 mt-1 mb-6`}></hr>
+				{leave_button}
 				{private_public}
-				<h3>Password settings</h3>
-				{currentChatRoom.hasPassword
-					? "Password protected"
-					: "Not password protected"}
-				{password_form}
-				<h3>Channel members</h3>
+				<hr className={`bg-darkblue border-0 h-0.5 mt-1 mb-6`}></hr>
+				<div className="ml-2">
+					<div className="flex items-center mb-4">
+						{currentChatRoom.hasPassword ? (
+							<>
+								<MdLockOutline className="mr-2" /> Password protected
+							</>
+						) : (
+							<>
+								<MdLockOpen className="mr-2" />
+								Not password protected
+							</>
+						)}
+					</div>
+					{password_form}
+				</div>
+				<h3 className="font-bold text-xl mb-1 mt-4">Channel members</h3>
+				<hr className={`bg-darkblue border-0 h-0.5 mb-4`}></hr>
 				{ListParticipants(
 					currentChatRoom,
 					navigate,
@@ -142,12 +166,12 @@ export const SettingsMenu = (
 					authenticatedUserID
 				)}
 				<button
-					className="closesettings"
+					className="absolute top-0 right-0"
 					onClick={() => {
 						setSettings(false);
 					}}
 				>
-					✕
+					<CgCloseO />
 				</button>
 			</div>
 		);

@@ -1,20 +1,28 @@
-import { useContext, useEffect, useState } from "react";
+import {
+	Dispatch,
+	ReactElement,
+	SetStateAction,
+	useContext,
+	useEffect,
+	useState,
+} from "react";
 import { WebSocketContext } from "../../contexts/WebsocketContext";
 import { AuthenticationContext } from "../authenticationState";
-import { blockUser, unblockUser, unfriend, User, UserStatus } from "./profile";
-
-export type Friend = {
-	id: number;
-	username: string;
-	status: UserStatus;
-	avatar?: string;
-};
+import { getButtonIcon, ButtonIconType } from "../styles/icons";
+import {
+	blockUser,
+	getUserStatusColor,
+	unblockUser,
+	unfriend,
+	User,
+} from "./profile";
+import { Friend } from "./profile";
 
 export type PlayerInfo = {
 	userID: number;
 	username: string;
 };
-
+// TODO: move to play.tsx
 export type GameInfo = {
 	player1: PlayerInfo;
 	player2: PlayerInfo;
@@ -37,8 +45,12 @@ function removeFriendFromList(userID: number, setFriends: any) {
 	);
 }
 
-function linkToGame(gameInfo: GameInfo) {
-	return <a href={"/watch/" + gameInfo.socketRoomID}>[watch game]</a>;
+export function linkToGame(gameInfo: GameInfo) {
+	return (
+		<a className="hover:text-teal" href={"/watch/" + gameInfo.socketRoomID}>
+			[watch game]
+		</a>
+	);
 }
 
 function blockButton(
@@ -49,13 +61,14 @@ function blockButton(
 ) {
 	return (
 		<button
+			className="button-sm"
 			onClick={() => {
 				if (blockUser(targetID, myID, cookies)) {
 					removeFriendFromList(targetID, setFriends);
 				}
 			}}
 		>
-			Block
+			{getButtonIcon(ButtonIconType.block, "button-icon-sm")}
 		</button>
 	);
 }
@@ -68,13 +81,14 @@ function unblockButton(
 ) {
 	return (
 		<button
+			className="button-sm"
 			onClick={() => {
 				if (unblockUser(targetID, myID, cookies)) {
 					removeFriendFromList(targetID, setFriends);
 				}
 			}}
 		>
-			Unblock
+			{getButtonIcon(ButtonIconType.unblock, "button-icon-sm")}
 		</button>
 	);
 }
@@ -87,13 +101,14 @@ function unfriendButton(
 ) {
 	return (
 		<button
+			className="button-sm"
 			onClick={() => {
 				if (unfriend(targetID, myID, cookies)) {
 					removeFriendFromList(targetID, setFriends);
 				}
 			}}
 		>
-			Unfriend
+			{getButtonIcon(ButtonIconType.friend, "button-icon-sm")}
 		</button>
 	);
 }
@@ -110,37 +125,61 @@ function displayFriend(
 ) {
 	if (blocked) {
 		return (
-			<li key={key}>
-				<a href={"/user/" + friend.id}>
-					{friend.username} ({friend.status})
+			<li
+				className="grid grid-cols-2 border border-sage rounded-md my-2"
+				key={key}
+			>
+				<a className="flex items-center" href={"/user/" + friend.id}>
+					<span
+						className={`absolute bottom-0 right-0 rounded-full w-1 h-1 p-1.5 m-2 ${getUserStatusColor(
+							friend.status
+						)}`}
+					/>
+					<p className="font-bold m-2">{friend.username}</p>
 				</a>
-				{unblockButton(myID, friend.id, cookies, setFriends)}
+				<div className="justify-self-end">
+					{unblockButton(myID, friend.id, cookies, setFriends)}
+				</div>
 			</li>
 		);
 	}
 	const friendGame = getFriendGame(friend, gameInfos);
-	// TODO: add a challenge button
+
+	let showButtons: ReactElement;
 	if (isMyPage) {
-		return (
-			<li key={key}>
-				<a href={"/user/" + friend.id}>
-					<img src={friend.avatar} width={30} height={30} /> {friend.username} (
-					{friend.status}{" "}
-					{friendGame ? <div> - {linkToGame(friendGame)}</div> : ""})
-				</a>
+		showButtons = (
+			<div className="justify-self-end">
 				{blockButton(myID, friend.id, cookies, setFriends)}
 				{unfriendButton(myID, friend.id, cookies, setFriends)}
-			</li>
+				<button className="button-sm">
+					{getButtonIcon(ButtonIconType.challenge, "button-icon-sm")}
+				</button>
+			</div>
 		);
+	} else {
+		showButtons = <div></div>;
 	}
+
+	// TODO: add a challenge button
 	// TODO: maybe add an add friend/unfriend button
 	return (
-		<li key={key}>
-			<a href={"/user/" + friend.id}>
-				<img src={friend.avatar} width={30} height={30} /> {friend.username} (
-				{friend.status}{" "}
-				{friendGame ? <div> - {linkToGame(friendGame)}</div> : ""})
+		<li
+			className="grid grid-cols-2 border border-sage rounded-md my-2"
+			key={key}
+		>
+			<a className="flex items-center" href={"/user/" + friend.id}>
+				<div className="relative px-1">
+					<img className="rounded-full h-8 w-8 m-2" src={friend.avatar} />
+					<span
+						className={`absolute bottom-0 right-0 rounded-full w-1 h-1 p-1.5 m-2 ${getUserStatusColor(
+							friend.status
+						)}`}
+					/>
+				</div>
+				<p className="font-bold m-2">{friend.username}</p>
+				{friendGame ? <div> - {linkToGame(friendGame)}</div> : ""}
 			</a>
+			{showButtons}
 		</li>
 	);
 }
@@ -174,8 +213,13 @@ function displayFriends(
 	);
 }
 
-function FriendsList(isMyPage: boolean, user: User, cookies: any) {
-	const [friends, setFriends] = useState<Friend[]>();
+function FriendsList(
+	isMyPage: boolean,
+	user: User,
+	cookies: any,
+	friends: Friend[],
+	setFriends: Dispatch<SetStateAction<Friend[]>>
+) {
 	const [gameInfos, setGameInfos] = useState<GameInfo[]>([]);
 	const [blockedUsers, setBlockedUsers] = useState<BlockedUser[]>();
 	const { authenticatedUserID } = useContext(AuthenticationContext);
@@ -188,81 +232,79 @@ function FriendsList(isMyPage: boolean, user: User, cookies: any) {
 				Authorization: `Bearer ${cookies["token"]}`,
 			},
 		};
-		await fetch(
-			`http://localhost/backend/users/${userID}/friends`,
-			request
-		).then(async (response) => {
-			const friendsData = await response.json();
-			if (!response.ok) {
-				console.log("error response loading friends list");
-				return <h1>No Friends loaded</h1>;
-			}
-			var fetchedFriends = await Promise.all(
-				friendsData.map(async (fetchedFriend: any) => {
-					const amIUser1 = fetchedFriend.userID1 === user.id;
+		await fetch(`/backend/users/${userID}/friends`, request).then(
+			async (response) => {
+				const friendsData = await response.json();
+				if (!response.ok) {
+					console.log("error response loading friends list");
+					return <h1>No Friends loaded</h1>;
+				}
+				var fetchedFriends = await Promise.all(
+					friendsData.map(async (fetchedFriend: any) => {
+						const amIUser1 = fetchedFriend.userID1 === user.id;
 
-					const avatar: string = await fetch(
-						`http://localhost/backend/users/${
-							amIUser1 ? fetchedFriend.userID2 : fetchedFriend.userID1
-						}/avatar`,
-						request
-					).then(async (response) => {
-						const data = await response.blob();
-						if (!response.ok) {
-							console.log("error fetching avatar");
-							return null;
+						const avatar: string = await fetch(
+							`/backend/users/${
+								amIUser1 ? fetchedFriend.userID2 : fetchedFriend.userID1
+							}/avatar`,
+							request
+						).then(async (response) => {
+							const data = await response.blob();
+							if (!response.ok) {
+								console.log("error fetching avatar");
+								return null;
+							}
+							const src = URL.createObjectURL(data);
+							return src;
+						});
+						if (!amIUser1) {
+							var newFriend: Friend = {
+								id: fetchedFriend.userID1,
+								username: fetchedFriend.username1,
+								status: fetchedFriend.userStatus1,
+								avatar: avatar,
+							};
+						} else {
+							var newFriend: Friend = {
+								id: fetchedFriend.userID2,
+								username: fetchedFriend.username2,
+								status: fetchedFriend.userStatus2,
+								avatar: avatar,
+							};
 						}
-						const src = URL.createObjectURL(data);
-						return src;
-					});
+						return newFriend;
+					})
+				);
+				setFriends([...fetchedFriends]);
+			}
+		);
+		fetch(`/backend/users/${userID}/blockedUsers`, request).then(
+			async (response) => {
+				const blockedData = await response.json();
+				if (!response.ok) {
+					console.log("error response loading blocked users list");
+					return <h1>No Blocked Users loaded</h1>;
+				}
+				var fetchedBlockedUsers = blockedData.map((fetchedBlockedUser: any) => {
+					const amIUser1 = fetchedBlockedUser.userID1 === user.id;
 					if (!amIUser1) {
-						var newFriend: Friend = {
-							id: fetchedFriend.userID1,
-							username: fetchedFriend.username1,
-							status: fetchedFriend.userStatus1,
-							avatar: avatar,
+						var newBlockedUser: BlockedUser = {
+							id: fetchedBlockedUser.blockedUserID,
+							username: fetchedBlockedUser.blockedUsername,
+							status: fetchedBlockedUser.blockedUserStatus,
 						};
 					} else {
-						var newFriend: Friend = {
-							id: fetchedFriend.userID2,
-							username: fetchedFriend.username2,
-							status: fetchedFriend.userStatus2,
-							avatar: avatar,
+						var newBlockedUser: BlockedUser = {
+							id: fetchedBlockedUser.blockedUserID,
+							username: fetchedBlockedUser.blockedUsername,
+							status: fetchedBlockedUser.blockedUserStatus,
 						};
 					}
-					return newFriend;
-				})
-			);
-			setFriends([...fetchedFriends]);
-		});
-		fetch(
-			`http://localhost/backend/users/${userID}/blockedUsers`,
-			request
-		).then(async (response) => {
-			const blockedData = await response.json();
-			if (!response.ok) {
-				console.log("error response loading blocked users list");
-				return <h1>No Blocked Users loaded</h1>;
+					return newBlockedUser;
+				});
+				setBlockedUsers([...fetchedBlockedUsers]);
 			}
-			var fetchedBlockedUsers = blockedData.map((fetchedBlockedUser: any) => {
-				const amIUser1 = fetchedBlockedUser.userID1 === user.id;
-				if (!amIUser1) {
-					var newBlockedUser: BlockedUser = {
-						id: fetchedBlockedUser.blockedUserID,
-						username: fetchedBlockedUser.blockedUsername,
-						status: fetchedBlockedUser.blockedUserStatus,
-					};
-				} else {
-					var newBlockedUser: BlockedUser = {
-						id: fetchedBlockedUser.blockedUserID,
-						username: fetchedBlockedUser.blockedUsername,
-						status: fetchedBlockedUser.blockedUserStatus,
-					};
-				}
-				return newBlockedUser;
-			});
-			setBlockedUsers([...fetchedBlockedUsers]);
-		});
+		);
 	}
 
 	useEffect(() => {
@@ -286,19 +328,21 @@ function FriendsList(isMyPage: boolean, user: User, cookies: any) {
 	}
 
 	return (
-		<div>
-			<h3>Friends list:</h3>
-			{displayFriends(
-				friends,
-				isMyPage,
-				authenticatedUserID,
-				cookies,
-				setFriends,
-				gameInfos
-			)}
+		<div className="background-element flex-1">
+			<div className="my-2">
+				<h3 className="title-element">Friends list:</h3>
+				{displayFriends(
+					friends,
+					isMyPage,
+					authenticatedUserID,
+					cookies,
+					setFriends,
+					gameInfos
+				)}
+			</div>
 			{isMyPage ? (
-				<div>
-					<h3>Blocked Users</h3>
+				<div className="border-t">
+					<h3 className="title-element">Blocked Users:</h3>
 					{displayFriends(
 						blockedUsers,
 						isMyPage,

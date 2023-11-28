@@ -1,67 +1,60 @@
-%% TODO: Update with subject todo (from notion)
+- CSS
+	- Removed dot from profile
+	- Context menu chat
+	- game  
+	- profile settigns
+
+- Sign in
+
+  - Prompt for info on first sign
+  - Prompt for 2fa when signing in when activated in profile settings
+
+- Profile
+
+  - My profile
+    - change 2fa activation
+    - disable
 
 - Cleanup
 
-  - change alerts to smth else (notifs ?)
+  - deal with all issues from backend in the front
+  - passwords
+    - limit number of password retries on join/accept invite
+    - tell user to fuck off if wrong username/password
   - allow access to chat/leaderboard ... but prompt for sign in
 
 - Game
 
-  - explain controls
-  - draw background in css
+  - draw background in css (refacto constants)
   - personalization
   - deal with broadband/network issues
-  - Make it possible for challenger to leave game room with button. make invite expire for the player's opponent.
-
-- Profile
-  - ladder (whatever that is ?) history ?
-  - My profile
-    - change 2fa activation
-    - disable
-  - Dm button on other people
+  - remove socket from Player game gateway
 
 - Bugs
 
-  - 404 if page not exist (not tostring business)
-  - people offline when logged
   - Error in back if token expired => handle it
-
-- validation:
-
-  - validation channel name
-  - validate passwords
-
-- passwords:
-
-  - limit number of passwgrd retries on join/accept invite
-  - tell user to fuck off if wrong username/password
+  - Create DM from profile page doesn't create DM
+  - Invite to friend from profle sometimes doesn't work ???
+  - too many options contextMenu in dms
 
 - Appearance
 
-  - css for game/lobby/endgamescreen
-  - css profile settings
-  - redo the login page (without styled components)
+  - css for lobby play
+  - css for login page
+  - css for settings profile
+  - css for game
 
 - Project validation
 
-  - check we are protected against sql injections
   - all libraries are in latest stable version
-  - server side validation for forms and user input
+  - remove unused libraries/modules + fix dependancy issues on frontend backend container creation?
   - remove passwords for users
-
-- Prompt for info first sign
-- Prompt for 2fa when activated
-
-- Nginx
-
-  - have an actual url
-
-- Live games page
+  - force HTTPS and force redirect HTTP port 80 to HTTPS port 443
+  - choose domain (localhost or ft_transcendance or whatever) and then fix callback URL for 42 auth
 
 - Nice to have
   - invite notif on profile ?
   - reload chat when joining ?
-  - fix going to page for user that does not exist -- Make 404 page
   - notifs dans la navbar
   - pop up de notification
   - achievements (display in profile)
@@ -73,3 +66,4 @@
   - Achievements
   - use 42 profile picture as default user pic
   - Extended navbar
+  - avatars in chats

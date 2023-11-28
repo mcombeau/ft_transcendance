@@ -35,7 +35,6 @@ import { sendFriendDto } from "src/friends/dtos/sendFriend.dto";
 import { UpdateResult, DeleteResult } from "typeorm";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { Response, Express } from "express";
-import { max } from "rxjs";
 
 @ApiTags("users")
 @Controller("users")
@@ -161,7 +160,6 @@ export class UsersController {
 		)
 		file: Express.Multer.File
 	) {
-		console.log("[User Controller] Uploading file", file);
 		await this.userService.saveUserAvatarByUserID(id, file);
 	}
 

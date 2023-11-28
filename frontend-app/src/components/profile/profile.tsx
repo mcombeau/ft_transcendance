@@ -1,3 +1,4 @@
+import { ReceivedInfo } from "../chat/types";
 import { useContext, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
@@ -8,7 +9,8 @@ import GameHistory from "./history";
 import ProfileSettings from "./profileSettings";
 import { AuthenticationContext } from "../authenticationState";
 import { typeInvite } from "../chat/types";
-import "./profile.css";
+import { Socket } from "socket.io-client";
+import { ButtonIconType, getButtonIcon } from "../styles/icons";
 
 export enum UserStatus {
 	Offline = "offline",
@@ -25,29 +27,56 @@ export type User = {
 	status: UserStatus;
 };
 
+export type Friend = {
+	id: number;
+	username: string;
+	status: UserStatus;
+	avatar?: string;
+};
+
 function titleProfile(isMyPage: boolean, user: User) {
 	if (user === undefined) return <h2>User not found</h2>;
-	if (isMyPage)
-		return (
-			<h2>
-				My user page ({user.username} - {user.status})
-			</h2>
-		);
-
+	let statusColor: string = getUserStatusColor(user.status);
 	return (
-		<h2>
-			User page for {user.username} ({user.status})
-		</h2>
+		<div className="flex items-center mb-3">
+			<h2 className="w-full font-bold text-3xl ">{user.username}</h2>
+			<div className="flex items-center bg-sage rounded-lg p-1.5">
+				<span className={`rounded-full w-1 h-1 p-1.5 m-2 ${statusColor}`} />
+				<p className="px-2 hidden lg:block"> {user.status}</p>
+			</div>
+		</div>
 	);
 }
 
+export function getUserStatusColor(status: UserStatus) {
+	switch (status) {
+		case UserStatus.Online:
+			return "bg-online";
+
+		case UserStatus.Offline:
+			return "bg-offline";
+
+		default:
+			return "bg-ingame";
+	}
+}
+
 function userDetails(user: User) {
+	// TODO : add ladder level
 	if (user === undefined) return <div />;
 	return (
-		<p>
-			{user.login42 ? " aka " + user.login42 : ""}
-			<br /> Email is : {user.email}
-		</p>
+		<div>
+			<p>
+				{user.login42 ? (
+					<>
+						aka <i>{user.login42}</i>
+					</>
+				) : (
+					<></>
+				)}
+			</p>
+			<p>{user.email}</p>
+		</div>
 	);
 }
 
@@ -68,15 +97,13 @@ async function befriend(
 			invitedUserID: userID,
 		}),
 	};
-	return fetch(`http://localhost/backend/invites`, request).then(
-		async (response) => {
-			if (!response.ok) {
-				console.log("Error inviting friend");
-				return false;
-			}
-			return true;
+	return fetch(`/backend/invites`, request).then(async (response) => {
+		if (!response.ok) {
+			console.log("Error inviting friend");
+			return false;
 		}
-	);
+		return true;
+	});
 }
 
 export async function unfriend(
@@ -95,17 +122,15 @@ export async function unfriend(
 			userID2: userID,
 		}),
 	};
-	return fetch(`http://localhost/backend/friends`, request).then(
-		async (response) => {
-			console.log("response");
-			console.log(response);
-			if (!response.ok) {
-				console.log("Error removing friend");
-				return false;
-			}
-			return true;
+	return fetch(`/backend/friends`, request).then(async (response) => {
+		console.log("response");
+		console.log(response);
+		if (!response.ok) {
+			console.log("Error removing friend");
+			return false;
 		}
-	);
+		return true;
+	});
 }
 
 async function checkIfIsMyFriend(
@@ -126,16 +151,14 @@ async function checkIfIsMyFriend(
 			userID2: user.id,
 		}),
 	};
-	await fetch(`http://localhost/backend/friends/isMyFriend`, request).then(
-		async (response) => {
-			const data = await response.json();
-			if (!response.ok) {
-				console.log("Fetch friends bad request");
-				return;
-			}
-			setIsMyFriend(data.areFriends);
+	await fetch(`/backend/friends/isMyFriend`, request).then(async (response) => {
+		const data = await response.json();
+		if (!response.ok) {
+			console.log("Fetch friends bad request");
+			return;
 		}
-	);
+		setIsMyFriend(data.areFriends);
+	});
 }
 
 async function checkIfIsBlocked(
@@ -156,17 +179,16 @@ async function checkIfIsBlocked(
 			blockedUserID: user.id,
 		}),
 	};
-	await fetch(
-		`http://localhost/backend/blocked-users/isUserBlocked`,
-		request
-	).then(async (response) => {
-		const data = await response.json();
-		if (!response.ok) {
-			console.log("Fetch is user blocked bad request");
-			return;
+	await fetch(`/backend/blocked-users/isUserBlocked`, request).then(
+		async (response) => {
+			const data = await response.json();
+			if (!response.ok) {
+				console.log("Fetch is user blocked bad request");
+				return;
+			}
+			setIsBlocked(data.isBlocked);
 		}
-		setIsBlocked(data.isBlocked);
-	});
+	);
 }
 
 export async function blockUser(
@@ -186,15 +208,13 @@ export async function blockUser(
 			blockedUserID: userID,
 		}),
 	};
-	return fetch(`http://localhost/backend/blocked-users`, request).then(
-		async (response) => {
-			if (!response.ok) {
-				console.log("Error blocking user");
-				return false;
-			}
-			return true;
+	return fetch(`/backend/blocked-users`, request).then(async (response) => {
+		if (!response.ok) {
+			console.log("Error blocking user");
+			return false;
 		}
-	);
+		return true;
+	});
 }
 
 export async function unblockUser(
@@ -214,17 +234,15 @@ export async function unblockUser(
 			blockedUserID: userID,
 		}),
 	};
-	return fetch(`http://localhost/backend/blocked-users`, request).then(
-		async (response) => {
-			console.log("response");
-			console.log(response);
-			if (!response.ok) {
-				console.log("Error unblocking user");
-				return false;
-			}
-			return true;
+	return fetch(`/backend/blocked-users`, request).then(async (response) => {
+		console.log("response");
+		console.log(response);
+		if (!response.ok) {
+			console.log("Error unblocking user");
+			return false;
 		}
-	);
+		return true;
+	});
 }
 
 function friendButton(
@@ -240,25 +258,27 @@ function friendButton(
 	if (isMyFriend) {
 		return (
 			<button
+				className="button"
 				onClick={() => {
 					if (unfriend(user.id, authenticatedUserID, cookies)) {
 						setIsMyFriend(false);
 					}
 				}}
 			>
-				Unfriend
+				{getButtonIcon(ButtonIconType.unfriend)}
 			</button>
 		);
 	}
 	return (
 		<button
+			className="button"
 			onClick={() => {
 				if (befriend(user.id, authenticatedUserID, cookies)) {
 					setIsMyFriend(true);
 				}
 			}}
 		>
-			Add friend
+			{getButtonIcon(ButtonIconType.friend)}
 		</button>
 	);
 }
@@ -273,23 +293,25 @@ function blockButton(
 	if (isBlocked) {
 		return (
 			<button
+				className="button"
 				onClick={() => {
 					if (unblockUser(user.id, authenticatedUserID, cookies))
 						setIsBlocked(false);
 				}}
 			>
-				Unblock
+				{getButtonIcon(ButtonIconType.unblock)}
 			</button>
 		);
 	}
 	return (
 		<button
+			className="button"
 			onClick={() => {
 				if (blockUser(user.id, authenticatedUserID, cookies))
 					setIsBlocked(true);
 			}}
 		>
-			Block
+			{getButtonIcon(ButtonIconType.block)}
 		</button>
 	);
 }
@@ -312,17 +334,16 @@ async function challenge(
 			invitedUserID: user.id,
 		}),
 	};
-	const inviteID = await fetch(
-		`http://localhost/backend/invites`,
-		request
-	).then(async (response) => {
-		const data = await response.json();
-		if (!response.ok) {
-			console.log("Error inviting friend to play");
-			return null;
+	const inviteID = await fetch("/backend/invites", request).then(
+		async (response) => {
+			const data = await response.json();
+			if (!response.ok) {
+				console.log("Error inviting friend to play");
+				return null;
+			}
+			return data.id;
 		}
-		return data.id;
-	});
+	);
 	if (inviteID) {
 		navigate("/play/" + inviteID);
 	}
@@ -336,9 +357,31 @@ function challengeButton(
 ) {
 	return (
 		<button
+			className="button"
 			onClick={() => challenge(user, authenticatedUserID, cookies, navigate)}
 		>
-			Challenge
+			{getButtonIcon(ButtonIconType.challenge)}
+		</button>
+	);
+}
+
+function DM(user: User, cookies: any, navigate: any, socket: Socket) {
+	var info: ReceivedInfo = {
+		token: cookies["token"],
+		chatRoomID: null,
+		targetID: user.id,
+	};
+	socket.emit("dm", info);
+	navigate("/chat/" + user.id);
+}
+
+function DMButton(user: User, cookies: any, navigate: any, socket: Socket) {
+	return (
+		<button
+			className="button"
+			onClick={() => DM(user, cookies, navigate, socket)}
+		>
+			{getButtonIcon(ButtonIconType.dm)}
 		</button>
 	);
 }
@@ -352,12 +395,14 @@ function interactWithUser(
 	user: User,
 	authenticatedUserID: number,
 	cookies: any,
-	navigate: any
+	navigate: any,
+	socket: Socket,
+	iCanChallenge: boolean
 ) {
 	if (user === undefined) return <div />;
 	if (isMyPage) return <p></p>;
 	return (
-		<p>
+		<p className="absolute bottom-0 right-0">
 			{friendButton(
 				user,
 				authenticatedUserID,
@@ -367,8 +412,12 @@ function interactWithUser(
 				isBlocked
 			)}
 			{blockButton(user, authenticatedUserID, cookies, isBlocked, setIsBlocked)}
-			{challengeButton(user, authenticatedUserID, cookies, navigate)}
-			<button>Send DM</button>
+			{iCanChallenge ? (
+				challengeButton(user, authenticatedUserID, cookies, navigate)
+			) : (
+				<></>
+			)}
+			{DMButton(user, cookies, navigate, socket)}
 		</p>
 	);
 }
@@ -384,17 +433,17 @@ function editProfile(
 	if (isEditingProfile) return <div></div>;
 	return (
 		<button
+			className="button absolute bottom-0 right-0"
 			onClick={() => {
 				setIsEditingProfile(true);
 			}}
 		>
-			Edit profile
+			{getButtonIcon(ButtonIconType.settings)}
 		</button>
 	);
 }
 
 function Profile() {
-	const [userExists, setUserExists] = useState(false);
 	var profileUserID: number = Number(useParams().id);
 	const [user, setUser] = useState<User>();
 	const [isMyPage, setIsMyPage] = useState(false);
@@ -405,6 +454,8 @@ function Profile() {
 	const [isBlocked, setIsBlocked] = useState(false);
 	const { authenticatedUserID } = useContext(AuthenticationContext);
 	const [profilePicture, setProfilePicture] = useState(null);
+	const [friends, setFriends] = useState<Friend[]>();
+	const [iCanChallenge, setICanChallenge] = useState<boolean>(false);
 	const navigate = useNavigate();
 
 	async function fetchUser() {
@@ -415,47 +466,42 @@ function Profile() {
 			},
 		};
 
-		fetch(`http://localhost/backend/users/${profileUserID}`, request).then(
+		fetch(`/backend/users/${profileUserID}`, request).then(async (response) => {
+			const data = await response.json();
+			if (!response.ok) {
+				console.log("error response fetching user");
+				navigate("/not-found");
+				return;
+			}
+
+			setUser({
+				id: data.id,
+				username: data.username,
+				email: data.email,
+				login42: data.login42 ? data.login42 : "",
+				isTwoFaEnabled: data.isTwoFactorAuthenticationEnabled,
+				status: data.status,
+			});
+		});
+
+		fetch(`/backend/users/${profileUserID}/avatar`, request).then(
 			async (response) => {
-				const data = await response.json();
+				const data = await response.blob();
 				if (!response.ok) {
-					console.log("error response load channels");
+					console.log("error fetching avatar");
 					return <h1>No such user</h1>;
 				}
-				setUserExists(true);
-				setUser({
-					id: data.id,
-					username: data.username,
-					email: data.email,
-					login42: data.login42 ? data.login42 : "",
-					isTwoFaEnabled: data.isTwoFactorAuthenticationEnabled,
-					status: data.status,
-				});
+				const src = URL.createObjectURL(data);
+				setProfilePicture(src);
 			}
 		);
-
-		fetch(
-			`http://localhost/backend/users/${profileUserID}/avatar`,
-			request
-		).then(async (response) => {
-			const data = await response.blob();
-			if (!response.ok) {
-				console.log("error fetching avatar");
-				return <h1>No such user</h1>;
-			}
-			const src = URL.createObjectURL(data);
-			setProfilePicture(src);
-		});
 	}
 
 	useEffect(() => {
+		fetchUser();
 		if (authenticatedUserID === profileUserID) {
-			socket.emit("login", cookies["token"]);
-			socket.emit("connection");
 			setIsMyPage(true);
 		}
-
-		fetchUser();
 	}, [cookies, socket, profileUserID]);
 
 	useEffect(() => {
@@ -463,46 +509,86 @@ function Profile() {
 		checkIfIsBlocked(user, authenticatedUserID, cookies, setIsBlocked);
 	}, [user]);
 
+	useEffect(() => {
+		socket.on(
+			"status change",
+			(body: { userID: number; userStatus: UserStatus }) => {
+				setUser((user: User) => {
+					if (!user) return user;
+					console.log("user inside", user);
+					if (user.id === body.userID) {
+						return {
+							...user,
+							status: body.userStatus,
+						};
+					} else {
+						return user;
+					}
+				});
+				setFriends((friends: Friend[]) => {
+					if (!friends) return friends;
+					return friends.map((friend: Friend) => {
+						if (friend.id === body.userID) {
+							return {
+								...friend,
+								status: body.userStatus,
+							};
+						} else return friend;
+					});
+				});
+			}
+		);
+		socket.on("is in game", (isActive: boolean) => {
+			// cannot challenge the user if I'm in a game
+			setICanChallenge(!isActive);
+		});
+		return () => {
+			socket.off("status change");
+			socket.off("in a game");
+		};
+	}, []);
+
+	useEffect(() => {
+		socket.emit("is in game", cookies["token"]);
+	}, []);
+
 	return (
-		<div id="profile">
-			<h3 style={{ color: "white" }}>
-				<header>
-					<i className="fa fa-bars" aria-hidden="true"></i>
-				</header>
-				<div className="left-section">
-					<img src={profilePicture} className="photo"></img>
-					{!userExists ? "User is not logged in" : ""}
-					{titleProfile(isMyPage, user)}
-					{userDetails(user)}
-					{interactWithUser(
-						isMyPage,
-						isMyFriend,
-						setIsMyFriend,
-						isBlocked,
-						setIsBlocked,
-						user,
-						authenticatedUserID,
-						cookies,
-						navigate
-					)}
-					{editProfile(isMyPage, user, isEditingProfile, setIsEditingProfile)}
-					{ProfileSettings(
-						user,
-						cookies,
-						isEditingProfile,
-						setIsEditingProfile,
-						authenticatedUserID
-					)}
-				</div>
-				<div className="right-section">
-					<div className="stats row">
-						<div className="stat col-xs-4">
-							{FriendsList(isMyPage, user, cookies)}
-						</div>
-						<div className="stat col-xs-4">{GameHistory(user, cookies)}</div>
+		<div id="profile" className="grid grid-cols-2">
+			<div className="flex flex-col">
+				<div className="background-element grid grid-cols-2">
+					<img
+						src={profilePicture}
+						className="w-20 h-20 rounded-full lg:w-60 lg:h-60 m-4"
+					></img>
+					<div className="relative">
+						{titleProfile(isMyPage, user)}
+						{userDetails(user)}
+						{interactWithUser(
+							isMyPage,
+							isMyFriend,
+							setIsMyFriend,
+							isBlocked,
+							setIsBlocked,
+							user,
+							authenticatedUserID,
+							cookies,
+							navigate,
+							socket,
+							iCanChallenge
+						)}
+						{editProfile(isMyPage, user, isEditingProfile, setIsEditingProfile)}
+						{ProfileSettings(
+							user,
+							cookies,
+							isEditingProfile,
+							setIsEditingProfile,
+							authenticatedUserID
+						)}
 					</div>
 				</div>
-			</h3>
+				{FriendsList(isMyPage, user, cookies, friends, setFriends)}
+			</div>
+			<div className="">{GameHistory(user, cookies)}</div>
 		</div>
 	);
 }

@@ -1,4 +1,4 @@
-import { Inject, Injectable, forwardRef } from "@nestjs/common";
+import { Inject, Injectable, forwardRef, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { GameEntity } from "src/games/entities/game.entity";
 import { Repository } from "typeorm";
@@ -14,6 +14,8 @@ export class GamesService {
 		@Inject(forwardRef(() => UsersService))
 		private userService: UsersService
 	) {}
+
+	private readonly logger: Logger = new Logger("Games Service");
 
 	private async formatGameForSending(game: GameEntity): Promise<sendGameDto> {
 		const sendGame: sendGameDto = {
@@ -50,7 +52,9 @@ export class GamesService {
 		const winner = await this.userService.fetchUserByID(gameDetails.winnerID);
 		const loser = await this.userService.fetchUserByID(gameDetails.loserID);
 
-		console.log("[Game Service]: Saving Game", gameDetails);
+		this.logger.log(
+			`[Save Game] Saving game to database (winner: ${winner.username}, loser: ${loser.username}`
+		);
 		const newGame = this.gameRepository.create({
 			winner: winner,
 			loser: loser,

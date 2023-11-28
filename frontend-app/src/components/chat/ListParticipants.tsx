@@ -1,8 +1,9 @@
-import {ChatRoom, ReceivedInfo, Status, User} from "./types";
-import {NavigateFunction} from "react-router-dom";
-import {Socket} from "socket.io-client";
-import {ChangeStatus, isUserMuted} from "./Chat";
-import {checkStatus} from "./Chat";
+import { ChatRoom, ReceivedInfo, Status, User } from "./types";
+import { NavigateFunction } from "react-router-dom";
+import { Socket } from "socket.io-client";
+import { ChangeStatus, isUserMuted } from "./Chat";
+import { checkStatus } from "./Chat";
+import { ButtonIconType, getButtonIcon } from "../styles/icons";
 
 export const ListParticipants = (
 	channel: ChatRoom,
@@ -15,147 +16,106 @@ export const ListParticipants = (
 		var name = participant.username;
 		var style = {};
 		if (participant.isOwner) {
-			style = {textDecoration: "underline"};
+			style = { textDecoration: "underline" };
 		} else if (participant.isOperator) {
-			name += " ★";
+			name = "★ " + name;
 		}
 		if (isUserMuted(participant)) {
-			name += " 🔇";
-			style = {fontStyle: "italic"};
+			style = { fontStyle: "italic" };
 		}
 		return (
-			<li
+			<span
 				onClick={() => {
 					navigate("/user/" + participant.userID);
 				}}
 				style={style}
 			>
 				{name}
-			</li>
+			</span>
 		);
 	}
-	return (
-		<ul className="participant_list">
-			{channel.participants.map((participant: User) => {
-				return (
-					<div>
-						{displayUser(participant)}
-						{checkStatus(channel, authenticatedUserID) !== Status.Normal &&
-							checkStatus(channel, participant.userID) !== Status.Owner &&
-							authenticatedUserID !== participant.userID ? (
-							<div>
-								{isUserMuted(participant) ? (
+
+	function displayParticipant(participant: User) {
+		return (
+			<div className="items-center grid grid-cols-5 bg-sage rounded m-2 p-2 py-0">
+				<div id="username" className="col-span-1">
+					{displayUser(participant)}
+				</div>
+				<div id="buttons" className="flex col-span-4 items-center space-x-2">
+					{checkStatus(channel, authenticatedUserID) !== Status.Normal &&
+					checkStatus(channel, participant.userID) !== Status.Owner &&
+					authenticatedUserID !== participant.userID ? (
+						<>
+							{isUserMuted(participant) ? (
+								<button
+									className="button"
+									onClick={() => {
+										console.log("Muted");
+										var info: ReceivedInfo = {
+											token: cookies["token"],
+											chatRoomID: channel.chatRoomID,
+											targetID: participant.userID,
+											participantInfo: {
+												mutedUntil: 0,
+											},
+										};
+										ChangeStatus(info, "mute", socket);
+									}}
+								>
+									{getButtonIcon(ButtonIconType.unmute, "button-icon-sm")}
+								</button>
+							) : (
+								<>
+									<select
+										className="rounded-md bg-sage px-2 py-0 h-8"
+										id={"mute " + participant.username}
+									>
+										<option value="1">1 minute</option>
+										<option value="5">5 minutes</option>
+										<option value="60">1 hour</option>
+										<option value="1440">1 day</option>
+									</select>
 									<button
+										className="button"
 										onClick={() => {
-											console.log("Muted");
+											var muteTime = document.getElementById(
+												"mute " + participant.username
+											)["value"];
+											muteTime = parseInt(muteTime);
+											console.log("Muted for ", muteTime);
 											var info: ReceivedInfo = {
 												token: cookies["token"],
 												chatRoomID: channel.chatRoomID,
 												targetID: participant.userID,
 												participantInfo: {
-													mutedUntil: 0,
+													mutedUntil: muteTime,
 												},
 											};
 											ChangeStatus(info, "mute", socket);
 										}}
 									>
-										Unmute
+										{getButtonIcon(ButtonIconType.mute, "button-icon-sm")}
 									</button>
-								) : (
-									<div>
-										<select id={"mute " + participant.username}>
-											<option value="1">1 minute</option>
-											<option value="5">5 minutes</option>
-											<option value="60">1 hour</option>
-											<option value="1440">1 day</option>
-										</select>
-										<button
-											onClick={() => {
-												var muteTime = document.getElementById(
-													"mute " + participant.username
-												)["value"];
-												muteTime = parseInt(muteTime);
-												console.log("Muted for ", muteTime);
-												var info: ReceivedInfo = {
-													token: cookies["token"],
-													chatRoomID: channel.chatRoomID,
-													targetID: participant.userID,
-													participantInfo: {
-														mutedUntil: muteTime,
-													},
-												};
-												ChangeStatus(info, "mute", socket);
-											}}
-										>
-											Mute
-										</button>
-									</div>
-								)}
-								<button
-									onClick={() => {
-										console.log("Kicked");
-										var info: ReceivedInfo = {
-											token: cookies["token"],
-											chatRoomID: channel.chatRoomID,
-											targetID: participant.userID,
-										};
-										ChangeStatus(info, "kick", socket);
-									}}
-								>
-									Kick
-								</button>
-								<button
-									onClick={() => {
-										console.log("Banned " + participant);
-										var info: ReceivedInfo = {
-											token: cookies["token"],
-											chatRoomID: channel.chatRoomID,
-											targetID: participant.userID,
-										};
-										ChangeStatus(info, "ban", socket);
-									}}
-								>
-									Ban
-								</button>
-							</div>
-						) : (
-							<div></div>
-						)}
-						{checkStatus(channel, authenticatedUserID) === Status.Owner &&
-							checkStatus(channel, participant.userID) !== Status.Owner &&
-							authenticatedUserID !== participant.userID ? (
-							<div>
-								<button
-									onClick={() => {
-										console.log("Made operator " + participant);
-										var info: ReceivedInfo = {
-											token: cookies["token"],
-											chatRoomID: channel.chatRoomID,
-											targetID: participant.userID,
-										};
-										ChangeStatus(info, "operator", socket);
-									}}
-								>
-									{checkStatus(channel, participant.userID) == Status.Operator
-										? "Remove from admins"
-										: "Make admin"}
-								</button>
-							</div>
-						) : (
-							<div></div>
-						)}
-					</div>
-				);
-			})}
-			<h2>Banned</h2>
-			{channel.banned.map((participant) => {
-				return (
-					<div>
-						<li>{participant.username}</li>
-						{checkStatus(channel, authenticatedUserID) !== Status.Normal ? (
+								</>
+							)}
 							<button
+								className="button"
 								onClick={() => {
-									console.log("unban " + participant.username);
+									console.log("Kicked");
+									var info: ReceivedInfo = {
+										token: cookies["token"],
+										chatRoomID: channel.chatRoomID,
+										targetID: participant.userID,
+									};
+									ChangeStatus(info, "kick", socket);
+								}}
+							>
+								{getButtonIcon(ButtonIconType.kick, "button-icon-sm")}
+							</button>
+							<button
+								className="button"
+								onClick={() => {
+									console.log("Banned " + participant);
 									var info: ReceivedInfo = {
 										token: cookies["token"],
 										chatRoomID: channel.chatRoomID,
@@ -164,22 +124,89 @@ export const ListParticipants = (
 									ChangeStatus(info, "ban", socket);
 								}}
 							>
-								Unban
+								{getButtonIcon(ButtonIconType.ban, "button-icon-sm")}
 							</button>
-						) : (
-							""
-						)}
-					</div>
-				);
-			})}
-			<h2>Invited</h2>
-			{channel.invited.map((participant) => {
-				return (
-					<div>
-						<li>{participant.username}</li>
-					</div>
-				);
-			})}
-		</ul>
+						</>
+					) : (
+						<div></div>
+					)}
+					{checkStatus(channel, authenticatedUserID) === Status.Owner &&
+					checkStatus(channel, participant.userID) !== Status.Owner &&
+					authenticatedUserID !== participant.userID ? (
+						<>
+							<button
+								className="button flex"
+								onClick={() => {
+									console.log("Made operator " + participant);
+									var info: ReceivedInfo = {
+										token: cookies["token"],
+										chatRoomID: channel.chatRoomID,
+										targetID: participant.userID,
+									};
+									ChangeStatus(info, "operator", socket);
+								}}
+							>
+								{getButtonIcon(ButtonIconType.operator, "button-icon-sm")}
+								{checkStatus(channel, participant.userID) == Status.Operator
+									? "Remove from admins"
+									: "Make admin"}
+							</button>
+						</>
+					) : (
+						<div></div>
+					)}
+				</div>
+			</div>
+		);
+	}
+
+	function displayBanned(participant: User) {
+		return (
+			<div className="grid grid-cols-5 bg-sage rounded m-2 p-2 items-center py-0">
+				<div className="col-span-1">
+					<span>{participant.username}</span>
+				</div>
+				<div className="flex col-span-2">
+					{checkStatus(channel, authenticatedUserID) !== Status.Normal ? (
+						<button
+							className="button"
+							onClick={() => {
+								console.log("unban " + participant.username);
+								var info: ReceivedInfo = {
+									token: cookies["token"],
+									chatRoomID: channel.chatRoomID,
+									targetID: participant.userID,
+								};
+								ChangeStatus(info, "ban", socket);
+							}}
+						>
+							{getButtonIcon(ButtonIconType.unban, "button-icon-sm")}
+						</button>
+					) : (
+						""
+					)}
+				</div>
+			</div>
+		);
+	}
+
+	function displayInvited(participant: User) {
+		return (
+			<div className="bg-sage rounded m-2 p-2 py-2 items-center ">
+				<span>{participant.username}</span>
+			</div>
+		);
+	}
+
+	return (
+		<div className="participant_list">
+			{channel.participants.map(displayParticipant)}
+			<h3 className="font-bold text-xl mb-1 mt-4">Banned users</h3>
+			<hr className={`bg-darkblue border-0 h-0.5 mb-4`}></hr>
+			{channel.banned.map(displayBanned)}
+			<h3 className="font-bold text-xl mb-1 mt-4">Invited users</h3>
+			<hr className={`bg-darkblue border-0 h-0.5 mb-4`}></hr>
+			{channel.invited.map(displayInvited)}
+		</div>
 	);
 };

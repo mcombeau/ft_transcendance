@@ -11,6 +11,8 @@ function Logout() {
 	const socket = useContext(WebSocketContext);
 
 	function logoutUser() {
+		socket.emit("leave game", cookies["token"]);
+		socket.emit("stop watching", cookies["token"]);
 		socket.emit("logout", cookies["token"]);
 		setAuthenticatedUserID(null);
 		removeCookie("token", { path: "/" });

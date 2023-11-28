@@ -5,6 +5,7 @@ import {
 	ValidationPipe,
 	UsePipes,
 	UseFilters,
+	Logger,
 } from "@nestjs/common";
 import { sendInviteDto } from "src/invites/dtos/sendInvite.dto";
 import { createChatMessageParams } from "src/chat-messages/utils/types";
@@ -15,7 +16,7 @@ import {
 	WebSocketGateway,
 	WebSocketServer,
 } from "@nestjs/websockets";
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 import { AuthService } from "src/auth/auth.service";
 import { ChatMessagesService } from "src/chat-messages/chat-messages.service";
 import { ChatParticipantsService } from "src/chat-participants/chat-participants.service";
@@ -35,7 +36,6 @@ import { FriendsService } from "src/friends/friends.service";
 import { UserChatInfo } from "src/chat-participants/utils/types";
 import { ReceivedInfoDto } from "./dtos/chatGateway.dto";
 import { ChatEntity } from "src/chats/entities/chat.entity";
-import { Socket } from "socket.io";
 import { PasswordService } from "src/password/password.service";
 import { WebsocketExceptionsFilter } from "src/exceptions/websocket-exception.filter";
 import { BadRequestException } from "@nestjs/common";
@@ -54,7 +54,11 @@ enum RoomType {
 
 @WebSocketGateway({
 	cors: {
-		origin: ["http://localhost:3000", "http://localhost"],
+		origin: [
+			"http://localhost:3000",
+			"http://localhost",
+			process.env.FT_TRANSCENDANCE_DOMAIN,
+		],
 	},
 })
 @UseFilters(WebsocketExceptionsFilter)
@@ -83,9 +87,11 @@ export class ChatGateway implements OnModuleInit {
 	@WebSocketServer()
 	server: Server;
 
+	private readonly logger: Logger = new Logger("Chat Gateway");
+
 	onModuleInit(): void {
 		this.server.on("connection", async (socket) => {
-			console.log("[Chat Gateway]: Received connection event");
+			this.logger.debug("[Connection event]: Received connection event");
 			const token = socket.handshake.headers.authorization.split(" ")[1];
 			const tokenUser = await this.authService
 				.validateToken(token)
@@ -97,21 +103,21 @@ export class ChatGateway implements OnModuleInit {
 				});
 			const user = await this.userService.fetchUserByID(tokenUser.userID);
 
-			console.log(
-				`[Chat Gateway] Connection event: A user connected: ${tokenUser.username} - ${tokenUser.userID} (${socket.id})`
+			this.logger.log(
+				`[Connection event]: A user connected: ${tokenUser.username} - ${tokenUser.userID} (${socket.id})`
 			);
 			socket.broadcast.emit("connection event"); // TODO: probably remove
 			socket.on("disconnect", () => {
-				console.log(
-					`[Chat Gateway]: Disconnection event: A user disconnected: ${tokenUser.username} - ${tokenUser.userID} (${socket.id})`
+				this.logger.log(
+					`[Disconnection event]: A user disconnected: ${tokenUser.username} - ${tokenUser.userID} (${socket.id})`
 				);
 				this.onLogout(socket, token);
 				// socket.broadcast.emit('disconnection event');
 			});
 
 			if (!user) {
-				console.log(
-					"[Chat Gateway][WARNING] User from token",
+				this.logger.warn(
+					"User from token",
 					tokenUser.username,
 					"does not exist in DB!"
 				);
@@ -123,22 +129,16 @@ export class ChatGateway implements OnModuleInit {
 	}
 
 	// -------------------- EVENTS
+	// TODO: GET TOKEN FROM SOCKET NOT FROM PASSED TOKEN!!!
 	async checkIdentity(token: string, socket: Socket): Promise<number> {
 		const socketToken = socket.handshake.headers.authorization.split(" ")[1];
 		if (token !== socketToken) {
 			// TODO: why is socketToken sometimes undefined ? Investigate.
-			console.log("[WARNING] Socket token and token DON'T MATCH!");
-			console.log("[WARNING] Socket token:", socketToken);
-			console.log(
-				"[WARNING] Letting this mismatched token pass anyway if it is undefined for now"
-			);
+			this.logger.warn("[Check Identity]: Socket token and token DON'T MATCH!");
 		}
 		if (socketToken === "undefined") {
-			console.log("[WARNING] Socket token is undefined:", socketToken);
+			this.logger.warn("[Check Identity]: Socket token is undefined");
 			// throw new ChatPermissionError('socket token is undefined');
-		}
-		if (socketToken !== token) {
-			console.log("[WARNING] Socket token does not match given token");
 		}
 		const isTokenVerified = await this.authService
 			.validateToken(token)
@@ -175,27 +175,25 @@ export class ChatGateway implements OnModuleInit {
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() token: string
 	): Promise<void> {
-		console.log("[Chat Gateway]: Logout", token);
 		try {
 			const userID = await this.checkIdentity(token, socket);
 			socket.data.userID = userID;
 
-			const user = await this.userService.fetchUserByID(userID);
-			await this.authService.logout(user);
+			await this.authService.logout(userID);
 			socket.rooms.forEach(async (room: string) => {
 				if (room !== socket.id) await socket.leave(room);
 			});
 
 			const username = (await this.userService.fetchUserByID(userID)).username;
-			console.log(
-				`[Chat Gateway]: Logout event: A user logged out: ${username} - ${userID} (${socket.id})`
+			this.logger.log(
+				`[Logout event]: A user logged out: ${username} - ${userID} (${socket.id})`
 			);
+			this.server.emit("status change", {
+				userID: userID,
+				userStatus: userStatus.OFFLINE,
+			});
 		} catch (e) {
-			const err_msg = "[Chat Gateway]: logout error:" + e.message;
-			console.log(err_msg);
-			// this.server
-			//   .to(this.getSocketRoomIdentifier(userID, RoomType.User))
-			//   .emit('error', err_msg);
+			this.logger.error(`[Logout event]: ${e.message}`);
 		}
 	}
 
@@ -204,7 +202,6 @@ export class ChatGateway implements OnModuleInit {
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() token: string
 	): Promise<void> {
-		console.log("[Chat Gateway]: Login", token);
 		try {
 			const userID = await this.checkIdentity(token, socket);
 			socket.data.userID = userID;
@@ -212,23 +209,16 @@ export class ChatGateway implements OnModuleInit {
 			await this.userService.updateUserByID(userID, {
 				status: userStatus.ONLINE,
 			});
-			socket.rooms.forEach(async (room: string) => {
-				if (room !== socket.id) await socket.leave(room);
-			});
-			await this.joinSocketRooms(socket, userID);
 			const username = (await this.userService.fetchUserByID(userID)).username;
-			console.log(
-				`[Chat Gateway]: Login event: A user logged in: ${username} - ${userID} (${socket.id})`
+			this.logger.log(
+				`[Login event]: A user logged in: ${username} - ${userID} (${socket.id})`
 			);
-			this.server
-				.to(this.getSocketRoomIdentifier(userID, RoomType.User))
-				.emit("login", username);
+			this.server.emit("status change", {
+				userID: userID,
+				userStatus: userStatus.ONLINE,
+			});
 		} catch (e) {
-			const err_msg = "[Chat Gateway]: login error:" + e.message;
-			console.log(err_msg);
-			// this.server
-			//   .to(this.getSocketRoomIdentifier(userID, RoomType.User))
-			//   .emit('error', err_msg);
+			this.logger.error(`[Login event]: ${e.message}`);
 		}
 	}
 
@@ -256,11 +246,10 @@ export class ChatGateway implements OnModuleInit {
 			info.token = "";
 			this.server.emit("add chat", info);
 		} catch (e) {
-			const err_msg = "[Chat Gateway]: Chat creation error:" + e.message;
-			console.log(err_msg);
+			this.logger.error(`[Add Chat]: ${e.message}`);
 			this.server
 				.to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
-				.emit("error", err_msg);
+				.emit("error", "Chat creation error: " + e.message);
 		}
 	}
 
@@ -282,11 +271,10 @@ export class ChatGateway implements OnModuleInit {
 				);
 			}
 		} catch (e) {
-			const err_msg = "[Chat Gateway]: Leave socket room error:" + e.message;
-			console.log(err_msg);
+			this.logger.error(`[Leave Socket Room]: ${e.message}`);
 			this.server
 				.to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
-				.emit("error", err_msg);
+				.emit("error", "Leave socket room error: " + e.message);
 		}
 	}
 
@@ -308,11 +296,10 @@ export class ChatGateway implements OnModuleInit {
 				);
 			}
 		} catch (e) {
-			const err_msg = "[Chat Gateway]: join socket room error:" + e.message;
-			console.log(err_msg);
+			this.logger.error(`[Join Socket Room]: ${e.message}`);
 			this.server
 				.to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
-				.emit("error", err_msg);
+				.emit("error", "Join Socket Room error " + e.message);
 		}
 	}
 
@@ -339,11 +326,10 @@ export class ChatGateway implements OnModuleInit {
 				.to(this.getSocketRoomIdentifier(info.targetID, RoomType.User))
 				.emit("dm", info);
 		} catch (e) {
-			const err_msg = "[Chat Gateway]: DM creation error:" + e.message;
-			console.log(err_msg);
-			this.server
-				.to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
-				.emit("error", err_msg);
+			this.logger.error(`[Add DM]: ${e.message}`);
+			// this.server
+			// 	.to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
+			// 	.emit("error", err_msg);
 		}
 	}
 
@@ -358,11 +344,10 @@ export class ChatGateway implements OnModuleInit {
 			info.token = "";
 			this.server.emit("delete chat", info);
 		} catch (e) {
-			const err_msg = "[Chat Gateway]: Chat deletion error:" + e.message;
-			console.log(err_msg);
+			this.logger.error(`[Delete Chat]: ${e.message}`);
 			this.server
 				.to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
-				.emit("error", err_msg);
+				.emit("error", "Delete chat error: ", e.message);
 		}
 	}
 
@@ -408,11 +393,10 @@ export class ChatGateway implements OnModuleInit {
 				.to(this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat))
 				.emit("join chat", info);
 		} catch (e) {
-			const err_msg = "[Chat Gateway]: Chat join error:" + e.message;
-			console.log(err_msg);
+			this.logger.error(`[Join Chat]: ${e.message}`);
 			this.server
 				.to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
-				.emit("error", err_msg);
+				.emit("error", "Join chat error" + e.message);
 		}
 	}
 
@@ -442,11 +426,10 @@ export class ChatGateway implements OnModuleInit {
 				);
 			}
 		} catch (e) {
-			const err_msg = "[Chat Gateway]: Chat leave error:" + e.message;
-			console.log(err_msg);
+			this.logger.error(`[Leave Chat]: ${e.message}`);
 			this.server
 				.to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
-				.emit("error", err_msg);
+				.emit("error", "Leave Chat:" + e.message);
 		}
 	}
 
@@ -469,12 +452,10 @@ export class ChatGateway implements OnModuleInit {
 				.to(this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat))
 				.emit("chat message", info);
 		} catch (e) {
-			const err_msg =
-				"[Chat Gateway]: Chat message registration error:" + e.message;
-			console.log(err_msg);
+			this.logger.error(`[Chat Message]: ${e.message}`);
 			this.server
 				.to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
-				.emit("error", err_msg);
+				.emit("error", "Chat message error: " + e.message);
 		}
 	}
 
@@ -499,11 +480,10 @@ export class ChatGateway implements OnModuleInit {
 				.to(this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat))
 				.emit("mute", info);
 		} catch (e) {
-			const err_msg = "[Chat Gateway]: User mute error:" + e.message;
-			console.log(err_msg);
+			this.logger.error(`[Mute User]: ${e.message}`);
 			this.server
 				.to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
-				.emit("error", err_msg);
+				.emit("error", "Mute: " + e.message);
 		}
 	}
 
@@ -536,11 +516,10 @@ export class ChatGateway implements OnModuleInit {
 			info.token = "";
 			this.server.emit("toggle private", info);
 		} catch (e) {
-			const err_msg = "[Chat Gateway]: Chat privacy toggle error:" + e.message;
-			console.log(err_msg);
+			this.logger.error(`[Toggle Private]: ${e.message}`);
 			this.server
 				.to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
-				.emit("error", err_msg);
+				.emit("error", "Toggle private error: " + e.message);
 		}
 	}
 
@@ -573,11 +552,10 @@ export class ChatGateway implements OnModuleInit {
 				)
 				.emit("invite", info);
 		} catch (e) {
-			const err_msg = "[Chat Gateway]: Chat invite error:" + e.message;
-			console.log(err_msg);
+			this.logger.error(`[Invite User]: ${e.message}`);
 			this.server
 				.to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
-				.emit("error", err_msg);
+				.emit("error", "Invite: " + e.message);
 		}
 	}
 
@@ -603,11 +581,10 @@ export class ChatGateway implements OnModuleInit {
 					throw new InviteCreationError("Invalid invite type");
 			}
 		} catch (e) {
-			const err_msg = "[Chat Gateway]: Chat accept invite error:" + e.message;
-			console.log(err_msg);
+			this.logger.error(`[Accept Invite]: ${e.message}`);
 			this.server
 				.to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
-				.emit("error", err_msg);
+				.emit("error", "Accept Invite: " + e.message);
 		}
 	}
 
@@ -624,11 +601,10 @@ export class ChatGateway implements OnModuleInit {
 				.to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
 				.emit("refuse invite", info);
 		} catch (e) {
-			const err_msg = "[Chat Gateway]: Chat refuse invite error:" + e.message;
-			console.log(err_msg);
+			this.logger.error(`[Refuse Invite]: ${e.message}`);
 			this.server
 				.to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
-				.emit("error", err_msg);
+				.emit("error", "Refuse Invite: " + e.message);
 		}
 	}
 
@@ -661,11 +637,10 @@ export class ChatGateway implements OnModuleInit {
 				.to(this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat))
 				.emit("operator", info);
 		} catch (e) {
-			const err_msg = "[Chat Gateway]: Operator promotion error:" + e.message;
-			console.log(err_msg);
+			this.logger.error(`[Add Operator]: ${e.message}`);
 			this.server
 				.to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
-				.emit("error", err_msg);
+				.emit("error", "Add operator: " + e.message);
 		}
 	}
 
@@ -700,11 +675,10 @@ export class ChatGateway implements OnModuleInit {
 				);
 			}
 		} catch (e) {
-			const err_msg = "[Chat Gateway]: User ban error:" + e.message;
-			console.log(err_msg);
+			this.logger.error(`[Ban User]: ${e.message}`);
 			this.server
 				.to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
-				.emit("error", err_msg);
+				.emit("error", "User ban error: " + e.message);
 		}
 	}
 
@@ -730,11 +704,10 @@ export class ChatGateway implements OnModuleInit {
 				.to(this.getSocketRoomIdentifier(info.chatRoomID, RoomType.Chat))
 				.emit("kick", info);
 		} catch (e) {
-			const err_msg = "[Chat Gateway]: User kick error:" + e.message;
-			console.log(err_msg);
+			this.logger.error(`[Kick User]: ${e.message}`);
 			this.server
 				.to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
-				.emit("error", err_msg);
+				.emit("error", "User kick error: " + e.message);
 		}
 	}
 
@@ -761,11 +734,10 @@ export class ChatGateway implements OnModuleInit {
 			info.chatInfo.password = "";
 			this.server.emit("set password", info);
 		} catch (e) {
-			const err_msg = "[Chat Gateway]: User set password error:" + e.message;
-			console.log(err_msg);
+			this.logger.error(`[Set Chat Password]: ${e.message}`);
 			this.server
 				.to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
-				.emit("error", err_msg);
+				.emit("error", "Set password error: " + e.message);
 		}
 	}
 
@@ -1175,7 +1147,7 @@ export class ChatGateway implements OnModuleInit {
 
 	private async acceptUserInviteToGame(info: sendInviteDto): Promise<void> {
 		try {
-			console.log("--- Accept user Invite to game:", info);
+			this.logger.debug("[Accept user invite to game]:", info);
 			const invite = await this.inviteService.fetchInviteByID(info.id);
 			if (!invite) {
 				throw Error("Can't find invite!");
@@ -1199,7 +1171,7 @@ export class ChatGateway implements OnModuleInit {
 
 	private async acceptUserInviteToFriends(info: sendInviteDto): Promise<void> {
 		try {
-			console.log("--- Accept user Ivite to friends:", info);
+			this.logger.debug("Accept user Invite to friends", info);
 			const invite = await this.inviteService.fetchInviteByID(info.id);
 			if (!invite) {
 				throw Error("Can't find invite!");

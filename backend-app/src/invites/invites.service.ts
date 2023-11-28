@@ -10,6 +10,7 @@ import { InviteCreationError } from "src/exceptions/bad-request.interceptor";
 import { UserChatInfo } from "src/chat-participants/utils/types";
 import { sendInviteDto } from "./dtos/sendInvite.dto";
 import { InviteNotFoundError } from "src/exceptions/not-found.interceptor";
+import { GameGateway } from "src/gateway/game.gateway";
 
 @Injectable()
 export class InvitesService {
@@ -21,7 +22,9 @@ export class InvitesService {
 		@Inject(forwardRef(() => UsersService))
 		private userService: UsersService,
 		@Inject(forwardRef(() => BlockedUsersService))
-		private blockedUserService: BlockedUsersService
+		private blockedUserService: BlockedUsersService,
+		@Inject(forwardRef(() => GameGateway))
+		private gameGateway: GameGateway
 	) {}
 
 	private async formatInviteForSending(
@@ -93,6 +96,16 @@ export class InvitesService {
 		const user = await this.userService.fetchUserByID(userID);
 		const invites = await this.inviteRepository.find({
 			where: { inviteSender: user },
+			relations: ["inviteSender", "invitedUser", "chatRoom"],
+		});
+		return this.formatInvitesArrayForSending(invites);
+	}
+
+	async fetchGameInvitesBySenderID(userID: number): Promise<sendInviteDto[]> {
+		await this.deleteExpiredInvites();
+		const user = await this.userService.fetchUserByID(userID);
+		const invites = await this.inviteRepository.find({
+			where: { inviteSender: user, type: inviteType.GAME },
 			relations: ["inviteSender", "invitedUser", "chatRoom"],
 		});
 		return this.formatInvitesArrayForSending(invites);
@@ -177,6 +190,9 @@ export class InvitesService {
 	private async createChatInvite(
 		inviteDetails: inviteParams
 	): Promise<InviteEntity> {
+		if (inviteDetails.senderID === inviteDetails.invitedUserID) {
+			throw new InviteCreationError("Cannot invite yourself.");
+		}
 		const sender = await this.userService.fetchUserByID(inviteDetails.senderID);
 		const invitedUser = await this.userService.fetchUserByID(
 			inviteDetails.invitedUserID
@@ -233,6 +249,9 @@ export class InvitesService {
 	private async createGameInvite(
 		inviteDetails: inviteParams
 	): Promise<InviteEntity> {
+		if (inviteDetails.senderID === inviteDetails.invitedUserID) {
+			throw new InviteCreationError("Cannot invite yourself.");
+		}
 		const sender = await this.userService.fetchUserByID(inviteDetails.senderID);
 		const invitedUser = await this.userService.fetchUserByID(
 			inviteDetails.invitedUserID
@@ -249,6 +268,13 @@ export class InvitesService {
 		if (userIsBlocking) {
 			throw new InviteCreationError(
 				"cannot create game invite for users who are blocking each other."
+			);
+		}
+
+		await this.deleteAllSenderGameInvites(sender.id);
+		if (this.gameGateway.getCurrentPlayRoom(sender.id)) {
+			throw new InviteCreationError(
+				"cannot invite when playing or watching a game."
 			);
 		}
 
@@ -283,6 +309,9 @@ export class InvitesService {
 	private async createFriendInvite(
 		inviteDetails: inviteParams
 	): Promise<InviteEntity> {
+		if (inviteDetails.senderID === inviteDetails.invitedUserID) {
+			throw new InviteCreationError("Cannot invite yourself.");
+		}
 		const sender = await this.userService.fetchUserByID(inviteDetails.senderID);
 		const invitedUser = await this.userService.fetchUserByID(
 			inviteDetails.invitedUserID
@@ -342,6 +371,16 @@ export class InvitesService {
 
 	async deleteInviteByID(id: number): Promise<DeleteResult> {
 		return this.inviteRepository.delete({ id });
+	}
+
+	async deleteAllSenderGameInvites(senderID: number) {
+		const sender = await this.userService.fetchUserByID(senderID);
+		const invites = await this.inviteRepository.find({
+			where: { inviteSender: sender, type: inviteType.GAME },
+		});
+		invites.map(async (e) => {
+			await this.deleteInviteByID(e.id);
+		});
 	}
 
 	async deleteExpiredInvites() {

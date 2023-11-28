@@ -1,9 +1,11 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { NavigateFunction } from "react-router-dom";
 import { Socket } from "socket.io-client";
 import { Message, ChatRoom, Invite, PublicChatRoom } from "./types";
 import { ContextMenuEl } from "./ContextMenu";
 import { ReceivedInfo, typeInvite } from "./types";
+import { separatorLine } from "../styles/separator";
+import { CurrentPannel, PannelType } from "./Chat";
 
 export const Messages = (
 	currentChatRoom: ChatRoom,
@@ -12,23 +14,87 @@ export const Messages = (
 	contextMenu: boolean,
 	setContextMenu: Dispatch<SetStateAction<boolean>>,
 	socket: Socket,
-	invitesPannel: boolean,
 	invites: Invite[],
 	publicChats: PublicChatRoom[],
-	publicChatsPannel: boolean,
 	cookies: any,
 	myChats: ChatRoom[],
 	authenticatedUserID: number,
 	blockedUsers: number[],
-	setBlockedUsers: Dispatch<SetStateAction<number[]>>
+	setBlockedUsers: Dispatch<SetStateAction<number[]>>,
+	currentPannel: CurrentPannel,
+	setCurrentPannel: Dispatch<SetStateAction<CurrentPannel>>
 ) => {
 	const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
 	const [contextMenuTarget, setContextMenuTarget] = useState({
 		id: null,
 		username: null,
 	});
+	const messagesContainer = useRef<HTMLInputElement>(null);
 
-	const messageStatus = (msg: Message, key: number) => {
+	function sameDay(date1: Date, date2: Date) {
+		date1 = new Date(date1);
+		date2 = new Date(date2);
+		return (
+			date1.getFullYear() === date2.getFullYear() &&
+			date1.getMonth() === date2.getMonth() &&
+			date1.getDate() === date2.getDate()
+		);
+	}
+
+	function formatDate(inputDate: Date) {
+		const inputDatestamp: number = new Date(inputDate).getTime();
+		const fulldays = [
+			"Sunday",
+			"Monday",
+			"Tuesday",
+			"Wednesday",
+			"Thursday",
+			"Friday",
+			"Saturday",
+		];
+		const months = [
+			"Jan",
+			"Feb",
+			"Mar",
+			"Apr",
+			"May",
+			"Jun",
+			"Jul",
+			"Aug",
+			"Sep",
+			"Oct",
+			"Nov",
+			"Dec",
+		];
+		var dt = new Date(inputDatestamp),
+			date = dt.getDate(),
+			month = months[dt.getMonth()],
+			timeDiff = inputDatestamp - Date.now(),
+			diffDays = new Date().getDate() - date,
+			diffMonths = new Date().getMonth() - dt.getMonth(),
+			diffYears = new Date().getFullYear() - dt.getFullYear();
+
+		if (diffYears === 0 && diffDays === 0 && diffMonths === 0) {
+			return "Today";
+		} else if (diffYears === 0 && diffDays === 1) {
+			return "Yesterday";
+		} else if (diffYears === 0 && diffDays === -1) {
+			return "Tomorrow";
+		} else if (diffYears === 0 && diffDays < -1 && diffDays > -7) {
+			return fulldays[dt.getDay()];
+		} else if (diffYears >= 1) {
+			return month + " " + date + ", " + new Date(inputDatestamp).getFullYear();
+		} else {
+			return month + " " + date;
+		}
+	}
+
+	function getFormattedTime(inputTime: Date) {
+		const time: Date = new Date(inputTime);
+		return time.getHours() + ":" + time.getMinutes();
+	}
+
+	const messageStatus = (msg: Message, key: number, messages: Message[]) => {
 		if (msg.system) {
 			return (
 				<div id="announcement" key={key}>
@@ -36,46 +102,62 @@ export const Messages = (
 				</div>
 			);
 		}
-		if (msg.senderID === authenticatedUserID) {
-			return (
-				<div id="rightmessage" key={key}>
-					<span
-						id="sender"
-						onClick={() => {
-							navigate("/user/" + msg.senderID); // TODO: create front profile page and go there
-						}}
-					>
-						{msg.senderUsername}
-					</span>
-					<span id="date">{msg.datestamp.toString().split("G")[0]}</span>
-					<li id="mine">{msg.msg}</li>
-				</div>
-			);
-		}
+		let firstOfDay: boolean;
+		if (key === 0) firstOfDay = true;
+		else firstOfDay = !sameDay(msg.datestamp, messages[key - 1].datestamp);
+		const selfSent: boolean = authenticatedUserID === msg.senderID;
 		return (
-			<div id="leftmessage" key={key}>
-				<span
-					id="sender"
-					onClick={() => {
-						navigate("/user/" + msg.senderID); // TODO: create front profile page and go there
-					}}
-					onContextMenu={(e) => {
-						e.preventDefault();
-						if (currentChatRoom.name !== "" && settings === false) {
-							setContextMenu(true);
-							setContextMenuPos({ x: e.pageX, y: e.pageY });
-							setContextMenuTarget({
-								id: msg.senderID,
-								username: msg.senderUsername,
-							});
-						}
-					}}
+			<>
+				{firstOfDay ? (
+					separatorLine(formatDate(msg.datestamp), "sage")
+				) : (
+					<div></div>
+				)}
+				<div
+					className={`w-full flex justify-end ${
+						selfSent ? "flex-row" : "flex-row-reverse"
+					}`}
 				>
-					{msg.senderUsername}
-				</span>
-				<span id="date">{msg.datestamp.toString().split("G")[0]}</span>
-				<li id="othermsg">{msg.msg}</li>
-			</div>
+					<div
+						className={`flex flex-col mx-2 my-1 ${
+							selfSent ? "items-end" : "items-start"
+						}`}
+					>
+						<a
+							className={`text-sm italic text-darkblue hover:text-teal hover:underline ${
+								selfSent ? "hidden" : ""
+							}`}
+							onClick={() => {
+								navigate("/user/" + msg.senderID); // TODO: create front profile page and go there
+							}}
+							onContextMenu={(e) => {
+								e.preventDefault();
+								if (currentChatRoom.name !== "" && settings === false) {
+									setContextMenu(true);
+									setContextMenuPos({ x: e.pageX, y: e.pageY });
+									setContextMenuTarget({
+										id: msg.senderID,
+										username: msg.senderUsername,
+									});
+								}
+							}}
+						>
+							{msg.senderUsername}
+						</a>
+						<div
+							key={key}
+							className={`peer rounded-md text-sage max-w-xl flex flex-col p-2 ${
+								selfSent ? "bg-teal" : "bg-darkblue "
+							}`}
+						>
+							<div className="flex-1 break-words">{msg.msg}</div>
+						</div>
+						<div className="hidden text-xs text-darkblue peer-hover:block">
+							{getFormattedTime(msg.datestamp)}
+						</div>
+					</div>
+				</div>
+			</>
 		);
 	};
 
@@ -98,85 +180,75 @@ export const Messages = (
 	}
 
 	const inviteStatus = (invite: Invite) => {
-		// MAKE SURE THIS WORKS BECAUSE ITS FUCKING WEIIIIIIRD
 		var date = new Date(parseInt(invite.expiresAt.toString()));
-		var messageInvite: string;
 		switch (invite.type) {
 			case typeInvite.Game:
-				messageInvite = "wants to play";
+				var messageInvite = <>wants to play</>;
 				break;
 
 			case typeInvite.Friend:
-				messageInvite = "wants to be your friend";
+				messageInvite = <>wants to be your friend</>;
 				break;
 
 			case typeInvite.Chat:
-				messageInvite =
-					"invites you to join chat " + <i>invite.chatRoomName</i>;
+				const chatRoomName: string = invite.chatRoomName;
+				messageInvite = (
+					<>
+						invites you to join chat <i>{chatRoomName}</i>
+					</>
+				);
 				break;
 
 			default:
-				messageInvite = "sent you an unknown invite";
+				messageInvite = <>sent you an unknown invite</>;
 				break;
 		}
 		return (
-			<div id="messages_invite">
-				<p>
-					<b>{invite.senderUsername}</b> {messageInvite} <br />
+			<div
+				id="messages_invite"
+				className="bg-teal rounded-md p-2 m-2 text-sage flex flex-col"
+			>
+				<div className="self-center">
+					<b>{invite.senderUsername}</b> {messageInvite}
+				</div>
+				<div className="self-center">
 					<small>
 						(this invite expires on {date.toString().split("GMT")[0]})
 					</small>
-				</p>
-				<button
-					id="accept"
-					onClick={() => {
-						acceptInvite(invite);
-					}}
-				>
-					Accept
-				</button>
+				</div>
+				<div className="self-center">
+					<button
+						className="bg-sage rounded-md p-2 m-2 text-teal hover:bg-darkblue hover:text-sage "
+						id="accept"
+						onClick={() => {
+							acceptInvite(invite);
+						}}
+					>
+						Accept
+					</button>
 
-				<button
-					id="refuse"
-					onClick={() => {
-						const info = {
-							token: cookies["token"],
-							inviteInfo: invite,
-						};
-						socket.emit("refuse invite", info);
-					}}
-				>
-					Refuse
-				</button>
+					<button
+						id="refuse"
+						className="bg-sage rounded-md p-2 m-2 text-teal hover:bg-darkblue hover:text-sage "
+						onClick={() => {
+							const info = {
+								token: cookies["token"],
+								inviteInfo: invite,
+							};
+							socket.emit("refuse invite", info);
+						}}
+					>
+						Refuse
+					</button>
+				</div>
 			</div>
 		);
 	};
 
-	if (invitesPannel) {
-		return (
-			<div id="messages">
-				{invites.map((invite: Invite) => inviteStatus(invite))}
-				{ContextMenuEl(
-					contextMenu,
-					contextMenuTarget,
-					setContextMenu,
-					contextMenuPos,
-					socket,
-					currentChatRoom,
-					cookies,
-					myChats,
-					authenticatedUserID,
-					blockedUsers,
-					setBlockedUsers
-				)}
-			</div>
-		);
-	}
-
 	function displayPublicChat(chat: PublicChatRoom) {
 		var joinButton = (
 			<button
-				className="joinchan"
+				className="bg-sage rounded-md p-2 m-2 text-teal hover:bg-darkblue hover:text-sage "
 				value={chat.chatRoomID}
 				onClick={(e) => {
 					if (chat.hasPassword) {
@@ -204,7 +276,10 @@ export const Messages = (
 			</button>
 		);
 		return (
-			<div id="publicchat">
+			<div
+				className="bg-teal rounded-md p-2 m-2 text-sage flex justify-between "
+				id="publicchat"
+			>
 				{chat.name}
 				{joinButton}
 			</div>
@@ -212,11 +287,11 @@ export const Messages = (
 	}
 
 	function displayPublicChats() {
-		if (!publicChatsPannel) {
+		if (currentPannel.type !== PannelType.publicChats) {
 			return <div></div>;
 		}
 		return (
-			<div>
+			<div className="w-full">
 				{publicChats
 					.sort((a, b) => a.name.localeCompare(b.name))
 					.map((chat: PublicChatRoom) => displayPublicChat(chat))}
@@ -230,14 +305,65 @@ export const Messages = (
 			.filter((message: Message) => {
 				return !blockedUsers.includes(message.senderID);
 			})
-			.map(messageStatus);
+			.map((message: Message, index: number, messages: Message[]) =>
+				messageStatus(message, index, messages)
+			);
 		return <div>{messages}</div>;
 	}
 
+	if (currentPannel.type === PannelType.invite) {
+		return (
+			<div id="messages">
+				{invites.map((invite: Invite) => inviteStatus(invite))}
+				{ContextMenuEl(
+					contextMenu,
+					contextMenuTarget,
+					setContextMenu,
+					contextMenuPos,
+					socket,
+					currentChatRoom,
+					cookies,
+					myChats,
+					authenticatedUserID,
+					blockedUsers,
+					setBlockedUsers,
+					messagesContainer
+				)}
+			</div>
+		);
+	}
+
+	if (currentPannel.type === PannelType.publicChats) {
+		return (
+			<div
+				className={`absolute top-0 left-0 right-0 bottom-14 overflow-y-scroll flex scrollbar-hide`}
+			>
+				{displayPublicChats()}
+				{ContextMenuEl(
+					contextMenu,
+					contextMenuTarget,
+					setContextMenu,
+					contextMenuPos,
+					socket,
+					currentChatRoom,
+					cookies,
+					myChats,
+					authenticatedUserID,
+					blockedUsers,
+					setBlockedUsers,
+					messagesContainer
+				)}
+			</div>
+		);
+	}
+
 	return (
-		<div id="messages">
+		<div
+			id="messages"
+			className={`absolute top-0 left-0 right-0 bottom-14 overflow-y-scroll flex flex-col-reverse scrollbar-hide`}
+			ref={messagesContainer}
+		>
 			{displayMessages(currentChatRoom)}
-			{displayPublicChats()}
 			{ContextMenuEl(
 				contextMenu,
 				contextMenuTarget,
@@ -249,7 +375,8 @@ export const Messages = (
 				myChats,
 				authenticatedUserID,
 				blockedUsers,
-				setBlockedUsers
+				setBlockedUsers,
+				messagesContainer
 			)}
 		</div>
 	);

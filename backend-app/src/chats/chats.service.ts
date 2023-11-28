@@ -1,22 +1,23 @@
-import {Inject, Injectable, forwardRef} from '@nestjs/common';
-import {InjectRepository} from '@nestjs/typeorm';
-import {ChatEntity} from 'src/chats/entities/chat.entity';
-import {Repository, UpdateResult, DeleteResult} from 'typeorm';
+import { Inject, Injectable, forwardRef } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { ChatEntity } from "src/chats/entities/chat.entity";
+import { Repository, UpdateResult, DeleteResult } from "typeorm";
 import {
 	createChatParams,
 	createDMParams,
 	updateChatParams,
-} from './utils/types';
-import {ChatMessagesService} from 'src/chat-messages/chat-messages.service';
-import {ChatParticipantsService} from 'src/chat-participants/chat-participants.service';
-import {ChatCreationError} from 'src/exceptions/bad-request.interceptor';
-import {UsersService} from 'src/users/users.service';
-import {UserChatInfo} from 'src/chat-participants/utils/types';
-import {PasswordService} from 'src/password/password.service';
-import {sendParticipantDto} from 'src/chat-participants/dtos/sendChatParticipant.dto';
-import {ChatParticipantEntity} from 'src/chat-participants/entities/chat-participant.entity';
-import {UserEntity} from 'src/users/entities/user.entity';
-import {sendChatMessageDto} from 'src/chat-messages/dtos/sendChatMessage.dto';
+} from "./utils/types";
+import { ChatMessagesService } from "src/chat-messages/chat-messages.service";
+import { ChatParticipantsService } from "src/chat-participants/chat-participants.service";
+import { ChatCreationError } from "src/exceptions/bad-request.interceptor";
+import { UsersService } from "src/users/users.service";
+import { UserChatInfo } from "src/chat-participants/utils/types";
+import { PasswordService } from "src/password/password.service";
+import { sendParticipantDto } from "src/chat-participants/dtos/sendChatParticipant.dto";
+import { ChatParticipantEntity } from "src/chat-participants/entities/chat-participant.entity";
+import { UserEntity } from "src/users/entities/user.entity";
+import { sendChatMessageDto } from "src/chat-messages/dtos/sendChatMessage.dto";
+import { ValidateInputService } from "src/validate-input/validate-input.service";
 
 @Injectable()
 export class ChatsService {
@@ -31,8 +32,10 @@ export class ChatsService {
 		private userService: UsersService,
 		@Inject(forwardRef(() => PasswordService))
 		private passwordService: PasswordService,
+		@Inject(forwardRef(() => ValidateInputService))
+		private validationService: ValidateInputService,
 		@Inject(forwardRef(() => ChatParticipantsService))
-		private participantService: ChatParticipantsService,
+		private participantService: ChatParticipantsService
 	) {}
 
 	fetchChats(): Promise<ChatEntity[]> {
@@ -41,29 +44,35 @@ export class ChatsService {
 
 	fetchPublicChats(): Promise<ChatEntity[]> {
 		return this.chatRepository.find({
-			where: {isPrivate: false},
+			where: { isPrivate: false },
 		});
 	}
 
 	fetchDMChats(): Promise<ChatEntity[]> {
 		return this.chatRepository.find({
-			where: {isDirectMessage: true},
+			where: { isDirectMessage: true },
 		});
 	}
 
 	fetchChatByID(id: number): Promise<ChatEntity> {
 		return this.chatRepository.findOne({
-			where: {id},
+			where: { id },
+		});
+	}
+
+	fetchChatByName(name: string): Promise<ChatEntity> {
+		return this.chatRepository.findOne({
+			where: { name: name },
 		});
 	}
 
 	async fetchChatHasPasswordByID(id: number): Promise<boolean> {
 		const password = await this.getChatRoomPasswordHash(id);
-		return !(password === '' || password === null || password === undefined);
+		return !(password === "" || password === null || password === undefined);
 	}
 
 	async fetchChatParticipantsByChatID(
-		id: number,
+		id: number
 	): Promise<sendParticipantDto[]> {
 		const participants =
 			await this.participantService.fetchParticipantsByChatID(id);
@@ -77,11 +86,15 @@ export class ChatsService {
 	}
 
 	async createChat(chatDetails: createChatParams): Promise<ChatEntity> {
+		// await this.validationService.validateChatRoomName(chatDetails.name);
+		if (chatDetails.password) {
+			await this.validationService.validatePassword(chatDetails.password);
+		}
 		const user = await this.getUserToCreateChatRoomOrFail(chatDetails.ownerID);
 		await this.checkChatRoomWithNameCanBeCreated(chatDetails.name, false);
 
 		const passwordHash = await this.passwordService.hashPassword(
-			chatDetails.password,
+			chatDetails.password
 		);
 		const newChat = this.chatRepository.create({
 			name: chatDetails.name,
@@ -108,7 +121,7 @@ export class ChatsService {
 			.catch((err: any) => {
 				this.deleteChatByID(newSavedChat.id);
 				throw new ChatCreationError(
-					`'ownerID: ${chatDetails.ownerID}': ${err.message}`,
+					`'ownerID: ${chatDetails.ownerID}': ${err.message}`
 				);
 			});
 
@@ -124,7 +137,7 @@ export class ChatsService {
 
 		const newChat = this.chatRepository.create({
 			name: chatRoomName,
-			password: '',
+			password: "",
 			isPrivate: true,
 			isDirectMessage: true,
 			createdAt: new Date(),
@@ -153,27 +166,31 @@ export class ChatsService {
 
 	async updateChatByID(
 		id: number,
-		chatDetails: updateChatParams,
+		chatDetails: updateChatParams
 	): Promise<UpdateResult> {
-		const participant = chatDetails['participantID'];
+		if (chatDetails.name) {
+			await this.validationService.validateChatRoomName(chatDetails.name);
+		}
+		const participant = chatDetails["participantID"];
 		if (participant !== undefined) {
 			this.chatParticipantService.createChatParticipant({
 				userID: participant,
 				chatRoomID: id,
 			});
 		}
-		delete chatDetails['participantID'];
+		delete chatDetails["participantID"];
 		if (chatDetails.password) {
+			await this.validationService.validatePassword(chatDetails.password);
 			chatDetails.password = await this.passwordService.hashPassword(
-				chatDetails.password,
+				chatDetails.password
 			);
 		}
-		const update = await this.chatRepository.update({id}, chatDetails);
+		const update = await this.chatRepository.update({ id }, chatDetails);
 		return update;
 	}
 
 	async addParticipantToChatByUserChatID(
-		info: UserChatInfo,
+		info: UserChatInfo
 	): Promise<ChatParticipantEntity> {
 		return this.chatParticipantService.createChatParticipant({
 			userID: info.userID,
@@ -182,13 +199,13 @@ export class ChatsService {
 	}
 
 	async removeParticipantFromChatByUsername(
-		info: UserChatInfo,
+		info: UserChatInfo
 	): Promise<DeleteResult> {
 		const delete_result =
 			await this.chatParticipantService.deleteParticipantInChatByUserID(info);
 		const chat = await this.chatRepository.findOne({
-			where: {id: info.chatRoomID},
-			relations: ['participants'],
+			where: { id: info.chatRoomID },
+			relations: ["participants"],
 		});
 		if (chat.participants.length === 0) {
 			await this.deleteChatByID(info.chatRoomID);
@@ -198,42 +215,35 @@ export class ChatsService {
 
 	async deleteChatByID(id: number): Promise<DeleteResult> {
 		await this.chatMessageService.deleteMessagesByChatID(id);
-		return this.chatRepository.delete({id});
+		return this.chatRepository.delete({ id });
 	}
 
 	// -------- Utility Functions
 
 	private generateDMName(usernames: string[]): string {
 		usernames.sort((a, b) => a.localeCompare(b));
-		return 'DM: ' + usernames[0] + ' ' + usernames[1];
+		return "DM: " + usernames[0] + " " + usernames[1];
 	}
 
 	private async checkChatRoomWithNameCanBeCreated(
 		chatRoomName: string,
-		isDM: boolean,
+		isDM: boolean
 	) {
-		if (!isDM && chatRoomName.startsWith('DM:')) {
+		if (!isDM && chatRoomName.startsWith("DM:")) {
 			throw new ChatCreationError(
-				`'${chatRoomName}': Chat name cannot start with "DM:"`,
+				`'${chatRoomName}': Chat name cannot start with "DM:"`
 			);
 		}
-		const chat = await this.chatRepository.findOne({
-			where: {name: chatRoomName},
-		});
-		if (chat) {
-			throw new ChatCreationError(
-				`'${chatRoomName}': A chat room with this name already exists`,
-			);
-		}
+		await this.validationService.validateChatRoomName(chatRoomName);
 	}
 
 	private async getUserToCreateChatRoomOrFail(
-		userID: number,
+		userID: number
 	): Promise<UserEntity> {
 		const user = await this.userService.fetchUserByID(userID);
 		if (!user) {
 			throw new ChatCreationError(
-				`User '${userID}' cannot create chat room: user not found`,
+				`User '${userID}' cannot create chat room: user not found`
 			);
 		}
 		return user;
@@ -241,8 +251,8 @@ export class ChatsService {
 
 	async getChatRoomPasswordHash(chatRoomID: number): Promise<string> {
 		const chat = await this.chatRepository.findOne({
-			where: {id: chatRoomID},
-			select: ['password', 'name'],
+			where: { id: chatRoomID },
+			select: ["password", "name"],
 		});
 		return chat.password;
 	}

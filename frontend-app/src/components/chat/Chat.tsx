@@ -4,8 +4,7 @@ import {
 	WebSocketProvider,
 } from "../../contexts/WebsocketContext";
 import { useCookies } from "react-cookie";
-import { useNavigate } from "react-router-dom";
-import "./Chat.css";
+import { useNavigate, useParams } from "react-router-dom";
 import Messages from "./Messages";
 import SettingsMenu from "./SettingsMenu";
 import SidePannel from "./SidePannel";
@@ -120,7 +119,7 @@ export async function fetchChatParticipants(
 	request: any
 ): Promise<User[]> {
 	var participant_list = await fetch(
-		`http://localhost/backend/chats/${chatRoomID}/participants`,
+		`/backend/chats/${chatRoomID}/participants`,
 		request
 	).then(async (response) => {
 		const participant_data = await response.json();
@@ -150,7 +149,7 @@ export async function fetchChatMessages(
 	request: any
 ): Promise<Message[]> {
 	var message_list = await fetch(
-		`http://localhost/backend/chats/${chatRoomID}/messages`,
+		`/backend/chats/${chatRoomID}/messages`,
 		request
 	).then(async (response) => {
 		const message_data = await response.json();
@@ -179,17 +178,25 @@ export async function fetchHasPassword(
 	chatRoomID: number,
 	request: any
 ): Promise<boolean> {
-	return await fetch(
-		`http://localhost/backend/chats/${chatRoomID}/has_password`,
-		request
-	).then(async (response) => {
-		const hasPassword = await response.json();
-		if (!response.ok) {
-			console.log("error response load has password");
-			return null;
+	return await fetch(`/backend/chats/${chatRoomID}/has_password`, request).then(
+		async (response) => {
+			const hasPassword = await response.json();
+			if (!response.ok) {
+				console.log("error response load has password");
+				return null;
+			}
+			return hasPassword;
 		}
-		return hasPassword;
-	});
+	);
+}
+
+export type CurrentPannel = { type: PannelType; chatRoomID?: number };
+
+export enum PannelType {
+	home = "home",
+	chat = "chat",
+	invite = "invite",
+	publicChats = "publicChats",
 }
 
 export const Chat = () => {
@@ -197,15 +204,18 @@ export const Chat = () => {
 	const [myChats, setMyChats] = useState<ChatRoom[]>([]);
 	const [publicChats, setPublicChats] = useState<PublicChatRoom[]>([]);
 	const [newchannel, setNewchannel] = useState("");
-	const [currentChatRoomID, setCurrentChatRoomID] = useState(null); // TODO: have screen if no channels
 	const [settings, setSettings] = useState(false);
 	const [cookies] = useCookies(["token"]);
 	const [contextMenu, setContextMenu] = useState(false);
-	const [invitesPannel, setInvitesPannel] = useState(false);
-	const [publicChatsPannel, setPublicChatsPannel] = useState(false);
+	const [currentPannel, setCurrentPannel] = useState<CurrentPannel>({
+		type: PannelType.home,
+	});
+
 	const [blockedUsers, setBlockedUsers] = useState([]);
 	const [invites, setInvites] = useState([]);
+	const [redirected, setRedirected] = useState(false);
 	const { authenticatedUserID } = useContext(AuthenticationContext);
+	var urlUserID: string = useParams().userID;
 	let navigate = useNavigate();
 
 	function getChannel(chatRoomID: number): ChatRoom {
@@ -238,6 +248,12 @@ export const Chat = () => {
 	}
 
 	useEffect(() => {
+		var request = {
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${cookies["token"]}`,
+			},
+		};
 		socket.on("error", (error_msg: string) => {
 			alert(error_msg);
 		});
@@ -266,7 +282,7 @@ export const Chat = () => {
 			);
 			setSettings(false);
 			setContextMenu(false);
-			setCurrentChatRoomID("");
+			setCurrentPannel({ type: PannelType.home, chatRoomID: null });
 		});
 
 		socket.on("toggle private", async (info: ReceivedInfo) => {
@@ -723,99 +739,6 @@ export const Chat = () => {
 			setMyChats((prev) => [...prev, channel]);
 		});
 
-		var request = {
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${cookies["token"]}`,
-			},
-		};
-		console.log("authenticated user id ", authenticatedUserID);
-		if (myChats.length === 0 && authenticatedUserID) {
-			// Fetching Chats
-			fetch(
-				`http://localhost/backend/users/${authenticatedUserID}/chats`,
-				request
-			).then(async (response) => {
-				const chat_data = await response.json();
-				if (!response.ok) {
-					console.log("error response load channels");
-					return;
-				}
-				console.log("RECEIVED private CHAT DATA", chat_data);
-				chat_data.map(async (chatRoom: any) => {
-					var chan = await fetchChatData(
-						chatRoom.id,
-						chatRoom.name,
-						chatRoom.isPrivate,
-						chatRoom.isDirectMessage,
-						request
-					);
-					setMyChats((prev) => [...prev, chan]);
-					return chatRoom;
-				});
-			});
-		}
-
-		if (blockedUsers.length === 0 && authenticatedUserID) {
-			// Fetching Chats
-			fetch(
-				`http://localhost/backend/users/${authenticatedUserID}/blockedUsers`,
-				request
-			).then(async (response) => {
-				const data = await response.json();
-				if (!response.ok) {
-					console.log("error response load channels");
-					return;
-				}
-				console.log("RECEIVED blocked users data", data);
-				data.map(async (blockedRelationship: any) => {
-					setBlockedUsers((prev) => [
-						...prev,
-						blockedRelationship.blockedUserID,
-					]);
-				});
-			});
-		}
-
-		if (publicChats.length === 0 && authenticatedUserID) {
-			fetch(`http://localhost/backend/chats/public`, request).then(
-				async (response) => {
-					const chat_data = await response.json();
-					if (!response.ok) {
-						console.log("error response load channels");
-						return;
-					}
-					console.log("RECEIVED public CHAT DATA", chat_data);
-					chat_data.map(async (chatRoom: any) => {
-						const newPublicChat: PublicChatRoom = {
-							chatRoomID: chatRoom.id,
-							name: chatRoom.name,
-							hasPassword: await fetchHasPassword(chatRoom.id, request),
-						};
-						setPublicChats((prev) => [...prev, newPublicChat]);
-						return chatRoom;
-					});
-				}
-			);
-		}
-
-		if (invites.length === 0 && authenticatedUserID) {
-			fetch(
-				`http://localhost/backend/invites/received/${authenticatedUserID}`,
-				request
-			).then(async (response) => {
-				const data = await response.json();
-				if (!response.ok) {
-					console.log("error response load invites");
-					return;
-				}
-				data.map((invite: Invite) => {
-					console.log("fetching invites", invite);
-					setInvites((prev) => [...prev, invite]);
-				});
-			});
-		}
-
 		return () => {
 			console.log("unregistering events");
 			socket.off("chat message");
@@ -838,14 +761,101 @@ export const Chat = () => {
 	}, []);
 
 	useEffect(() => {
+		var request = {
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${cookies["token"]}`,
+			},
+		};
+		console.log("authenticated user id ", authenticatedUserID);
+		if (myChats.length === 0 && authenticatedUserID) {
+			// Fetching Chats
+			fetch(`/backend/users/${authenticatedUserID}/chats`, request).then(
+				async (response) => {
+					const chat_data = await response.json();
+					if (!response.ok) {
+						console.log("error response load channels");
+						return;
+					}
+					console.log("RECEIVED private CHAT DATA", chat_data);
+					chat_data.map(async (chatRoom: any) => {
+						var chan = await fetchChatData(
+							chatRoom.id,
+							chatRoom.name,
+							chatRoom.isPrivate,
+							chatRoom.isDirectMessage,
+							request
+						);
+						setMyChats((prev) => [...prev, chan]);
+						return chatRoom;
+					});
+				}
+			);
+		}
+
+		if (blockedUsers.length === 0 && authenticatedUserID) {
+			// Fetching Chats
+			fetch(`/backend/users/${authenticatedUserID}/blockedUsers`, request).then(
+				async (response) => {
+					const data = await response.json();
+					if (!response.ok) {
+						console.log("error response load channels");
+						return;
+					}
+					console.log("RECEIVED blocked users data", data);
+					data.map(async (blockedRelationship: any) => {
+						setBlockedUsers((prev) => [
+							...prev,
+							blockedRelationship.blockedUserID,
+						]);
+					});
+				}
+			);
+		}
+
+		if (publicChats.length === 0 && authenticatedUserID) {
+			fetch(`/backend/chats/public`, request).then(async (response) => {
+				const chat_data = await response.json();
+				if (!response.ok) {
+					console.log("error response load channels");
+					return;
+				}
+				console.log("RECEIVED public CHAT DATA", chat_data);
+				chat_data.map(async (chatRoom: any) => {
+					const newPublicChat: PublicChatRoom = {
+						chatRoomID: chatRoom.id,
+						name: chatRoom.name,
+						hasPassword: await fetchHasPassword(chatRoom.id, request),
+					};
+					setPublicChats((prev) => [...prev, newPublicChat]);
+					return chatRoom;
+				});
+			});
+		}
+
+		if (authenticatedUserID) {
+			fetch(`/backend/invites/received/${authenticatedUserID}`, request).then(
+				async (response) => {
+					const data = await response.json();
+					if (!response.ok) {
+						console.log("error response load invites");
+						return;
+					}
+					setInvites([]);
+					data.map((invite: Invite) => {
+						console.log("fetching invites", invite);
+						setInvites((prev) => [...prev, invite]);
+					});
+				}
+			);
+		}
+	}, [currentPannel]);
+
+	useEffect(() => {
 		var message_els = document.getElementById("messages");
 		if (!message_els) return;
 
 		message_els.scrollTop = message_els.scrollHeight;
-	}, [myChats]);
-
-	useEffect(() => {
-		console.log("My chats: ", myChats);
 	}, [myChats]);
 
 	useEffect(() => {
@@ -858,60 +868,77 @@ export const Chat = () => {
 		}
 	}, [cookies]);
 
+	// Open dm corresponding to userID if param in url
+	useEffect(() => {
+		if (!urlUserID || myChats.length === 0 || redirected) return;
+		const targetUserID: number = Number(urlUserID);
+		const targetDM: ChatRoom = myChats.find(
+			(chatRoom: ChatRoom) =>
+				chatRoom.isDM &&
+				chatRoom.participants.find((user: User) => user.userID === targetUserID)
+		);
+		if (!targetDM) return;
+		const targetDMID: number = targetDM.chatRoomID;
+		setCurrentPannel({ type: PannelType.chat, chatRoomID: targetDMID });
+		setRedirected(true);
+	}, [myChats]);
+
 	return (
 		<WebSocketProvider value={socket}>
-			<div className="chat-container">
-				{SidePannel(
-					newchannel,
-					setNewchannel,
-					currentChatRoomID,
-					setCurrentChatRoomID,
-					socket,
-					settings,
-					setSettings,
-					setContextMenu,
-					myChats,
-					invitesPannel,
-					setInvitesPannel,
-					publicChatsPannel,
-					setPublicChatsPannel,
-					cookies,
-					authenticatedUserID
-				)}
-				<div className="chat">
+			<div className="absolute top-0  bottom-0 left-0 right-0 grid grid-cols-4 bg-sage ">
+				<div className="overflow-y-scroll col-span-1 rounded bg-lightblue m-4 border-4 border-lightblue relative scrollbar-hide">
+					{SidePannel(
+						newchannel,
+						setNewchannel,
+						socket,
+						settings,
+						setSettings,
+						setContextMenu,
+						myChats,
+						cookies,
+						authenticatedUserID,
+						currentPannel,
+						setCurrentPannel
+					)}
+				</div>
+				<div
+					className={`col-span-3 justify-between bg-lightblue rounded m-4 relative`}
+				>
 					{SettingsMenu(
 						settings,
 						setSettings,
-						getChannel(currentChatRoomID),
-						setCurrentChatRoomID,
+						getChannel(currentPannel.chatRoomID),
+						setCurrentPannel,
 						socket,
 						navigate,
 						cookies,
 						authenticatedUserID
 					)}
-					{Messages(
-						getChannel(currentChatRoomID),
-						navigate,
-						settings,
-						contextMenu,
-						setContextMenu,
-						socket,
-						invitesPannel,
-						invites,
-						publicChats,
-						publicChatsPannel,
-						cookies,
-						myChats,
-						authenticatedUserID,
-						blockedUsers,
-						setBlockedUsers
-					)}
-					{SendForm(
-						getChannel(currentChatRoomID),
-						cookies,
-						socket,
-						authenticatedUserID
-					)}
+					<div className={`${settings ? "hidden" : ""} `}>
+						{Messages(
+							getChannel(currentPannel.chatRoomID),
+							navigate,
+							settings,
+							contextMenu,
+							setContextMenu,
+							socket,
+							invites,
+							publicChats,
+							cookies,
+							myChats,
+							authenticatedUserID,
+							blockedUsers,
+							setBlockedUsers,
+							currentPannel,
+							setCurrentPannel
+						)}
+						{SendForm(
+							getChannel(currentPannel.chatRoomID),
+							cookies,
+							socket,
+							authenticatedUserID
+						)}
+					</div>
 				</div>
 			</div>
 		</WebSocketProvider>

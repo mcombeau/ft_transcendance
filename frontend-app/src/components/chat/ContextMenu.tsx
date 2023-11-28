@@ -1,27 +1,38 @@
-import {Status, ChatRoom, typeInvite} from "./types";
-import {ChangeStatus} from "./Chat";
-import {Dispatch, SetStateAction, useEffect, useRef, useState} from "react";
-import {Socket} from "socket.io-client";
-import {checkStatus} from "./Chat";
-import {ReceivedInfo} from "./types";
-import {blockUser, unblockUser} from "../profile/profile";
+import { Status, ChatRoom, typeInvite } from "./types";
+import { ChangeStatus } from "./Chat";
+import {
+	Dispatch,
+	MutableRefObject,
+	SetStateAction,
+	useEffect,
+	useRef,
+	useState,
+} from "react";
+import { Socket } from "socket.io-client";
+import { checkStatus } from "./Chat";
+import { ReceivedInfo } from "./types";
+import { blockUser, unblockUser } from "../profile/profile";
+import { ButtonIconType, getButtonIcon } from "../styles/icons";
+import { BsEnvelopePaper } from "react-icons/bs";
 
 export const ContextMenuEl = (
 	contextMenu: boolean,
-	target: {id: number; username: string},
+	target: { id: number; username: string },
 	setContextMenu: Dispatch<SetStateAction<boolean>>,
-	contextMenuPos: {x: number; y: number},
+	contextMenuPos: { x: number; y: number },
 	socket: Socket,
 	channel: ChatRoom,
 	cookies: any,
 	myChats: ChatRoom[],
 	authenticatedUserID: number,
 	blockedUsers: number[],
-	setBlockedUsers: Dispatch<SetStateAction<number[]>>
+	setBlockedUsers: Dispatch<SetStateAction<number[]>>,
+	messagesContainer: MutableRefObject<HTMLInputElement>
 ) => {
 	const menuRef = useRef<HTMLDivElement>(null);
 	const [invitesMenu, setInvitesMenu] = useState(false);
 	const [userIsBlocked, setUserIsBlocked] = useState(false);
+	const [iCanChallenge, setICanChallenge] = useState<boolean>(false);
 
 	useEffect(() => {
 		setUserIsBlocked(blockedUsers.includes(target.id));
@@ -29,7 +40,7 @@ export const ContextMenuEl = (
 
 	function invite(
 		e: any,
-		target: {id: number; username: string},
+		target: { id: number; username: string },
 		type: typeInvite
 	) {
 		var info: ReceivedInfo = {
@@ -62,6 +73,40 @@ export const ContextMenuEl = (
 		);
 	}
 
+	function onPageClick(event: any) {
+		event.stopPropagation();
+		if (menuRef && menuRef.current && !menuRef.current.contains(event.target)) {
+			setContextMenu(false);
+		}
+	}
+
+	useEffect(() => {
+		socket.on("is in game", (isActive: boolean) => {
+			// cannot challenge the user if I'm in a game
+			setICanChallenge(!isActive);
+		});
+		return () => {
+			socket.off("in a game");
+		};
+	}, [contextMenu]);
+
+	useEffect(() => {
+		socket.emit("is in game", cookies["token"]);
+		setInvitesMenu(false);
+	}, [contextMenu]);
+
+	useEffect(() => {
+		document.addEventListener("click", onPageClick);
+	}, []);
+
+	useEffect(() => {
+		console.log("Position contextMenu", contextMenuPos);
+		console.log(
+			"Position parent",
+			messagesContainer.current.getBoundingClientRect()
+		);
+	}, [contextMenuPos]);
+
 	if (!contextMenu) {
 		return <div></div>;
 	}
@@ -82,7 +127,7 @@ export const ContextMenuEl = (
 						setContextMenu(false);
 					}}
 				>
-					Unblock
+					{getButtonIcon(ButtonIconType.unblock, "button-sm w-6 h-6")}
 				</li>
 			);
 		}
@@ -97,7 +142,7 @@ export const ContextMenuEl = (
 					setContextMenu(false);
 				}}
 			>
-				Block
+				{getButtonIcon(ButtonIconType.block, "button-sm w-6 h-6")}
 			</li>
 		);
 	}
@@ -112,23 +157,27 @@ export const ContextMenuEl = (
 						setInvitesMenu(true);
 					}}
 				>
-					Invite to chat
+					{getButtonIcon(ButtonIconType.invite, "button-sm w-6 h-6")}
 				</li>
-				<li
-					onClick={(e) => {
-						console.log("Challenged " + target.username);
-						invite(e, target, typeInvite.Game);
-					}}
-				>
-					Challenge
-				</li>
+				{iCanChallenge ? (
+					<li
+						onClick={(e) => {
+							console.log("Challenged " + target.username);
+							invite(e, target, typeInvite.Game);
+						}}
+					>
+						{getButtonIcon(ButtonIconType.challenge, "button-sm  w-6 h-6")}
+					</li>
+				) : (
+					<></>
+				)}
 				<li
 					onClick={(e) => {
 						console.log("Added as friend " + target.username);
 						invite(e, target, typeInvite.Friend);
 					}}
 				>
-					Add friend
+					{getButtonIcon(ButtonIconType.friend, "button-sm w-6 h-6")}
 				</li>
 				<li
 					onClick={() => {
@@ -142,10 +191,10 @@ export const ContextMenuEl = (
 						setContextMenu(false);
 					}}
 				>
-					DM
+					{getButtonIcon(ButtonIconType.dm, "button-sm w-6 h-6")}
 				</li>
 				{checkStatus(channel, authenticatedUserID) !== Status.Operator && // TODO: double check logic
-					checkStatus(channel, target.id) !== Status.Owner ? (
+				checkStatus(channel, target.id) !== Status.Owner ? (
 					<div>
 						<li
 							onClick={() => {
@@ -161,7 +210,7 @@ export const ContextMenuEl = (
 								setContextMenu(false);
 							}}
 						>
-							{"Mute (1 min)"}
+							{getButtonIcon(ButtonIconType.mute, "button-sm w-6 h-6")}
 						</li>
 						<li
 							onClick={() => {
@@ -175,7 +224,7 @@ export const ContextMenuEl = (
 								setContextMenu(false);
 							}}
 						>
-							Kick
+							{getButtonIcon(ButtonIconType.kick, "button-sm w-6 h-6")}
 						</li>
 						<li
 							onClick={() => {
@@ -189,7 +238,7 @@ export const ContextMenuEl = (
 								setContextMenu(false);
 							}}
 						>
-							Ban
+							{getButtonIcon(ButtonIconType.ban, "button-sm w-6 h-6")}
 						</li>
 					</div>
 				) : (
@@ -209,9 +258,12 @@ export const ContextMenuEl = (
 								setContextMenu(false);
 							}}
 						>
-							{checkStatus(channel, target.id) === Status.Operator
-								? "Remove from admins"
-								: "Make admin"}
+							{
+								// TODO: find icon for removing from operators
+								checkStatus(channel, target.id) === Status.Operator
+									? getButtonIcon(ButtonIconType.operator, "button-sm w-6 h-6")
+									: getButtonIcon(ButtonIconType.operator, "button-sm w-6 h-6")
+							}
 						</li>
 					</div>
 				) : (
@@ -231,15 +283,22 @@ export const ContextMenuEl = (
 	return (
 		<div
 			ref={menuRef}
-			className="contextMenu"
+			className={`bg-teal rounded-md text-sage absolute p-0 overflow-y-scroll z-40 scrollbar-hide`}
 			style={{
-				top: contextMenuPos.y - 10,
-				left: contextMenuPos.x + 15,
+				top: `${
+					contextMenuPos.y - messagesContainer.current.getBoundingClientRect().y
+				}px`,
+				left: `${
+					contextMenuPos.x - messagesContainer.current.getBoundingClientRect().x
+				}px`,
+				maxHeight: `${
+					messagesContainer.current.getBoundingClientRect().height -
+					(contextMenuPos.y -
+						messagesContainer.current.getBoundingClientRect().y)
+				}px`,
 			}}
 		>
-			<p>{target.username}</p>
 			{options}
-			<button onClick={() => setContextMenu(false)}>✕</button>
 		</div>
 	);
 };

@@ -1,4 +1,4 @@
-import { Injectable, Request, Response, Res } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { UsersService } from "../users/users.service";
 import { userStatus } from "../users/entities/user.entity";
 import { PasswordService } from "src/password/password.service";
@@ -19,27 +19,27 @@ export class AuthService {
 		private jwtService: JwtService
 	) {}
 
+	private readonly logger: Logger = new Logger("Auth Service");
+
 	async validateUser(
 		username: string,
 		password: string
 	): Promise<null | UserEntity> {
-		console.log("[Auth Service]: validate local user");
-		console.log("[Auth Service]: username", username, "password", password);
 		const user = await this.userService.fetchUserByUsername(username);
-		console.log("[Auth Service]: User", user);
 		if (!user) {
-			console.log("[Auth Service]: user not found.");
+			this.logger.warn("[Validate User]: user not found");
 			return null;
 		}
 		if (!(await this.passwordService.checkPassword(password, user))) {
-			console.log("[Auth Service]: passwords don't match!");
+			this.logger.warn("[Validate User]: passwords don't match!");
 			return null;
 		}
 		return user;
 	}
 
 	async login(user: UserEntity): Promise<any> {
-		console.log("[Auth Service]: login user");
+		this.logger.log(`[Login]: user ${user.username} logging in`);
+
 		const payload = {
 			username: user.username,
 			userID: user.id,
@@ -54,12 +54,13 @@ export class AuthService {
 		};
 	}
 
-	async logout(user: UserEntity): Promise<void> {
-		console.log("[Auth Service]: logout user", user);
-		const dbUser = await this.userService.fetchUserByUsername(user.username);
+	async logout(userID: number): Promise<void> {
+		const dbUser = await this.userService.fetchUserByID(userID);
 		if (!dbUser) {
+			this.logger.error(`[Logout]: user ${userID} not in database!`);
 			throw new UserNotFoundError();
 		}
+		this.logger.log(`[Logout]: user ${dbUser.username} logging out`);
 		await this.userService.updateUserByID(dbUser.id, {
 			status: userStatus.OFFLINE,
 		});
@@ -72,11 +73,13 @@ export class AuthService {
 	}
 
 	async school42Login(req: any, res: any): Promise<void> {
-		console.log("[Auth Service]: school42login");
 		const user: UserEntity = req.user;
+		this.logger.log(
+			`[School 42 Login]: user ${user.username} logging in via 42 API`
+		);
 		const access_token = await this.login(user);
 		res.cookie("token", access_token.access_token);
-		res.redirect(302, `http://localhost/user/${user.id}`);
+		res.redirect(302, `/user/${user.id}`);
 	}
 
 	async generateTwoFactorAuthenticationSecret(userInfo: any) {

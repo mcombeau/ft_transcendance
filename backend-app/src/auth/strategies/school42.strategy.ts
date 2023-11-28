@@ -10,6 +10,7 @@ import { UsersService } from "src/users/users.service";
 import axios from "axios";
 import { UserEntity } from "src/users/entities/user.entity";
 
+// TODO: move callback URL away from localhost to process.env.FT_TRANSCENDANCE_DOMAIN url
 const CALLBACKURL = "http://localhost/backend/auth/callback";
 @Injectable()
 export class school42Strategy extends PassportStrategy(Strategy, "42") {
