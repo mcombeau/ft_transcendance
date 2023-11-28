@@ -41,7 +41,7 @@ function Login() {
 		setAuthenticatedUserID(loggedUserID);
 		setUsername("");
 		setPassword("");
-		navigate(`/user/${loggedUserID}`);
+		navigate(`/user/${loggedUserID}#settings`);
 	};
 
 	const signIn = (e: any) => {

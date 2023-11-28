@@ -1,6 +1,6 @@
 import { ReceivedInfo } from "../chat/types";
 import { useContext, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
 import { useCookies } from "react-cookie";
 import { WebSocketContext } from "../../contexts/WebsocketContext";
@@ -445,6 +445,7 @@ function editProfile(
 
 function Profile() {
 	var profileUserID: number = Number(useParams().id);
+	let location = useLocation();
 	const [user, setUser] = useState<User>();
 	const [isMyPage, setIsMyPage] = useState(false);
 	const [cookies] = useCookies(["token"]);
@@ -551,6 +552,16 @@ function Profile() {
 	useEffect(() => {
 		socket.emit("is in game", cookies["token"]);
 	}, []);
+
+	useEffect(() => {
+		if (
+			user &&
+			location.hash === "#settings" &&
+			authenticatedUserID === profileUserID
+		) {
+			setIsEditingProfile(true);
+		}
+	}, [user]);
 
 	return (
 		<div id="profile" className="grid grid-cols-2">
