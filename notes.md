@@ -35,6 +35,7 @@
   - Error in back if token expired => handle it
   - Create DM from profile page doesn't create DM
   - Invite to friend from profle sometimes doesn't work ???
+  - too many options contextMenu in dms
 
 - Appearance
 
