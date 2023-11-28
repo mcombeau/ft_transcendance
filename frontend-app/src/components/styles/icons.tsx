@@ -4,6 +4,7 @@ import { BiVolumeFull, BiVolumeMute } from "react-icons/bi";
 import { RxExit } from "react-icons/rx";
 import { MdAdminPanelSettings } from "react-icons/md";
 import { LiaUserAltSlashSolid } from "react-icons/lia";
+import { RiChatNewLine } from "react-icons/ri";
 
 export enum ButtonIconType {
 	challenge,
@@ -19,6 +20,7 @@ export enum ButtonIconType {
 	ban,
 	unban,
 	operator,
+	invite,
 }
 
 export function getButtonIcon(
@@ -26,6 +28,8 @@ export function getButtonIcon(
 	className: string = "button-icon"
 ) {
 	switch (buttonType) {
+		case ButtonIconType.invite:
+			return <RiChatNewLine className={className} />;
 		case ButtonIconType.operator:
 			return <MdAdminPanelSettings className={className} />;
 		case ButtonIconType.challenge:

@@ -157,7 +157,7 @@ export const ContextMenuEl = (
 						setInvitesMenu(true);
 					}}
 				>
-					<BsEnvelopePaper className="button-sm w-6 h-6" />
+					{getButtonIcon(ButtonIconType.invite, "button-sm w-6 h-6")}
 				</li>
 				{iCanChallenge ? (
 					<li
