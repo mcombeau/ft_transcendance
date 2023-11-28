@@ -859,10 +859,6 @@ export const Chat = () => {
 	}, [myChats]);
 
 	useEffect(() => {
-		console.log("My chats: ", myChats);
-	}, [myChats]);
-
-	useEffect(() => {
 		console.log("Public chats", publicChats);
 	}, [publicChats]);
 
