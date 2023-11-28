@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { NavigateFunction } from "react-router-dom";
 import { Socket } from "socket.io-client";
 import { Message, ChatRoom, Invite, PublicChatRoom } from "./types";
@@ -29,6 +29,7 @@ export const Messages = (
 		id: null,
 		username: null,
 	});
+	const messagesContainer = useRef<HTMLInputElement>(null);
 
 	function sameDay(date1: Date, date2: Date) {
 		date1 = new Date(date1);
@@ -325,7 +326,8 @@ export const Messages = (
 					myChats,
 					authenticatedUserID,
 					blockedUsers,
-					setBlockedUsers
+					setBlockedUsers,
+					messagesContainer
 				)}
 			</div>
 		);
@@ -348,7 +350,8 @@ export const Messages = (
 					myChats,
 					authenticatedUserID,
 					blockedUsers,
-					setBlockedUsers
+					setBlockedUsers,
+					messagesContainer
 				)}
 			</div>
 		);
@@ -356,7 +359,9 @@ export const Messages = (
 
 	return (
 		<div
+			id="messages"
 			className={`absolute top-0 left-0 right-0 bottom-14 overflow-y-scroll flex flex-col-reverse scrollbar-hide`}
+			ref={messagesContainer}
 		>
 			{displayMessages(currentChatRoom)}
 			{ContextMenuEl(
@@ -370,7 +375,8 @@ export const Messages = (
 				myChats,
 				authenticatedUserID,
 				blockedUsers,
-				setBlockedUsers
+				setBlockedUsers,
+				messagesContainer
 			)}
 		</div>
 	);

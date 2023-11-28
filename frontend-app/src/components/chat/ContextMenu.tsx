@@ -1,6 +1,13 @@
 import { Status, ChatRoom, typeInvite } from "./types";
 import { ChangeStatus } from "./Chat";
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import {
+	Dispatch,
+	MutableRefObject,
+	SetStateAction,
+	useEffect,
+	useRef,
+	useState,
+} from "react";
 import { Socket } from "socket.io-client";
 import { checkStatus } from "./Chat";
 import { ReceivedInfo } from "./types";
@@ -19,7 +26,8 @@ export const ContextMenuEl = (
 	myChats: ChatRoom[],
 	authenticatedUserID: number,
 	blockedUsers: number[],
-	setBlockedUsers: Dispatch<SetStateAction<number[]>>
+	setBlockedUsers: Dispatch<SetStateAction<number[]>>,
+	messagesContainer: MutableRefObject<HTMLInputElement>
 ) => {
 	const menuRef = useRef<HTMLDivElement>(null);
 	const [invitesMenu, setInvitesMenu] = useState(false);
@@ -91,6 +99,14 @@ export const ContextMenuEl = (
 		document.addEventListener("click", onPageClick);
 	}, []);
 
+	useEffect(() => {
+		console.log("Position contextMenu", contextMenuPos);
+		console.log(
+			"Position parent",
+			messagesContainer.current.getBoundingClientRect()
+		);
+	}, [contextMenuPos]);
+
 	if (!contextMenu) {
 		return <div></div>;
 	}
@@ -111,7 +127,7 @@ export const ContextMenuEl = (
 						setContextMenu(false);
 					}}
 				>
-					{getButtonIcon(ButtonIconType.unblock, "button-sm w-6 h- w-6 h-6")}
+					{getButtonIcon(ButtonIconType.unblock, "button-sm w-6 h-6")}
 				</li>
 			);
 		}
@@ -126,7 +142,7 @@ export const ContextMenuEl = (
 					setContextMenu(false);
 				}}
 			>
-				{getButtonIcon(ButtonIconType.block, "button-sm w-6 h- w-6 h-6")}
+				{getButtonIcon(ButtonIconType.block, "button-sm w-6 h-6")}
 			</li>
 		);
 	}
@@ -141,7 +157,7 @@ export const ContextMenuEl = (
 						setInvitesMenu(true);
 					}}
 				>
-					<BsEnvelopePaper className="button-sm w-6 h- w-6 h-6" />
+					<BsEnvelopePaper className="button-sm w-6 h-6" />
 				</li>
 				{iCanChallenge ? (
 					<li
@@ -150,10 +166,7 @@ export const ContextMenuEl = (
 							invite(e, target, typeInvite.Game);
 						}}
 					>
-						{getButtonIcon(
-							ButtonIconType.challenge,
-							"button-sm w-6 h- w-6 h-6"
-						)}
+						{getButtonIcon(ButtonIconType.challenge, "button-sm  w-6 h-6")}
 					</li>
 				) : (
 					<></>
@@ -164,7 +177,7 @@ export const ContextMenuEl = (
 						invite(e, target, typeInvite.Friend);
 					}}
 				>
-					{getButtonIcon(ButtonIconType.friend, "button-sm w-6 h- w-6 h-6")}
+					{getButtonIcon(ButtonIconType.friend, "button-sm w-6 h-6")}
 				</li>
 				<li
 					onClick={() => {
@@ -178,7 +191,7 @@ export const ContextMenuEl = (
 						setContextMenu(false);
 					}}
 				>
-					{getButtonIcon(ButtonIconType.dm, "button-sm w-6 h- w-6 h-6")}
+					{getButtonIcon(ButtonIconType.dm, "button-sm w-6 h-6")}
 				</li>
 				{checkStatus(channel, authenticatedUserID) !== Status.Operator && // TODO: double check logic
 				checkStatus(channel, target.id) !== Status.Owner ? (
@@ -197,7 +210,7 @@ export const ContextMenuEl = (
 								setContextMenu(false);
 							}}
 						>
-							{getButtonIcon(ButtonIconType.mute, "button-sm w-6 h- w-6 h-6")}
+							{getButtonIcon(ButtonIconType.mute, "button-sm w-6 h-6")}
 						</li>
 						<li
 							onClick={() => {
@@ -211,7 +224,7 @@ export const ContextMenuEl = (
 								setContextMenu(false);
 							}}
 						>
-							{getButtonIcon(ButtonIconType.kick, "button-sm w-6 h- w-6 h-6")}
+							{getButtonIcon(ButtonIconType.kick, "button-sm w-6 h-6")}
 						</li>
 						<li
 							onClick={() => {
@@ -225,7 +238,7 @@ export const ContextMenuEl = (
 								setContextMenu(false);
 							}}
 						>
-							{getButtonIcon(ButtonIconType.ban, "button-sm w-6 h- w-6 h-6")}
+							{getButtonIcon(ButtonIconType.ban, "button-sm w-6 h-6")}
 						</li>
 					</div>
 				) : (
@@ -248,14 +261,8 @@ export const ContextMenuEl = (
 							{
 								// TODO: find icon for removing from operators
 								checkStatus(channel, target.id) === Status.Operator
-									? getButtonIcon(
-											ButtonIconType.operator,
-											"button-sm w-6 h- w-6 h-6"
-									  )
-									: getButtonIcon(
-											ButtonIconType.operator,
-											"button-sm w-6 h- w-6 h-6"
-									  )
+									? getButtonIcon(ButtonIconType.operator, "button-sm w-6 h-6")
+									: getButtonIcon(ButtonIconType.operator, "button-sm w-6 h-6")
 							}
 						</li>
 					</div>
@@ -276,9 +283,15 @@ export const ContextMenuEl = (
 	return (
 		<div
 			ref={menuRef}
-			className={`bg-teal rounded-md text-sage absolute p-2 top-${
-				contextMenuPos.y - 10
-			} left-${contextMenuPos.x + 15}`}
+			className={`bg-teal rounded-md text-sage absolute p-2`}
+			style={{
+				top: `${
+					contextMenuPos.y - messagesContainer.current.getBoundingClientRect().y
+				}px`,
+				left: `${
+					contextMenuPos.x - messagesContainer.current.getBoundingClientRect().x
+				}px`,
+			}}
 		>
 			{options}
 		</div>
