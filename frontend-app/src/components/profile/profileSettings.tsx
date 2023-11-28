@@ -187,7 +187,7 @@ function ProfileSettings(
 	if (!isEditingProfile) return <div></div>;
 
 	return (
-		<div className="text-darkblue">
+		<div className="text-darkblue bg-teal rounded-md p-2">
 			<div className="flex justify-between m-2">
 				<h2 className="font-bold text-sage text-lg">Settings</h2>
 				<button
