@@ -64,5 +64,6 @@
   - you won/ you lost screen + replay button
   - limit game history to X games
   - Achievements
+  - use 42 profile picture as default user pic
   - Extended navbar
   - avatars in chats
