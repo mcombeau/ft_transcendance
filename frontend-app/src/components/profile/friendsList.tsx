@@ -130,11 +130,6 @@ function displayFriend(
 				key={key}
 			>
 				<a className="flex items-center" href={"/user/" + friend.id}>
-					<span
-						className={`absolute bottom-0 right-0 rounded-full w-1 h-1 p-1.5 m-2 ${getUserStatusColor(
-							friend.status
-						)}`}
-					/>
 					<p className="font-bold m-2">{friend.username}</p>
 				</a>
 				<div className="justify-self-end">

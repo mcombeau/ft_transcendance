@@ -1,6 +1,5 @@
 - CSS
 
-  - Removed dot from profile
   - game
 
 - Sign in
