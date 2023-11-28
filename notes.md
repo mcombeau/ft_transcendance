@@ -34,6 +34,10 @@
   - Error in back if token expired => handle it
   - too many options contextMenu in dms
 
+- Chats
+
+  - Backend check what happens if a user changes usernames + recreates DM with someone
+
 - Appearance
 
   - css for lobby play
