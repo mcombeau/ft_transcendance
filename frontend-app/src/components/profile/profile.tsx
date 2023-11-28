@@ -599,7 +599,7 @@ function Profile() {
 			</div>
 			<div className="">{GameHistory(user, cookies)}</div>
 			<div
-				className={`bg-teal rounded-sm p-2 border-2 border-darkblue absolute top-0 bottom-0 left-0 right-0 m-auto w-1/2 h-1/2 overflow-scroll scrollbar-hide ${
+				className={`bg-teal rounded-md p-2 absolute top-0 bottom-0 left-0 right-0 m-auto w-1/2 h-1/2 overflow-scroll scrollbar-hide ${
 					isEditingProfile ? "" : "hidden"
 				}`}
 			>
