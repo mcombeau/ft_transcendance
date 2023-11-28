@@ -737,14 +737,10 @@ export const Chat = () => {
 			info.token = cookies["token"];
 			socket.emit("join socket room", info);
 			setMyChats((prev) => {
-				if (
-					prev.find((chan) => {
-						return chan.chatRoomID === channel.chatRoomID;
-					})
-				) {
-					return [...prev, channel];
-				} else {
+				if (prev.find((chan) => chan.chatRoomID === channel.chatRoomID)) {
 					return [...prev];
+				} else {
+					return [...prev, channel];
 				}
 			});
 		});
@@ -796,7 +792,13 @@ export const Chat = () => {
 							chatRoom.isDirectMessage,
 							request
 						);
-						setMyChats((prev) => [...prev, chan]);
+						setMyChats((prev) => {
+							if (prev.find((c) => c.chatRoomID === chan.chatRoomID)) {
+								return [...prev];
+							} else {
+								return [...prev, chan];
+							}
+						});
 						return chatRoom;
 					});
 				}
