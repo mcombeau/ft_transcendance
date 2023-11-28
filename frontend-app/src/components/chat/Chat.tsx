@@ -22,6 +22,7 @@ import {
 	typeInvite,
 } from "./types";
 import { AuthenticationContext } from "../authenticationState";
+import { getFormattedTime } from "../styles/dateFormat";
 
 export function isInChannel(
 	userID: number,
@@ -453,9 +454,9 @@ export const Chat = () => {
 			});
 			if (new Date(info.participantInfo.mutedUntil) > new Date()) {
 				serviceAnnouncement(
-					`${info.username} has been muted until ${
-						new Date(info.participantInfo.mutedUntil).toString().split("GMT")[0]
-					}.`,
+					`${info.username} has been muted until ${getFormattedTime(
+						new Date(info.participantInfo.mutedUntil)
+					)}.`,
 					info.chatRoomID
 				);
 			} else {
