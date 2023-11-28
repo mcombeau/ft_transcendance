@@ -1,12 +1,10 @@
 - CSS
-	- Removed dot from profile
-	- Context menu chat
-	- game  
-	- profile settigns
+
+  - Removed dot from profile
+  - game
 
 - Sign in
 
-  - Prompt for info on first sign
   - Prompt for 2fa when signing in when activated in profile settings
 
 - Profile
