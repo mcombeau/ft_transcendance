@@ -1,7 +1,6 @@
 - CSS
 
   - game
-  - add styling for service announcements in chats
   - display chats on invite to chat in context menu
 
 - Sign in
@@ -32,6 +31,7 @@
 - Bugs
 
   - Error in back if token expired => handle it
+  - If muted user is made admin, can't unmute the admin
 
 - Chats
 
