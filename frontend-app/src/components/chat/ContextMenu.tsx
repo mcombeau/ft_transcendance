@@ -283,13 +283,18 @@ export const ContextMenuEl = (
 	return (
 		<div
 			ref={menuRef}
-			className={`bg-teal rounded-md text-sage absolute p-2`}
+			className={`bg-teal rounded-md text-sage absolute p-0 overflow-y-scroll z-40`}
 			style={{
 				top: `${
 					contextMenuPos.y - messagesContainer.current.getBoundingClientRect().y
 				}px`,
 				left: `${
 					contextMenuPos.x - messagesContainer.current.getBoundingClientRect().x
+				}px`,
+				maxHeight: `${
+					messagesContainer.current.getBoundingClientRect().height -
+					(contextMenuPos.y -
+						messagesContainer.current.getBoundingClientRect().y)
 				}px`,
 			}}
 		>
