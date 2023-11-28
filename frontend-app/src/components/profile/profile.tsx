@@ -422,7 +422,7 @@ function interactWithUser(
 	);
 }
 
-function editProfile(
+function editProfileButton(
 	isMyPage: boolean,
 	user: User,
 	isEditingProfile: any,
@@ -587,19 +587,30 @@ function Profile() {
 							socket,
 							iCanChallenge
 						)}
-						{editProfile(isMyPage, user, isEditingProfile, setIsEditingProfile)}
-						{ProfileSettings(
+						{editProfileButton(
+							isMyPage,
 							user,
-							cookies,
 							isEditingProfile,
-							setIsEditingProfile,
-							authenticatedUserID
+							setIsEditingProfile
 						)}
 					</div>
 				</div>
 				{FriendsList(isMyPage, user, cookies, friends, setFriends)}
 			</div>
 			<div className="">{GameHistory(user, cookies)}</div>
+			<div
+				className={`bg-teal rounded-sm p-2 border-2 border-darkblue absolute top-0 bottom-0 left-0 right-0 m-auto w-1/2 h-1/2 overflow-scroll scrollbar-hide ${
+					isEditingProfile ? "" : "hidden"
+				}`}
+			>
+				{ProfileSettings(
+					user,
+					cookies,
+					isEditingProfile,
+					setIsEditingProfile,
+					authenticatedUserID
+				)}
+			</div>
 		</div>
 	);
 }

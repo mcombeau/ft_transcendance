@@ -1,5 +1,6 @@
 import { User } from "./profile";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { ButtonIconType, getButtonIcon } from "../styles/icons";
 
 async function readStream(response: any) {
 	const reader = response.body.getReader();
@@ -186,19 +187,20 @@ function ProfileSettings(
 	if (!isEditingProfile) return <div></div>;
 
 	return (
-		<div>
+		<div className="">
 			<button
 				onClick={() => {
 					setIsEditingProfile(false);
 				}}
 			>
-				Close settings
+				{getButtonIcon(ButtonIconType.closeSettings)}
 			</button>
 			{newAvatar && (
 				<img
 					alt="not found"
 					width={"250px"}
 					src={URL.createObjectURL(newAvatar)}
+					className="w-8 h-8 rounded-full lg:w-15 lg:h-15 m-2"
 				/>
 			)}
 			<form id="avatar-form">

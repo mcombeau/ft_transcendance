@@ -1,5 +1,5 @@
 import { LuGamepad } from "react-icons/lu";
-import { CgUnblock } from "react-icons/cg";
+import { CgCloseO, CgUnblock } from "react-icons/cg";
 import { BiVolumeFull, BiVolumeMute } from "react-icons/bi";
 import { RxExit } from "react-icons/rx";
 import { MdAdminPanelSettings } from "react-icons/md";
@@ -21,6 +21,7 @@ export enum ButtonIconType {
 	unban,
 	operator,
 	invite,
+	closeSettings,
 }
 
 export function getButtonIcon(
@@ -28,6 +29,8 @@ export function getButtonIcon(
 	className: string = "button-icon"
 ) {
 	switch (buttonType) {
+		case ButtonIconType.closeSettings:
+			return <CgCloseO className={className} />;
 		case ButtonIconType.invite:
 			return <RiChatNewLine className={className} />;
 		case ButtonIconType.operator:
