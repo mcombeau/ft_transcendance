@@ -564,58 +564,54 @@ function Profile() {
 	}, [user]);
 
 	return (
-		<>
-			<div id="profile" className="grid grid-cols-2">
-				<div className="flex flex-col">
-					<div className="background-element grid grid-cols-2">
-						<img
-							src={profilePicture}
-							className="w-20 h-20 rounded-full lg:w-60 lg:h-60 m-4"
-						></img>
-						<div className="relative">
-							{titleProfile(isMyPage, user)}
-							{userDetails(user)}
-							{interactWithUser(
-								isMyPage,
-								isMyFriend,
-								setIsMyFriend,
-								isBlocked,
-								setIsBlocked,
-								user,
-								authenticatedUserID,
-								cookies,
-								navigate,
-								socket,
-								iCanChallenge
-							)}
-							{editProfileButton(
-								isMyPage,
-								user,
-								isEditingProfile,
-								setIsEditingProfile
-							)}
-						</div>
+		<div id="profile" className="grid grid-cols-2">
+			<div className="flex flex-col">
+				<div className="background-element grid grid-cols-2">
+					<img
+						src={profilePicture}
+						className="w-20 h-20 rounded-full lg:w-60 lg:h-60 m-4"
+					></img>
+					<div className="relative">
+						{titleProfile(isMyPage, user)}
+						{userDetails(user)}
+						{interactWithUser(
+							isMyPage,
+							isMyFriend,
+							setIsMyFriend,
+							isBlocked,
+							setIsBlocked,
+							user,
+							authenticatedUserID,
+							cookies,
+							navigate,
+							socket,
+							iCanChallenge
+						)}
+						{editProfileButton(
+							isMyPage,
+							user,
+							isEditingProfile,
+							setIsEditingProfile
+						)}
 					</div>
-					{FriendsList(isMyPage, user, cookies, friends, setFriends)}
 				</div>
-				<div className="">{GameHistory(user, cookies)}</div>
+				{FriendsList(isMyPage, user, cookies, friends, setFriends)}
 			</div>
+			<div className="">{GameHistory(user, cookies)}</div>
 			<div
-				className={`absolute top-0 left-0  w-full h-full ${
+				className={`bg-teal rounded-md p-2 absolute top-0 bottom-0 left-0 right-0 m-auto w-1/2 h-1/2 overflow-scroll scrollbar-hide ${
 					isEditingProfile ? "" : "hidden"
 				}`}
 			>
-				<div className={`flex justify-center align-middle`}>
-					{ProfileSettings(
-						user,
-						cookies,
-						isEditingProfile,
-						setIsEditingProfile,
-						authenticatedUserID
-					)}
-				</div>
+				{ProfileSettings(
+					user,
+					cookies,
+					isEditingProfile,
+					setIsEditingProfile,
+					authenticatedUserID
+				)}
 			</div>
-		</>
+		</div>
 	);
 }
 
