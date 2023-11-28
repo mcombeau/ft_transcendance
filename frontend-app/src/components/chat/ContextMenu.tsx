@@ -283,7 +283,7 @@ export const ContextMenuEl = (
 	return (
 		<div
 			ref={menuRef}
-			className={`bg-teal rounded-md text-sage absolute p-0 overflow-y-scroll z-40`}
+			className={`bg-teal rounded-md text-sage absolute p-0 overflow-y-scroll z-40 scrollbar-hide`}
 			style={{
 				top: `${
 					contextMenuPos.y - messagesContainer.current.getBoundingClientRect().y
