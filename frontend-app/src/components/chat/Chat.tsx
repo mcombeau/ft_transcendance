@@ -736,7 +736,17 @@ export const Chat = () => {
 			};
 			info.token = cookies["token"];
 			socket.emit("join socket room", info);
-			setMyChats((prev) => [...prev, channel]);
+			setMyChats((prev) => {
+				if (
+					prev.find((chan) => {
+						return chan.chatRoomID === channel.chatRoomID;
+					})
+				) {
+					return [...prev, channel];
+				} else {
+					return [...prev];
+				}
+			});
 		});
 
 		return () => {

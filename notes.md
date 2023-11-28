@@ -1,6 +1,8 @@
 - CSS
 
   - game
+  - add styling for service announcements in chats
+  - display chats on invite to chat in context menu
 
 - Sign in
 
@@ -30,8 +32,6 @@
 - Bugs
 
   - Error in back if token expired => handle it
-  - Create DM from profile page doesn't create DM
-  - Invite to friend from profle sometimes doesn't work ???
   - too many options contextMenu in dms
 
 - Appearance
