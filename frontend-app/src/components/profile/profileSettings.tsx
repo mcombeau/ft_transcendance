@@ -236,14 +236,14 @@ function ProfileSettings(
 				<h3 className="font-bold">Personal Information</h3>
 				<form className="edit_field" onSubmit={submitUserInfo}>
 					<input
-						className="bg-sage rounded-md p-2 m-2"
+						className="bg-sage rounded-md p-2 m-2 focus:outline-none"
 						value={newUsername}
 						onChange={(e) => {
 							setNewUsername(e.target.value);
 						}}
 					/>
 					<input
-						className="bg-sage rounded-md p-2 m-2"
+						className="bg-sage rounded-md p-2 m-2 focus:outline-none"
 						value={newEmail}
 						onChange={(e) => {
 							setNewEmail(e.target.value);
