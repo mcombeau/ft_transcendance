@@ -35,6 +35,153 @@ export const ListParticipants = (
 		);
 	}
 
+	function unmuteButton(participant: User) {
+		return (
+			<button
+				className="button"
+				onClick={() => {
+					console.log("Muted");
+					var info: ReceivedInfo = {
+						token: cookies["token"],
+						chatRoomID: channel.chatRoomID,
+						targetID: participant.userID,
+						participantInfo: {
+							mutedUntil: 0,
+						},
+					};
+					ChangeStatus(info, "mute", socket);
+				}}
+			>
+				{getButtonIcon(ButtonIconType.unmute, "button-icon-sm")}
+			</button>
+		);
+	}
+
+	function muteButton(participant: User) {
+		return (
+			<>
+				<select
+					className="rounded-md bg-sage px-2 py-0 h-8"
+					id={"mute " + participant.username}
+				>
+					<option value="1">1 minute</option>
+					<option value="5">5 minutes</option>
+					<option value="60">1 hour</option>
+					<option value="1440">1 day</option>
+				</select>
+				<button
+					className="button"
+					onClick={() => {
+						var muteTime = document.getElementById(
+							"mute " + participant.username
+						)["value"];
+						muteTime = parseInt(muteTime);
+						console.log("Muted for ", muteTime);
+						var info: ReceivedInfo = {
+							token: cookies["token"],
+							chatRoomID: channel.chatRoomID,
+							targetID: participant.userID,
+							participantInfo: {
+								mutedUntil: muteTime,
+							},
+						};
+						ChangeStatus(info, "mute", socket);
+					}}
+				>
+					{getButtonIcon(ButtonIconType.mute, "button-icon-sm")}
+				</button>
+			</>
+		);
+	}
+
+	function kickButton(participant: User) {
+		return (
+			<button
+				className="button"
+				onClick={() => {
+					console.log("Kicked");
+					var info: ReceivedInfo = {
+						token: cookies["token"],
+						chatRoomID: channel.chatRoomID,
+						targetID: participant.userID,
+					};
+					ChangeStatus(info, "kick", socket);
+				}}
+			>
+				{getButtonIcon(ButtonIconType.kick, "button-icon-sm")}
+			</button>
+		);
+	}
+
+	function banButton(participant: User) {
+		return (
+			<button
+				className="button"
+				onClick={() => {
+					console.log("Banned " + participant);
+					var info: ReceivedInfo = {
+						token: cookies["token"],
+						chatRoomID: channel.chatRoomID,
+						targetID: participant.userID,
+					};
+					ChangeStatus(info, "ban", socket);
+				}}
+			>
+				{getButtonIcon(ButtonIconType.ban, "button-icon-sm")}
+			</button>
+		);
+	}
+
+	function operatorButton(participant: User) {
+		return (
+			<>
+				<button
+					className="button flex"
+					onClick={() => {
+						console.log("Made operator " + participant);
+						var info: ReceivedInfo = {
+							token: cookies["token"],
+							chatRoomID: channel.chatRoomID,
+							targetID: participant.userID,
+						};
+						ChangeStatus(info, "operator", socket);
+					}}
+				>
+					{getButtonIcon(ButtonIconType.operator, "button-icon-sm")}
+					{checkStatus(channel, participant.userID) == Status.Operator
+						? "Remove from admins"
+						: "Make admin"}
+				</button>
+			</>
+		);
+	}
+
+	function canManageUser(participant: User) {
+		if (authenticatedUserID === participant.userID) return false;
+
+		const myStatus: Status = checkStatus(channel, authenticatedUserID);
+		const targetStatus: Status = checkStatus(channel, participant.userID);
+
+		if (myStatus === Status.Normal) return false;
+		if (targetStatus === Status.Owner) return false;
+		if (targetStatus === Status.Operator && myStatus !== Status.Owner)
+			return false;
+
+		return true;
+	}
+
+	function canToggleOperator(participant: User) {
+		if (authenticatedUserID === participant.userID) return false;
+
+		const myStatus: Status = checkStatus(channel, authenticatedUserID);
+		const targetStatus: Status = checkStatus(channel, participant.userID);
+
+		if (myStatus !== Status.Owner) return false;
+		if (targetStatus === Status.Owner) return false;
+
+		return true;
+	}
+
 	function displayParticipant(participant: User) {
 		return (
 			<div className="items-center grid grid-cols-5 bg-sage rounded m-2 p-2 py-0">
@@ -42,119 +189,18 @@ export const ListParticipants = (
 					{displayUser(participant)}
 				</div>
 				<div id="buttons" className="flex col-span-4 items-center space-x-2">
-					{checkStatus(channel, authenticatedUserID) !== Status.Normal &&
-					checkStatus(channel, participant.userID) !== Status.Owner &&
-					authenticatedUserID !== participant.userID ? (
+					{canManageUser(participant) ? (
 						<>
-							{isUserMuted(participant) ? (
-								<button
-									className="button"
-									onClick={() => {
-										console.log("Muted");
-										var info: ReceivedInfo = {
-											token: cookies["token"],
-											chatRoomID: channel.chatRoomID,
-											targetID: participant.userID,
-											participantInfo: {
-												mutedUntil: 0,
-											},
-										};
-										ChangeStatus(info, "mute", socket);
-									}}
-								>
-									{getButtonIcon(ButtonIconType.unmute, "button-icon-sm")}
-								</button>
-							) : (
-								<>
-									<select
-										className="rounded-md bg-sage px-2 py-0 h-8"
-										id={"mute " + participant.username}
-									>
-										<option value="1">1 minute</option>
-										<option value="5">5 minutes</option>
-										<option value="60">1 hour</option>
-										<option value="1440">1 day</option>
-									</select>
-									<button
-										className="button"
-										onClick={() => {
-											var muteTime = document.getElementById(
-												"mute " + participant.username
-											)["value"];
-											muteTime = parseInt(muteTime);
-											console.log("Muted for ", muteTime);
-											var info: ReceivedInfo = {
-												token: cookies["token"],
-												chatRoomID: channel.chatRoomID,
-												targetID: participant.userID,
-												participantInfo: {
-													mutedUntil: muteTime,
-												},
-											};
-											ChangeStatus(info, "mute", socket);
-										}}
-									>
-										{getButtonIcon(ButtonIconType.mute, "button-icon-sm")}
-									</button>
-								</>
-							)}
-							<button
-								className="button"
-								onClick={() => {
-									console.log("Kicked");
-									var info: ReceivedInfo = {
-										token: cookies["token"],
-										chatRoomID: channel.chatRoomID,
-										targetID: participant.userID,
-									};
-									ChangeStatus(info, "kick", socket);
-								}}
-							>
-								{getButtonIcon(ButtonIconType.kick, "button-icon-sm")}
-							</button>
-							<button
-								className="button"
-								onClick={() => {
-									console.log("Banned " + participant);
-									var info: ReceivedInfo = {
-										token: cookies["token"],
-										chatRoomID: channel.chatRoomID,
-										targetID: participant.userID,
-									};
-									ChangeStatus(info, "ban", socket);
-								}}
-							>
-								{getButtonIcon(ButtonIconType.ban, "button-icon-sm")}
-							</button>
+							{isUserMuted(participant)
+								? unmuteButton(participant)
+								: muteButton(participant)}
+							{kickButton(participant)}
+							{banButton(participant)}
 						</>
 					) : (
-						<div></div>
+						<></>
 					)}
-					{checkStatus(channel, authenticatedUserID) === Status.Owner &&
-					checkStatus(channel, participant.userID) !== Status.Owner &&
-					authenticatedUserID !== participant.userID ? (
-						<>
-							<button
-								className="button flex"
-								onClick={() => {
-									console.log("Made operator " + participant);
-									var info: ReceivedInfo = {
-										token: cookies["token"],
-										chatRoomID: channel.chatRoomID,
-										targetID: participant.userID,
-									};
-									ChangeStatus(info, "operator", socket);
-								}}
-							>
-								{getButtonIcon(ButtonIconType.operator, "button-icon-sm")}
-								{checkStatus(channel, participant.userID) == Status.Operator
-									? "Remove from admins"
-									: "Make admin"}
-							</button>
-						</>
-					) : (
-						<div></div>
-					)}
+					{canToggleOperator(participant) ? operatorButton(participant) : <></>}
 				</div>
 			</div>
 		);
