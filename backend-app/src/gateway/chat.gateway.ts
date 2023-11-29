@@ -964,8 +964,12 @@ export class ChatGateway implements OnModuleInit {
 		});
 
 		await this.checkUserHasOperatorPermissions(user);
-		await this.checkUserIsNotOperator(target);
+		await this.checkUserIsNotOwner(target);
 		await this.checkUserIsNotBanned(target);
+
+		if (target.isOperator && !target.isOwner) {
+			await this.checkUserIsOwner(user);
+		}
 
 		let newMutedTimestamp = 0;
 		if (user.mutedUntil > new Date().getTime()) {
@@ -1012,6 +1016,9 @@ export class ChatGateway implements OnModuleInit {
 
 		await this.checkUserHasOperatorPermissions(user);
 		await this.checkUserIsNotOwner(target);
+		if (target.isOperator && !target.isOwner) {
+			await this.checkUserIsOwner(user);
+		}
 
 		if (target.isBanned) {
 			// Unban
@@ -1039,6 +1046,10 @@ export class ChatGateway implements OnModuleInit {
 		await this.checkUserHasOperatorPermissions(user);
 		await this.checkUserIsNotOwner(target);
 		await this.checkUserIsNotBanned(target);
+
+		if (target.isOperator && !target.isOwner) {
+			await this.checkUserIsOwner(user);
+		}
 
 		await this.chatParticipantsService.deleteParticipantByID(target.id);
 	}

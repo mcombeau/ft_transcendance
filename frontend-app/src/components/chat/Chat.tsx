@@ -22,6 +22,7 @@ import {
 	typeInvite,
 } from "./types";
 import { AuthenticationContext } from "../authenticationState";
+import { getFormattedTime } from "../styles/dateFormat";
 
 export function isInChannel(
 	userID: number,
@@ -453,9 +454,9 @@ export const Chat = () => {
 			});
 			if (new Date(info.participantInfo.mutedUntil) > new Date()) {
 				serviceAnnouncement(
-					`${info.username} has been muted until ${
-						new Date(info.participantInfo.mutedUntil).toString().split("GMT")[0]
-					}.`,
+					`${info.username} has been muted until ${getFormattedTime(
+						new Date(info.participantInfo.mutedUntil)
+					)}.`,
 					info.chatRoomID
 				);
 			} else {
@@ -736,7 +737,13 @@ export const Chat = () => {
 			};
 			info.token = cookies["token"];
 			socket.emit("join socket room", info);
-			setMyChats((prev) => [...prev, channel]);
+			setMyChats((prev) => {
+				if (prev.find((chan) => chan.chatRoomID === channel.chatRoomID)) {
+					return [...prev];
+				} else {
+					return [...prev, channel];
+				}
+			});
 		});
 
 		return () => {
@@ -786,7 +793,13 @@ export const Chat = () => {
 							chatRoom.isDirectMessage,
 							request
 						);
-						setMyChats((prev) => [...prev, chan]);
+						setMyChats((prev) => {
+							if (prev.find((c) => c.chatRoomID === chan.chatRoomID)) {
+								return [...prev];
+							} else {
+								return [...prev, chan];
+							}
+						});
 						return chatRoom;
 					});
 				}

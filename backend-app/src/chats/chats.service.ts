@@ -1,4 +1,4 @@
-import { Inject, Injectable, forwardRef } from "@nestjs/common";
+import { Inject, Injectable, forwardRef, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ChatEntity } from "src/chats/entities/chat.entity";
 import { Repository, UpdateResult, DeleteResult } from "typeorm";
@@ -37,6 +37,8 @@ export class ChatsService {
 		@Inject(forwardRef(() => ChatParticipantsService))
 		private participantService: ChatParticipantsService
 	) {}
+
+	private readonly logger: Logger = new Logger("Chat Service");
 
 	fetchChats(): Promise<ChatEntity[]> {
 		return this.chatRepository.find();
@@ -132,7 +134,9 @@ export class ChatsService {
 		const user1 = await this.getUserToCreateChatRoomOrFail(chatDetails.userID1);
 		const user2 = await this.getUserToCreateChatRoomOrFail(chatDetails.userID2);
 
-		const chatRoomName = this.generateDMName([user1.username, user2.username]);
+		const chatRoomName = this.generateDMName([user1.id, user2.id]);
+		// TODO: Maybe add security by checking if DM with these two users exists in DB
+		this.logger.debug(`[Create DM] DM name: ${chatRoomName}`);
 		await this.checkChatRoomWithNameCanBeCreated(chatRoomName, true);
 
 		const newChat = this.chatRepository.create({
@@ -220,9 +224,9 @@ export class ChatsService {
 
 	// -------- Utility Functions
 
-	private generateDMName(usernames: string[]): string {
-		usernames.sort((a, b) => a.localeCompare(b));
-		return "DM: " + usernames[0] + " " + usernames[1];
+	private generateDMName(userIDs: number[]): string {
+		userIDs.sort((a, b) => a - b);
+		return "DM: " + userIDs[0] + " " + userIDs[1];
 	}
 
 	private async checkChatRoomWithNameCanBeCreated(
@@ -234,7 +238,9 @@ export class ChatsService {
 				`'${chatRoomName}': Chat name cannot start with "DM:"`
 			);
 		}
-		await this.validationService.validateChatRoomName(chatRoomName);
+		if (!isDM) {
+			await this.validationService.validateChatRoomName(chatRoomName);
+		}
 	}
 
 	private async getUserToCreateChatRoomOrFail(
