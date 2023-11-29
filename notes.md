@@ -30,6 +30,7 @@
 - Bugs
 
   - Error in back if token expired => handle it
+  - update or delete on table \"users\" violates foreign key constraint \"FK_fb6add83b1a7acc94433d385692\" on table \"chat_participants\"
 
 - Appearance
 
@@ -45,6 +46,7 @@
   - remove passwords for users
   - force HTTPS and force redirect HTTP port 80 to HTTPS port 443
   - choose domain (localhost or ft_transcendance or whatever) and then fix callback URL for 42 auth
+  - enforce authorizations on contollers - check if user actually has the right to do what they're doing
 
 - Nice to have
   - invite notif on profile ?
