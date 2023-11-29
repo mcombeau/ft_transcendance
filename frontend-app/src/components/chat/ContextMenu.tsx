@@ -38,9 +38,9 @@ export const ContextMenuEl = (
 	}, []);
 
 	function invite(
-		e: any,
 		target: { id: number; username: string },
-		type: typeInvite
+		type: typeInvite,
+		chat?: ChatRoom
 	) {
 		var info: ReceivedInfo = {
 			token: cookies["token"],
@@ -50,9 +50,11 @@ export const ContextMenuEl = (
 			},
 		};
 		if (type === typeInvite.Chat) {
-			info.chatRoomID = parseInt(
-				(e.target as HTMLInputElement).getAttribute("value")
-			);
+			if (!chat) {
+				console.warn("Invite type chat but no chatroom provided!");
+				return;
+			}
+			info.chatRoomID = chat.chatRoomID;
 		}
 		console.log("Sent invite", info);
 		console.log("Invite info", info.inviteInfo);
@@ -65,7 +67,7 @@ export const ContextMenuEl = (
 		return (
 			<div
 				className="hover:text-darkblue rounded-md m-1"
-				onClick={(e) => invite(e, target, typeInvite.Chat)}
+				onClick={() => invite(target, typeInvite.Chat, chat)}
 			>
 				{chat.name}
 			</div>
@@ -118,7 +120,7 @@ export const ContextMenuEl = (
 	function blockButton() {
 		if (userIsBlocked) {
 			return (
-				<li
+				<div
 					onClick={() => {
 						console.log("Unblocked " + target.username);
 						if (unblockUser(target.id, authenticatedUserID, cookies)) {
@@ -131,11 +133,11 @@ export const ContextMenuEl = (
 					}}
 				>
 					{getButtonIcon(ButtonIconType.unblock, "button-sm w-6 h-6")}
-				</li>
+				</div>
 			);
 		}
 		return (
-			<li
+			<div
 				onClick={() => {
 					console.log("Blocked " + target.username);
 					if (blockUser(target.id, authenticatedUserID, cookies)) {
@@ -146,13 +148,13 @@ export const ContextMenuEl = (
 				}}
 			>
 				{getButtonIcon(ButtonIconType.block, "button-sm w-6 h-6")}
-			</li>
+			</div>
 		);
 	}
 
 	function muteButton() {
 		return (
-			<li
+			<div
 				onClick={() => {
 					var info: ReceivedInfo = {
 						token: cookies["token"],
@@ -167,13 +169,13 @@ export const ContextMenuEl = (
 				}}
 			>
 				{getButtonIcon(ButtonIconType.mute, "button-sm w-6 h-6")}
-			</li>
+			</div>
 		);
 	}
 
 	function kickButton() {
 		return (
-			<li
+			<div
 				onClick={() => {
 					console.log("Kicked " + target.username);
 					var info: ReceivedInfo = {
@@ -186,13 +188,13 @@ export const ContextMenuEl = (
 				}}
 			>
 				{getButtonIcon(ButtonIconType.kick, "button-sm w-6 h-6")}
-			</li>
+			</div>
 		);
 	}
 
 	function banButton() {
 		return (
-			<li
+			<div
 				onClick={() => {
 					console.log("Banned " + target.username);
 					var info: ReceivedInfo = {
@@ -205,12 +207,12 @@ export const ContextMenuEl = (
 				}}
 			>
 				{getButtonIcon(ButtonIconType.ban, "button-sm w-6 h-6")}
-			</li>
+			</div>
 		);
 	}
 	function operatorButton() {
 		return (
-			<li
+			<div
 				onClick={() => {
 					console.log("Made operator " + target.username);
 					var info: ReceivedInfo = {
@@ -228,13 +230,13 @@ export const ContextMenuEl = (
 						? getButtonIcon(ButtonIconType.operator, "button-sm w-6 h-6")
 						: getButtonIcon(ButtonIconType.operator, "button-sm w-6 h-6")
 				}
-			</li>
+			</div>
 		);
 	}
 
 	function dmButton() {
 		return (
-			<li
+			<div
 				onClick={() => {
 					console.log("DM " + target.username);
 					var info: ReceivedInfo = {
@@ -247,46 +249,46 @@ export const ContextMenuEl = (
 				}}
 			>
 				{getButtonIcon(ButtonIconType.dm, "button-sm w-6 h-6")}
-			</li>
+			</div>
 		);
 	}
 
 	function inviteToChannelButton() {
 		return (
-			<li
+			<div
 				onClick={() => {
 					console.log("Invited " + target.username);
 					setInvitesMenu(true);
 				}}
 			>
 				{getButtonIcon(ButtonIconType.invite, "button-sm w-6 h-6")}
-			</li>
+			</div>
 		);
 	}
 
 	function challengeButton() {
 		return (
-			<li
+			<div
 				onClick={(e) => {
 					console.log("Challenged " + target.username);
-					invite(e, target, typeInvite.Game);
+					invite(target, typeInvite.Game);
 				}}
 			>
 				{getButtonIcon(ButtonIconType.challenge, "button-sm  w-6 h-6")}
-			</li>
+			</div>
 		);
 	}
 
 	function friendButton() {
 		return (
-			<li
+			<div
 				onClick={(e) => {
 					console.log("Added as friend " + target.username);
-					invite(e, target, typeInvite.Friend);
+					invite(target, typeInvite.Friend);
 				}}
 			>
 				{getButtonIcon(ButtonIconType.friend, "button-sm w-6 h-6")}
-			</li>
+			</div>
 		);
 	}
 
