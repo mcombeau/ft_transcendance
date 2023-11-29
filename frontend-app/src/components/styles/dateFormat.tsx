@@ -1,6 +1,10 @@
+// TODO: TEst this by muting/unmuting people at 00:00 for example
+// To check of 0 padding is working.
 export function getFormattedTime(inputTime: Date) {
 	const time: Date = new Date(inputTime);
-	return time.getHours() + ":" + time.getMinutes();
+	const hours: string = time.getHours().toString().padStart(2, "0");
+	const minutes: string = time.getMinutes().toString().padStart(2, "0");
+	return hours + ":" + minutes;
 }
 export function sameDay(date1: Date, date2: Date) {
 	date1 = new Date(date1);
