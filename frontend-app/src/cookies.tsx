@@ -8,15 +8,24 @@ type AuthCookie = {
 };
 
 export function getAuthInfo(cookies: any): AuthCookie {
-	if (cookies["token"]) {
-		var token: AuthCookie = jwtDecode(cookies["token"]);
-		return token;
+	try {
+		if (cookies["token"]) {
+			var token: AuthCookie = jwtDecode(cookies["token"]);
+			return token;
+		}
+	} catch (e) {
+		console.warn("Get Auth Info: JWT decode error");
+		return null;
 	}
-	return null;
 }
 
 export function getAuthInfoFromToken(token: string): AuthCookie {
-	return jwtDecode(token);
+	try {
+		return jwtDecode(token);
+	} catch (e) {
+		console.warn("get Auth Info From Token: JWT decode error");
+		return null;
+	}
 }
 
 export function getUsername(cookies: any): string {

@@ -20,6 +20,7 @@ export class GameCreationError extends Error {}
 export class InviteCreationError extends Error {}
 export class InvalidNameError extends Error {}
 export class InvalidPasswordError extends Error {}
+export class InvalidTokenError extends Error {}
 
 @Injectable()
 export class BadRequestInterceptor implements NestInterceptor {
@@ -37,6 +38,8 @@ export class BadRequestInterceptor implements NestInterceptor {
 					throw new InvalidNameException(error.message);
 				} else if (error instanceof InvalidPasswordError) {
 					throw new InvalidPasswordException(error.message);
+				} else if (error instanceof InvalidTokenError) {
+					throw new InvalidTokenError(error.message);
 				} else {
 					throw error;
 				}

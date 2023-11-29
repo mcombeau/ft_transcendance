@@ -36,12 +36,16 @@ function Login() {
 				return data.access_token;
 			}
 		);
-		if (!access_token) return;
-		const loggedUserID = jwtDecode(access_token)["userID"];
-		setAuthenticatedUserID(loggedUserID);
-		setUsername("");
-		setPassword("");
-		navigate(`/user/${loggedUserID}#settings`);
+		try {
+			const loggedUserID = jwtDecode(access_token)["userID"];
+			setAuthenticatedUserID(loggedUserID);
+			setUsername("");
+			setPassword("");
+			navigate(`/user/${loggedUserID}#settings`);
+		} catch (e) {
+			console.warn("Send Auth: JWT decode error");
+			return;
+		}
 	};
 
 	const signIn = (e: any) => {

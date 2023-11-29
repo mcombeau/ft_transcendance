@@ -9,7 +9,7 @@ import { toDataURL } from "qrcode";
 import { authenticator } from "otplib";
 import { UserNotFoundError } from "src/exceptions/not-found.interceptor";
 import * as jwt from "jsonwebtoken";
-import { InvalidTokenError } from "jwt-decode";
+import { InvalidTokenError } from "src/exceptions/bad-request.interceptor";
 
 export type JwtToken = {
 	username: string;
@@ -77,16 +77,13 @@ export class AuthService {
 
 	// Dont know if this should be elsewhere
 	async validateToken(token: string): Promise<JwtToken> {
-		this.logger.log(
-			`[Validate Token]: validating token ${token} (TYPE: ${typeof token})`
-		);
-		if (!token || token === undefined || token === "undefined") {
-			this.logger.warn(
-				`[Validate Token]: no token to validate: user is not logged in.`
-			);
-			return null;
-		}
 		try {
+			if (!token || token === undefined || token === "undefined") {
+				this.logger.warn(
+					`[Validate Token]: no token to validate: user is not logged in.`
+				);
+				return null;
+			}
 			const tokenInfo: JwtToken = jwt.verify(
 				token,
 				jwtConstants.secret
@@ -97,9 +94,11 @@ export class AuthService {
 					`User ${tokenInfo.username} of ID ${tokenInfo.userID} does not exist in database!`
 				);
 			}
+			this.logger.log("[Validate Token]: token OK !");
 			return tokenInfo;
 		} catch (e) {
 			// TODO: emit signal to front that the token is invalid / no user in db
+
 			this.logger.error(`[Validate Token] error: ${e.message}`);
 			throw new InvalidTokenError(e.message);
 		}

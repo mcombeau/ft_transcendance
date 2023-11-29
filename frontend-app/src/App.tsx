@@ -19,34 +19,21 @@ function App() {
 	const [authenticatedUserID, setAuthenticatedUserID] = useState(
 		getUserID(cookies)
 	);
+	const socket = useContext(WebSocketContext);
 	const value = useMemo(
 		() => ({ authenticatedUserID, setAuthenticatedUserID }),
 		[authenticatedUserID]
 	);
-	const socket = useContext(WebSocketContext);
-
 	useEffect(() => {
-		var request = {
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${cookies["token"]}`,
-			},
-		};
-
-		const currentUserID: number = getUserID(cookies);
-		if (!currentUserID) return;
-		fetch(`/backend/users/${currentUserID}`, request).then(async (response) => {
-			await response.json();
-			if (!response.ok) {
-				setAuthenticatedUserID(null);
-				removeCookie("token", { path: "/" });
-				return;
-			}
-			setAuthenticatedUserID(getUserID(cookies));
-			socket.emit("login", cookies["token"]);
-			socket.emit("connection");
+		socket.on("logout", () => {
+			console.log("RECEIVED LOGOUT EMIT");
+			setAuthenticatedUserID(null);
 		});
-	}, [cookies, removeCookie]);
+		return () => {
+			socket.off("logout");
+		};
+	}, []);
+
 
 	return (
 		<Router>

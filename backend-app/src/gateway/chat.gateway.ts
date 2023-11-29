@@ -117,6 +117,7 @@ export class ChatGateway implements OnModuleInit {
 				this.logger.error(
 					`[Connection event]: unauthorized connection: ${e.message}`
 				);
+				socket.emit("logout");
 				return;
 			}
 		});

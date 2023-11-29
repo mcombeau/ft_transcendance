@@ -1,15 +1,38 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AuthenticationContext } from "../authenticationState";
 import { AiOutlineClose, AiOutlineMenu } from "react-icons/ai";
+import { WebSocketContext } from "../../contexts/WebsocketContext";
+import { useNavigate } from "react-router-dom";
+import { useCookies } from "react-cookie";
+import { logoutUser } from "../logout/logout";
 
 function Navbar() {
-	const { authenticatedUserID } = useContext(AuthenticationContext);
-
+	const { authenticatedUserID, setAuthenticatedUserID } = useContext(
+		AuthenticationContext
+	);
+	const [cookies, , removeCookie] = useCookies(["token"]);
 	const [nav, setNav] = useState(false);
-
+	const socket = useContext(WebSocketContext);
+	const navigate = useNavigate();
 	const handleNav = () => {
 		setNav(!nav);
 	};
+
+	useEffect(() => {
+		socket.on("logout", () => {
+			console.log("Socket on logout");
+			logoutUser(
+				socket,
+				cookies,
+				setAuthenticatedUserID,
+				removeCookie,
+				navigate
+			);
+		});
+		return () => {
+			socket.off("logout");
+		};
+	}, []);
 
 	return (
 		<div className="navbar flex justify-between items-center text-sage bg-teal ">
