@@ -1,7 +1,6 @@
 - CSS
 
   - game
-  - display chats on invite to chat in context menu
 
 - Sign in
 
@@ -31,11 +30,6 @@
 - Bugs
 
   - Error in back if token expired => handle it
-  - If muted user is made admin, can't unmute the admin
-
-- Chats
-
-  - Backend check what happens if a user changes usernames + recreates DM with someone
 
 - Appearance
 
