@@ -8,6 +8,17 @@ import { jwtConstants } from "./constants";
 import { toDataURL } from "qrcode";
 import { authenticator } from "otplib";
 import { UserNotFoundError } from "src/exceptions/not-found.interceptor";
+import * as jwt from "jsonwebtoken";
+import { InvalidTokenError } from "jwt-decode";
+
+export type JwtToken = {
+	username: string;
+	userID: number;
+	isTwoFactorAuthenticationEnabled: boolean;
+	isTwoFactorAuthenticated: boolean;
+	iat: number;
+	exp: number;
+};
 
 // TODO: Do not store JWT token in cookie or local storage??? Store as cookie with 'HTTP only' !
 // prevent CSRF XSS.
@@ -20,22 +31,6 @@ export class AuthService {
 	) {}
 
 	private readonly logger: Logger = new Logger("Auth Service");
-
-	async validateUser(
-		username: string,
-		password: string
-	): Promise<null | UserEntity> {
-		const user = await this.userService.fetchUserByUsername(username);
-		if (!user) {
-			this.logger.warn("[Validate User]: user not found");
-			return null;
-		}
-		if (!(await this.passwordService.checkPassword(password, user))) {
-			this.logger.warn("[Validate User]: passwords don't match!");
-			return null;
-		}
-		return user;
-	}
 
 	async login(user: UserEntity): Promise<any> {
 		this.logger.log(`[Login]: user ${user.username} logging in`);
@@ -66,10 +61,67 @@ export class AuthService {
 		});
 	}
 
+	private async doesTokenInformationMatchDatabase(
+		tokenInfo: JwtToken
+	): Promise<boolean> {
+		const user = await this.userService.fetchUserByID(tokenInfo.userID);
+		if (
+			!user ||
+			user.id !== tokenInfo.userID ||
+			user.username !== tokenInfo.username
+		) {
+			return false;
+		}
+		return true;
+	}
+
 	// Dont know if this should be elsewhere
-	async validateToken(token: string): Promise<any> {
-		const jwt = require("jsonwebtoken");
-		return await jwt.verify(token, jwtConstants.secret);
+	async validateToken(token: string): Promise<JwtToken> {
+		this.logger.log(
+			`[Validate Token]: validating token ${token} (TYPE: ${typeof token})`
+		);
+		if (!token || token === undefined || token === "undefined") {
+			this.logger.warn(
+				`[Validate Token]: no token to validate: user is not logged in.`
+			);
+			return null;
+		}
+		try {
+			const tokenInfo: JwtToken = jwt.verify(
+				token,
+				jwtConstants.secret
+			) as JwtToken;
+
+			if ((await this.doesTokenInformationMatchDatabase(tokenInfo)) === false) {
+				throw new UserNotFoundError(
+					`User ${tokenInfo.username} of ID ${tokenInfo.userID} does not exist in database!`
+				);
+			}
+			return tokenInfo;
+		} catch (e) {
+			// TODO: emit signal to front that the token is invalid / no user in db
+			this.logger.error(`[Validate Token] error: ${e.message}`);
+			throw new InvalidTokenError(e.message);
+		}
+	}
+
+	async validateUser(
+		username: string,
+		password: string
+	): Promise<null | UserEntity> {
+		this.logger.log(
+			`[Validate User]: validating user with username and password`
+		);
+		const user = await this.userService.fetchUserByUsername(username);
+		if (!user) {
+			this.logger.warn("[Validate User]: user not found");
+			return null;
+		}
+		if (!(await this.passwordService.checkPassword(password, user))) {
+			this.logger.warn("[Validate User]: passwords don't match!");
+			return null;
+		}
+		return user;
 	}
 
 	async school42Login(req: any, res: any): Promise<void> {
