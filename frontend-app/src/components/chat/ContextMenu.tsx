@@ -63,18 +63,21 @@ export const ContextMenuEl = (
 
 	function displayChatInviteButton(chat: ChatRoom) {
 		return (
-			<li
-				value={chat.chatRoomID}
+			<div
+				className="hover:text-darkblue rounded-md m-1"
 				onClick={(e) => invite(e, target, typeInvite.Chat)}
 			>
 				{chat.name}
-			</li>
+			</div>
 		);
 	}
 
 	function onPageClick(event: any) {
 		event.stopPropagation();
 		if (menuRef && menuRef.current && !menuRef.current.contains(event.target)) {
+			console.log("Deactivated context menu");
+			console.log(event);
+			console.log(menuRef.current.getBoundingClientRect());
 			setContextMenu(false);
 		}
 	}
@@ -97,9 +100,16 @@ export const ContextMenuEl = (
 	}, [contextMenu]);
 
 	// Add event listener
-	useEffect(() => {
-		document.addEventListener("click", onPageClick);
-	}, []);
+	// useEffect(() => {
+	// 	if (contextMenu) {
+	// 		console.log("activated event listener");
+	// 		document.addEventListener("click", onPageClick, { capture: true });
+	// 	} else {
+	// 		console.log("removed event listener");
+	// 		document.removeEventListener("click", onPageClick);
+	// 	}
+	// 	return () => document.removeEventListener("click", onPageClick);
+	// }, [contextMenu]);
 
 	if (!contextMenu) {
 		return <div></div>;
@@ -280,9 +290,27 @@ export const ContextMenuEl = (
 		);
 	}
 
+	function closeMenuButton() {
+		return (
+			<div
+				className="flex justify-end"
+				onClick={(e) => {
+					setContextMenu(false);
+					setInvitesMenu(false);
+				}}
+			>
+				{getButtonIcon(
+					ButtonIconType.closeSettings,
+					"w-6 h-6 px-1 pt-1 text-sage"
+				)}
+			</div>
+		);
+	}
+
 	if (!invitesMenu) {
 		var options = (
-			<ul>
+			<>
+				{closeMenuButton()}
 				{blockButton()}
 				{inviteToChannelButton()}
 				{iCanChallenge ? challengeButton() : <></>}
@@ -304,21 +332,22 @@ export const ContextMenuEl = (
 				) : (
 					<div></div>
 				)}
-			</ul>
+			</>
 		);
 	} else {
 		// List chat you can join
 		var options = (
-			<ul>
+			<>
+				{closeMenuButton()}
 				{myChats.filter((chat) => !chat.isDM).map(displayChatInviteButton)}
-			</ul>
+			</>
 		);
 	}
 
 	return (
 		<div
 			ref={menuRef}
-			className={`bg-teal rounded-md text-sage absolute p-0 overflow-y-scroll z-40 scrollbar-hide`}
+			className={`bg-teal rounded-md text-sage absolute p-0 overflow-y-scroll z-40 scrollbar-hide font-light text-xs`}
 			style={{
 				top: `${
 					contextMenuPos.y - messagesContainer.current.getBoundingClientRect().y
