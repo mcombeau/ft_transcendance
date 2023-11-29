@@ -7,7 +7,7 @@ import {
 } from "@nestjs/websockets";
 import { Server } from "socket.io";
 import { GamesService } from "src/games/games.service";
-import { AuthService } from "src/auth/auth.service";
+import { AuthService, JwtToken } from "src/auth/auth.service";
 import { Socket } from "socket.io";
 import { MessageBody } from "@nestjs/websockets";
 import { ChatGateway } from "./chat.gateway";
@@ -143,26 +143,26 @@ export class GameGateway implements OnModuleInit {
 		this.waitList = [];
 		this.gameRoomID = 0;
 		this.server.on("connection", async (socket) => {
-			const token = socket.handshake.headers.authorization.split(" ")[1];
-			const user = await this.authService
-				.validateToken(token)
-				.catch(() => {
-					return false;
-				})
-				.finally(() => {
-					return true;
-				});
+			try {
+				const token = socket.handshake.headers.authorization.split(" ")[1];
+				const tokenInfo: JwtToken = await this.authService.validateToken(token);
+				if (tokenInfo === null) return;
 
-			this.logger.log(
-				`[Connection Event]: A user connected: ${user.username} - ${user.userID} (${socket.id})`
-			);
-			socket.broadcast.emit("connection event"); // TODO: probably remove
-			socket.on("disconnect", () => {
 				this.logger.log(
-					`[Disconnection Event]: A user disconnected: ${user.username} - ${user.userID} (${socket.id})`
+					`[Connection Event]: A user connected: ${tokenInfo.username} - ${tokenInfo.userID} (${socket.id})`
 				);
-				socket.broadcast.emit("disconnection event");
-			});
+				socket.broadcast.emit("connection event"); // TODO: probably remove
+				socket.on("disconnect", () => {
+					this.logger.log(
+						`[Disconnection Event]: A user disconnected: ${tokenInfo.username} - ${tokenInfo.userID} (${socket.id})`
+					);
+					socket.broadcast.emit("disconnection event");
+				});
+			} catch (e) {
+				this.logger.error(
+					`[Connection event]: unauthorized connection: ${e.message}`
+				);
+			}
 		});
 	}
 

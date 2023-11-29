@@ -17,7 +17,7 @@ import {
 	WebSocketServer,
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
-import { AuthService } from "src/auth/auth.service";
+import { AuthService, JwtToken } from "src/auth/auth.service";
 import { ChatMessagesService } from "src/chat-messages/chat-messages.service";
 import { ChatParticipantsService } from "src/chat-participants/chat-participants.service";
 import { ChatParticipantEntity } from "src/chat-participants/entities/chat-participant.entity";
@@ -91,39 +91,34 @@ export class ChatGateway implements OnModuleInit {
 
 	onModuleInit(): void {
 		this.server.on("connection", async (socket) => {
-			this.logger.debug("[Connection event]: Received connection event");
-			const token = socket.handshake.headers.authorization.split(" ")[1];
-			const tokenUser = await this.authService
-				.validateToken(token)
-				.catch(() => {
-					return false;
-				})
-				.finally(() => {
-					return true;
-				});
-			const user = await this.userService.fetchUserByID(tokenUser.userID);
+			try {
+				this.logger.debug("[Connection event]: Received connection event");
+				const token = socket.handshake.headers.authorization.split(" ")[1];
+				const tokenInfo: JwtToken = await this.authService.validateToken(token);
+				if (tokenInfo === null) return;
+				const user = await this.userService.fetchUserByID(tokenInfo.userID);
 
-			this.logger.log(
-				`[Connection event]: A user connected: ${tokenUser.username} - ${tokenUser.userID} (${socket.id})`
-			);
-			socket.broadcast.emit("connection event"); // TODO: probably remove
-			socket.on("disconnect", () => {
 				this.logger.log(
-					`[Disconnection event]: A user disconnected: ${tokenUser.username} - ${tokenUser.userID} (${socket.id})`
+					`[Connection event]: A user connected: ${tokenInfo.username} - ${tokenInfo.userID} (${socket.id})`
 				);
-				this.onLogout(socket, token);
-				// socket.broadcast.emit('disconnection event');
-			});
+				socket.broadcast.emit("connection event"); // TODO: probably remove
+				socket.on("disconnect", () => {
+					this.logger.log(
+						`[Disconnection event]: A user disconnected: ${tokenInfo.username} - ${tokenInfo.userID} (${socket.id})`
+					);
+					this.onLogout(socket, token);
+					// socket.broadcast.emit('disconnection event');
+				});
 
-			if (!user) {
-				this.logger.warn(
-					"User from token",
-					tokenUser.username,
-					"does not exist in DB!"
+				if (tokenInfo && user) {
+					await this.joinSocketRooms(socket, user.id);
+				}
+			} catch (e) {
+				this.logger.error(
+					`[Connection event]: unauthorized connection: ${e.message}`
 				);
-			}
-			if (tokenUser && user) {
-				await this.joinSocketRooms(socket, user.id);
+				socket.emit("logout");
+				return;
 			}
 		});
 	}
@@ -131,30 +126,28 @@ export class ChatGateway implements OnModuleInit {
 	// -------------------- EVENTS
 	// TODO: GET TOKEN FROM SOCKET NOT FROM PASSED TOKEN!!!
 	async checkIdentity(token: string, socket: Socket): Promise<number> {
-		const socketToken = socket.handshake.headers.authorization.split(" ")[1];
-		if (token !== socketToken) {
-			// TODO: why is socketToken sometimes undefined ? Investigate.
-			this.logger.warn("[Check Identity]: Socket token and token DON'T MATCH!");
-		}
-		if (socketToken === "undefined") {
-			this.logger.warn("[Check Identity]: Socket token is undefined");
-			// throw new ChatPermissionError('socket token is undefined');
-		}
-		const isTokenVerified = await this.authService
-			.validateToken(token)
-			.catch(() => {
-				return false;
-			})
-			.finally(() => {
-				return true;
-			});
-		if (!token) {
+		try {
+			const socketToken = socket.handshake.headers.authorization.split(" ")[1];
+			if (token !== socketToken) {
+				// TODO: why is socketToken sometimes undefined ? Investigate.
+				this.logger.warn(
+					"[Check Identity]: Socket token and token DON'T MATCH!"
+				);
+			}
+			if (socketToken === "undefined") {
+				this.logger.warn("[Check Identity]: Socket token is undefined");
+				// throw new ChatPermissionError('socket token is undefined');
+			}
+			const tokenInfo: JwtToken = await this.authService.validateToken(token);
+			if (tokenInfo === null) {
+				throw new ChatPermissionError("no token to identify user!");
+			}
+			return tokenInfo.userID;
+		} catch (e) {
+			this.logger.error(`[Check Identity]: unauthorized: ${e.message}`);
 			throw new ChatPermissionError("no token to identify user!");
+			return;
 		}
-		if (!isTokenVerified) {
-			throw new ChatPermissionError("invalid token");
-		}
-		return isTokenVerified.userID;
 	}
 
 	private async joinSocketRooms(socket: Socket, userID: number) {
@@ -1016,9 +1009,6 @@ export class ChatGateway implements OnModuleInit {
 
 		await this.checkUserHasOperatorPermissions(user);
 		await this.checkUserIsNotOwner(target);
-		if (target.isOperator && !target.isOwner) {
-			await this.checkUserIsOwner(user);
-		}
 
 		if (target.isBanned) {
 			// Unban
@@ -1046,7 +1036,6 @@ export class ChatGateway implements OnModuleInit {
 		await this.checkUserHasOperatorPermissions(user);
 		await this.checkUserIsNotOwner(target);
 		await this.checkUserIsNotBanned(target);
-
 		if (target.isOperator && !target.isOwner) {
 			await this.checkUserIsOwner(user);
 		}
