@@ -29,7 +29,6 @@
 
 - Bugs
 
-  - Error in back if token expired => handle it
   - update or delete on table \"users\" violates foreign key constraint \"FK_fb6add83b1a7acc94433d385692\" on table \"chat_participants\"
 
 - Appearance
@@ -49,6 +48,7 @@
   - enforce authorizations on contollers - check if user actually has the right to do what they're doing
 
 - Nice to have
+  - ping front for token refresh (can continue to use chat if you mess up token because token is only rechecked on page reload/navigate)
   - invite notif on profile ?
   - reload chat when joining ?
   - notifs dans la navbar
