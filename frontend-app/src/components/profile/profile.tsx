@@ -1,5 +1,5 @@
 import { ReceivedInfo } from "../chat/types";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
 import { useCookies } from "react-cookie";
@@ -498,6 +498,7 @@ function Profile() {
 		);
 	}
 
+	// Fetch user and check if is authenticated
 	useEffect(() => {
 		fetchUser();
 		if (authenticatedUserID === profileUserID) {
@@ -505,11 +506,13 @@ function Profile() {
 		}
 	}, [cookies, socket, profileUserID]);
 
+	// Checks for page user relationship to authenticated user
 	useEffect(() => {
 		checkIfIsMyFriend(user, authenticatedUserID, cookies, setIsMyFriend);
 		checkIfIsBlocked(user, authenticatedUserID, cookies, setIsBlocked);
 	}, [user]);
 
+	// Socket receivers for status
 	useEffect(() => {
 		socket.on(
 			"status change",
@@ -549,10 +552,12 @@ function Profile() {
 		};
 	}, []);
 
+	// Check game status via socket
 	useEffect(() => {
 		socket.emit("is in game", cookies["token"]);
 	}, []);
 
+	// Check url hash for settings
 	useEffect(() => {
 		if (
 			user &&

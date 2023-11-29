@@ -13,7 +13,6 @@ import { checkStatus } from "./Chat";
 import { ReceivedInfo } from "./types";
 import { blockUser, unblockUser } from "../profile/profile";
 import { ButtonIconType, getButtonIcon } from "../styles/icons";
-import { BsEnvelopePaper } from "react-icons/bs";
 
 export const ContextMenuEl = (
 	contextMenu: boolean,
@@ -80,6 +79,7 @@ export const ContextMenuEl = (
 		}
 	}
 
+	// Socket receiver for game status
 	useEffect(() => {
 		socket.on("is in game", (isActive: boolean) => {
 			// cannot challenge the user if I'm in a game
@@ -90,27 +90,20 @@ export const ContextMenuEl = (
 		};
 	}, [contextMenu]);
 
+	// Check via socket the game status
 	useEffect(() => {
 		socket.emit("is in game", cookies["token"]);
 		setInvitesMenu(false);
 	}, [contextMenu]);
 
+	// Add event listener
 	useEffect(() => {
 		document.addEventListener("click", onPageClick);
 	}, []);
 
-	useEffect(() => {
-		console.log("Position contextMenu", contextMenuPos);
-		console.log(
-			"Position parent",
-			messagesContainer.current.getBoundingClientRect()
-		);
-	}, [contextMenuPos]);
-
 	if (!contextMenu) {
 		return <div></div>;
 	}
-	// TODO: refact li
 
 	function blockButton() {
 		if (userIsBlocked) {
