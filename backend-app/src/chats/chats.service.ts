@@ -134,7 +134,8 @@ export class ChatsService {
 		const user1 = await this.getUserToCreateChatRoomOrFail(chatDetails.userID1);
 		const user2 = await this.getUserToCreateChatRoomOrFail(chatDetails.userID2);
 
-		const chatRoomName = this.generateDMName([user1.username, user2.username]);
+		const chatRoomName = this.generateDMName([user1.id, user2.id]);
+		// TODO: Maybe add security by checking if DM with these two users exists in DB
 		this.logger.debug(`[Create DM] DM name: ${chatRoomName}`);
 		await this.checkChatRoomWithNameCanBeCreated(chatRoomName, true);
 
@@ -223,9 +224,9 @@ export class ChatsService {
 
 	// -------- Utility Functions
 
-	private generateDMName(usernames: string[]): string {
-		usernames.sort((a, b) => a.localeCompare(b));
-		return "DM: " + usernames[0] + " " + usernames[1];
+	private generateDMName(userIDs: number[]): string {
+		userIDs.sort((a, b) => a - b);
+		return "DM: " + userIDs[0] + " " + userIDs[1];
 	}
 
 	private async checkChatRoomWithNameCanBeCreated(
