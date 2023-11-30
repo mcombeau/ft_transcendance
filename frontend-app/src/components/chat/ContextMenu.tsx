@@ -33,6 +33,10 @@ export const ContextMenuEl = (
 	const [invitesMenu, setInvitesMenu] = useState(false);
 	const [userIsBlocked, setUserIsBlocked] = useState(false);
 	const [iCanChallenge, setICanChallenge] = useState<boolean>(false);
+	const iconClass: string = "w-6 h-6 p-1";
+	const buttonClass: string =
+		"flex items-center pr-2 hover:bg-darkblue rounded-md m-1";
+	const labelClass: string = "";
 
 	useEffect(() => {
 		setUserIsBlocked(blockedUsers.includes(target.id));
@@ -122,6 +126,7 @@ export const ContextMenuEl = (
 		if (userIsBlocked) {
 			return (
 				<div
+					className={buttonClass}
 					onClick={() => {
 						console.log("Unblocked " + target.username);
 						if (unblockUser(target.id, authenticatedUserID, cookies)) {
@@ -133,12 +138,14 @@ export const ContextMenuEl = (
 						setContextMenu(false);
 					}}
 				>
-					{getButtonIcon(ButtonIconType.unblock, "button-sm w-6 h-6")}
+					{getButtonIcon(ButtonIconType.unblock, iconClass)}
+					<span className={labelClass}>Unblock</span>
 				</div>
 			);
 		}
 		return (
 			<div
+				className={buttonClass}
 				onClick={() => {
 					console.log("Blocked " + target.username);
 					if (blockUser(target.id, authenticatedUserID, cookies)) {
@@ -148,7 +155,8 @@ export const ContextMenuEl = (
 					setContextMenu(false);
 				}}
 			>
-				{getButtonIcon(ButtonIconType.block, "button-sm w-6 h-6")}
+				{getButtonIcon(ButtonIconType.block, iconClass)}
+				<span className={labelClass}>Block</span>
 			</div>
 		);
 	}
@@ -156,6 +164,7 @@ export const ContextMenuEl = (
 	function muteButton() {
 		return (
 			<div
+				className={buttonClass}
 				onClick={() => {
 					var info: ReceivedInfo = {
 						token: cookies["token"],
@@ -169,7 +178,8 @@ export const ContextMenuEl = (
 					setContextMenu(false);
 				}}
 			>
-				{getButtonIcon(ButtonIconType.mute, "button-sm w-6 h-6")}
+				{getButtonIcon(ButtonIconType.mute, iconClass)}
+				<span className={labelClass}>Mute</span>
 			</div>
 		);
 	}
@@ -177,6 +187,7 @@ export const ContextMenuEl = (
 	function kickButton() {
 		return (
 			<div
+				className={buttonClass}
 				onClick={() => {
 					console.log("Kicked " + target.username);
 					var info: ReceivedInfo = {
@@ -188,7 +199,8 @@ export const ContextMenuEl = (
 					setContextMenu(false);
 				}}
 			>
-				{getButtonIcon(ButtonIconType.kick, "button-sm w-6 h-6")}
+				{getButtonIcon(ButtonIconType.kick, iconClass)}
+				<span className={labelClass}>Kick</span>
 			</div>
 		);
 	}
@@ -196,6 +208,7 @@ export const ContextMenuEl = (
 	function banButton() {
 		return (
 			<div
+				className={buttonClass}
 				onClick={() => {
 					console.log("Banned " + target.username);
 					var info: ReceivedInfo = {
@@ -207,13 +220,15 @@ export const ContextMenuEl = (
 					setContextMenu(false);
 				}}
 			>
-				{getButtonIcon(ButtonIconType.ban, "button-sm w-6 h-6")}
+				{getButtonIcon(ButtonIconType.ban, iconClass)}
+				<span className={labelClass}>Ban</span>
 			</div>
 		);
 	}
 	function operatorButton() {
 		return (
 			<div
+				className={buttonClass}
 				onClick={() => {
 					console.log("Made operator " + target.username);
 					var info: ReceivedInfo = {
@@ -228,9 +243,10 @@ export const ContextMenuEl = (
 				{
 					// TODO: find icon for removing from operators
 					checkStatus(channel, target.id) === Status.Operator
-						? getButtonIcon(ButtonIconType.operator, "button-sm w-6 h-6")
-						: getButtonIcon(ButtonIconType.operator, "button-sm w-6 h-6")
+						? getButtonIcon(ButtonIconType.operator, iconClass)
+						: getButtonIcon(ButtonIconType.operator, iconClass)
 				}
+				<span className={labelClass}>Toggle operator</span>
 			</div>
 		);
 	}
@@ -238,6 +254,7 @@ export const ContextMenuEl = (
 	function dmButton() {
 		return (
 			<div
+				className={buttonClass}
 				onClick={() => {
 					console.log("DM " + target.username);
 					var info: ReceivedInfo = {
@@ -249,7 +266,8 @@ export const ContextMenuEl = (
 					setContextMenu(false);
 				}}
 			>
-				{getButtonIcon(ButtonIconType.dm, "button-sm w-6 h-6")}
+				{getButtonIcon(ButtonIconType.dm, iconClass)}
+				<span className={labelClass}>DM</span>
 			</div>
 		);
 	}
@@ -257,12 +275,14 @@ export const ContextMenuEl = (
 	function inviteToChannelButton() {
 		return (
 			<div
+				className={buttonClass}
 				onClick={() => {
 					console.log("Invited " + target.username);
 					setInvitesMenu(true);
 				}}
 			>
-				{getButtonIcon(ButtonIconType.invite, "button-sm w-6 h-6")}
+				{getButtonIcon(ButtonIconType.invite, iconClass)}
+				<span className={labelClass}>Unblock</span>
 			</div>
 		);
 	}
@@ -270,12 +290,14 @@ export const ContextMenuEl = (
 	function challengeButton() {
 		return (
 			<div
+				className={buttonClass}
 				onClick={() => {
 					console.log("Challenged " + target.username);
 					invite(target, typeInvite.Game);
 				}}
 			>
-				{getButtonIcon(ButtonIconType.challenge, "button-sm  w-6 h-6")}
+				{getButtonIcon(ButtonIconType.challenge, iconClass)}
+				<span className={labelClass}>Challenge</span>
 			</div>
 		);
 	}
@@ -283,12 +305,14 @@ export const ContextMenuEl = (
 	function friendButton() {
 		return (
 			<div
+				className={buttonClass}
 				onClick={(e) => {
 					console.log("Added as friend " + target.username);
 					invite(target, typeInvite.Friend);
 				}}
 			>
-				{getButtonIcon(ButtonIconType.friend, "button-sm w-6 h-6")}
+				{getButtonIcon(ButtonIconType.friend, iconClass)}
+				<span className={labelClass}>Add friend</span>
 			</div>
 		);
 	}
@@ -296,16 +320,13 @@ export const ContextMenuEl = (
 	function closeMenuButton() {
 		return (
 			<div
-				className="flex justify-end"
+				className=""
 				onClick={(e) => {
 					setContextMenu(false);
 					setInvitesMenu(false);
 				}}
 			>
-				{getButtonIcon(
-					ButtonIconType.closeSettings,
-					"w-6 h-6 px-1 pt-1 text-sage"
-				)}
+				{getButtonIcon(ButtonIconType.closeSettings, "w-5 h-5 text-sage")}
 			</div>
 		);
 	}
@@ -313,7 +334,10 @@ export const ContextMenuEl = (
 	if (!invitesMenu) {
 		var options = (
 			<>
-				{closeMenuButton()}
+				<div className="flex justify-between items-center p-1">
+					<span className="text-sm">{target.username}</span>
+					{closeMenuButton()}
+				</div>
 				{blockButton()}
 				{inviteToChannelButton()}
 				{iCanChallenge ? challengeButton() : <></>}
@@ -339,7 +363,10 @@ export const ContextMenuEl = (
 		// List chat you can join
 		var options = (
 			<>
-				{closeMenuButton()}
+				<div className="flex justify-between p-1">
+					<span>{target.username}</span>
+					{closeMenuButton()}
+				</div>
 				{myChats.filter((chat) => !chat.isDM).map(displayChatInviteButton)}
 			</>
 		);
