@@ -9,6 +9,7 @@ import { InvitesService } from "src/invites/invites.service";
 import { UserChatInfo } from "src/chat-participants/utils/types";
 import { ChatEntity } from "src/chats/entities/chat.entity";
 import { PasswordService } from "src/password/password.service";
+import { isInt, isPositive } from "class-validator";
 
 @Injectable()
 export class PermissionChecks {
@@ -22,6 +23,7 @@ export class PermissionChecks {
 		@Inject(forwardRef(() => PasswordService))
 		private passwordService: PasswordService
 	) {}
+
 	async getChatRoomOrFail(chatRoomID: number): Promise<ChatEntity> {
 		const chatRoom = await this.chatsService.fetchChatByID(chatRoomID);
 		if (!chatRoom) {
@@ -174,5 +176,39 @@ export class PermissionChecks {
 				`Invalid password for chatroom ${chat.name}`
 			);
 		}
+	}
+
+	convertInviteIDFromString(inviteID: string): number {
+		const convertedInviteID = Number(inviteID);
+		if (
+			isNaN(convertedInviteID) ||
+			!isInt(convertedInviteID) ||
+			!isPositive(convertedInviteID)
+		)
+			return null;
+		return convertedInviteID;
+	}
+
+	async getValidInvite(
+		inviteID: number,
+		userID: number
+	): Promise<sendInviteDto> {
+		if (!inviteID) {
+			return null;
+		}
+		let invitation: sendInviteDto;
+		try {
+			invitation = await this.inviteService.fetchInviteByID(inviteID);
+			if (!invitation) {
+				return null;
+			}
+			if (invitation.invitedID !== userID && invitation.senderID !== userID) {
+				return null;
+			}
+			await this.checkUserInviteHasNotExpired(invitation);
+		} catch (e) {
+			return null;
+		}
+		return invitation;
 	}
 }

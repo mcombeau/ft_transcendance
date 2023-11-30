@@ -16,6 +16,7 @@ import { BlockedUsersModule } from "src/blocked-users/blockedUsers.module";
 import { SocketGateway } from "./socket.gateway";
 import { ChatsGatewayService } from "./chat.gateway.service";
 import { PermissionChecks } from "./permission-checks";
+import { GameGatewayService } from "./game.gateway.service";
 
 @Module({
 	imports: [
@@ -34,6 +35,7 @@ import { PermissionChecks } from "./permission-checks";
 		ChatGateway,
 		ChatsGatewayService,
 		GameGateway,
+		GameGatewayService,
 		PermissionChecks,
 		PasswordService,
 		AuthService,
@@ -43,6 +45,7 @@ import { PermissionChecks } from "./permission-checks";
 		SocketGateway,
 		ChatGateway,
 		GameGateway,
+		GameGatewayService,
 		ChatsGatewayService,
 		PermissionChecks,
 	],
