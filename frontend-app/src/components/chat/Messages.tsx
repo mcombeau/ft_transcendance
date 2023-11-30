@@ -184,6 +184,10 @@ export const Messages = (
 	};
 
 	function displayPublicChat(chat: PublicChatRoom) {
+		const alreadyInChat: boolean = myChats.some(
+			(myChat: ChatRoom) => myChat.chatRoomID === chat.chatRoomID
+		);
+		if (alreadyInChat) return <></>;
 		var joinButton = (
 			<button
 				className="bg-sage rounded-md p-2 m-2 text-teal hover:bg-darkblue hover:text-sage "
@@ -215,10 +219,10 @@ export const Messages = (
 		);
 		return (
 			<div
-				className="bg-teal rounded-md p-2 m-2 text-sage flex justify-between "
+				className="bg-teal rounded-md p-1 m-2 text-sage flex justify-between items-center"
 				id="publicchat"
 			>
-				{chat.name}
+				<span className="pl-3">{chat.name}</span>
 				{joinButton}
 			</div>
 		);
