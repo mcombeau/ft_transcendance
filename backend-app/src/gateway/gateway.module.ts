@@ -14,6 +14,7 @@ import { JwtService } from "@nestjs/jwt";
 import { PasswordModule } from "src/password/password.module";
 import { BlockedUsersModule } from "src/blocked-users/blockedUsers.module";
 import { SocketGateway } from "./socket.gateway";
+import { ChatsGatewayService } from "./chat.gateway.service";
 
 @Module({
 	imports: [
@@ -30,11 +31,12 @@ import { SocketGateway } from "./socket.gateway";
 	providers: [
 		SocketGateway,
 		ChatGateway,
+		ChatsGatewayService,
 		GameGateway,
 		PasswordService,
 		AuthService,
 		JwtService,
 	],
-	exports: [SocketGateway, ChatGateway, GameGateway],
+	exports: [SocketGateway, ChatGateway, GameGateway, ChatsGatewayService],
 })
 export class GatewayModule {}

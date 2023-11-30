@@ -18,6 +18,7 @@ import { InvitesService } from "src/invites/invites.service";
 import { sendInviteDto } from "src/invites/dtos/sendInvite.dto";
 import { isInt, isPositive } from "class-validator";
 import { SocketGateway } from "./socket.gateway";
+import { ChatsGatewayService } from "./chat.gateway.service";
 
 // TODO: move constants here (game speed ...)
 const WINNING_SCORE = 4;
@@ -95,6 +96,8 @@ export class GameGateway implements OnModuleInit {
 		private invitesService: InvitesService,
 		@Inject(forwardRef(() => ChatGateway))
 		private chatGateway: ChatGateway,
+		@Inject(forwardRef(() => ChatsGatewayService))
+		private chatGatewayService: ChatsGatewayService,
 		@Inject(forwardRef(() => SocketGateway))
 		private socketGateway: SocketGateway
 	) {}
@@ -674,7 +677,7 @@ export class GameGateway implements OnModuleInit {
 			if (invitation.invitedID !== userID && invitation.senderID !== userID) {
 				return null;
 			}
-			await this.chatGateway.checkUserInviteHasNotExpired(invitation);
+			await this.chatGatewayService.checkUserInviteHasNotExpired(invitation);
 		} catch (e) {
 			return null;
 		}
