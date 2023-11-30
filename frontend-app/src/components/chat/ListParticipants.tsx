@@ -4,6 +4,7 @@ import { Socket } from "socket.io-client";
 import { ChangeStatus, isUserMuted } from "./Chat";
 import { checkStatus } from "./Chat";
 import { ButtonIconType, getButtonIcon } from "../styles/icons";
+import { ReactElement } from "react";
 
 export function canManageUser(
 	targetID: number,
@@ -50,23 +51,20 @@ export const ListParticipants = (
 ) => {
 	function displayUser(participant: User) {
 		var name = participant.username;
-		var style = {};
+		var status: ReactElement;
 		if (participant.isOwner) {
-			style = { textDecoration: "underline" };
+			status = <span className="text-xs font-extralight"> owner</span>;
 		} else if (participant.isOperator) {
-			name = "★ " + name;
-		}
-		if (isUserMuted(participant)) {
-			style = { fontStyle: "italic" };
+			status = <span className="text-xs font-extralight"> operator</span>;
 		}
 		return (
 			<span
 				onClick={() => {
 					navigate("/user/" + participant.userID);
 				}}
-				style={style}
 			>
 				{name}
+				{status}
 			</span>
 		);
 	}
