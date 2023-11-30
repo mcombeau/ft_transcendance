@@ -13,9 +13,14 @@ import { AuthenticationContext } from "./components/authenticationState";
 import Logout from "./components/logout/logout";
 import { WebSocketContext } from "./contexts/WebsocketContext";
 import NotFound from "./components/notfound/notfound";
+import Banners from "./components/banner/Banner";
+
+export type Banner = {
+	message: string;
+};
 
 function App() {
-	const [cookies, , removeCookie] = useCookies(["token"]);
+	const [cookies, ,] = useCookies(["token"]);
 	const [authenticatedUserID, setAuthenticatedUserID] = useState(
 		getUserID(cookies)
 	);
@@ -24,6 +29,11 @@ function App() {
 		() => ({ authenticatedUserID, setAuthenticatedUserID }),
 		[authenticatedUserID]
 	);
+	const [banners, setBanners] = useState<Banner[]>([
+		{ message: "YOujou" },
+		{ message: "Error" },
+	]);
+
 	useEffect(() => {
 		socket.on("logout", () => {
 			console.log("RECEIVED LOGOUT EMIT");
@@ -34,12 +44,12 @@ function App() {
 		};
 	}, []);
 
-
 	return (
 		<Router>
 			<div className="app">
 				<AuthenticationContext.Provider value={value}>
 					<NavBar />
+					{Banners(banners, setBanners)}
 					<div className="content">
 						<Routes>
 							<Route path="/" element={<Home />} />
