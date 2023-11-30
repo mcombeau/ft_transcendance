@@ -15,6 +15,7 @@ import { PasswordModule } from "src/password/password.module";
 import { BlockedUsersModule } from "src/blocked-users/blockedUsers.module";
 import { SocketGateway } from "./socket.gateway";
 import { ChatsGatewayService } from "./chat.gateway.service";
+import { PermissionChecks } from "./permission-checks";
 
 @Module({
 	imports: [
@@ -33,10 +34,17 @@ import { ChatsGatewayService } from "./chat.gateway.service";
 		ChatGateway,
 		ChatsGatewayService,
 		GameGateway,
+		PermissionChecks,
 		PasswordService,
 		AuthService,
 		JwtService,
 	],
-	exports: [SocketGateway, ChatGateway, GameGateway, ChatsGatewayService],
+	exports: [
+		SocketGateway,
+		ChatGateway,
+		GameGateway,
+		ChatsGatewayService,
+		PermissionChecks,
+	],
 })
 export class GatewayModule {}

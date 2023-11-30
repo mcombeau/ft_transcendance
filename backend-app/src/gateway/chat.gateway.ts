@@ -30,6 +30,7 @@ import {
 	UserTargetChat,
 } from "./chat.gateway.service";
 import { UserEntity } from "src/users/entities/user.entity";
+import { PermissionChecks } from "./permission-checks";
 
 @WebSocketGateway({
 	cors: {
@@ -53,7 +54,9 @@ export class ChatGateway implements OnModuleInit {
 		@Inject(forwardRef(() => SocketGateway))
 		private socketGateway: SocketGateway,
 		@Inject(forwardRef(() => ChatsGatewayService))
-		private chatGatewayService: ChatsGatewayService
+		private chatGatewayService: ChatsGatewayService,
+		@Inject(forwardRef(() => PermissionChecks))
+		private permissionChecks: PermissionChecks
 	) {}
 
 	@WebSocketServer()
@@ -263,7 +266,7 @@ export class ChatGateway implements OnModuleInit {
 			info.userID = await this.socketGateway.checkIdentity(info.token, socket);
 			const user = await this.userService.fetchUserByID(info.userID);
 			if (info.chatInfo && info.chatInfo.password !== undefined) {
-				await this.chatGatewayService.checkChatRoomPassword(
+				await this.permissionChecks.checkChatRoomPassword(
 					info.chatInfo.password,
 					info.chatRoomID
 				);
@@ -445,7 +448,7 @@ export class ChatGateway implements OnModuleInit {
 			info.username = (
 				await this.userService.fetchUserByID(info.userID)
 			).username;
-			const chat = await this.chatGatewayService.getChatRoomOrFail(
+			const chat = await this.permissionChecks.getChatRoomOrFail(
 				info.chatRoomID
 			);
 			info = {
@@ -564,7 +567,7 @@ export class ChatGateway implements OnModuleInit {
 		info: ReceivedInfoDto,
 		@ConnectedSocket() socket: Socket
 	): Promise<ReceivedInfoDto> {
-		await this.chatGatewayService.checkChatRoomPassword(
+		await this.permissionChecks.checkChatRoomPassword(
 			info.chatInfo.password,
 			info.inviteInfo.chatRoomID
 		);
@@ -681,7 +684,7 @@ export class ChatGateway implements OnModuleInit {
 				targetID: info.targetID,
 				chatRoomID: info.chatRoomID,
 			});
-			const participant = await this.chatGatewayService.getParticipantOrFail({
+			const participant = await this.permissionChecks.getParticipantOrFail({
 				userID: info.targetID,
 				chatRoomID: info.chatRoomID,
 			});

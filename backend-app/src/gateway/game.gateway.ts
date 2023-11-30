@@ -9,7 +9,6 @@ import { Server } from "socket.io";
 import { GamesService } from "src/games/games.service";
 import { Socket } from "socket.io";
 import { MessageBody } from "@nestjs/websockets";
-import { ChatGateway } from "./chat.gateway";
 import { createGameParams } from "src/games/utils/types";
 import { UserEntity, userStatus } from "src/users/entities/user.entity";
 import { UsersService } from "src/users/users.service";
@@ -18,7 +17,7 @@ import { InvitesService } from "src/invites/invites.service";
 import { sendInviteDto } from "src/invites/dtos/sendInvite.dto";
 import { isInt, isPositive } from "class-validator";
 import { SocketGateway } from "./socket.gateway";
-import { ChatsGatewayService } from "./chat.gateway.service";
+import { PermissionChecks } from "./permission-checks";
 
 // TODO: move constants here (game speed ...)
 const WINNING_SCORE = 4;
@@ -94,10 +93,8 @@ export class GameGateway implements OnModuleInit {
 		private usersService: UsersService,
 		@Inject(forwardRef(() => InvitesService))
 		private invitesService: InvitesService,
-		@Inject(forwardRef(() => ChatGateway))
-		private chatGateway: ChatGateway,
-		@Inject(forwardRef(() => ChatsGatewayService))
-		private chatGatewayService: ChatsGatewayService,
+		@Inject(forwardRef(() => PermissionChecks))
+		private permissionChecks: PermissionChecks,
 		@Inject(forwardRef(() => SocketGateway))
 		private socketGateway: SocketGateway
 	) {}
@@ -677,7 +674,7 @@ export class GameGateway implements OnModuleInit {
 			if (invitation.invitedID !== userID && invitation.senderID !== userID) {
 				return null;
 			}
-			await this.chatGatewayService.checkUserInviteHasNotExpired(invitation);
+			await this.permissionChecks.checkUserInviteHasNotExpired(invitation);
 		} catch (e) {
 			return null;
 		}
