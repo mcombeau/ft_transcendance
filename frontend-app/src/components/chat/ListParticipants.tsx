@@ -5,6 +5,42 @@ import { ChangeStatus, isUserMuted } from "./Chat";
 import { checkStatus } from "./Chat";
 import { ButtonIconType, getButtonIcon } from "../styles/icons";
 
+export function canManageUser(
+	targetID: number,
+	authenticatedUserID: number,
+	channel: ChatRoom
+) {
+	if (authenticatedUserID === targetID) return false;
+	if (channel.isDM) return false;
+
+	const myStatus: Status = checkStatus(channel, authenticatedUserID);
+	const targetStatus: Status = checkStatus(channel, targetID);
+
+	if (myStatus === Status.Normal) return false;
+	if (targetStatus === Status.Owner) return false;
+	if (targetStatus === Status.Operator && myStatus !== Status.Owner)
+		return false;
+
+	return true;
+}
+
+export function canToggleOperator(
+	targetID: number,
+	authenticatedUserID: number,
+	channel: ChatRoom
+) {
+	if (authenticatedUserID === targetID) return false;
+	if (channel.isDM) return false;
+
+	const myStatus: Status = checkStatus(channel, authenticatedUserID);
+	const targetStatus: Status = checkStatus(channel, targetID);
+
+	if (myStatus !== Status.Owner) return false;
+	if (targetStatus === Status.Owner) return false;
+
+	return true;
+}
+
 export const ListParticipants = (
 	channel: ChatRoom,
 	navigate: NavigateFunction,
@@ -156,32 +192,6 @@ export const ListParticipants = (
 		);
 	}
 
-	function canManageUser(participant: User) {
-		if (authenticatedUserID === participant.userID) return false;
-
-		const myStatus: Status = checkStatus(channel, authenticatedUserID);
-		const targetStatus: Status = checkStatus(channel, participant.userID);
-
-		if (myStatus === Status.Normal) return false;
-		if (targetStatus === Status.Owner) return false;
-		if (targetStatus === Status.Operator && myStatus !== Status.Owner)
-			return false;
-
-		return true;
-	}
-
-	function canToggleOperator(participant: User) {
-		if (authenticatedUserID === participant.userID) return false;
-
-		const myStatus: Status = checkStatus(channel, authenticatedUserID);
-		const targetStatus: Status = checkStatus(channel, participant.userID);
-
-		if (myStatus !== Status.Owner) return false;
-		if (targetStatus === Status.Owner) return false;
-
-		return true;
-	}
-
 	function displayParticipant(participant: User) {
 		return (
 			<div className="items-center grid grid-cols-5 bg-sage rounded m-2 p-2 py-0">
@@ -189,7 +199,7 @@ export const ListParticipants = (
 					{displayUser(participant)}
 				</div>
 				<div id="buttons" className="flex col-span-4 items-center space-x-2">
-					{canManageUser(participant) ? (
+					{canManageUser(participant.userID, authenticatedUserID, channel) ? (
 						<>
 							{isUserMuted(participant)
 								? unmuteButton(participant)
@@ -200,7 +210,15 @@ export const ListParticipants = (
 					) : (
 						<></>
 					)}
-					{canToggleOperator(participant) ? operatorButton(participant) : <></>}
+					{canToggleOperator(
+						participant.userID,
+						authenticatedUserID,
+						channel
+					) ? (
+						operatorButton(participant)
+					) : (
+						<></>
+					)}
 				</div>
 			</div>
 		);

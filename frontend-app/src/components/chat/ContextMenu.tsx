@@ -13,6 +13,7 @@ import { checkStatus } from "./Chat";
 import { ReceivedInfo } from "./types";
 import { blockUser, unblockUser } from "../profile/profile";
 import { ButtonIconType, getButtonIcon } from "../styles/icons";
+import { canManageUser, canToggleOperator } from "./ListParticipants";
 
 export const ContextMenuEl = (
 	contextMenu: boolean,
@@ -269,7 +270,7 @@ export const ContextMenuEl = (
 	function challengeButton() {
 		return (
 			<div
-				onClick={(e) => {
+				onClick={() => {
 					console.log("Challenged " + target.username);
 					invite(target, typeInvite.Game);
 				}}
@@ -318,9 +319,7 @@ export const ContextMenuEl = (
 				{iCanChallenge ? challengeButton() : <></>}
 				{friendButton()}
 				{channel.isDM === false ? dmButton() : <></>}
-				{channel.isDM === false &&
-				checkStatus(channel, authenticatedUserID) !== Status.Normal &&
-				checkStatus(channel, target.id) !== Status.Owner ? (
+				{canManageUser(target.id, authenticatedUserID, channel) ? (
 					<div>
 						{muteButton()}
 						{kickButton()}
@@ -329,7 +328,7 @@ export const ContextMenuEl = (
 				) : (
 					<div></div>
 				)}
-				{checkStatus(channel, authenticatedUserID) === Status.Owner ? ( // TODO: check if admin and switch button
+				{canToggleOperator(target.id, authenticatedUserID, channel) ? ( // TODO: check if admin and switch button
 					<div>{operatorButton()}</div>
 				) : (
 					<div></div>
