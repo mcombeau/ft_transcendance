@@ -17,11 +17,10 @@ import {
 	WebSocketServer,
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
-import { AuthService, JwtToken } from "src/auth/auth.service";
 import { ChatMessagesService } from "src/chat-messages/chat-messages.service";
 import { ChatParticipantsService } from "src/chat-participants/chat-participants.service";
 import { ChatParticipantEntity } from "src/chat-participants/entities/chat-participant.entity";
-import { UserEntity, userStatus } from "src/users/entities/user.entity";
+import { UserEntity } from "src/users/entities/user.entity";
 import { ChatsService } from "src/chats/chats.service";
 import { BlockedUsersService } from "src/blocked-users/blockedUsers.service";
 import {
@@ -39,6 +38,7 @@ import { ChatEntity } from "src/chats/entities/chat.entity";
 import { PasswordService } from "src/password/password.service";
 import { WebsocketExceptionsFilter } from "src/exceptions/websocket-exception.filter";
 import { BadRequestException } from "@nestjs/common";
+import { SocketGateway } from "./socket.gateway";
 
 type UserTargetChat = {
 	userID: number;
@@ -75,82 +75,22 @@ export class ChatGateway implements OnModuleInit {
 		private userService: UsersService,
 		@Inject(forwardRef(() => InvitesService))
 		private inviteService: InvitesService,
-		@Inject(forwardRef(() => AuthService))
-		private authService: AuthService,
 		@Inject(forwardRef(() => PasswordService))
 		private passwordService: PasswordService,
 		@Inject(forwardRef(() => FriendsService))
 		private friendService: FriendsService,
 		@Inject(forwardRef(() => BlockedUsersService))
-		private blockedUserService: BlockedUsersService
+		private blockedUserService: BlockedUsersService,
+		@Inject(forwardRef(() => SocketGateway))
+		private socketGateway: SocketGateway
 	) {}
 	@WebSocketServer()
 	server: Server;
-
 	private readonly logger: Logger = new Logger("Chat Gateway");
 
-	onModuleInit(): void {
-		this.server.on("connection", async (socket) => {
-			try {
-				this.logger.debug("[Connection event]: Received connection event");
-				const token = socket.handshake.headers.authorization.split(" ")[1];
-				const tokenInfo: JwtToken = await this.authService.validateToken(token);
-				if (tokenInfo === null) return;
-				const user = await this.userService.fetchUserByID(tokenInfo.userID);
+	onModuleInit() {}
 
-				this.logger.log(
-					`[Connection event]: A user connected: ${tokenInfo.username} - ${tokenInfo.userID} (${socket.id})`
-				);
-				socket.broadcast.emit("connection event"); // TODO: probably remove
-				socket.on("disconnect", () => {
-					this.logger.log(
-						`[Disconnection event]: A user disconnected: ${tokenInfo.username} - ${tokenInfo.userID} (${socket.id})`
-					);
-					this.onLogout(socket, token);
-					// socket.broadcast.emit('disconnection event');
-				});
-
-				if (tokenInfo && user) {
-					await this.joinSocketRooms(socket, user.id);
-				}
-			} catch (e) {
-				this.logger.error(
-					`[Connection event]: unauthorized connection: ${e.message}`
-				);
-				socket.emit("logout");
-				return;
-			}
-		});
-	}
-
-	// -------------------- EVENTS
-	// TODO: GET TOKEN FROM SOCKET NOT FROM PASSED TOKEN!!!
-	async checkIdentity(token: string, socket: Socket): Promise<number> {
-		try {
-			const socketToken = socket.handshake.headers.authorization.split(" ")[1];
-			if (token !== socketToken) {
-				// TODO: why is socketToken sometimes undefined ? Investigate.
-				this.logger.warn(
-					"[Check Identity]: Socket token and token DON'T MATCH!"
-				);
-			}
-			if (socketToken === "undefined") {
-				this.logger.warn("[Check Identity]: Socket token is undefined");
-				// throw new ChatPermissionError('socket token is undefined');
-			}
-			const tokenInfo: JwtToken = await this.authService.validateToken(token);
-			if (tokenInfo === null) {
-				throw new ChatPermissionError("no token to identify user!");
-			}
-			return tokenInfo.userID;
-		} catch (e) {
-			this.logger.error(`[Check Identity]: unauthorized: ${e.message}`);
-			throw new ChatPermissionError("no token to identify user!");
-			return;
-		}
-	}
-
-	private async joinSocketRooms(socket: Socket, userID: number) {
+	async joinSocketRooms(socket: Socket, userID: number) {
 		// Join channel named by the id of the user
 		socket.data.userID = userID;
 		await socket.join(this.getSocketRoomIdentifier(userID, RoomType.User));
@@ -163,65 +103,13 @@ export class ChatGateway implements OnModuleInit {
 		});
 	}
 
-	@SubscribeMessage("logout")
-	async onLogout(
-		@ConnectedSocket() socket: Socket,
-		@MessageBody() token: string
-	): Promise<void> {
-		try {
-			const userID = await this.checkIdentity(token, socket);
-			socket.data.userID = userID;
-
-			await this.authService.logout(userID);
-			socket.rooms.forEach(async (room: string) => {
-				if (room !== socket.id) await socket.leave(room);
-			});
-
-			const username = (await this.userService.fetchUserByID(userID)).username;
-			this.logger.log(
-				`[Logout event]: A user logged out: ${username} - ${userID} (${socket.id})`
-			);
-			this.server.emit("status change", {
-				userID: userID,
-				userStatus: userStatus.OFFLINE,
-			});
-		} catch (e) {
-			this.logger.error(`[Logout event]: ${e.message}`);
-		}
-	}
-
-	@SubscribeMessage("login")
-	async onLogin(
-		@ConnectedSocket() socket: Socket,
-		@MessageBody() token: string
-	): Promise<void> {
-		try {
-			const userID = await this.checkIdentity(token, socket);
-			socket.data.userID = userID;
-
-			await this.userService.updateUserByID(userID, {
-				status: userStatus.ONLINE,
-			});
-			const username = (await this.userService.fetchUserByID(userID)).username;
-			this.logger.log(
-				`[Login event]: A user logged in: ${username} - ${userID} (${socket.id})`
-			);
-			this.server.emit("status change", {
-				userID: userID,
-				userStatus: userStatus.ONLINE,
-			});
-		} catch (e) {
-			this.logger.error(`[Login event]: ${e.message}`);
-		}
-	}
-
 	@SubscribeMessage("add chat")
 	async onAddChat(
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() info: ReceivedInfoDto
 	): Promise<void> {
 		try {
-			info.userID = await this.checkIdentity(info.token, socket);
+			info.userID = await this.socketGateway.checkIdentity(info.token, socket);
 			info.chatInfo.ownerID = info.userID;
 			const owner = await this.userService.fetchUserByID(info.userID);
 			info.username = owner.username;
@@ -252,7 +140,7 @@ export class ChatGateway implements OnModuleInit {
 		@MessageBody() info: ReceivedInfoDto
 	): Promise<void> {
 		try {
-			info.userID = await this.checkIdentity(info.token, socket);
+			info.userID = await this.socketGateway.checkIdentity(info.token, socket);
 			const userParticipant =
 				await this.chatParticipantsService.fetchParticipantEntityByUserChatID({
 					userID: info.userID,
@@ -277,7 +165,7 @@ export class ChatGateway implements OnModuleInit {
 		@MessageBody() info: ReceivedInfoDto
 	): Promise<void> {
 		try {
-			info.userID = await this.checkIdentity(info.token, socket);
+			info.userID = await this.socketGateway.checkIdentity(info.token, socket);
 			const userParticipant =
 				await this.chatParticipantsService.fetchParticipantEntityByUserChatID({
 					userID: info.userID,
@@ -302,7 +190,7 @@ export class ChatGateway implements OnModuleInit {
 		@MessageBody() info: ReceivedInfoDto
 	): Promise<void> {
 		try {
-			info.userID = await this.checkIdentity(info.token, socket);
+			info.userID = await this.socketGateway.checkIdentity(info.token, socket);
 
 			const chat = await this.chatsService.createChatDM({
 				userID1: info.userID,
@@ -332,7 +220,7 @@ export class ChatGateway implements OnModuleInit {
 		@MessageBody() info: ReceivedInfoDto
 	): Promise<void> {
 		try {
-			info.userID = await this.checkIdentity(info.token, socket);
+			info.userID = await this.socketGateway.checkIdentity(info.token, socket);
 			this.deleteChatRoom({ userID: info.userID, chatRoomID: info.chatRoomID });
 			info.token = "";
 			this.server.emit("delete chat", info);
@@ -352,7 +240,7 @@ export class ChatGateway implements OnModuleInit {
 	): Promise<void> {
 		// TODO: good error message "You have been banned"
 		try {
-			info.userID = await this.checkIdentity(info.token, socket);
+			info.userID = await this.socketGateway.checkIdentity(info.token, socket);
 			const user = await this.userService.fetchUserByID(info.userID);
 			if (info.chatInfo && info.chatInfo.password !== undefined) {
 				await this.checkChatRoomPassword(
@@ -399,7 +287,7 @@ export class ChatGateway implements OnModuleInit {
 		@MessageBody() info: ReceivedInfoDto
 	): Promise<void> {
 		try {
-			info.userID = await this.checkIdentity(info.token, socket);
+			info.userID = await this.socketGateway.checkIdentity(info.token, socket);
 			info.username = (
 				await this.userService.fetchUserByID(info.userID)
 			).username;
@@ -432,7 +320,7 @@ export class ChatGateway implements OnModuleInit {
 		@MessageBody() info: ReceivedInfoDto
 	): Promise<void> {
 		try {
-			const userID = await this.checkIdentity(info.token, socket);
+			const userID = await this.socketGateway.checkIdentity(info.token, socket);
 			info.userID = userID;
 			info.messageInfo.senderID = userID;
 			info.messageInfo.chatRoomID = info.chatRoomID;
@@ -458,7 +346,7 @@ export class ChatGateway implements OnModuleInit {
 		@MessageBody() info: ReceivedInfoDto
 	): Promise<void> {
 		try {
-			info.userID = await this.checkIdentity(info.token, socket);
+			info.userID = await this.socketGateway.checkIdentity(info.token, socket);
 			info.username = (
 				await this.userService.fetchUserByID(info.targetID)
 			).username;
@@ -486,7 +374,7 @@ export class ChatGateway implements OnModuleInit {
 		@MessageBody() info: ReceivedInfoDto
 	): Promise<void> {
 		try {
-			info.userID = await this.checkIdentity(info.token, socket);
+			info.userID = await this.socketGateway.checkIdentity(info.token, socket);
 			info.username = (
 				await this.userService.fetchUserByID(info.userID)
 			).username;
@@ -522,7 +410,7 @@ export class ChatGateway implements OnModuleInit {
 		@MessageBody() info: ReceivedInfoDto
 	): Promise<void> {
 		try {
-			info.userID = await this.checkIdentity(info.token, socket);
+			info.userID = await this.socketGateway.checkIdentity(info.token, socket);
 			const inviteDetails: UserTargetChat = {
 				inviteType: info.inviteInfo.type,
 				userID: info.userID,
@@ -558,7 +446,7 @@ export class ChatGateway implements OnModuleInit {
 		@MessageBody() info: ReceivedInfoDto
 	): Promise<void> {
 		try {
-			info.userID = await this.checkIdentity(info.token, socket);
+			info.userID = await this.socketGateway.checkIdentity(info.token, socket);
 			const user = await this.userService.fetchUserByID(info.userID);
 			switch (info.inviteInfo.type) {
 				case inviteType.CHAT:
@@ -587,7 +475,7 @@ export class ChatGateway implements OnModuleInit {
 		@MessageBody() info: ReceivedInfoDto
 	): Promise<void> {
 		try {
-			info.userID = await this.checkIdentity(info.token, socket);
+			info.userID = await this.socketGateway.checkIdentity(info.token, socket);
 			await this.refuseUserInvite(info.inviteInfo);
 			info.token = "";
 			this.server
@@ -607,7 +495,7 @@ export class ChatGateway implements OnModuleInit {
 		@MessageBody() info: ReceivedInfoDto
 	): Promise<void> {
 		try {
-			info.userID = await this.checkIdentity(info.token, socket);
+			info.userID = await this.socketGateway.checkIdentity(info.token, socket);
 			const user = await this.userService.fetchUserByID(info.targetID);
 			info.username = user.username;
 			await this.toggleOperator({
@@ -643,7 +531,7 @@ export class ChatGateway implements OnModuleInit {
 		@MessageBody() info: ReceivedInfoDto
 	): Promise<void> {
 		try {
-			info.userID = await this.checkIdentity(info.token, socket);
+			info.userID = await this.socketGateway.checkIdentity(info.token, socket);
 			info.username = (
 				await this.userService.fetchUserByID(info.targetID)
 			).username;
@@ -681,7 +569,7 @@ export class ChatGateway implements OnModuleInit {
 		@MessageBody() info: ReceivedInfoDto
 	): Promise<void> {
 		try {
-			info.userID = await this.checkIdentity(info.token, socket);
+			info.userID = await this.socketGateway.checkIdentity(info.token, socket);
 			info.username = (
 				await this.userService.fetchUserByID(info.targetID)
 			).username;
@@ -710,7 +598,7 @@ export class ChatGateway implements OnModuleInit {
 		@MessageBody() info: ReceivedInfoDto
 	): Promise<void> {
 		try {
-			info.userID = await this.checkIdentity(info.token, socket);
+			info.userID = await this.socketGateway.checkIdentity(info.token, socket);
 
 			await this.setPassword(
 				{

@@ -7,7 +7,6 @@ import {
 } from "@nestjs/websockets";
 import { Server } from "socket.io";
 import { GamesService } from "src/games/games.service";
-import { AuthService, JwtToken } from "src/auth/auth.service";
 import { Socket } from "socket.io";
 import { MessageBody } from "@nestjs/websockets";
 import { ChatGateway } from "./chat.gateway";
@@ -18,6 +17,7 @@ import { UserNotFoundError } from "src/exceptions/not-found.interceptor";
 import { InvitesService } from "src/invites/invites.service";
 import { sendInviteDto } from "src/invites/dtos/sendInvite.dto";
 import { isInt, isPositive } from "class-validator";
+import { SocketGateway } from "./socket.gateway";
 
 // TODO: move constants here (game speed ...)
 const WINNING_SCORE = 4;
@@ -87,8 +87,6 @@ type Response = {
 })
 export class GameGateway implements OnModuleInit {
 	constructor(
-		@Inject(forwardRef(() => AuthService))
-		private authService: AuthService,
 		@Inject(forwardRef(() => GamesService))
 		private gameService: GamesService,
 		@Inject(forwardRef(() => UsersService))
@@ -96,7 +94,9 @@ export class GameGateway implements OnModuleInit {
 		@Inject(forwardRef(() => InvitesService))
 		private invitesService: InvitesService,
 		@Inject(forwardRef(() => ChatGateway))
-		private chatGateway: ChatGateway
+		private chatGateway: ChatGateway,
+		@Inject(forwardRef(() => SocketGateway))
+		private socketGateway: SocketGateway
 	) {}
 	@WebSocketServer()
 	server: Server;
@@ -142,28 +142,6 @@ export class GameGateway implements OnModuleInit {
 		this.gameRooms = [];
 		this.waitList = [];
 		this.gameRoomID = 0;
-		this.server.on("connection", async (socket) => {
-			try {
-				const token = socket.handshake.headers.authorization.split(" ")[1];
-				const tokenInfo: JwtToken = await this.authService.validateToken(token);
-				if (tokenInfo === null) return;
-
-				this.logger.log(
-					`[Connection Event]: A user connected: ${tokenInfo.username} - ${tokenInfo.userID} (${socket.id})`
-				);
-				socket.broadcast.emit("connection event"); // TODO: probably remove
-				socket.on("disconnect", () => {
-					this.logger.log(
-						`[Disconnection Event]: A user disconnected: ${tokenInfo.username} - ${tokenInfo.userID} (${socket.id})`
-					);
-					socket.broadcast.emit("disconnection event");
-				});
-			} catch (e) {
-				this.logger.error(
-					`[Connection event]: unauthorized connection: ${e.message}`
-				);
-			}
-		});
 	}
 
 	private startGame(gameRoom: GameRoom) {
@@ -668,7 +646,10 @@ export class GameGateway implements OnModuleInit {
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() token: string
 	) {
-		const userID: number = await this.chatGateway.checkIdentity(token, socket);
+		const userID: number = await this.socketGateway.checkIdentity(
+			token,
+			socket
+		);
 		const user = await this.usersService.fetchUserByID(userID);
 		if (!user) {
 			throw new UserNotFoundError();
@@ -740,7 +721,10 @@ export class GameGateway implements OnModuleInit {
 		token: string,
 		socket: Socket
 	): Promise<UserEntity> {
-		const userID: number = await this.chatGateway.checkIdentity(token, socket);
+		const userID: number = await this.socketGateway.checkIdentity(
+			token,
+			socket
+		);
 		const user = await this.usersService.fetchUserByID(userID);
 		if (!user) {
 			// TODO: maybe deal with that ?
