@@ -56,7 +56,10 @@ function App() {
 							<Route path="/watch/:watchGameID" element={<Play />} />
 							<Route path="/play" element={<Play />} />
 							<Route path="/leaderboard" element={<Leaderboard />} />
-							<Route path="/user/:id" element={<Profile />} />
+							<Route
+								path="/user/:id"
+								element={<Profile setBanners={setBanners} />}
+							/>
 							<Route path="/logout" element={<Logout />} />
 							<Route path="*" element={<NotFound />} />
 							<Route path="/not-found" element={<NotFound />} />

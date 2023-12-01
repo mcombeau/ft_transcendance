@@ -1,6 +1,7 @@
 import { User } from "./profile";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { ButtonIconType, getButtonIcon } from "../styles/icons";
+import { BannerType, createBanner } from "../banner/Banner";
 
 async function readStream(response: any) {
 	const reader = response.body.getReader();
@@ -19,7 +20,8 @@ function ProfileSettings(
 	cookies: any,
 	isEditingProfile: boolean,
 	setIsEditingProfile: Dispatch<SetStateAction<boolean>>,
-	authenticatedUserID: number
+	authenticatedUserID: number,
+	setBanners: any
 ) {
 	const [newUsername, setNewUsername] = useState("");
 	const [newEmail, setNewEmail] = useState("");
@@ -56,6 +58,11 @@ function ProfileSettings(
 				const data = await response.json();
 				if (!response.ok) {
 					console.log("error QR code generation");
+					createBanner(
+						"Error generating QR code",
+						setBanners,
+						BannerType.Alert
+					);
 					return;
 				}
 				setQrcode(data);
@@ -80,7 +87,7 @@ function ProfileSettings(
 		fetch(`/backend/auth/2fa/turn-on`, request).then(async (response) => {
 			const data = await response.json();
 			if (!response.ok) {
-				alert("Error with enabling 2fa: " + data.error + ": " + data.message);
+				createBanner("Error enabling 2fa", setBanners, BannerType.Alert);
 				return;
 			}
 		});
@@ -114,7 +121,11 @@ function ProfileSettings(
 			async (response) => {
 				if (!response.ok) {
 					const error = await response.json();
-					alert("Error: " + error.error + ": " + error.message);
+					createBanner(
+						"Error: " + error.error + ": " + error.message,
+						setBanners,
+						BannerType.Alert
+					);
 				}
 			}
 		);
@@ -137,7 +148,11 @@ function ProfileSettings(
 			async (response) => {
 				if (!response.ok) {
 					const error = await response.json();
-					alert("Error: " + error.error + ": " + error.message);
+					createBanner(
+						"Error: " + error.error + ": " + error.message,
+						setBanners,
+						BannerType.Alert
+					);
 				}
 			}
 		);

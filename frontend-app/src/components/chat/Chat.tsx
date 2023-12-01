@@ -1,17 +1,11 @@
-import {
-	Dispatch,
-	SetStateAction,
-	useContext,
-	useEffect,
-	useState,
-} from "react";
+import { ReactElement, useContext, useEffect, useState } from "react";
 import {
 	WebSocketContext,
 	WebSocketProvider,
 } from "../../contexts/WebsocketContext";
 import { useCookies } from "react-cookie";
 import { useNavigate, useParams } from "react-router-dom";
-import Messages from "./Messages";
+import Messages, { inviteMessage } from "./Messages";
 import SettingsMenu from "./SettingsMenu";
 import SidePannel from "./SidePannel";
 import SendForm from "./SendForm";
@@ -29,7 +23,7 @@ import {
 } from "./types";
 import { AuthenticationContext } from "../authenticationState";
 import { getFormattedTime } from "../styles/dateFormat";
-import { Banner, BannerType, createBanner } from "../banner/Banner";
+import { BannerType, createBanner } from "../banner/Banner";
 
 export function isInChannel(
 	userID: number,
@@ -248,6 +242,26 @@ export const Chat = ({ setBanners }) => {
 			const temp = [...prev];
 			return temp.map((chat: ChatRoom) => {
 				if (chat.chatRoomID === chatRoomID) {
+					if (
+						message.senderID !== authenticatedUserID &&
+						message.system === false
+					) {
+						const notifMessage: ReactElement = (
+							<>
+								<b>{message.senderUsername}</b>
+								{chat.isDM ? (
+									""
+								) : (
+									<>
+										{" "}
+										in <b>{chat.name}</b>
+									</>
+								)}{" "}
+								: {message.msg.slice(0, 20)}...
+							</>
+						);
+						createBanner(notifMessage, setBanners);
+					}
 					chat.messages = [...chat.messages, message];
 				}
 				return chat;
@@ -449,6 +463,14 @@ export const Chat = ({ setBanners }) => {
 				const temp = [...prev];
 				return temp.map((chan: ChatRoom) => {
 					if (chan.chatRoomID === info.chatRoomID) {
+						if (info.targetID === authenticatedUserID) {
+							const message = `You have been muted on ${
+								chan.name
+							} until ${getFormattedTime(
+								new Date(info.participantInfo.mutedUntil)
+							)}`;
+							createBanner(message, setBanners);
+						}
 						chan.participants.map((p) => {
 							if (p.userID === info.targetID) {
 								p.mutedUntil = info.participantInfo.mutedUntil;
@@ -488,6 +510,8 @@ export const Chat = ({ setBanners }) => {
 					});
 					info.token = cookies["token"];
 					socket.emit("leave socket room", info);
+					const message = `You have been banned from ${info.chatInfo.name}`;
+					createBanner(message, setBanners);
 				}
 				// For other people, move participant to banned list
 				setMyChats((prev) => {
@@ -545,6 +569,12 @@ export const Chat = ({ setBanners }) => {
 					prev.filter((i: Invite) => i.id !== invite.id)
 				);
 				setInvites((prev: Invite[]) => [...prev, invite]);
+				const message = (
+					<>
+						{invite.senderUsername} {inviteMessage(invite)}
+					</>
+				);
+				createBanner(message, setBanners);
 			}
 		});
 

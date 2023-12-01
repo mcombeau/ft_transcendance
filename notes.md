@@ -30,12 +30,12 @@
 - Bugs
 
   - update or delete on table \"users\" violates foreign key constraint \"FK_fb6add83b1a7acc94433d385692\" on table \"chat_participants\"
+  - might be duplicate dm (on context menu)
 
 - Appearance
 
   - css for lobby play
   - css for login page
-  - css for settings profile
   - css for game
 
 - Project validation
@@ -63,3 +63,4 @@
   - use 42 profile picture as default user pic
   - Extended navbar
   - avatars in chats
+  - notifs for chat events everywhere
