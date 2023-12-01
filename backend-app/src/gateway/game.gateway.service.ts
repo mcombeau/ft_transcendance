@@ -168,13 +168,13 @@ export class GameGatewayService {
 
 	private createGameDetails(gameRoom: GameRoom): createGameParams {
 		let gameDetails: createGameParams;
-		if (gameRoom.gameState.result[0] === WINNING_SCORE) {
+		if (gameRoom.gameState.score[0] === WINNING_SCORE) {
 			gameDetails = {
 				winnerID: gameRoom.player1.userID,
 				winnerUsername: gameRoom.player1.username,
 				loserID: gameRoom.player2.userID,
 				loserUsername: gameRoom.player2.username,
-				loserScore: gameRoom.gameState.result[1],
+				loserScore: gameRoom.gameState.score[1],
 				winnerScore: WINNING_SCORE,
 			};
 		} else {
@@ -183,7 +183,7 @@ export class GameGatewayService {
 				winnerUsername: gameRoom.player2.username,
 				loserID: gameRoom.player1.userID,
 				loserUsername: gameRoom.player1.username,
-				loserScore: gameRoom.gameState.result[0],
+				loserScore: gameRoom.gameState.score[0],
 				winnerScore: WINNING_SCORE,
 			};
 		}

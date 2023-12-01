@@ -11,8 +11,8 @@ export const GAME_SPEED = 6;
 const MOVE_STEP: number = 7;
 const SKATE_HEIGHT: number = 80;
 const GOAL_HEIGHT: number = 160;
-const GOAL_POS_1: Position = { x: 3, y: 100 };
-const GOAL_POS_2: Position = { x: 697, y: 100 };
+const GOAL_POS_1: Vector = { x: 3, y: 100 };
+const GOAL_POS_2: Vector = { x: 697, y: 100 };
 const BALL_RADIUS: number = 10;
 const SKATE_X_1: number = 42;
 const SKATE_X_2: number = 660;
@@ -23,24 +23,19 @@ const TOP_BOUNDARY = 10;
 const LEFT_BOUNDARY = 5;
 const RIGHT_BOUNDARY = 710;
 
-export type Position = {
+type Vector = {
 	x: number;
 	y: number;
 };
 
-export type Step = {
-	stepX: number;
-	stepY: number;
-};
-
 export type State = {
-	result: number[];
-	p1: number;
-	p2: number;
+	score: number[];
+	skateTop1: number;
+	skateTop2: number;
 	live: boolean;
 	isPaused: boolean;
-	ballPosition: Position;
-	move: Step;
+	ballPos: Vector;
+	ballDir: Vector;
 };
 
 @Injectable()
@@ -54,15 +49,15 @@ export class GameLogicService {
 
 	createGameState() {
 		return {
-			result: [0, 0],
-			p1: 160,
-			p2: 160,
+			score: [0, 0],
+			skateTop1: 160,
+			skateTop2: 160,
 			live: true,
 			isPaused: false,
-			ballPosition: this.placeBall(),
-			move: {
-				stepX: -1,
-				stepY: 1,
+			ballPos: this.placeBall(),
+			ballDir: {
+				x: -1,
+				y: 1,
 			},
 		};
 	}
@@ -74,35 +69,34 @@ export class GameLogicService {
 	randomInitialMove(gameState: State) {
 		// pseudo-random ball behavior
 		const moves = [
-			{ stepX: 1, stepY: 1 },
-			{ stepX: 1, stepY: 2 },
-			{ stepX: 2, stepY: 1 },
-			{ stepX: -1, stepY: -1 },
-			{ stepX: -1, stepY: 1 },
+			{ x: 1, y: 1 },
+			{ x: 1, y: 2 },
+			{ x: 2, y: 1 },
+			{ x: -1, y: -1 },
+			{ x: -1, y: 1 },
 		];
 		const initialMove = moves[Math.floor(Math.random() * moves.length)];
-		gameState.move = initialMove;
+		gameState.ballDir = initialMove;
 	}
 
 	private checkGoals(gameState: State) {
 		//checking if the ball touches the borders of the goal
 		if (
-			gameState.ballPosition.x - BALL_RADIUS <=
-				GOAL_POS_1.x + BALL_RADIUS * 2 &&
-			gameState.ballPosition.y + BALL_RADIUS >= GOAL_POS_1.y &&
-			gameState.ballPosition.y - BALL_RADIUS <= GOAL_POS_1.y + GOAL_HEIGHT
+			gameState.ballPos.x - BALL_RADIUS <= GOAL_POS_1.x + BALL_RADIUS * 2 &&
+			gameState.ballPos.y + BALL_RADIUS >= GOAL_POS_1.y &&
+			gameState.ballPos.y - BALL_RADIUS <= GOAL_POS_1.y + GOAL_HEIGHT
 		) {
-			gameState.result = [gameState.result[0], gameState.result[1] + 1];
+			gameState.score = [gameState.score[0], gameState.score[1] + 1];
 			this.resetBall(gameState);
 			this.randomInitialMove(gameState);
 		}
 
 		if (
-			gameState.ballPosition.x + BALL_RADIUS >= GOAL_POS_2.x &&
-			gameState.ballPosition.y + BALL_RADIUS >= GOAL_POS_2.y &&
-			gameState.ballPosition.y - BALL_RADIUS <= GOAL_POS_2.y + GOAL_HEIGHT
+			gameState.ballPos.x + BALL_RADIUS >= GOAL_POS_2.x &&
+			gameState.ballPos.y + BALL_RADIUS >= GOAL_POS_2.y &&
+			gameState.ballPos.y - BALL_RADIUS <= GOAL_POS_2.y + GOAL_HEIGHT
 		) {
-			gameState.result = [gameState.result[0] + 1, gameState.result[1]];
+			gameState.score = [gameState.score[0] + 1, gameState.score[1]];
 			this.resetBall(gameState);
 			this.randomInitialMove(gameState);
 		}
@@ -111,24 +105,24 @@ export class GameLogicService {
 	private checkPlayers(gameState: State) {
 		//checking if the ball is touching the players, and if so, calculating the angle of rebound
 		if (
-			gameState.ballPosition.x - BALL_RADIUS <= SKATE_X_1 &&
-			gameState.ballPosition.y + BALL_RADIUS >= gameState.p1 &&
-			gameState.ballPosition.y - BALL_RADIUS <= gameState.p1 + SKATE_HEIGHT
+			gameState.ballPos.x - BALL_RADIUS <= SKATE_X_1 &&
+			gameState.ballPos.y + BALL_RADIUS >= gameState.skateTop1 &&
+			gameState.ballPos.y - BALL_RADIUS <= gameState.skateTop1 + SKATE_HEIGHT
 		) {
-			gameState.move = {
-				stepX: -gameState.move.stepX,
-				stepY: gameState.move.stepY,
+			gameState.ballDir = {
+				x: -gameState.ballDir.x,
+				y: gameState.ballDir.y,
 			};
 		}
 
 		if (
-			gameState.ballPosition.x - BALL_RADIUS >= SKATE_X_2 &&
-			gameState.ballPosition.y + BALL_RADIUS >= gameState.p2 &&
-			gameState.ballPosition.y - BALL_RADIUS <= gameState.p2 + SKATE_HEIGHT
+			gameState.ballPos.x - BALL_RADIUS >= SKATE_X_2 &&
+			gameState.ballPos.y + BALL_RADIUS >= gameState.skateTop2 &&
+			gameState.ballPos.y - BALL_RADIUS <= gameState.skateTop2 + SKATE_HEIGHT
 		) {
-			gameState.move = {
-				stepX: -gameState.move.stepX,
-				stepY: gameState.move.stepY,
+			gameState.ballDir = {
+				x: -gameState.ballDir.x,
+				y: gameState.ballDir.y,
 			};
 		}
 	}
@@ -136,26 +130,24 @@ export class GameLogicService {
 	private checkBallBoundaries(gameState: State) {
 		//checking if the ball is touching the boundaries, and if so, calculating the angle of rebound
 		if (
-			gameState.ballPosition.y + BALL_RADIUS + gameState.move.stepY >=
+			gameState.ballPos.y + BALL_RADIUS + gameState.ballDir.y >=
 				BOTTOM_BOUNDARY ||
-			gameState.ballPosition.y - BALL_RADIUS + gameState.move.stepY <=
-				TOP_BOUNDARY
+			gameState.ballPos.y - BALL_RADIUS + gameState.ballDir.y <= TOP_BOUNDARY
 		) {
-			gameState.move = {
-				stepX: gameState.move.stepX,
-				stepY: -gameState.move.stepY,
+			gameState.ballDir = {
+				x: gameState.ballDir.x,
+				y: -gameState.ballDir.y,
 			};
 		}
 
 		if (
-			gameState.ballPosition.x - BALL_RADIUS + gameState.move.stepX <=
+			gameState.ballPos.x - BALL_RADIUS + gameState.ballDir.x <=
 				LEFT_BOUNDARY ||
-			gameState.ballPosition.x + BALL_RADIUS + gameState.move.stepX >=
-				RIGHT_BOUNDARY
+			gameState.ballPos.x + BALL_RADIUS + gameState.ballDir.x >= RIGHT_BOUNDARY
 		) {
-			gameState.move = {
-				stepX: -gameState.move.stepX,
-				stepY: gameState.move.stepY,
+			gameState.ballDir = {
+				x: -gameState.ballDir.x,
+				y: gameState.ballDir.y,
 			};
 		}
 	}
@@ -169,9 +161,9 @@ export class GameLogicService {
 
 	tick(gameRoom: GameRoom) {
 		if (gameRoom.gameState.live === true) {
-			gameRoom.gameState.ballPosition = {
-				x: gameRoom.gameState.ballPosition.x + gameRoom.gameState.move.stepX,
-				y: gameRoom.gameState.ballPosition.y + gameRoom.gameState.move.stepY,
+			gameRoom.gameState.ballPos = {
+				x: gameRoom.gameState.ballPos.x + gameRoom.gameState.ballDir.x,
+				y: gameRoom.gameState.ballPos.y + gameRoom.gameState.ballDir.y,
 			};
 		}
 		this.check(gameRoom);
@@ -182,13 +174,13 @@ export class GameLogicService {
 		gameState: State
 	) {
 		if (player === 1) {
-			if (gameState.p1 + SKATE_HEIGHT >= SKATE_MAX_Y) return 1;
-			if (gameState.p1 <= SKATE_MIN_Y) {
+			if (gameState.skateTop1 + SKATE_HEIGHT >= SKATE_MAX_Y) return 1;
+			if (gameState.skateTop1 <= SKATE_MIN_Y) {
 				return 2;
 			}
 		} else if (player === 2) {
-			if (gameState.p2 + SKATE_HEIGHT >= SKATE_MAX_Y) return 3;
-			if (gameState.p2 <= SKATE_MIN_Y) return 4;
+			if (gameState.skateTop2 + SKATE_HEIGHT >= SKATE_MAX_Y) return 3;
+			if (gameState.skateTop2 <= SKATE_MIN_Y) return 4;
 		}
 
 		return 0;
@@ -199,21 +191,21 @@ export class GameLogicService {
 		gameState: State
 	) {
 		if (code === 1) {
-			gameState.p1 = SKATE_MAX_Y - SKATE_HEIGHT;
+			gameState.skateTop1 = SKATE_MAX_Y - SKATE_HEIGHT;
 		}
 		if (code === 2) {
-			gameState.p1 = SKATE_MIN_Y;
+			gameState.skateTop1 = SKATE_MIN_Y;
 		}
 		if (code === 3) {
-			gameState.p2 = SKATE_MAX_Y - SKATE_HEIGHT;
+			gameState.skateTop2 = SKATE_MAX_Y - SKATE_HEIGHT;
 		}
 		if (code === 4) {
-			gameState.p2 = SKATE_MIN_Y;
+			gameState.skateTop2 = SKATE_MIN_Y;
 		}
 	}
 
 	private resetBall(gameState: State) {
-		gameState.ballPosition = this.placeBall();
+		gameState.ballPos = this.placeBall();
 	}
 
 	// private restart(gameState: State) {
@@ -228,8 +220,8 @@ export class GameLogicService {
 
 	private async checkGameOver(gameRoom: GameRoom) {
 		if (
-			(gameRoom.gameState.result[0] === WINNING_SCORE ||
-				gameRoom.gameState.result[1] === WINNING_SCORE) &&
+			(gameRoom.gameState.score[0] === WINNING_SCORE ||
+				gameRoom.gameState.score[1] === WINNING_SCORE) &&
 			!gameRoom.gameState.isPaused
 		) {
 			this.pause(gameRoom.gameState);
@@ -243,9 +235,9 @@ export class GameLogicService {
 		const dir: number = direction === Direction.Up ? -1 : 1;
 
 		if (playerIndex === 1) {
-			gameRoom.gameState.p1 += MOVE_STEP * dir;
+			gameRoom.gameState.skateTop1 += MOVE_STEP * dir;
 		} else {
-			gameRoom.gameState.p2 += MOVE_STEP * dir;
+			gameRoom.gameState.skateTop2 += MOVE_STEP * dir;
 		}
 
 		if (this.checkPlayerBoundaries(playerIndex, gameRoom.gameState)) {
