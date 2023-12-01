@@ -13,9 +13,10 @@ import { AuthenticationContext } from "./components/authenticationState";
 import Logout from "./components/logout/logout";
 import { WebSocketContext } from "./contexts/WebsocketContext";
 import NotFound from "./components/notfound/notfound";
+import Banners, { Banner } from "./components/banner/Banner";
 
 function App() {
-	const [cookies, , removeCookie] = useCookies(["token"]);
+	const [cookies, ,] = useCookies(["token"]);
 	const [authenticatedUserID, setAuthenticatedUserID] = useState(
 		getUserID(cookies)
 	);
@@ -24,6 +25,8 @@ function App() {
 		() => ({ authenticatedUserID, setAuthenticatedUserID }),
 		[authenticatedUserID]
 	);
+	const [banners, setBanners] = useState<Banner[]>([]);
+
 	useEffect(() => {
 		socket.on("logout", () => {
 			console.log("RECEIVED LOGOUT EMIT");
@@ -34,23 +37,29 @@ function App() {
 		};
 	}, []);
 
-
 	return (
 		<Router>
 			<div className="app">
 				<AuthenticationContext.Provider value={value}>
 					<NavBar />
+					{Banners(banners, setBanners)}
 					<div className="content">
 						<Routes>
 							<Route path="/" element={<Home />} />
 							<Route path="/login" element={<Login />} />
-							<Route path="/chat" element={<Chat />} />
-							<Route path="/chat/:userID" element={<Chat />} />
+							<Route path="/chat" element={<Chat setBanners={setBanners} />} />
+							<Route
+								path="/chat/:userID"
+								element={<Chat setBanners={setBanners} />}
+							/>
 							<Route path="/play/:inviteID" element={<Play />} />
 							<Route path="/watch/:watchGameID" element={<Play />} />
 							<Route path="/play" element={<Play />} />
 							<Route path="/leaderboard" element={<Leaderboard />} />
-							<Route path="/user/:id" element={<Profile />} />
+							<Route
+								path="/user/:id"
+								element={<Profile setBanners={setBanners} />}
+							/>
 							<Route path="/logout" element={<Logout />} />
 							<Route path="*" element={<NotFound />} />
 							<Route path="/not-found" element={<NotFound />} />

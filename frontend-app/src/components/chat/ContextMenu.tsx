@@ -282,7 +282,7 @@ export const ContextMenuEl = (
 				}}
 			>
 				{getButtonIcon(ButtonIconType.invite, iconClass)}
-				<span className={labelClass}>Unblock</span>
+				<span className={labelClass}>Invite to channel</span>
 			</div>
 		);
 	}

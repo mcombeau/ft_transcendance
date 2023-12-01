@@ -11,6 +11,7 @@ import { AuthenticationContext } from "../authenticationState";
 import { typeInvite } from "../chat/types";
 import { Socket } from "socket.io-client";
 import { ButtonIconType, getButtonIcon } from "../styles/icons";
+import { BannerType, createBanner } from "../banner/Banner";
 
 export enum UserStatus {
 	Offline = "offline",
@@ -443,7 +444,7 @@ function editProfileButton(
 	);
 }
 
-function Profile() {
+function Profile({ setBanners }) {
 	var profileUserID: number = Number(useParams().id);
 	let location = useLocation();
 	const [user, setUser] = useState<User>();
@@ -490,6 +491,11 @@ function Profile() {
 				const data = await response.blob();
 				if (!response.ok) {
 					console.log("error fetching avatar");
+					createBanner(
+						"Error while fetching avatar",
+						setBanners,
+						BannerType.Alert
+					);
 					return <h1>No such user</h1>;
 				}
 				const src = URL.createObjectURL(data);
@@ -613,7 +619,8 @@ function Profile() {
 					cookies,
 					isEditingProfile,
 					setIsEditingProfile,
-					authenticatedUserID
+					authenticatedUserID,
+					setBanners
 				)}
 			</div>
 		</div>

@@ -1,11 +1,11 @@
-import { useContext, useEffect, useState } from "react";
+import { ReactElement, useContext, useEffect, useState } from "react";
 import {
 	WebSocketContext,
 	WebSocketProvider,
 } from "../../contexts/WebsocketContext";
 import { useCookies } from "react-cookie";
 import { useNavigate, useParams } from "react-router-dom";
-import Messages from "./Messages";
+import Messages, { inviteMessage } from "./Messages";
 import SettingsMenu from "./SettingsMenu";
 import SidePannel from "./SidePannel";
 import SendForm from "./SendForm";
@@ -23,6 +23,7 @@ import {
 } from "./types";
 import { AuthenticationContext } from "../authenticationState";
 import { getFormattedTime } from "../styles/dateFormat";
+import { BannerType, createBanner } from "../banner/Banner";
 
 export function isInChannel(
 	userID: number,
@@ -200,7 +201,7 @@ export enum PannelType {
 	publicChats = "publicChats",
 }
 
-export const Chat = () => {
+export const Chat = ({ setBanners }) => {
 	const socket = useContext(WebSocketContext);
 	const [myChats, setMyChats] = useState<ChatRoom[]>([]);
 	const [publicChats, setPublicChats] = useState<PublicChatRoom[]>([]);
@@ -241,6 +242,26 @@ export const Chat = () => {
 			const temp = [...prev];
 			return temp.map((chat: ChatRoom) => {
 				if (chat.chatRoomID === chatRoomID) {
+					if (
+						message.senderID !== authenticatedUserID &&
+						message.system === false
+					) {
+						const notifMessage: ReactElement = (
+							<>
+								<b>{message.senderUsername}</b>
+								{chat.isDM ? (
+									""
+								) : (
+									<>
+										{" "}
+										in <b>{chat.name}</b>
+									</>
+								)}{" "}
+								: {message.msg.slice(0, 20)}...
+							</>
+						);
+						createBanner(notifMessage, setBanners);
+					}
 					chat.messages = [...chat.messages, message];
 				}
 				return chat;
@@ -256,7 +277,7 @@ export const Chat = () => {
 			},
 		};
 		socket.on("error", (error_msg: string) => {
-			alert(error_msg);
+			createBanner(error_msg, setBanners, BannerType.Alert);
 		});
 
 		socket.on("chat message", (info: ReceivedInfo) => {
@@ -442,6 +463,19 @@ export const Chat = () => {
 				const temp = [...prev];
 				return temp.map((chan: ChatRoom) => {
 					if (chan.chatRoomID === info.chatRoomID) {
+						if (info.targetID === authenticatedUserID) {
+							let message: string;
+							if (new Date(info.participantInfo.mutedUntil) > new Date()) {
+								message = `You have been muted on ${
+									chan.name
+								} until ${getFormattedTime(
+									new Date(info.participantInfo.mutedUntil)
+								)}`;
+							} else {
+								message = `You have been unmuted on ${chan.name}`;
+							}
+							createBanner(message, setBanners);
+						}
 						chan.participants.map((p) => {
 							if (p.userID === info.targetID) {
 								p.mutedUntil = info.participantInfo.mutedUntil;
@@ -481,6 +515,8 @@ export const Chat = () => {
 					});
 					info.token = cookies["token"];
 					socket.emit("leave socket room", info);
+					const message = `You have been banned from ${info.chatInfo.name}`;
+					createBanner(message, setBanners);
 				}
 				// For other people, move participant to banned list
 				setMyChats((prev) => {
@@ -512,6 +548,10 @@ export const Chat = () => {
 							chat.banned = chat.banned.filter(
 								(p) => p.userID !== info.targetID
 							);
+							if (info.targetID == authenticatedUserID) {
+								const message = `You have been unbanned from ${info.chatInfo.name}`;
+								createBanner(message, setBanners);
+							}
 
 							serviceAnnouncement(
 								`${info.username} has been unbanned from this channel.`,
@@ -538,6 +578,12 @@ export const Chat = () => {
 					prev.filter((i: Invite) => i.id !== invite.id)
 				);
 				setInvites((prev: Invite[]) => [...prev, invite]);
+				const message = (
+					<>
+						{invite.senderUsername} {inviteMessage(invite)}
+					</>
+				);
+				createBanner(message, setBanners);
 			}
 		});
 
@@ -664,9 +710,14 @@ export const Chat = () => {
 				// If i'm the one being kicked remove chat from mychats
 				setMyChats((prev) => {
 					const tmp = [...prev];
-					return tmp.filter(
-						(chat: ChatRoom) => chat.chatRoomID !== info.chatRoomID
-					);
+					return tmp.filter((chat: ChatRoom) => {
+						if (chat.chatRoomID === info.chatRoomID) {
+							const message = `You have been kicked from ${chat.name}`;
+							createBanner(message, setBanners);
+							return false;
+						}
+						return true;
+					});
 				});
 				info.token = cookies["token"];
 				socket.emit("leave socket room", info);

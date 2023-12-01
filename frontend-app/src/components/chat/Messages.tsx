@@ -1,4 +1,11 @@
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import {
+	Dispatch,
+	ReactElement,
+	SetStateAction,
+	useEffect,
+	useRef,
+	useState,
+} from "react";
 import { NavigateFunction } from "react-router-dom";
 import { Socket } from "socket.io-client";
 import { Message, ChatRoom, Invite, PublicChatRoom } from "./types";
@@ -7,6 +14,27 @@ import { ReceivedInfo, typeInvite } from "./types";
 import { separatorLine } from "../styles/separator";
 import { CurrentPannel, PannelType } from "./Chat";
 import { formatDate, getFormattedTime, sameDay } from "../styles/dateFormat";
+
+export function inviteMessage(invite: Invite) {
+	switch (invite.type) {
+		case typeInvite.Game:
+			return <>wants to play</>;
+
+		case typeInvite.Friend:
+			return <>wants to be your friend</>;
+
+		case typeInvite.Chat:
+			const chatRoomName: string = invite.chatRoomName;
+			return (
+				<>
+					invites you to join chat <i>{chatRoomName}</i>
+				</>
+			);
+
+		default:
+			return <>sent you an unknown invite</>;
+	}
+}
 
 export const Messages = (
 	currentChatRoom: ChatRoom,
@@ -119,28 +147,7 @@ export const Messages = (
 
 	const inviteStatus = (invite: Invite) => {
 		var date = new Date(parseInt(invite.expiresAt.toString()));
-		switch (invite.type) {
-			case typeInvite.Game:
-				var messageInvite = <>wants to play</>;
-				break;
-
-			case typeInvite.Friend:
-				messageInvite = <>wants to be your friend</>;
-				break;
-
-			case typeInvite.Chat:
-				const chatRoomName: string = invite.chatRoomName;
-				messageInvite = (
-					<>
-						invites you to join chat <i>{chatRoomName}</i>
-					</>
-				);
-				break;
-
-			default:
-				messageInvite = <>sent you an unknown invite</>;
-				break;
-		}
+		const messageInvite: ReactElement = inviteMessage(invite);
 		return (
 			<div
 				id="messages_invite"
