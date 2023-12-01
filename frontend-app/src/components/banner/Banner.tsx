@@ -1,14 +1,22 @@
 import { Dispatch, SetStateAction } from "react";
+
+export enum BannerType {
+	Alert,
+	Notif,
+}
+
 export type Banner = {
 	id: number;
 	message: string;
 	display: boolean;
+	type: BannerType;
 	style?: string;
 };
 
 export function createBanner(
 	message: string,
 	setBanners: Dispatch<SetStateAction<Banner[]>>,
+	bannerType: BannerType = BannerType.Notif,
 	displayTime: number = 2000
 ) {
 	setBanners((prev: Banner[]) => {
@@ -24,6 +32,7 @@ export function createBanner(
 				id: id,
 				message: message,
 				display: true,
+				type: bannerType,
 			},
 		];
 	});
@@ -34,13 +43,17 @@ function Banners(
 	setBanners: Dispatch<SetStateAction<Banner[]>>
 ) {
 	function displayBanner(banner: Banner) {
-		return (
-			<div
-				className={`bg-teal rounded-md px-6 p-4 m-4 text-sage shadow-md ${banner.style}`}
-			>
-				{banner.message}
-			</div>
-		);
+		let style: string = "rounded-md px-6 p-4 m-4 shadow-md";
+		switch (banner.type) {
+			case BannerType.Notif:
+				style += " bg-teal text-sage ";
+				break;
+			case BannerType.Alert:
+				style += " bg-red-500 text-sage ";
+				break;
+		}
+		style += " " + banner.style;
+		return <div className={style}>{banner.message}</div>;
 	}
 
 	return (
