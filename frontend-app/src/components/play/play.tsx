@@ -399,9 +399,9 @@ export const Play = () => {
 
 		case Page.Play:
 			return (
-				<div className="App">
-					<div className="center-container">
-						<div className="result">
+				<div className="absolute bg-sage top-0  bottom-0 left-0 right-0 flex flex-col items-center">
+					<div className="bg-teal flex flex-col items-center m-2 p-2">
+						<div>
 							<span className="res1">
 								{getPlayerUsername(1)} - {gameState.result[0]}
 							</span>
@@ -409,33 +409,37 @@ export const Play = () => {
 							<span className="res2">
 								{getPlayerUsername(2)} - {gameState.result[1]}
 							</span>
-							<span>
-								<button onClick={leaveGame}>
-									{watching ? "Stop watching" : "Leave game"}
-								</button>
-							</span>
-							<div className="gameField">
-								<div
-									className="ball"
-									style={{
-										top: gameState.ballPosition.y - ballRadius,
-										left: gameState.ballPosition.x - ballRadius,
-									}}
-								/>
-								<div className="midLine" />
-								<div className="midLineHor" />
-								<div className="player player1" style={{ top: gameState.p1 }} />
-								<div className="player player2" style={{ top: gameState.p2 }} />
-								<div className="gate gate1" />
-								<div className="gate gate2" />
-							</div>
+							<button onClick={leaveGame}>
+								{watching ? "Stop watching" : "Leave game"}
+							</button>
 						</div>
-						<div className="controls">
-							<p>
-								[Hint]: <br /> Use W or ↑ to move your paddle up and S or ↓ to
-								move your paddle down.
-							</p>
+						<div className="w-[700px] h-[400px] bg-darkblue relative">
+							<div
+								className="absolute bg-sage rounded-full w-[20px] h-[20px] -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"
+								style={{
+									top: gameState.ballPosition.y - ballRadius,
+									left: gameState.ballPosition.x - ballRadius,
+								}}
+							/>
+							<div className="absolute top-0 left-1/2 bg-sage w-[2px] h-full" />
+							<div className="absolute top-1/2 left-0 bg-sage w-full h-[2px]" />
+							<div
+								className="absolute w-[10px] h-[80px] -translate-x-1/2 left-[30px] bg-lightblue"
+								style={{ top: gameState.p1 }}
+							/>
+							<div
+								className="absolute w-[10px] h-[80px] -translate-x-1/2 right-[20px] bg-lightblue"
+								style={{ top: gameState.p2 }}
+							/>
+							<div className="gate gate1" />
+							<div className="gate gate2" />
 						</div>
+					</div>
+					<div className="controls">
+						<p>
+							[Hint]: <br /> Use W or ↑ to move your paddle up and S or ↓ to
+							move your paddle down.
+						</p>
 					</div>
 				</div>
 			);
