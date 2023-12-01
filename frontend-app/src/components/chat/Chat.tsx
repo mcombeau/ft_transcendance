@@ -1,4 +1,10 @@
-import { useContext, useEffect, useState } from "react";
+import {
+	Dispatch,
+	SetStateAction,
+	useContext,
+	useEffect,
+	useState,
+} from "react";
 import {
 	WebSocketContext,
 	WebSocketProvider,
@@ -23,6 +29,7 @@ import {
 } from "./types";
 import { AuthenticationContext } from "../authenticationState";
 import { getFormattedTime } from "../styles/dateFormat";
+import { Banner, BannerType, createBanner } from "../banner/Banner";
 
 export function isInChannel(
 	userID: number,
@@ -200,7 +207,7 @@ export enum PannelType {
 	publicChats = "publicChats",
 }
 
-export const Chat = () => {
+export const Chat = ({ setBanners }) => {
 	const socket = useContext(WebSocketContext);
 	const [myChats, setMyChats] = useState<ChatRoom[]>([]);
 	const [publicChats, setPublicChats] = useState<PublicChatRoom[]>([]);
@@ -256,7 +263,7 @@ export const Chat = () => {
 			},
 		};
 		socket.on("error", (error_msg: string) => {
-			alert(error_msg);
+			createBanner(error_msg, setBanners, BannerType.Alert);
 		});
 
 		socket.on("chat message", (info: ReceivedInfo) => {
