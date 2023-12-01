@@ -14,7 +14,6 @@
 
 - Cleanup
 
-  - deal with all issues from backend in the front
   - passwords
     - limit number of password retries on join/accept invite
     - tell user to fuck off if wrong username/password
@@ -26,11 +25,11 @@
   - personalization
   - deal with broadband/network issues
   - remove socket from Player game gateway
+  - check that when reloading lobby properly ejected from waitlist
 
 - Bugs
 
   - update or delete on table \"users\" violates foreign key constraint \"FK_fb6add83b1a7acc94433d385692\" on table \"chat_participants\"
-  - might be duplicate dm (on context menu)
 
 - Appearance
 
