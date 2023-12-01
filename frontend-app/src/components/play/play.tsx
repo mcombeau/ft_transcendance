@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
+import { TbLoader2 } from "react-icons/tb";
 import { useNavigate, useParams } from "react-router-dom";
 import { WebSocketContext } from "../../contexts/WebsocketContext";
 import { AuthenticationContext } from "../authenticationState";
@@ -235,9 +236,16 @@ export const Play = () => {
 
 	function lobbyPage() {
 		return (
-			<div>
-				Waiting for other player{" "}
-				<button onClick={leaveLobby}>Stop waiting</button>
+			<div className="grid place-content-center">
+				<div className=" m-8 text-2xl text-darkblue flex ">
+					<div className=" rounded-full p-1 mx-2">
+						<TbLoader2 className="animate-spin" />
+					</div>
+					<div>Waiting for other player... </div>
+				</div>
+				<button className="button" onClick={leaveLobby}>
+					Stop waiting
+				</button>
 			</div>
 		);
 	}
