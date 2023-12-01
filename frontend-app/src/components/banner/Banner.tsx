@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, ReactElement, SetStateAction } from "react";
 
 export enum BannerType {
 	Alert,
@@ -7,14 +7,14 @@ export enum BannerType {
 
 export type Banner = {
 	id: number;
-	message: string;
+	message: string | ReactElement;
 	display: boolean;
 	type: BannerType;
 	style?: string;
 };
 
 export function createBanner(
-	message: string,
+	message: string | ReactElement,
 	setBanners: Dispatch<SetStateAction<Banner[]>>,
 	bannerType: BannerType = BannerType.Notif,
 	displayTime: number = 2000
