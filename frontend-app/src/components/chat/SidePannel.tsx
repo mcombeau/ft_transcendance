@@ -157,7 +157,7 @@ export const SidePannel = (
 						setNewchannel(e.target.value);
 					}}
 				/>
-				<button className="bg-darkblue text-sage hover:bg-teal py-1 px-4 rounded-md">
+				<button className="bg-darkblue text-sage hover:bg-teal py-1 px-4 rounded-md hidden xl:block">
 					<BiCommentAdd className="w-5 h-5" />
 				</button>
 			</form>
