@@ -13,11 +13,7 @@ import { AuthenticationContext } from "./components/authenticationState";
 import Logout from "./components/logout/logout";
 import { WebSocketContext } from "./contexts/WebsocketContext";
 import NotFound from "./components/notfound/notfound";
-import Banners from "./components/banner/Banner";
-
-export type Banner = {
-	message: string;
-};
+import Banners, { Banner } from "./components/banner/Banner";
 
 function App() {
 	const [cookies, ,] = useCookies(["token"]);
@@ -29,10 +25,7 @@ function App() {
 		() => ({ authenticatedUserID, setAuthenticatedUserID }),
 		[authenticatedUserID]
 	);
-	const [banners, setBanners] = useState<Banner[]>([
-		{ message: "YOujou" },
-		{ message: "Error" },
-	]);
+	const [banners, setBanners] = useState<Banner[]>([]);
 
 	useEffect(() => {
 		socket.on("logout", () => {
