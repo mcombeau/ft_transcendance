@@ -21,18 +21,18 @@ type Position = {
 };
 
 type Step = {
-	stepX: number;
-	stepY: number;
+	x: number;
+	y: number;
 };
 
 type State = {
-	result: number[];
-	p1: number;
-	p2: number;
+	score: number[];
+	skateTop1: number;
+	skateTop2: number;
 	live: boolean;
 	isPaused: boolean;
-	ballPosition: Position;
-	move: Step;
+	ballPos: Position;
+	ballDir: Step;
 };
 
 type Player = {
@@ -133,15 +133,15 @@ export const Play = () => {
 		y: 225,
 	};
 	const [gameState, setGameState] = useState<State>({
-		result: [0, 0],
-		p1: 160,
-		p2: 160,
+		score: [0, 0],
+		skateTop1: 160,
+		skateTop2: 160,
 		live: true,
 		isPaused: false,
-		ballPosition: defaultBallPosition,
-		move: {
-			stepX: -10,
-			stepY: 10,
+		ballPos: defaultBallPosition,
+		ballDir: {
+			x: -10,
+			y: 10,
 		},
 	});
 	const ballRadius: number = 10;
@@ -411,11 +411,11 @@ export const Play = () => {
 					<div className="bg-teal flex flex-col items-center m-2 p-2">
 						<div>
 							<span className="res1">
-								{getPlayerUsername(1)} - {gameState.result[0]}
+								{getPlayerUsername(1)} - {gameState.score[0]}
 							</span>
 							:
 							<span className="res2">
-								{getPlayerUsername(2)} - {gameState.result[1]}
+								{getPlayerUsername(2)} - {gameState.score[1]}
 							</span>
 							<button onClick={leaveGame}>
 								{watching ? "Stop watching" : "Leave game"}
@@ -425,19 +425,19 @@ export const Play = () => {
 							<div
 								className="absolute bg-sage rounded-full w-[20px] h-[20px] -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"
 								style={{
-									top: gameState.ballPosition.y - ballRadius,
-									left: gameState.ballPosition.x - ballRadius,
+									top: gameState.ballPos.y - ballRadius,
+									left: gameState.ballPos.x - ballRadius,
 								}}
 							/>
 							<div className="absolute top-0 left-1/2 bg-sage w-[2px] h-full" />
 							<div className="absolute top-1/2 left-0 bg-sage w-full h-[2px]" />
 							<div
 								className="absolute w-[10px] h-[80px] -translate-x-1/2 left-[30px] bg-lightblue"
-								style={{ top: gameState.p1 }}
+								style={{ top: gameState.skateTop1 }}
 							/>
 							<div
 								className="absolute w-[10px] h-[80px] -translate-x-1/2 right-[20px] bg-lightblue"
-								style={{ top: gameState.p2 }}
+								style={{ top: gameState.skateTop2 }}
 							/>
 							<div className="gate gate1" />
 							<div className="gate gate2" />

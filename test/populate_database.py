@@ -3,7 +3,6 @@ import typing
 from dotenv import load_dotenv
 import os
 import requests
-from tqdm.auto import tqdm
 from pathlib import Path
 
 
@@ -99,7 +98,7 @@ def add_user_to_db(body: dict[str, str]) -> str:
         return r.json()["id"]
     except Exception:
         r: Res = get_from_url(f"{DOMAIN}/backend/users")
-        for i in tqdm(r.json()):
+        for i in r.json():
             if i["username"] == body["username"]:
                 print(
                     f"{color.INFO}+ User '{body['username']}' already exists in database{color.RESET}"
