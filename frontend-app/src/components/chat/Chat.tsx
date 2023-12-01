@@ -548,6 +548,10 @@ export const Chat = ({ setBanners }) => {
 							chat.banned = chat.banned.filter(
 								(p) => p.userID !== info.targetID
 							);
+							if (info.targetID == authenticatedUserID) {
+								const message = `You have been unbanned from ${info.chatInfo.name}`;
+								createBanner(message, setBanners);
+							}
 
 							serviceAnnouncement(
 								`${info.username} has been unbanned from this channel.`,
@@ -706,9 +710,14 @@ export const Chat = ({ setBanners }) => {
 				// If i'm the one being kicked remove chat from mychats
 				setMyChats((prev) => {
 					const tmp = [...prev];
-					return tmp.filter(
-						(chat: ChatRoom) => chat.chatRoomID !== info.chatRoomID
-					);
+					return tmp.filter((chat: ChatRoom) => {
+						if (chat.chatRoomID === info.chatRoomID) {
+							const message = `You have been kicked from ${chat.name}`;
+							createBanner(message, setBanners);
+							return false;
+						}
+						return true;
+					});
 				});
 				info.token = cookies["token"];
 				socket.emit("leave socket room", info);
