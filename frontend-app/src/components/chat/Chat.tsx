@@ -464,11 +464,16 @@ export const Chat = ({ setBanners }) => {
 				return temp.map((chan: ChatRoom) => {
 					if (chan.chatRoomID === info.chatRoomID) {
 						if (info.targetID === authenticatedUserID) {
-							const message = `You have been muted on ${
-								chan.name
-							} until ${getFormattedTime(
-								new Date(info.participantInfo.mutedUntil)
-							)}`;
+							let message: string;
+							if (new Date(info.participantInfo.mutedUntil) > new Date()) {
+								message = `You have been muted on ${
+									chan.name
+								} until ${getFormattedTime(
+									new Date(info.participantInfo.mutedUntil)
+								)}`;
+							} else {
+								message = `You have been unmuted on ${chan.name}`;
+							}
 							createBanner(message, setBanners);
 						}
 						chan.participants.map((p) => {
