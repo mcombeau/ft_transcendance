@@ -94,7 +94,6 @@ export class AuthService {
 					`User ${tokenInfo.username} of ID ${tokenInfo.userID} does not exist in database!`
 				);
 			}
-			this.logger.log("[Validate Token]: token OK !");
 			return tokenInfo;
 		} catch (e) {
 			// TODO: emit signal to front that the token is invalid / no user in db
