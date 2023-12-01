@@ -10,6 +10,11 @@ import { GameInfo } from "../profile/friendsList";
 const UP = "ArrowUp";
 const DOWN = "ArrowDown";
 
+type Dimension = {
+	width: number;
+	height: number;
+};
+
 type Response = {
 	success: boolean;
 	gameInfo?: GameInfo;
@@ -144,7 +149,6 @@ export const Play = () => {
 			y: 10,
 		},
 	});
-	const ballRadius: number = 10;
 	const socket = useContext(WebSocketContext);
 	var inviteID: string = useParams().inviteID;
 	var watchGameID: string = useParams().watchGameID;
@@ -157,6 +161,11 @@ export const Play = () => {
 	const [page, setPage] = useState<Page>(Page.Waiting);
 	const [watching, setWatching] = useState<boolean>(true);
 	const [gameInfos, setGameInfos] = useState<GameInfo[]>([]);
+	const terrain: Dimension = { width: 700, height: 400 };
+	const skate: Dimension = { width: 10, height: 80 };
+	const ballRadius: number = 10;
+	const skateOffsset1: number = 30;
+	const skateOffsset2: number = skateOffsset1 - skate.width;
 
 	function getPlayerUsername(player: number) {
 		switch (player) {
@@ -421,9 +430,15 @@ export const Play = () => {
 								{watching ? "Stop watching" : "Leave game"}
 							</button>
 						</div>
-						<div className="w-[700px] h-[400px] bg-darkblue relative">
+						<div
+							className={`w-[${terrain.width}px] h-[${terrain.height}px] bg-darkblue relative`}
+						>
 							<div
-								className="absolute bg-sage rounded-full w-[20px] h-[20px] -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"
+								className={`absolute bg-sage rounded-full w-[${
+									2 * ballRadius
+								}px] h-[${
+									2 * ballRadius
+								}px] -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2`}
 								style={{
 									top: gameState.ballPos.y - ballRadius,
 									left: gameState.ballPos.x - ballRadius,
@@ -432,11 +447,11 @@ export const Play = () => {
 							<div className="absolute top-0 left-1/2 bg-sage w-[2px] h-full" />
 							<div className="absolute top-1/2 left-0 bg-sage w-full h-[2px]" />
 							<div
-								className="absolute w-[10px] h-[80px] -translate-x-1/2 left-[30px] bg-lightblue"
+								className={`absolute w-[${skate.width}px] h-[${skate.height}px] -translate-x-1/2 left-[${skateOffsset1}px] bg-lightblue`}
 								style={{ top: gameState.skateTop1 }}
 							/>
 							<div
-								className="absolute w-[10px] h-[80px] -translate-x-1/2 right-[20px] bg-lightblue"
+								className={`absolute w-[${skate.width}px] h-[${skate.height}px] -translate-x-1/2 right-[${skateOffsset2}px] bg-lightblue`}
 								style={{ top: gameState.skateTop2 }}
 							/>
 							<div className="gate gate1" />
