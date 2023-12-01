@@ -175,6 +175,12 @@ function ProfileSettings(
 			async (response) => {
 				if (!response.ok) {
 					console.log("There was an issue with changing your avatar");
+					const error = await response.json();
+					createBanner(
+						"Error: " + error.error + ": " + error.message,
+						setBanners,
+						BannerType.Alert
+					);
 				} else {
 					// TODO: change current image
 				}
@@ -194,6 +200,12 @@ function ProfileSettings(
 			async (response) => {
 				if (!response.ok) {
 					console.log("There was an issue with removing your avatar");
+					const error = await response.json();
+					createBanner(
+						"Error: " + error.error + ": " + error.message,
+						setBanners,
+						BannerType.Alert
+					);
 				}
 			}
 		);
