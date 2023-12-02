@@ -72,7 +72,7 @@ enum UrlState {
 
 function gameDoesNotExitPage() {
 	return (
-		<div style={{ textAlign: "center", textEmphasis: "true", color: "red" }}>
+		<div className="m-8 text-2xl text-darkblue flex flex-col items-center">
 			Game does not exist
 		</div>
 	);
@@ -86,16 +86,9 @@ function waitForGamePage() {
 	);
 }
 
-// TODO: @inaara improve css for winpage
 function winPage(gameDetails: GameDetails, authenticatedUserID: number) {
 	if (!gameDetails) {
-		return (
-			<div
-				style={{ textAlign: "center", textEmphasis: "true", color: "green" }}
-			>
-				<p>A player left the game</p>
-			</div>
-		);
+		return <p>A player left the game</p>;
 	}
 	const scoreDisplay = (
 		<p>
@@ -106,28 +99,22 @@ function winPage(gameDetails: GameDetails, authenticatedUserID: number) {
 	switch (authenticatedUserID) {
 		case gameDetails.winnerID:
 			return (
-				<div
-					style={{ textAlign: "center", textEmphasis: "true", color: "green" }}
-				>
+				<>
 					<p>You won !</p> {scoreDisplay}
-				</div>
+				</>
 			);
 		case gameDetails.loserID:
 			return (
-				<div
-					style={{ textAlign: "center", textEmphasis: "true", color: "green" }}
-				>
+				<>
 					<p>You lost !</p> {scoreDisplay}
-				</div>
+				</>
 			);
 
 		default:
 			return (
-				<div
-					style={{ textAlign: "center", textEmphasis: "true", color: "green" }}
-				>
+				<>
 					<p>{gameDetails.winnerUsername} won !</p> {scoreDisplay}
-				</div>
+				</>
 			);
 	}
 }
@@ -412,26 +399,29 @@ export const Play = () => {
 			return lobbyPage();
 
 		case Page.EndGame:
-			return winPage(endGameDetails, authenticatedUserID);
+			return (
+				<div className="m-8 text-2xl text-darkblue flex flex-col items-center">
+					{winPage(endGameDetails, authenticatedUserID)}
+				</div>
+			);
 
 		case Page.Play:
 			return (
-				<div className="absolute bg-sage top-0  bottom-0 left-0 right-0 flex flex-col items-center">
-					<div className="bg-teal flex flex-col items-center m-2 p-2">
-						<div>
-							<span className="res1">
-								{getPlayerUsername(1)} - {gameState.score[0]}
-							</span>
-							:
-							<span className="res2">
-								{getPlayerUsername(2)} - {gameState.score[1]}
-							</span>
-							<button onClick={leaveGame}>
-								{watching ? "Stop watching" : "Leave game"}
-							</button>
+				<div className="absolute bg-sage top-0 bottom-0 left-0 right-0 flex flex-col items-center">
+					<div className="bg-lightblue flex flex-col items-center m-4 p-4 rounded-md">
+						<div className="bg-darkblue rounded-md m-2 p-2 text-sage flex flex-col items-center">
+							<div id="scores">
+								<span className="res1">
+									{getPlayerUsername(1)} - {gameState.score[0]}
+								</span>
+								:
+								<span className="res2">
+									{getPlayerUsername(2)} - {gameState.score[1]}
+								</span>
+							</div>
 						</div>
 						<div
-							className={`w-[${terrain.width}px] h-[${terrain.height}px] bg-darkblue relative`}
+							className={`w-[${terrain.width}px] h-[${terrain.height}px] bg-teal relative`}
 						>
 							<div
 								className={`absolute bg-sage rounded-full w-[${
@@ -447,18 +437,23 @@ export const Play = () => {
 							<div className="absolute top-0 left-1/2 bg-sage w-[2px] h-full" />
 							<div className="absolute top-1/2 left-0 bg-sage w-full h-[2px]" />
 							<div
-								className={`absolute w-[${skate.width}px] h-[${skate.height}px] -translate-x-1/2 left-[${skateOffsset1}px] bg-lightblue`}
+								className={`absolute w-[${skate.width}px] h-[${skate.height}px] -translate-x-1/2 left-[${skateOffsset1}px] bg-sage`}
 								style={{ top: gameState.skateTop1 }}
 							/>
 							<div
-								className={`absolute w-[${skate.width}px] h-[${skate.height}px] -translate-x-1/2 right-[${skateOffsset2}px] bg-lightblue`}
+								className={`absolute w-[${skate.width}px] h-[${skate.height}px] -translate-x-1/2 right-[${skateOffsset2}px] bg-sage`}
 								style={{ top: gameState.skateTop2 }}
 							/>
 							<div className="gate gate1" />
 							<div className="gate gate2" />
 						</div>
+						<div id="leave button" className="button">
+							<button onClick={leaveGame}>
+								{watching ? "Stop watching" : "Leave game"}
+							</button>
+						</div>
 					</div>
-					<div className="controls">
+					<div id="controls" className="text-darkblue">
 						<p>
 							[Hint]: <br /> Use W or ↑ to move your paddle up and S or ↓ to
 							move your paddle down.
