@@ -8,16 +8,23 @@ import {
 export const WINNING_SCORE = 4;
 export const GAME_SPEED = 6;
 
-const MOVE_STEP: number = 7;
+const TERRAIN_HEIGHT = 400;
+const TERRAIN_WIDTH = 700;
+
 const SKATE_HEIGHT: number = 80;
+const SKATE_WIDTH: number = 10;
+
+const MOVE_STEP: number = 7;
 const GOAL_HEIGHT: number = 160;
 const GOAL_POS_1: Vector = { x: 3, y: 100 };
 const GOAL_POS_2: Vector = { x: 697, y: 100 };
 const BALL_RADIUS: number = 10;
 const SKATE_X_1: number = 42;
 const SKATE_X_2: number = 660;
-const SKATE_MAX_Y: number = 400;
+
+const SKATE_MAX_Y: number = TERRAIN_HEIGHT;
 const SKATE_MIN_Y = 0;
+
 const BOTTOM_BOUNDARY = 410;
 const TOP_BOUNDARY = 10;
 const LEFT_BOUNDARY = 5;
