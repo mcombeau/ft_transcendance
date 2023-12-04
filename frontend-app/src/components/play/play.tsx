@@ -65,6 +65,13 @@ enum Page {
 	EndGame = "end game",
 }
 
+enum TerrainColors {
+	Teal = "teal",
+	LightBlue = "lightblue",
+	DarkBlue = "darkblue",
+	Black = "black",
+}
+
 enum UrlState {
 	Play,
 	Watch,
@@ -149,6 +156,10 @@ export const Play = () => {
 	const [page, setPage] = useState<Page>(Page.Waiting);
 	const [watching, setWatching] = useState<boolean>(true);
 	const [gameInfos, setGameInfos] = useState<GameInfo[]>([]);
+
+	const [terrainColor, setTerrainColor] = useState<TerrainColors>(
+		TerrainColors.Teal
+	);
 
 	const windowSize = useWindowSize();
 	const [sizeGame, setSizeGame] = useState<number>(1);
@@ -478,7 +489,11 @@ export const Play = () => {
 							</div>
 						</div>
 						<div
-							className={`bg-teal relative`}
+							className={`bg-${terrainColor} ${
+								terrainColor === TerrainColors.LightBlue
+									? "border-2 border-sage"
+									: ""
+							} relative rounded-md`}
 							style={{
 								width: terrain.width,
 								height: terrain.height,
@@ -516,10 +531,35 @@ export const Play = () => {
 							<div className="gate gate1" />
 							<div className="gate gate2" />
 						</div>
-						<div id="leave button" className="button">
-							<button onClick={leaveGame}>
-								{watching ? "Stop watching" : "Leave game"}
-							</button>
+						<div className="flex items-center w-full justify-between">
+							<div id="leave button" className="button">
+								<button onClick={leaveGame}>
+									{watching ? "Stop watching" : "Leave game"}
+								</button>
+							</div>
+							<div id="color buttons" className="flex justify-end">
+								<button
+									id="teal button"
+									className={`bg-${TerrainColors.Teal} w-6 h-6 m-1 rounded-md border-2 border-sage`}
+									onClick={() => {
+										setTerrainColor(TerrainColors.Teal);
+									}}
+								></button>
+								<button
+									id="red button"
+									className={`bg-${TerrainColors.LightBlue} w-6 h-6 m-1 rounded-md border-2 border-sage`}
+									onClick={() => {
+										setTerrainColor(TerrainColors.LightBlue);
+									}}
+								></button>
+								<button
+									id="black button"
+									className={`bg-${TerrainColors.DarkBlue} w-6 h-6 m-1 rounded-md border-2 border-sage`}
+									onClick={() => {
+										setTerrainColor(TerrainColors.DarkBlue);
+									}}
+								></button>
+							</div>
 						</div>
 					</div>
 					<div id="controls" className="text-darkblue">
