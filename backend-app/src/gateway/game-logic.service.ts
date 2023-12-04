@@ -6,7 +6,7 @@ import {
 } from "./game.gateway.service";
 
 export const WINNING_SCORE = 4;
-export const GAME_SPEED = 6;
+export const GAME_SPEED = 12;
 
 const TERRAIN_HEIGHT = 400;
 const TERRAIN_WIDTH = 700;
@@ -83,12 +83,13 @@ export class GameLogicService {
 		gameState.ballDir = initialMove;
 	}
 
-	private checkGoals(gameState: State) {
+	private checkBallGoalCollision(gameState: State) {
 		//checking if the ball touches the left and right borders of the terrain
 		if (
 			gameState.ballPos.x - BALL_RADIUS + gameState.ballDir.x <=
 			LEFT_BOUNDARY
 		) {
+			this.logger.debug("Ball collided with goal left");
 			gameState.score = [gameState.score[0], gameState.score[1] + 1];
 			this.resetBall(gameState);
 			this.randomInitialMove(gameState);
@@ -98,23 +99,33 @@ export class GameLogicService {
 			gameState.ballPos.x + BALL_RADIUS + gameState.ballDir.x >=
 			RIGHT_BOUNDARY
 		) {
+			this.logger.debug("Ball collided with goal right");
 			gameState.score = [gameState.score[0] + 1, gameState.score[1]];
 			this.resetBall(gameState);
 			this.randomInitialMove(gameState);
 		}
 	}
 
-	private checkPlayers(gameState: State) {
+	private reboundBall(gameState: State, direction: Vector) {
+		gameState.ballDir = {
+			x: gameState.ballDir.x * direction.x,
+			y: gameState.ballDir.y * direction.y,
+		};
+		gameState.ballPos = {
+			x: gameState.ballPos.x + 1,
+			y: gameState.ballPos.y + 1,
+		};
+	}
+
+	private checkBallSkateCollision(gameState: State) {
 		//checking if the ball is touching the players, and if so, calculating the angle of rebound
 		if (
 			gameState.ballPos.x - BALL_RADIUS <= SKATE_X_1 &&
 			gameState.ballPos.y + BALL_RADIUS >= gameState.skateTop1 &&
 			gameState.ballPos.y - BALL_RADIUS <= gameState.skateTop1 + SKATE_HEIGHT
 		) {
-			gameState.ballDir = {
-				x: -gameState.ballDir.x,
-				y: gameState.ballDir.y,
-			};
+			this.logger.debug("Ball collided with skate 1");
+			this.reboundBall(gameState, { x: -1, y: 1 });
 		}
 
 		if (
@@ -122,42 +133,26 @@ export class GameLogicService {
 			gameState.ballPos.y + BALL_RADIUS >= gameState.skateTop2 &&
 			gameState.ballPos.y - BALL_RADIUS <= gameState.skateTop2 + SKATE_HEIGHT
 		) {
-			gameState.ballDir = {
-				x: -gameState.ballDir.x,
-				y: gameState.ballDir.y,
-			};
+			this.logger.debug("Ball collided with skate 2");
+			this.reboundBall(gameState, { x: -1, y: 1 });
 		}
 	}
 
-	private checkBallBoundaries(gameState: State) {
+	private checkBallTerrainCollision(gameState: State) {
 		//checking if the ball is touching the boundaries, and if so, calculating the angle of rebound
 		if (
 			gameState.ballPos.y + BALL_RADIUS + gameState.ballDir.y >=
 				BOTTOM_BOUNDARY ||
 			gameState.ballPos.y - BALL_RADIUS + gameState.ballDir.y <= TOP_BOUNDARY
 		) {
-			gameState.ballDir = {
-				x: gameState.ballDir.x,
-				y: -gameState.ballDir.y,
-			};
-		}
-
-		if (
-			gameState.ballPos.x - BALL_RADIUS + gameState.ballDir.x <=
-				LEFT_BOUNDARY ||
-			gameState.ballPos.x + BALL_RADIUS + gameState.ballDir.x >= RIGHT_BOUNDARY
-		) {
-			gameState.ballDir = {
-				x: -gameState.ballDir.x,
-				y: gameState.ballDir.y,
-			};
+			this.reboundBall(gameState, { x: 1, y: -1 });
 		}
 	}
 
 	private check(gameRoom: GameRoom) {
-		this.checkPlayers(gameRoom.gameState);
-		this.checkGoals(gameRoom.gameState);
-		this.checkBallBoundaries(gameRoom.gameState);
+		this.checkBallGoalCollision(gameRoom.gameState);
+		this.checkBallSkateCollision(gameRoom.gameState);
+		this.checkBallTerrainCollision(gameRoom.gameState);
 		this.checkGameOver(gameRoom);
 	}
 
@@ -171,7 +166,7 @@ export class GameLogicService {
 		this.check(gameRoom);
 	}
 
-	private checkPlayerBoundaries(
+	private checkSkateBoundaries(
 		player: number, //checking the boundaries of players for going beyond the field
 		gameState: State
 	) {
@@ -242,9 +237,9 @@ export class GameLogicService {
 			gameRoom.gameState.skateTop2 += MOVE_STEP * dir;
 		}
 
-		if (this.checkPlayerBoundaries(playerIndex, gameRoom.gameState)) {
+		if (this.checkSkateBoundaries(playerIndex, gameRoom.gameState)) {
 			this.resetPlayer(
-				this.checkPlayerBoundaries(playerIndex, gameRoom.gameState),
+				this.checkSkateBoundaries(playerIndex, gameRoom.gameState),
 				gameRoom.gameState
 			);
 		}
