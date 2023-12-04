@@ -5,7 +5,7 @@ import {
 	GameRoom,
 } from "./game.gateway.service";
 
-export const WINNING_SCORE = 4;
+export const WINNING_SCORE = 40;
 export const GAME_SPEED = 12;
 
 const TERRAIN_HEIGHT = 400;
@@ -34,8 +34,10 @@ type Vector = {
 
 export type State = {
 	score: number[];
-	skateTop1: number;
-	skateTop2: number;
+	// skateTop1: number;
+	// skateTop2: number;
+	skate1: Vector;
+	skate2: Vector;
 	live: boolean;
 	isPaused: boolean;
 	ballPos: Vector;
@@ -54,8 +56,10 @@ export class GameLogicService {
 	createGameState() {
 		return {
 			score: [0, 0],
-			skateTop1: 160,
-			skateTop2: 160,
+			// skateTop1: 160,
+			// skateTop2: 160,
+			skate1: { x: SKATE_X_1, y: 160 },
+			skate2: { x: SKATE_X_2, y: 160 },
 			live: true,
 			isPaused: false,
 			ballPos: this.placeBall(),
@@ -111,31 +115,71 @@ export class GameLogicService {
 			x: gameState.ballDir.x * direction.x,
 			y: gameState.ballDir.y * direction.y,
 		};
-		gameState.ballPos = {
-			x: gameState.ballPos.x + 1,
-			y: gameState.ballPos.y + 1,
-		};
 	}
+
+	//private checkBallSkateCollision(gameState: State) {
+	//	//if side of ball touches side of skate
+	//}
 
 	private checkBallSkateCollision(gameState: State) {
 		//checking if the ball is touching the players, and if so, calculating the angle of rebound
 		if (
+			// If surface of ball is behind the apparent surface of left skate
 			gameState.ballPos.x - BALL_RADIUS <= SKATE_X_1 &&
-			gameState.ballPos.y + BALL_RADIUS >= gameState.skateTop1 &&
-			gameState.ballPos.y - BALL_RADIUS <= gameState.skateTop1 + SKATE_HEIGHT
+			// If surface of ball is in front of the backside surface of left skate
+			gameState.ballPos.x + BALL_RADIUS >= SKATE_X_1 - SKATE_WIDTH &&
+			// if bottom of the ball is below the top of the left skate
+			gameState.ballPos.y + BALL_RADIUS >= gameState.skate1.y &&
+			// if top of the ball is above the bottom of the left skate
+			gameState.ballPos.y - BALL_RADIUS <= gameState.skate1.y + SKATE_HEIGHT
 		) {
-			this.logger.debug("Ball collided with skate 1");
-			this.reboundBall(gameState, { x: -1, y: 1 });
+			if (
+				gameState.ballPos.x < SKATE_X_1 &&
+				gameState.ballPos.x > SKATE_X_1 - SKATE_WIDTH
+			) {
+				this.logger.debug("Ball collided with skate 1 on SMALL side");
+				this.reboundBall(gameState, { x: 1, y: -1 });
+			} else {
+				this.logger.debug("Ball collided with skate 1 on LONG side");
+				this.reboundBall(gameState, { x: -1, y: 1 });
+			}
 		}
+		// if (
+		// 	gameState.ballPos.x - BALL_RADIUS >= SKATE_X_1 - SKATE_WIDTH &&
+		// 	gameState.ballPos.y + BALL_RADIUS >= gameState.skateTop1 &&
+		// 	gameState.ballPos.y - BALL_RADIUS <= gameState.skateTop1 + SKATE_HEIGHT
+		// ) {
+		// 	this.logger.debug("--- Ball collided with BEHIND skate 1");
+		// 	this.reboundBall(gameState, { x: -1, y: 1 });
+		// }
 
 		if (
 			gameState.ballPos.x - BALL_RADIUS >= SKATE_X_2 &&
-			gameState.ballPos.y + BALL_RADIUS >= gameState.skateTop2 &&
-			gameState.ballPos.y - BALL_RADIUS <= gameState.skateTop2 + SKATE_HEIGHT
+			gameState.ballPos.x + BALL_RADIUS <= SKATE_X_2 + SKATE_WIDTH &&
+			gameState.ballPos.y + BALL_RADIUS >= gameState.skate2.y &&
+			gameState.ballPos.y - BALL_RADIUS <= gameState.skate2.y + SKATE_HEIGHT
 		) {
-			this.logger.debug("Ball collided with skate 2");
-			this.reboundBall(gameState, { x: -1, y: 1 });
+			if (
+				gameState.ballPos.x > SKATE_X_2 &&
+				gameState.ballPos.x < SKATE_X_2 + SKATE_WIDTH
+			) {
+				this.logger.debug("Ball collided with skate 2 on SMALL side");
+				this.reboundBall(gameState, { x: 1, y: -1 });
+			} else {
+				this.logger.debug("Ball collided with skate 2 on LONG side");
+				this.reboundBall(gameState, { x: -1, y: 1 });
+			}
+			// this.logger.debug("Ball collided with skate 2");
+			// this.reboundBall(gameState, { x: -1, y: 1 });
 		}
+		// if (
+		// 	gameState.ballPos.x - BALL_RADIUS <= SKATE_X_2 + SKATE_WIDTH &&
+		// 	gameState.ballPos.y + BALL_RADIUS >= gameState.skateTop2 &&
+		// 	gameState.ballPos.y - BALL_RADIUS <= gameState.skateTop2 + SKATE_HEIGHT
+		// ) {
+		// 	this.logger.debug("--- Ball collided with BEHIND skate 2");
+		// 	this.reboundBall(gameState, { x: -1, y: 1 });
+		// }
 	}
 
 	private checkBallTerrainCollision(gameState: State) {
@@ -171,13 +215,13 @@ export class GameLogicService {
 		gameState: State
 	) {
 		if (player === 1) {
-			if (gameState.skateTop1 + SKATE_HEIGHT >= SKATE_MAX_Y) return 1;
-			if (gameState.skateTop1 <= SKATE_MIN_Y) {
+			if (gameState.skate1.y + SKATE_HEIGHT >= SKATE_MAX_Y) return 1;
+			if (gameState.skate1.y <= SKATE_MIN_Y) {
 				return 2;
 			}
 		} else if (player === 2) {
-			if (gameState.skateTop2 + SKATE_HEIGHT >= SKATE_MAX_Y) return 3;
-			if (gameState.skateTop2 <= SKATE_MIN_Y) return 4;
+			if (gameState.skate2.y + SKATE_HEIGHT >= SKATE_MAX_Y) return 3;
+			if (gameState.skate2.y <= SKATE_MIN_Y) return 4;
 		}
 
 		return 0;
@@ -188,16 +232,16 @@ export class GameLogicService {
 		gameState: State
 	) {
 		if (code === 1) {
-			gameState.skateTop1 = SKATE_MAX_Y - SKATE_HEIGHT;
+			gameState.skate1.y = SKATE_MAX_Y - SKATE_HEIGHT;
 		}
 		if (code === 2) {
-			gameState.skateTop1 = SKATE_MIN_Y;
+			gameState.skate1.y = SKATE_MIN_Y;
 		}
 		if (code === 3) {
-			gameState.skateTop2 = SKATE_MAX_Y - SKATE_HEIGHT;
+			gameState.skate2.y = SKATE_MAX_Y - SKATE_HEIGHT;
 		}
 		if (code === 4) {
-			gameState.skateTop2 = SKATE_MIN_Y;
+			gameState.skate2.y = SKATE_MIN_Y;
 		}
 	}
 
@@ -232,9 +276,9 @@ export class GameLogicService {
 		const dir: number = direction === Direction.Up ? -1 : 1;
 
 		if (playerIndex === 1) {
-			gameRoom.gameState.skateTop1 += MOVE_STEP * dir;
+			gameRoom.gameState.skate1.y += MOVE_STEP * dir;
 		} else {
-			gameRoom.gameState.skateTop2 += MOVE_STEP * dir;
+			gameRoom.gameState.skate2.y += MOVE_STEP * dir;
 		}
 
 		if (this.checkSkateBoundaries(playerIndex, gameRoom.gameState)) {

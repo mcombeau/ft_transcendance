@@ -33,8 +33,10 @@ type Step = {
 
 type State = {
 	score: number[];
-	skateTop1: number;
-	skateTop2: number;
+	// skateTop1: number;
+	// skateTop2: number;
+	skate1: Position;
+	skate2: Position;
 	live: boolean;
 	isPaused: boolean;
 	ballPos: Position;
@@ -134,8 +136,8 @@ export const Play = () => {
 	};
 	const [gameState, setGameState] = useState<State>({
 		score: [0, 0],
-		skateTop1: 160,
-		skateTop2: 160,
+		skate1: { x: 42, y: 160 },
+		skate2: { x: 660, y: 160 },
 		live: true,
 		isPaused: false,
 		ballPos: defaultBallPosition,
@@ -381,8 +383,8 @@ export const Play = () => {
 			setSizeGame((prev: number) => {
 				const newGameState = {
 					score: data.gameState.score,
-					skateTop1: prev * data.gameState.skateTop1,
-					skateTop2: prev * data.gameState.skateTop2,
+					skate1: { x: 42, y: prev * data.gameState.skate1.y },
+					skate2: { x: 42, y: prev * data.gameState.skate2.y },
 					live: data.gameState.live,
 					isPaused: data.gameState.isPaused,
 					ballPos: {
@@ -500,7 +502,7 @@ export const Play = () => {
 							}}
 						>
 							<div
-								className={`absolute bg-sage rounded-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 shadow-md shadow-darkblue`}
+								className={`absolute bg-sage rounded-sm -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 shadow-md shadow-darkblue`}
 								style={{
 									top: gameState.ballPos.y - ballRadius,
 									left: gameState.ballPos.x - ballRadius,
@@ -513,7 +515,7 @@ export const Play = () => {
 							<div
 								className={`absolute -translate-x-1/2 bg-sage rounded-sm shadow-md shadow-darkblue`}
 								style={{
-									top: gameState.skateTop1,
+									top: gameState.skate1.y,
 									left: skateOffsset1,
 									width: skate.width,
 									height: skate.height,
@@ -522,7 +524,7 @@ export const Play = () => {
 							<div
 								className={`absolute  -translate-x-1/2 bg-sage rounded-sm shadow-md shadow-darkblue`}
 								style={{
-									top: gameState.skateTop2,
+									top: gameState.skate2.y,
 									right: skateOffsset2,
 									width: skate.width,
 									height: skate.height,
