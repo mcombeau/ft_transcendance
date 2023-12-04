@@ -500,7 +500,7 @@ export const Play = () => {
 							}}
 						>
 							<div
-								className={`absolute bg-sage rounded-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2`}
+								className={`absolute bg-sage rounded-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 shadow-md shadow-darkblue`}
 								style={{
 									top: gameState.ballPos.y - ballRadius,
 									left: gameState.ballPos.x - ballRadius,
@@ -511,7 +511,7 @@ export const Play = () => {
 							<div className="absolute top-0 left-1/2 bg-sage w-[2px] h-full" />
 							<div className="absolute top-1/2 left-0 bg-sage w-full h-[2px]" />
 							<div
-								className={`absolute -translate-x-1/2 bg-sage`}
+								className={`absolute -translate-x-1/2 bg-sage rounded-sm shadow-md shadow-darkblue`}
 								style={{
 									top: gameState.skateTop1,
 									left: skateOffsset1,
@@ -520,7 +520,7 @@ export const Play = () => {
 								}}
 							/>
 							<div
-								className={`absolute  -translate-x-1/2 bg-sage`}
+								className={`absolute  -translate-x-1/2 bg-sage rounded-sm shadow-md shadow-darkblue`}
 								style={{
 									top: gameState.skateTop2,
 									right: skateOffsset2,
