@@ -148,10 +148,13 @@ export const Play = () => {
 	const [page, setPage] = useState<Page>(Page.Waiting);
 	const [watching, setWatching] = useState<boolean>(true);
 	const [gameInfos, setGameInfos] = useState<GameInfo[]>([]);
-	const terrain: Dimension = { width: 700, height: 400 };
-	const skate: Dimension = { width: 10, height: 80 };
-	const ballRadius: number = 10;
-	const skateOffsset1: number = 30;
+
+	const sizeGame: number = 2;
+
+	const terrain: Dimension = { width: sizeGame * 700, height: sizeGame * 400 };
+	const skate: Dimension = { width: sizeGame * 10, height: sizeGame * 80 };
+	const ballRadius: number = sizeGame * 10;
+	const skateOffsset1: number = sizeGame * 30;
 	const skateOffsset2: number = skateOffsset1 - skate.width;
 
 	function getPlayerUsername(player: number) {
@@ -328,7 +331,22 @@ export const Play = () => {
 
 		socket.on("tick", (data: any) => {
 			console.log("tick");
-			setGameState(data.gameState);
+			const newGameState = {
+				score: data.gameState.score,
+				skateTop1: sizeGame * data.gameState.skateTop1,
+				skateTop2: sizeGame * data.gameState.skateTop2,
+				live: data.gameState.live,
+				isPaused: data.gameState.isPaused,
+				ballPos: {
+					x: sizeGame * data.gameState.ballPos.x,
+					y: sizeGame * data.gameState.ballPos.y,
+				},
+				ballDir: {
+					x: sizeGame * data.gameState.ballDir.x,
+					y: sizeGame * data.gameState.ballDir.y,
+				},
+			};
+			setGameState(newGameState);
 		});
 
 		socket.on("leave game", (leavingUserID: number) => {
