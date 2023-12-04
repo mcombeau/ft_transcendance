@@ -421,28 +421,40 @@ export const Play = () => {
 							</div>
 						</div>
 						<div
-							className={`w-[${terrain.width}px] h-[${terrain.height}px] bg-teal relative`}
+							className={`bg-teal relative`}
+							style={{
+								width: terrain.width,
+								height: terrain.height,
+							}}
 						>
 							<div
-								className={`absolute bg-sage rounded-full w-[${
-									2 * ballRadius
-								}px] h-[${
-									2 * ballRadius
-								}px] -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2`}
+								className={`absolute bg-sage rounded-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2`}
 								style={{
 									top: gameState.ballPos.y - ballRadius,
 									left: gameState.ballPos.x - ballRadius,
+									width: 2 * ballRadius,
+									height: 2 * ballRadius,
 								}}
 							/>
 							<div className="absolute top-0 left-1/2 bg-sage w-[2px] h-full" />
 							<div className="absolute top-1/2 left-0 bg-sage w-full h-[2px]" />
 							<div
-								className={`absolute w-[${skate.width}px] h-[${skate.height}px] -translate-x-1/2 left-[${skateOffsset1}px] bg-sage`}
-								style={{ top: gameState.skateTop1 }}
+								className={`absolute -translate-x-1/2 bg-sage`}
+								style={{
+									top: gameState.skateTop1,
+									left: skateOffsset1,
+									width: skate.width,
+									height: skate.height,
+								}}
 							/>
 							<div
-								className={`absolute w-[${skate.width}px] h-[${skate.height}px] -translate-x-1/2 right-[${skateOffsset2}px] bg-sage`}
-								style={{ top: gameState.skateTop2 }}
+								className={`absolute  -translate-x-1/2 bg-sage`}
+								style={{
+									top: gameState.skateTop2,
+									right: skateOffsset2,
+									width: skate.width,
+									height: skate.height,
+								}}
 							/>
 							<div className="gate gate1" />
 							<div className="gate gate2" />
