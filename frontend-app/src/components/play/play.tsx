@@ -151,9 +151,7 @@ export const Play = () => {
 	const [gameInfos, setGameInfos] = useState<GameInfo[]>([]);
 
 	const windowSize = useWindowSize();
-
 	const [sizeGame, setSizeGame] = useState<number>(1);
-
 	const [terrain, setTerrain] = useState<Dimension>({
 		width: sizeGame * 700,
 		height: sizeGame * 400,
@@ -169,37 +167,30 @@ export const Play = () => {
 	);
 
 	useEffect(() => {
-		if (windowSize.width < 700) {
+		console.log("windowSize width:", windowSize.width);
+		let newSize: number = 1;
+		if (windowSize.width < 800) {
 			console.log("Triggered small game");
-			const newSize = 0.5;
-			setSizeGame(newSize);
-			setBallRadius(newSize * 10);
-			setTerrain({
-				width: newSize * 700,
-				height: newSize * 400,
-			});
-			setSkate({
-				width: newSize * 10,
-				height: newSize * 80,
-			});
-			setSkateOffsset1(newSize * 30);
-			setSkateOffsset2(newSize * 30 - newSize * 10);
-		} else if (windowSize.width >= 700) {
+			newSize = 0.5;
+		} else if (windowSize.width >= 800 && windowSize.width < 1300) {
 			console.log("Triggered large game");
-			const newSize = 1;
-			setSizeGame(newSize);
-			setBallRadius(newSize * 10);
-			setTerrain({
-				width: newSize * 700,
-				height: newSize * 400,
-			});
-			setSkate({
-				width: newSize * 10,
-				height: newSize * 80,
-			});
-			setSkateOffsset1(newSize * 30);
-			setSkateOffsset2(newSize * 30 - newSize * 10);
+			newSize = 1;
+		} else if (windowSize.width >= 1300) {
+			console.log("Triggered large game");
+			newSize = 1.5;
 		}
+		setSizeGame(newSize);
+		setBallRadius(newSize * 10);
+		setTerrain({
+			width: newSize * 700,
+			height: newSize * 400,
+		});
+		setSkate({
+			width: newSize * 10,
+			height: newSize * 80,
+		});
+		setSkateOffsset1(newSize * 30);
+		setSkateOffsset2(newSize * 30 - newSize * 10);
 	}, [windowSize]);
 
 	function getPlayerUsername(player: number) {
@@ -375,23 +366,26 @@ export const Play = () => {
 		});
 
 		socket.on("tick", (data: any) => {
-			console.log("tick");
-			const newGameState = {
-				score: data.gameState.score,
-				skateTop1: sizeGame * data.gameState.skateTop1,
-				skateTop2: sizeGame * data.gameState.skateTop2,
-				live: data.gameState.live,
-				isPaused: data.gameState.isPaused,
-				ballPos: {
-					x: sizeGame * data.gameState.ballPos.x,
-					y: sizeGame * data.gameState.ballPos.y,
-				},
-				ballDir: {
-					x: sizeGame * data.gameState.ballDir.x,
-					y: sizeGame * data.gameState.ballDir.y,
-				},
-			};
-			setGameState(newGameState);
+			console.log("tick. Game size:", sizeGame);
+			setSizeGame((prev: number) => {
+				const newGameState = {
+					score: data.gameState.score,
+					skateTop1: prev * data.gameState.skateTop1,
+					skateTop2: prev * data.gameState.skateTop2,
+					live: data.gameState.live,
+					isPaused: data.gameState.isPaused,
+					ballPos: {
+						x: prev * data.gameState.ballPos.x,
+						y: prev * data.gameState.ballPos.y,
+					},
+					ballDir: {
+						x: prev * data.gameState.ballDir.x,
+						y: prev * data.gameState.ballDir.y,
+					},
+				};
+				setGameState(newGameState);
+				return prev;
+			});
 		});
 
 		socket.on("leave game", (leavingUserID: number) => {
