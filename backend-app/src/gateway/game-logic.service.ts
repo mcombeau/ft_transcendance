@@ -67,7 +67,7 @@ export class GameLogicService {
 	}
 
 	private placeBall() {
-		return { x: 250, y: 250 };
+		return { x: TERRAIN_WIDTH / 2, y: TERRAIN_HEIGHT / 2 };
 	}
 
 	randomInitialMove(gameState: State) {
