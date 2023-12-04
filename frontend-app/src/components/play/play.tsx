@@ -6,6 +6,7 @@ import { WebSocketContext } from "../../contexts/WebsocketContext";
 import { AuthenticationContext } from "../authenticationState";
 import LiveGames from "../live-games/LiveGames";
 import { GameInfo } from "../profile/friendsList";
+import { useWindowSize } from "@uidotdev/usehooks";
 
 const UP = "ArrowUp";
 const DOWN = "ArrowDown";
@@ -149,13 +150,57 @@ export const Play = () => {
 	const [watching, setWatching] = useState<boolean>(true);
 	const [gameInfos, setGameInfos] = useState<GameInfo[]>([]);
 
-	const sizeGame: number = 2;
+	const windowSize = useWindowSize();
 
-	const terrain: Dimension = { width: sizeGame * 700, height: sizeGame * 400 };
-	const skate: Dimension = { width: sizeGame * 10, height: sizeGame * 80 };
-	const ballRadius: number = sizeGame * 10;
-	const skateOffsset1: number = sizeGame * 30;
-	const skateOffsset2: number = skateOffsset1 - skate.width;
+	const [sizeGame, setSizeGame] = useState<number>(1);
+
+	const [terrain, setTerrain] = useState<Dimension>({
+		width: sizeGame * 700,
+		height: sizeGame * 400,
+	});
+	const [skate, setSkate] = useState<Dimension>({
+		width: sizeGame * 10,
+		height: sizeGame * 80,
+	});
+	const [ballRadius, setBallRadius] = useState<number>(sizeGame * 10);
+	const [skateOffsset1, setSkateOffsset1] = useState<number>(sizeGame * 30);
+	const [skateOffsset2, setSkateOffsset2] = useState<number>(
+		skateOffsset1 - skate.width
+	);
+
+	useEffect(() => {
+		if (windowSize.width < 700) {
+			console.log("Triggered small game");
+			const newSize = 0.5;
+			setSizeGame(newSize);
+			setBallRadius(newSize * 10);
+			setTerrain({
+				width: newSize * 700,
+				height: newSize * 400,
+			});
+			setSkate({
+				width: newSize * 10,
+				height: newSize * 80,
+			});
+			setSkateOffsset1(newSize * 30);
+			setSkateOffsset2(newSize * 30 - newSize * 10);
+		} else if (windowSize.width >= 700) {
+			console.log("Triggered large game");
+			const newSize = 1;
+			setSizeGame(newSize);
+			setBallRadius(newSize * 10);
+			setTerrain({
+				width: newSize * 700,
+				height: newSize * 400,
+			});
+			setSkate({
+				width: newSize * 10,
+				height: newSize * 80,
+			});
+			setSkateOffsset1(newSize * 30);
+			setSkateOffsset2(newSize * 30 - newSize * 10);
+		}
+	}, [windowSize]);
 
 	function getPlayerUsername(player: number) {
 		switch (player) {
