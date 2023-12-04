@@ -508,8 +508,8 @@ export const Play = () => {
 									height: 2 * ballRadius,
 								}}
 							/>
-							<div className="absolute top-0 left-1/2 bg-sage w-[2px] h-full" />
-							<div className="absolute top-1/2 left-0 bg-sage w-full h-[2px]" />
+							<div className="absolute top-0 left-1/2 border-l-2 border-sage border-dashed h-full" />
+							<div className="absolute top-1/2 left-0 border-t-2 border-sage border-solid w-full" />
 							<div
 								className={`absolute -translate-x-1/2 bg-sage rounded-sm shadow-md shadow-darkblue`}
 								style={{
