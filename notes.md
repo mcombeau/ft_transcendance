@@ -1,3 +1,7 @@
+- TO DOUBLE CHECK:
+
+  - need to display avatars on chat room
+
 - Sign in
 
   - Prompt for 2fa when signing in when activated in profile settings
