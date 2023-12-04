@@ -15,9 +15,6 @@ const SKATE_HEIGHT: number = 80;
 const SKATE_WIDTH: number = 10;
 
 const MOVE_STEP: number = 7;
-const GOAL_HEIGHT: number = 160;
-const GOAL_POS_1: Vector = { x: 3, y: 100 };
-const GOAL_POS_2: Vector = { x: 697, y: 100 };
 const BALL_RADIUS: number = 10;
 const SKATE_X_1: number = 42;
 const SKATE_X_2: number = 660;
@@ -87,11 +84,10 @@ export class GameLogicService {
 	}
 
 	private checkGoals(gameState: State) {
-		//checking if the ball touches the borders of the goal
+		//checking if the ball touches the left and right borders of the terrain
 		if (
-			gameState.ballPos.x - BALL_RADIUS <= GOAL_POS_1.x + BALL_RADIUS * 2 &&
-			gameState.ballPos.y + BALL_RADIUS >= GOAL_POS_1.y &&
-			gameState.ballPos.y - BALL_RADIUS <= GOAL_POS_1.y + GOAL_HEIGHT
+			gameState.ballPos.x - BALL_RADIUS + gameState.ballDir.x <=
+			LEFT_BOUNDARY
 		) {
 			gameState.score = [gameState.score[0], gameState.score[1] + 1];
 			this.resetBall(gameState);
@@ -99,9 +95,8 @@ export class GameLogicService {
 		}
 
 		if (
-			gameState.ballPos.x + BALL_RADIUS >= GOAL_POS_2.x &&
-			gameState.ballPos.y + BALL_RADIUS >= GOAL_POS_2.y &&
-			gameState.ballPos.y - BALL_RADIUS <= GOAL_POS_2.y + GOAL_HEIGHT
+			gameState.ballPos.x + BALL_RADIUS + gameState.ballDir.x >=
+			RIGHT_BOUNDARY
 		) {
 			gameState.score = [gameState.score[0] + 1, gameState.score[1]];
 			this.resetBall(gameState);
