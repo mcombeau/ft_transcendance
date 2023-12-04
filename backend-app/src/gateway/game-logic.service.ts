@@ -5,8 +5,8 @@ import {
 	GameRoom,
 } from "./game.gateway.service";
 
-export const WINNING_SCORE = 40;
-export const GAME_SPEED = 12;
+export const WINNING_SCORE = 4;
+export const GAME_SPEED = 6;
 
 const TERRAIN_HEIGHT = 400;
 const TERRAIN_WIDTH = 700;
@@ -34,8 +34,6 @@ type Vector = {
 
 export type State = {
 	score: number[];
-	// skateTop1: number;
-	// skateTop2: number;
 	skate1: Vector;
 	skate2: Vector;
 	live: boolean;
@@ -117,69 +115,79 @@ export class GameLogicService {
 		};
 	}
 
-	//private checkBallSkateCollision(gameState: State) {
-	//	//if side of ball touches side of skate
-	//}
+	private checkSkate1Collision(gameState: State) {
+		const ball = gameState.ballPos;
+		const skate = gameState.skate1;
+
+		// Collision left of skate 1
+		if (
+			ball.x - BALL_RADIUS <= skate.x + SKATE_WIDTH &&
+			!(ball.y + BALL_RADIUS <= skate.y) &&
+			!(ball.y - BALL_RADIUS >= skate.y + SKATE_HEIGHT)
+		) {
+			this.logger.debug("Ball collision side of skate");
+			this.reboundBall(gameState, { x: -1, y: 1 });
+		}
+
+		//Collision top of skate 1
+		if (
+			ball.y + BALL_RADIUS >= skate.y &&
+			ball.y - BALL_RADIUS <= skate.y &&
+			ball.x - BALL_RADIUS <= skate.x + SKATE_WIDTH
+		) {
+			this.logger.debug("Ball collision TOP of skate");
+			this.reboundBall(gameState, { x: 1, y: -1 });
+		}
+
+		////Collision bottom of skate 1
+		if (
+			ball.y - BALL_RADIUS <= skate.y + SKATE_HEIGHT &&
+			ball.y + BALL_RADIUS >= skate.y + SKATE_HEIGHT &&
+			ball.x - BALL_RADIUS <= skate.x + SKATE_WIDTH
+		) {
+			this.logger.debug("Ball collision BOTTOM of skate");
+			this.reboundBall(gameState, { x: 1, y: -1 });
+		}
+	}
+
+	private checkSkate2Collision(gameState: State) {
+		const ball = gameState.ballPos;
+		const skate = gameState.skate2;
+
+		// Collision right of skate 2
+		if (
+			ball.x + BALL_RADIUS >= skate.x &&
+			!(ball.y + BALL_RADIUS <= skate.y) &&
+			!(ball.y - BALL_RADIUS >= skate.y + SKATE_HEIGHT)
+		) {
+			this.logger.debug("Ball collision side of skate");
+			this.reboundBall(gameState, { x: -1, y: 1 });
+		}
+
+		//Collision top of skate 2
+		if (
+			ball.y + BALL_RADIUS >= skate.y &&
+			ball.y - BALL_RADIUS <= skate.y &&
+			ball.x + BALL_RADIUS >= skate.x
+		) {
+			this.logger.debug("Ball collision TOP of skate");
+			this.reboundBall(gameState, { x: 1, y: -1 });
+		}
+
+		////Collision bottom of skate 2
+		if (
+			ball.y - BALL_RADIUS <= skate.y + SKATE_HEIGHT &&
+			ball.y + BALL_RADIUS >= skate.y + SKATE_HEIGHT &&
+			ball.x + BALL_RADIUS >= skate.x
+		) {
+			this.logger.debug("Ball collision BOTTOM of skate");
+			this.reboundBall(gameState, { x: 1, y: -1 });
+		}
+	}
 
 	private checkBallSkateCollision(gameState: State) {
-		//checking if the ball is touching the players, and if so, calculating the angle of rebound
-		if (
-			// If surface of ball is behind the apparent surface of left skate
-			gameState.ballPos.x - BALL_RADIUS <= SKATE_X_1 &&
-			// If surface of ball is in front of the backside surface of left skate
-			gameState.ballPos.x + BALL_RADIUS >= SKATE_X_1 - SKATE_WIDTH &&
-			// if bottom of the ball is below the top of the left skate
-			gameState.ballPos.y + BALL_RADIUS >= gameState.skate1.y &&
-			// if top of the ball is above the bottom of the left skate
-			gameState.ballPos.y - BALL_RADIUS <= gameState.skate1.y + SKATE_HEIGHT
-		) {
-			if (
-				gameState.ballPos.x < SKATE_X_1 &&
-				gameState.ballPos.x > SKATE_X_1 - SKATE_WIDTH
-			) {
-				this.logger.debug("Ball collided with skate 1 on SMALL side");
-				this.reboundBall(gameState, { x: 1, y: -1 });
-			} else {
-				this.logger.debug("Ball collided with skate 1 on LONG side");
-				this.reboundBall(gameState, { x: -1, y: 1 });
-			}
-		}
-		// if (
-		// 	gameState.ballPos.x - BALL_RADIUS >= SKATE_X_1 - SKATE_WIDTH &&
-		// 	gameState.ballPos.y + BALL_RADIUS >= gameState.skateTop1 &&
-		// 	gameState.ballPos.y - BALL_RADIUS <= gameState.skateTop1 + SKATE_HEIGHT
-		// ) {
-		// 	this.logger.debug("--- Ball collided with BEHIND skate 1");
-		// 	this.reboundBall(gameState, { x: -1, y: 1 });
-		// }
-
-		if (
-			gameState.ballPos.x - BALL_RADIUS >= SKATE_X_2 &&
-			gameState.ballPos.x + BALL_RADIUS <= SKATE_X_2 + SKATE_WIDTH &&
-			gameState.ballPos.y + BALL_RADIUS >= gameState.skate2.y &&
-			gameState.ballPos.y - BALL_RADIUS <= gameState.skate2.y + SKATE_HEIGHT
-		) {
-			if (
-				gameState.ballPos.x > SKATE_X_2 &&
-				gameState.ballPos.x < SKATE_X_2 + SKATE_WIDTH
-			) {
-				this.logger.debug("Ball collided with skate 2 on SMALL side");
-				this.reboundBall(gameState, { x: 1, y: -1 });
-			} else {
-				this.logger.debug("Ball collided with skate 2 on LONG side");
-				this.reboundBall(gameState, { x: -1, y: 1 });
-			}
-			// this.logger.debug("Ball collided with skate 2");
-			// this.reboundBall(gameState, { x: -1, y: 1 });
-		}
-		// if (
-		// 	gameState.ballPos.x - BALL_RADIUS <= SKATE_X_2 + SKATE_WIDTH &&
-		// 	gameState.ballPos.y + BALL_RADIUS >= gameState.skateTop2 &&
-		// 	gameState.ballPos.y - BALL_RADIUS <= gameState.skateTop2 + SKATE_HEIGHT
-		// ) {
-		// 	this.logger.debug("--- Ball collided with BEHIND skate 2");
-		// 	this.reboundBall(gameState, { x: -1, y: 1 });
-		// }
+		this.checkSkate1Collision(gameState);
+		this.checkSkate2Collision(gameState);
 	}
 
 	private checkBallTerrainCollision(gameState: State) {
