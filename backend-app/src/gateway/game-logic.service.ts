@@ -180,8 +180,8 @@ export class GameLogicService {
 		const skate = {
 			top: gameState.skate2.y,
 			bottom: gameState.skate2.y + SKATE_HEIGHT,
-			left: gameState.skate2.x,
-			right: gameState.skate2.x + SKATE_WIDTH,
+			left: gameState.skate2.x - SKATE_WIDTH,
+			right: gameState.skate2.x,
 		};
 
 		// Collision right of skate 2

@@ -510,7 +510,7 @@ export const Play = () => {
 						>
 							<div
 								id="ball"
-								className={`absolute bg-sage rounded-sm -translate-x-1/2 -translate-y-1/2 shadow-md shadow-darkblue`}
+								className={`absolute bg-sage rounded-sm -translate-x-1/2 -translate-y-1/2 shadow-md shadow-darkblue z-30`}
 								style={{
 									top: gameState.ballPos.y,
 									left: gameState.ballPos.x,
@@ -566,7 +566,7 @@ export const Play = () => {
 							/>
 							<div
 								id="skate2"
-								className={`absolute  bg-sage rounded-sm  shadow-darkblue`}
+								className={`absolute bg-darkblue rounded-sm  shadow-darkblue`}
 								style={{
 									top: gameState.skate2.y,
 									left: gameState.skate2.x - skate.width,
