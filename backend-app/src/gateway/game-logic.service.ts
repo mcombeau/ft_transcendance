@@ -126,12 +126,6 @@ export class GameLogicService {
 	}
 
 	private checkSkate1Collision(gameState: State) {
-		// const ball = {
-		// 	top: gameState.ballPos.y - BALL_RADIUS,
-		// 	bottom: gameState.ballPos.y + BALL_RADIUS,
-		// 	left: gameState.ballPos.x - BALL_RADIUS,
-		// 	right: gameState.ballPos.x + BALL_RADIUS,
-		// };
 		const ball = {
 			top: gameState.ballPos.y - BALL_RADIUS,
 			bottom: gameState.ballPos.y + BALL_RADIUS,
@@ -157,9 +151,9 @@ export class GameLogicService {
 
 		//Collision top of skate 1
 		if (
-			ball.bottom + gameState.ballDir.x >= skate.top &&
-			ball.top + gameState.ballDir.x <= skate.top &&
-			ball.left + gameState.ballDir.y <= skate.right
+			ball.bottom >= skate.top &&
+			ball.top <= skate.top &&
+			ball.left <= skate.right
 		) {
 			this.logger.debug("Ball collision TOP of skate");
 			this.reboundBall(gameState, { x: 1, y: -SPEED_INCREASE });
@@ -177,12 +171,6 @@ export class GameLogicService {
 	}
 
 	private checkSkate2Collision(gameState: State) {
-		// const ball = {
-		// 	top: gameState.ballPos.y - BALL_RADIUS,
-		// 	bottom: gameState.ballPos.y + BALL_RADIUS,
-		// 	left: gameState.ballPos.x - BALL_RADIUS,
-		// 	right: gameState.ballPos.x + BALL_RADIUS,
-		// };
 		const ball = {
 			top: gameState.ballPos.y - BALL_RADIUS,
 			bottom: gameState.ballPos.y + BALL_RADIUS,
