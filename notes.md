@@ -24,9 +24,7 @@
 
 - Game
 
-  - personalization
   - deal with broadband/network issues
-  - remove socket from Player game gateway
   - check that when reloading lobby properly ejected from waitlist
   - CSS maybe nicer You won/lost screen
 
@@ -41,6 +39,7 @@
 
 - Project validation
 
+  - reset game score to 10
   - all libraries are in latest stable version
   - remove unused libraries/modules + fix dependancy issues on frontend backend container creation?
   - remove passwords for users
@@ -63,3 +62,4 @@
   - notifs for chat events everywhere
   - dark mode
   - publish website
+  - game difficulty choice
