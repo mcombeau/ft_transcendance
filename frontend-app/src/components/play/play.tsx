@@ -383,8 +383,14 @@ export const Play = () => {
 			setSizeGame((prev: number) => {
 				const newGameState = {
 					score: data.gameState.score,
-					skate1: { x: 42, y: prev * data.gameState.skate1.y },
-					skate2: { x: 42, y: prev * data.gameState.skate2.y },
+					skate1: {
+						x: prev * data.gameState.skate1.x,
+						y: prev * data.gameState.skate1.y,
+					},
+					skate2: {
+						x: prev * data.gameState.skate2.x,
+						y: prev * data.gameState.skate2.y,
+					},
 					live: data.gameState.live,
 					isPaused: data.gameState.isPaused,
 					ballPos: {
@@ -513,6 +519,34 @@ export const Play = () => {
 								}}
 							/>
 							<div
+								id="ball line x"
+								className="absolute top-0 border-l-2 border-sage border-dashed h-full"
+								style={{
+									left: gameState.ballPos.x,
+								}}
+							/>
+							<div
+								id="ball line y"
+								className="absolute left-0 border-t-2 border-sage border-dashed w-full"
+								style={{
+									top: gameState.ballPos.y,
+								}}
+							/>
+							<div
+								id="left goal"
+								className="absolute top-0 border-l-2 border-sage border-dashed h-full"
+								style={{
+									left: gameState.skate1.x,
+								}}
+							/>
+							<div
+								id="right goal"
+								className="absolute top-0 border-l-2 border-sage border-dashed h-full"
+								style={{
+									left: gameState.skate2.x,
+								}}
+							/>
+							<div
 								id="vertical divider"
 								className="absolute top-0 left-1/2 border-l-2 border-sage border-dashed h-full"
 							/>
@@ -525,7 +559,7 @@ export const Play = () => {
 								className={`absolute -translate-x-1/2 bg-sage rounded-sm shadow-md shadow-darkblue`}
 								style={{
 									top: gameState.skate1.y,
-									left: skateOffsset1,
+									left: gameState.skate1.x,
 									width: skate.width,
 									height: skate.height,
 								}}
@@ -535,13 +569,14 @@ export const Play = () => {
 								className={`absolute  -translate-x-1/2 bg-sage rounded-sm shadow-md shadow-darkblue`}
 								style={{
 									top: gameState.skate2.y,
-									right: skateOffsset2,
+									left: gameState.skate2.x,
 									width: skate.width,
 									height: skate.height,
 								}}
 							/>
 						</div>
 						<div className="flex items-center w-full justify-between">
+							<>{JSON.stringify(gameState)}</>
 							<div id="leave button" className="button">
 								<button onClick={leaveGame}>
 									{watching ? "Stop watching" : "Leave game"}
