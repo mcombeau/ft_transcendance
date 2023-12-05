@@ -510,33 +510,33 @@ export const Play = () => {
 						>
 							<div
 								id="ball"
-								className={`absolute bg-sage rounded-sm -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 shadow-md shadow-darkblue`}
+								className={`absolute bg-sage rounded-sm -translate-x-1/2 -translate-y-1/2 shadow-md shadow-darkblue`}
 								style={{
-									top: gameState.ballPos.y - ballRadius,
-									left: gameState.ballPos.x - ballRadius,
+									top: gameState.ballPos.y,
+									left: gameState.ballPos.x,
 									width: 2 * ballRadius,
 									height: 2 * ballRadius,
 								}}
 							/>
 							<div
 								id="ball line x"
-								className="absolute top-0 border-l-2 border-sage border-dashed h-full"
+								className="absolute top-0 border-l-2 -translate-x-1/2 border-sage border-dashed h-full"
 								style={{
-									left: gameState.ballPos.x - ballRadius,
+									left: gameState.ballPos.x,
 								}}
 							/>
 							<div
 								id="ball line y"
-								className="absolute left-0 border-t-2 border-sage border-dashed w-full"
+								className="absolute left-0 border-t-2 -translate-y-1/2 border-sage border-dashed w-full"
 								style={{
-									top: gameState.ballPos.y - ballRadius,
+									top: gameState.ballPos.y,
 								}}
 							/>
 							<div
 								id="left goal"
 								className="absolute top-0 border-l-2 border-sage border-dashed h-full"
 								style={{
-									left: gameState.skate1.x + skate.width,
+									left: gameState.skate1.x + skate.width - 2,
 								}}
 							/>
 							<div
@@ -556,7 +556,7 @@ export const Play = () => {
 							/>
 							<div
 								id="skate1"
-								className={`absolute bg-sage rounded-sm shadow-md shadow-darkblue`}
+								className={`absolute bg-darkblue rounded-sm  shadow-darkblue`}
 								style={{
 									top: gameState.skate1.y,
 									left: gameState.skate1.x,
@@ -566,7 +566,7 @@ export const Play = () => {
 							/>
 							<div
 								id="skate2"
-								className={`absolute  bg-sage rounded-sm shadow-md shadow-darkblue`}
+								className={`absolute  bg-sage rounded-sm  shadow-darkblue`}
 								style={{
 									top: gameState.skate2.y,
 									left: gameState.skate2.x - skate.width,
@@ -621,4 +621,28 @@ export const Play = () => {
 	}
 };
 
+// <div
+// 	className="absolute top-0 border-l-2 border-darkblue border-solid h-full"
+// 	style={{
+// 		left: gameState.ballPos.x,
+// 	}}
+// />
+// <div
+// 	className="absolute left-0 border-t-2 border-darkblue border-solid w-full"
+// 	style={{
+// 		top: gameState.ballPos.y,
+// 	}}
+// />
+// <div
+// 	className="absolute top-0 border-l-2 border-darkblue border-solid h-full"
+// 	style={{
+// 		left: gameState.ballPos.x - 2 * ballRadius,
+// 	}}
+// />
+// <div
+// 	className="absolute left-0 border-t-2 border-darkblue border-solid w-full"
+// 	style={{
+// 		top: gameState.ballPos.y - 2 * ballRadius,
+// 	}}
+// />
 export default Play;
