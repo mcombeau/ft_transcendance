@@ -10,7 +10,6 @@
 
   - Fix online/offline status AGAIN
   - CSS fix buttons and maybe font size on smaller screen
-  - CSS fix watch game - make it button?
   - My profile
     - change 2fa activation
     - disable

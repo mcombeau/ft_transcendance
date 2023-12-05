@@ -47,7 +47,10 @@ function removeFriendFromList(userID: number, setFriends: any) {
 
 export function linkToGame(gameInfo: GameInfo) {
 	return (
-		<a className="hover:text-teal" href={"/watch/" + gameInfo.socketRoomID}>
+		<a
+			className="text-sm hover:text-teal"
+			href={"/watch/" + gameInfo.socketRoomID}
+		>
 			[watch game]
 		</a>
 	);
@@ -162,18 +165,24 @@ function displayFriend(
 			className="grid grid-cols-2 border border-sage rounded-md my-2"
 			key={key}
 		>
-			<a className="flex items-center" href={"/user/" + friend.id}>
-				<div className="relative px-1">
+			<div className="flex items-center">
+				<a className="relative px-1" href={"/user/" + friend.id}>
 					<img className="rounded-full h-8 w-8 m-2" src={friend.avatar} />
 					<span
 						className={`absolute bottom-0 right-0 rounded-full w-1 h-1 p-1.5 m-2 ${getUserStatusColor(
 							friend.status
 						)}`}
 					/>
-				</div>
-				<p className="font-bold m-2">{friend.username}</p>
-				{friendGame ? <div> - {linkToGame(friendGame)}</div> : ""}
-			</a>
+				</a>
+				<a className="font-bold m-2" href={"/user/" + friend.id}>
+					{friend.username}
+				</a>
+				{friendGame ? (
+					<div className="hidden lg:block"> {linkToGame(friendGame)}</div>
+				) : (
+					""
+				)}
+			</div>
 			{showButtons}
 		</li>
 	);
