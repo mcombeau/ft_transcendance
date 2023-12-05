@@ -22,6 +22,8 @@ const SKATE_X_2: number = 685;
 const SKATE_MAX_Y: number = TERRAIN_HEIGHT;
 const SKATE_MIN_Y = 0;
 
+const SPEED_INCREASE: number = 1.2;
+
 type Vector = {
 	x: number;
 	y: number;
@@ -61,10 +63,6 @@ export class GameLogicService {
 				y: 1,
 			},
 		};
-	}
-
-	private placeBall() {
-		return { x: TERRAIN_WIDTH / 2, y: TERRAIN_HEIGHT / 2 };
 	}
 
 	randomInitialMove(gameState: State) {
@@ -154,7 +152,7 @@ export class GameLogicService {
 			!(ball.top >= skate.bottom)
 		) {
 			this.logger.debug("Ball collision side of skate");
-			this.reboundBall(gameState, { x: -1.2, y: 1 });
+			this.reboundBall(gameState, { x: -SPEED_INCREASE, y: 1 });
 		}
 
 		//Collision top of skate 1
@@ -164,7 +162,7 @@ export class GameLogicService {
 			ball.left + gameState.ballDir.y <= skate.right
 		) {
 			this.logger.debug("Ball collision TOP of skate");
-			this.reboundBall(gameState, { x: 1, y: -1.2 });
+			this.reboundBall(gameState, { x: 1, y: -SPEED_INCREASE });
 		}
 
 		////Collision bottom of skate 1
@@ -174,7 +172,7 @@ export class GameLogicService {
 			ball.left <= skate.right
 		) {
 			this.logger.debug("Ball collision BOTTOM of skate");
-			this.reboundBall(gameState, { x: 1, y: -1.2 });
+			this.reboundBall(gameState, { x: 1, y: -SPEED_INCREASE });
 		}
 	}
 
@@ -205,7 +203,7 @@ export class GameLogicService {
 			!(ball.top >= skate.bottom)
 		) {
 			this.logger.debug("Ball collision side of skate");
-			this.reboundBall(gameState, { x: -1.2, y: 1 });
+			this.reboundBall(gameState, { x: -SPEED_INCREASE, y: 1 });
 		}
 
 		//Collision top of skate 2
@@ -215,7 +213,7 @@ export class GameLogicService {
 			ball.right >= skate.left
 		) {
 			this.logger.debug("Ball collision TOP of skate");
-			this.reboundBall(gameState, { x: 1, y: -1.2 });
+			this.reboundBall(gameState, { x: 1, y: -SPEED_INCREASE });
 		}
 
 		////Collision bottom of skate 2
@@ -225,7 +223,7 @@ export class GameLogicService {
 			ball.right >= skate.left
 		) {
 			this.logger.debug("Ball collision BOTTOM of skate");
-			this.reboundBall(gameState, { x: 1, y: -1.2 });
+			this.reboundBall(gameState, { x: 1, y: -SPEED_INCREASE });
 		}
 	}
 
@@ -295,6 +293,10 @@ export class GameLogicService {
 		if (code === 4) {
 			gameState.skate2.y = SKATE_MIN_Y;
 		}
+	}
+
+	private placeBall() {
+		return { x: TERRAIN_WIDTH / 2, y: TERRAIN_HEIGHT / 2 };
 	}
 
 	private resetBall(gameState: State) {
