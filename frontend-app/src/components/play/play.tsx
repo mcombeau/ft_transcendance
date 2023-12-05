@@ -623,9 +623,9 @@ export const Play = () => {
 						</div>
 					</div>
 					<div id="controls" className="text-darkblue">
-						<p>
-							[Hint]: <br /> Use W or ↑ to move your paddle up and S or ↓ to
-							move your paddle down.
+						<p className="text-sm">
+							[Hint]: Use W or ↑ to move your paddle up and S or ↓ to move your
+							paddle down.
 						</p>
 					</div>
 				</div>
