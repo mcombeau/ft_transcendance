@@ -76,8 +76,7 @@ export class GameLogicService {
 		// pseudo-random ball behavior
 		const moves = [
 			{ x: 1, y: 1 },
-			{ x: 1, y: 2 },
-			{ x: 2, y: 1 },
+			{ x: 1, y: -1 },
 			{ x: -1, y: -1 },
 			{ x: -1, y: 1 },
 		];
@@ -116,11 +115,17 @@ export class GameLogicService {
 	}
 
 	private checkSkate1Collision(gameState: State) {
+		// const ball = {
+		// 	top: gameState.ballPos.y - BALL_RADIUS,
+		// 	bottom: gameState.ballPos.y + BALL_RADIUS,
+		// 	left: gameState.ballPos.x - BALL_RADIUS,
+		// 	right: gameState.ballPos.x + BALL_RADIUS,
+		// };
 		const ball = {
 			top: gameState.ballPos.y - BALL_RADIUS,
-			bottom: gameState.ballPos.y + BALL_RADIUS,
-			left: gameState.ballPos.x - BALL_RADIUS,
-			right: gameState.ballPos.x + BALL_RADIUS,
+			bottom: gameState.ballPos.y,
+			left: gameState.ballPos.x,
+			right: gameState.ballPos.x,
 		};
 		const skate = {
 			top: gameState.skate1.y,
@@ -161,11 +166,17 @@ export class GameLogicService {
 	}
 
 	private checkSkate2Collision(gameState: State) {
+		// const ball = {
+		// 	top: gameState.ballPos.y - BALL_RADIUS,
+		// 	bottom: gameState.ballPos.y + BALL_RADIUS,
+		// 	left: gameState.ballPos.x - BALL_RADIUS,
+		// 	right: gameState.ballPos.x + BALL_RADIUS,
+		// };
 		const ball = {
 			top: gameState.ballPos.y - BALL_RADIUS,
-			bottom: gameState.ballPos.y + BALL_RADIUS,
-			left: gameState.ballPos.x - BALL_RADIUS,
-			right: gameState.ballPos.x + BALL_RADIUS,
+			bottom: gameState.ballPos.y,
+			left: gameState.ballPos.x,
+			right: gameState.ballPos.x,
 		};
 		const skate = {
 			top: gameState.skate2.y,
