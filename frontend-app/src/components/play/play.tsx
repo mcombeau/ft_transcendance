@@ -483,15 +483,18 @@ export const Play = () => {
 			return (
 				<div className="absolute bg-sage top-0 bottom-0 left-0 right-0 flex flex-col items-center">
 					<div className="bg-lightblue flex flex-col items-center m-4 p-4 rounded-md">
-						<div className="bg-darkblue rounded-md m-2 p-2 text-sage flex flex-col items-center">
-							<div id="scores">
-								<span className="res1">
-									{getPlayerUsername(1)} - {gameState.score[0]}
-								</span>
-								:
-								<span className="res2">
-									{getPlayerUsername(2)} - {gameState.score[1]}
-								</span>
+						<div className="grid grid-cols-4 text-darkblue mb-4 w-full space-x-2">
+							<div className="bg-sage rounded-md p-2 text-center font-bold">
+								{getPlayerUsername(1)}
+							</div>
+							<div className="bg-sage w-30 rounded-md p-2 text-center">
+								{gameState.score[0]}
+							</div>
+							<div className="bg-sage w-30 rounded-md p-2 text-center">
+								{gameState.score[1]}
+							</div>
+							<div className="bg-sage rounded-md p-2 text-center font-bold">
+								{getPlayerUsername(2)}
 							</div>
 						</div>
 						<div
@@ -518,16 +521,16 @@ export const Play = () => {
 							/>
 							<div
 								id="left goal"
-								className="absolute top-0 border-l-2 border-sage border-dashed h-full"
+								className="absolute top-0 border-l-2 border-sage border-solid border-opacity-25 h-full"
 								style={{
-									left: gameState.skate1.x + skate.width - 2,
+									left: gameState.skate1.x + skate.width * 0.5 - 1,
 								}}
 							/>
 							<div
 								id="right goal"
-								className="absolute top-0 border-l-2 border-sage border-dashed h-full"
+								className="absolute top-0 border-l-2 border-sage border-solid border-opacity-25 h-full"
 								style={{
-									left: gameState.skate2.x - skate.width,
+									left: gameState.skate2.x - skate.width * 0.5 - 1,
 								}}
 							/>
 							<div
@@ -561,23 +564,23 @@ export const Play = () => {
 						</div>
 						<div className="flex items-center w-full justify-between">
 							<div id="leave button" className="button">
-								<button onClick={leaveGame}>
+								<button className="px-2 py-1" onClick={leaveGame}>
 									{watching ? "Stop watching" : "Leave game"}
 								</button>
 							</div>
 							<div id="color buttons" className="flex justify-end">
 								<button
+									id="lightblue button"
+									className={`bg-${TerrainColors.LightBlue} w-6 h-6 m-1 rounded-md border-2 border-sage`}
+									onClick={() => {
+										setTerrainColor(TerrainColors.LightBlue);
+									}}
+								></button>
+								<button
 									id="teal button"
 									className={`bg-${TerrainColors.Teal} w-6 h-6 m-1 rounded-md border-2 border-sage`}
 									onClick={() => {
 										setTerrainColor(TerrainColors.Teal);
-									}}
-								></button>
-								<button
-									id="red button"
-									className={`bg-${TerrainColors.LightBlue} w-6 h-6 m-1 rounded-md border-2 border-sage`}
-									onClick={() => {
-										setTerrainColor(TerrainColors.LightBlue);
 									}}
 								></button>
 								<button
