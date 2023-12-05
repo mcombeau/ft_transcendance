@@ -17,6 +17,7 @@ import { SocketGateway } from "./socket.gateway";
 import { ChatsGatewayService } from "./chat.gateway.service";
 import { PermissionChecks } from "./permission-checks";
 import { GameGatewayService } from "./game.gateway.service";
+import { GameLogicService } from "./game-logic.service";
 
 @Module({
 	imports: [
@@ -36,6 +37,7 @@ import { GameGatewayService } from "./game.gateway.service";
 		ChatsGatewayService,
 		GameGateway,
 		GameGatewayService,
+		GameLogicService,
 		PermissionChecks,
 		PasswordService,
 		AuthService,
@@ -48,6 +50,7 @@ import { GameGatewayService } from "./game.gateway.service";
 		GameGatewayService,
 		ChatsGatewayService,
 		PermissionChecks,
+		GameLogicService,
 	],
 })
 export class GatewayModule {}

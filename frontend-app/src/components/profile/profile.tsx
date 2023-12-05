@@ -580,7 +580,7 @@ function Profile({ setBanners }) {
 				<div className="background-element grid grid-cols-2">
 					<img
 						src={profilePicture}
-						className="w-20 h-20 rounded-full lg:w-60 lg:h-60 m-4"
+						className="w-20 h-20 rounded-full xl:w-60 xl:h-60 m-4"
 					></img>
 					<div className="relative">
 						{titleProfile(isMyPage, user)}

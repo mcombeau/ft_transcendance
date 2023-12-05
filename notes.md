@@ -1,6 +1,6 @@
-- CSS
+- TO DOUBLE CHECK:
 
-  - game
+  - need to display avatars on chat room
 
 - Sign in
 
@@ -8,13 +8,15 @@
 
 - Profile
 
+  - Fix online/offline status AGAIN
+  - CSS fix buttons and maybe font size on smaller screen
+  - CSS fix watch game - make it button?
   - My profile
     - change 2fa activation
     - disable
 
 - Cleanup
 
-  - deal with all issues from backend in the front
   - passwords
     - limit number of password retries on join/accept invite
     - tell user to fuck off if wrong username/password
@@ -22,21 +24,20 @@
 
 - Game
 
-  - draw background in css (refacto constants)
   - personalization
   - deal with broadband/network issues
   - remove socket from Player game gateway
+  - check that when reloading lobby properly ejected from waitlist
+  - CSS maybe nicer You won/lost screen
 
 - Bugs
 
   - update or delete on table \"users\" violates foreign key constraint \"FK_fb6add83b1a7acc94433d385692\" on table \"chat_participants\"
-  - might be duplicate dm (on context menu)
 
 - Appearance
 
-  - css for lobby play
   - css for login page
-  - css for game
+  - CSS fix navbar resizing when between small and big screen size
 
 - Project validation
 
@@ -52,15 +53,13 @@
   - invite notif on profile ?
   - reload chat when joining ?
   - notifs dans la navbar
-  - pop up de notification
+  - notification banner from chat on all pages
   - achievements (display in profile)
   - all tokens are taken directly from socket
-  - change police chat
   - game start countdown
-  - you won/ you lost screen + replay button
-  - limit game history to X games
-  - Achievements
+  - replay button on you won/ you lost screens
   - use 42 profile picture as default user pic
-  - Extended navbar
   - avatars in chats
   - notifs for chat events everywhere
+  - dark mode
+  - publish website
