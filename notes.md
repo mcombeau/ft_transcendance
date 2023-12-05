@@ -35,6 +35,7 @@
 
   - css for login page
   - CSS fix navbar resizing when between small and big screen size
+  - Add global CSS rule to adapt front size to screen size
 
 - Project validation
 
