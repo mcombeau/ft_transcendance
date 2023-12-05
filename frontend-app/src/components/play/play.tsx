@@ -33,8 +33,6 @@ type Step = {
 
 type State = {
 	score: number[];
-	// skateTop1: number;
-	// skateTop2: number;
 	skate1: Position;
 	skate2: Position;
 	live: boolean;
@@ -519,20 +517,6 @@ export const Play = () => {
 								}}
 							/>
 							<div
-								id="ball line x"
-								className="absolute top-0 border-l-2 -translate-x-1/2 border-sage border-dashed h-full"
-								style={{
-									left: gameState.ballPos.x,
-								}}
-							/>
-							<div
-								id="ball line y"
-								className="absolute left-0 border-t-2 -translate-y-1/2 border-sage border-dashed w-full"
-								style={{
-									top: gameState.ballPos.y,
-								}}
-							/>
-							<div
 								id="left goal"
 								className="absolute top-0 border-l-2 border-sage border-dashed h-full"
 								style={{
@@ -556,7 +540,7 @@ export const Play = () => {
 							/>
 							<div
 								id="skate1"
-								className={`absolute bg-darkblue rounded-sm  shadow-darkblue`}
+								className={`absolute bg-sage rounded-sm shadow-md shadow-darkblue`}
 								style={{
 									top: gameState.skate1.y,
 									left: gameState.skate1.x,
@@ -566,7 +550,7 @@ export const Play = () => {
 							/>
 							<div
 								id="skate2"
-								className={`absolute bg-darkblue rounded-sm  shadow-darkblue`}
+								className={`absolute bg-sage rounded-sm shadow-md shadow-darkblue`}
 								style={{
 									top: gameState.skate2.y,
 									left: gameState.skate2.x - skate.width,
@@ -576,7 +560,6 @@ export const Play = () => {
 							/>
 						</div>
 						<div className="flex items-center w-full justify-between">
-							<>{JSON.stringify(gameState)}</>
 							<div id="leave button" className="button">
 								<button onClick={leaveGame}>
 									{watching ? "Stop watching" : "Leave game"}
@@ -621,28 +604,4 @@ export const Play = () => {
 	}
 };
 
-// <div
-// 	className="absolute top-0 border-l-2 border-darkblue border-solid h-full"
-// 	style={{
-// 		left: gameState.ballPos.x,
-// 	}}
-// />
-// <div
-// 	className="absolute left-0 border-t-2 border-darkblue border-solid w-full"
-// 	style={{
-// 		top: gameState.ballPos.y,
-// 	}}
-// />
-// <div
-// 	className="absolute top-0 border-l-2 border-darkblue border-solid h-full"
-// 	style={{
-// 		left: gameState.ballPos.x - 2 * ballRadius,
-// 	}}
-// />
-// <div
-// 	className="absolute left-0 border-t-2 border-darkblue border-solid w-full"
-// 	style={{
-// 		top: gameState.ballPos.y - 2 * ballRadius,
-// 	}}
-// />
 export default Play;

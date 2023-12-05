@@ -5,8 +5,8 @@ import {
 	GameRoom,
 } from "./game.gateway.service";
 
-export const WINNING_SCORE = 42;
-export const GAME_SPEED = 12;
+export const WINNING_SCORE = 10;
+export const GAME_SPEED = 6;
 
 const TERRAIN_HEIGHT = 400;
 const TERRAIN_WIDTH = 700;
@@ -51,8 +51,6 @@ export class GameLogicService {
 	createGameState() {
 		return {
 			score: [0, 0],
-			// skateTop1: 160,
-			// skateTop2: 160,
 			skate1: { x: SKATE_X_1, y: 160 },
 			skate2: { x: SKATE_X_2, y: 160 },
 			live: true,
@@ -97,25 +95,6 @@ export class GameLogicService {
 			this.resetBall(gameState);
 			this.randomInitialMove(gameState);
 		}
-		// if (
-		// 	gameState.ballPos.x - BALL_RADIUS + gameState.ballDir.x <=
-		// 	LEFT_BOUNDARY
-		// ) {
-		// 	this.logger.debug("Ball collided with goal left");
-		// 	gameState.score = [gameState.score[0], gameState.score[1] + 1];
-		// 	this.resetBall(gameState);
-		// 	this.randomInitialMove(gameState);
-		// }
-
-		// if (
-		// 	gameState.ballPos.x + BALL_RADIUS + gameState.ballDir.x >=
-		// 	RIGHT_BOUNDARY
-		// ) {
-		// 	this.logger.debug("Ball collided with goal right");
-		// 	gameState.score = [gameState.score[0] + 1, gameState.score[1]];
-		// 	this.resetBall(gameState);
-		// 	this.randomInitialMove(gameState);
-		// }
 	}
 
 	private reboundBall(gameState: State, direction: Vector) {
@@ -282,11 +261,6 @@ export class GameLogicService {
 	private resetBall(gameState: State) {
 		gameState.ballPos = this.placeBall();
 	}
-
-	// private restart(gameState: State) {
-	// 	this.resetBall(gameState);
-	// 	this.randomInitialMove(gameState);
-	// }
 
 	private pause(gameState: State) {
 		gameState.live = !gameState.live;
