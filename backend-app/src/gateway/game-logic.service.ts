@@ -5,7 +5,7 @@ import {
 	GameRoom,
 } from "./game.gateway.service";
 
-export const WINNING_SCORE = 10;
+export const WINNING_SCORE = 50;
 export const GAME_SPEED = 6;
 
 const TERRAIN_HEIGHT = 400;
@@ -79,7 +79,7 @@ export class GameLogicService {
 		//checking if the ball touches the left and right borders of the terrain
 		if (
 			gameState.ballPos.x + BALL_RADIUS + gameState.ballDir.x <=
-			gameState.skate1.x + SKATE_WIDTH
+			gameState.skate1.x
 		) {
 			this.logger.debug("Ball collided with goal left");
 			gameState.score = [gameState.score[0], gameState.score[1] + 1];
@@ -88,7 +88,7 @@ export class GameLogicService {
 		}
 		if (
 			gameState.ballPos.x - BALL_RADIUS + gameState.ballDir.x >=
-			gameState.skate2.x
+			gameState.skate2.x - SKATE_WIDTH
 		) {
 			this.logger.debug("Ball collided with goal right");
 			gameState.score = [gameState.score[0] + 1, gameState.score[1]];
