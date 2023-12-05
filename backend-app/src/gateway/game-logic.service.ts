@@ -79,7 +79,7 @@ export class GameLogicService {
 		//checking if the ball touches the left and right borders of the terrain
 		if (
 			gameState.ballPos.x + BALL_RADIUS + gameState.ballDir.x <=
-			gameState.skate1.x
+			gameState.skate1.x + SKATE_WIDTH
 		) {
 			this.logger.debug("Ball collided with goal left");
 			gameState.score = [gameState.score[0], gameState.score[1] + 1];
