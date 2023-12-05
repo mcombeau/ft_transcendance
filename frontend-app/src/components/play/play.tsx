@@ -522,28 +522,28 @@ export const Play = () => {
 								id="ball line x"
 								className="absolute top-0 border-l-2 border-sage border-dashed h-full"
 								style={{
-									left: gameState.ballPos.x,
+									left: gameState.ballPos.x - ballRadius,
 								}}
 							/>
 							<div
 								id="ball line y"
 								className="absolute left-0 border-t-2 border-sage border-dashed w-full"
 								style={{
-									top: gameState.ballPos.y,
+									top: gameState.ballPos.y - ballRadius,
 								}}
 							/>
 							<div
 								id="left goal"
 								className="absolute top-0 border-l-2 border-sage border-dashed h-full"
 								style={{
-									left: gameState.skate1.x,
+									left: gameState.skate1.x + skate.width,
 								}}
 							/>
 							<div
 								id="right goal"
 								className="absolute top-0 border-l-2 border-sage border-dashed h-full"
 								style={{
-									left: gameState.skate2.x,
+									left: gameState.skate2.x - skate.width,
 								}}
 							/>
 							<div
@@ -556,7 +556,7 @@ export const Play = () => {
 							/>
 							<div
 								id="skate1"
-								className={`absolute -translate-x-1/2 bg-sage rounded-sm shadow-md shadow-darkblue`}
+								className={`absolute bg-sage rounded-sm shadow-md shadow-darkblue`}
 								style={{
 									top: gameState.skate1.y,
 									left: gameState.skate1.x,
@@ -566,10 +566,10 @@ export const Play = () => {
 							/>
 							<div
 								id="skate2"
-								className={`absolute  -translate-x-1/2 bg-sage rounded-sm shadow-md shadow-darkblue`}
+								className={`absolute  bg-sage rounded-sm shadow-md shadow-darkblue`}
 								style={{
 									top: gameState.skate2.y,
-									left: gameState.skate2.x,
+									left: gameState.skate2.x - skate.width,
 									width: skate.width,
 									height: skate.height,
 								}}
