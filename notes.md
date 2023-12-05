@@ -61,3 +61,5 @@
   - use 42 profile picture as default user pic
   - avatars in chats
   - notifs for chat events everywhere
+  - dark mode
+  - publish website
