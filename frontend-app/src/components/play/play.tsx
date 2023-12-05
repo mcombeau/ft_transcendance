@@ -491,6 +491,7 @@ export const Play = () => {
 							</div>
 						</div>
 						<div
+							id="terrain"
 							className={`bg-${terrainColor} ${
 								terrainColor === TerrainColors.LightBlue
 									? "border-2 border-sage"
@@ -502,6 +503,7 @@ export const Play = () => {
 							}}
 						>
 							<div
+								id="ball"
 								className={`absolute bg-sage rounded-sm -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 shadow-md shadow-darkblue`}
 								style={{
 									top: gameState.ballPos.y - ballRadius,
@@ -510,9 +512,16 @@ export const Play = () => {
 									height: 2 * ballRadius,
 								}}
 							/>
-							<div className="absolute top-0 left-1/2 border-l-2 border-sage border-dashed h-full" />
-							<div className="absolute top-1/2 left-0 border-t-2 border-sage border-solid w-full" />
 							<div
+								id="vertical divider"
+								className="absolute top-0 left-1/2 border-l-2 border-sage border-dashed h-full"
+							/>
+							<div
+								id="horizontal divider"
+								className="absolute top-1/2 left-0 border-t-2 border-sage border-solid w-full"
+							/>
+							<div
+								id="skate1"
 								className={`absolute -translate-x-1/2 bg-sage rounded-sm shadow-md shadow-darkblue`}
 								style={{
 									top: gameState.skate1.y,
@@ -522,6 +531,7 @@ export const Play = () => {
 								}}
 							/>
 							<div
+								id="skate2"
 								className={`absolute  -translate-x-1/2 bg-sage rounded-sm shadow-md shadow-darkblue`}
 								style={{
 									top: gameState.skate2.y,
@@ -530,8 +540,6 @@ export const Play = () => {
 									height: skate.height,
 								}}
 							/>
-							<div className="gate gate1" />
-							<div className="gate gate2" />
 						</div>
 						<div className="flex items-center w-full justify-between">
 							<div id="leave button" className="button">
