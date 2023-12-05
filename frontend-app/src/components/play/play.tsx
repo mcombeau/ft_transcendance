@@ -215,6 +215,17 @@ export const Play = () => {
 		}
 	}
 
+	function getPlayerID(player: number) {
+		switch (player) {
+			case 1:
+				return player1.id;
+			case 2:
+				return player2.id;
+			default:
+				return null;
+		}
+	}
+
 	function activateKeyHandler(cookies: any) {
 		console.log("Key handler activated");
 		window.addEventListener("keydown", (event) => {
@@ -483,18 +494,36 @@ export const Play = () => {
 			return (
 				<div className="absolute bg-sage top-0 bottom-0 left-0 right-0 flex flex-col items-center">
 					<div className="bg-lightblue flex flex-col items-center m-4 p-4 rounded-md">
-						<div className="grid grid-cols-4 text-darkblue mb-4 w-full space-x-2">
-							<div className="bg-sage rounded-md p-2 text-center font-bold">
-								{getPlayerUsername(1)}
+						<div className="grid grid-cols-2 text-darkblue mb-4 w-full space-x-2">
+							<div
+								className={`grid grid-cols-2 space-x-2  rounded-md p-1 ${
+									authenticatedUserID === getPlayerID(1)
+										? "border-2 border-teal"
+										: ""
+								}`}
+							>
+								<div
+									className={`bg-sage  rounded-md p-2 text-center font-bold`}
+								>
+									{getPlayerUsername(1)}
+								</div>
+								<div className="bg-sage w-30 rounded-md p-2 text-center">
+									{gameState.score[0]}
+								</div>
 							</div>
-							<div className="bg-sage w-30 rounded-md p-2 text-center">
-								{gameState.score[0]}
-							</div>
-							<div className="bg-sage w-30 rounded-md p-2 text-center">
-								{gameState.score[1]}
-							</div>
-							<div className="bg-sage rounded-md p-2 text-center font-bold">
-								{getPlayerUsername(2)}
+							<div
+								className={`grid grid-cols-2  space-x-2 rounded-md p-1 ${
+									authenticatedUserID === getPlayerID(2)
+										? "border-2 border-teal "
+										: ""
+								}`}
+							>
+								<div className="bg-sage w-30 rounded-md p-2 text-center">
+									{gameState.score[1]}
+								</div>
+								<div className={`bg-sage rounded-md p-2 text-center font-bold`}>
+									{getPlayerUsername(2)}
+								</div>
 							</div>
 						</div>
 						<div
