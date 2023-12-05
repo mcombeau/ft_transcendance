@@ -136,8 +136,8 @@ export const Play = () => {
 	};
 	const [gameState, setGameState] = useState<State>({
 		score: [0, 0],
-		skate1: { x: 42, y: 160 },
-		skate2: { x: 660, y: 160 },
+		skate1: { x: 15, y: 160 },
+		skate2: { x: 685, y: 160 },
 		live: true,
 		isPaused: false,
 		ballPos: defaultBallPosition,

@@ -16,8 +16,8 @@ const SKATE_WIDTH: number = 10;
 
 const MOVE_STEP: number = 7;
 const BALL_RADIUS: number = 10;
-const SKATE_X_1: number = 42;
-const SKATE_X_2: number = 660;
+const SKATE_X_1: number = 15;
+const SKATE_X_2: number = 685;
 
 const SKATE_MAX_Y: number = TERRAIN_HEIGHT;
 const SKATE_MIN_Y = 0;
