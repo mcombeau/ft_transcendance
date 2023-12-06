@@ -1,14 +1,10 @@
-- Sign in
-
-  - Prompt for 2fa when signing in when activated in profile settings
+- 2fa 
+	- check works with 42 auth
 
 - Profile
 
   - Fix online/offline status AGAIN
   - CSS fix buttons and maybe font size on smaller screen
-  - My profile
-    - change 2fa activation
-    - disable
 
 - Cleanup
 
@@ -33,6 +29,11 @@
   - CSS fix navbar resizing when between small and big screen size
   - Add global CSS rule to adapt front size to screen size
 
+- Backend
+
+  - enforce authorizations on contollers - check if user actually has the right to do what they're doing
+  - check that 2fa is completed before accepting token
+
 - Project validation
 
   - reset game score to 10
@@ -41,7 +42,6 @@
   - remove passwords for users
   - force HTTPS and force redirect HTTP port 80 to HTTPS port 443
   - choose domain (localhost or ft_transcendance or whatever) and then fix callback URL for 42 auth
-  - enforce authorizations on contollers - check if user actually has the right to do what they're doing
 
 - Nice to have
   - ping front for token refresh (can continue to use chat if you mess up token because token is only rechecked on page reload/navigate)

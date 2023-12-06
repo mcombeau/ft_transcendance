@@ -9,11 +9,12 @@ import { BannerType, createBanner } from "../banner/Banner";
 function FinalizeLogin({ setBanners }) {
 	const [twoFaCode, setTwoFaCode] = useState<string>("");
 	const [twoFaEnabled, setTwoFaEnabled] = useState<boolean>(true);
-	const [cookies, setCookie] = useCookies(["token"]);
+	const [cookies, setCookie, removeCookie] = useCookies(["token"]);
 	const { setAuthenticatedUserID } = useContext(AuthenticationContext);
 	const navigate = useNavigate();
 
 	// TODO: Eject from this page if not supposed to be there //
+	// TODO: Check 42 user has authenticatedUserID not set before getting here !!! //
 
 	async function submit2faCode(e: any) {
 		e.preventDefault();
@@ -59,6 +60,8 @@ function FinalizeLogin({ setBanners }) {
 
 	useEffect(() => {
 		// Check if user needs 2fa from cookie
+		//  TODO: check that the cookie is set fast enough by the back for this check to work //
+		//  TODO: maybe do a waiting state before this is executed and the cookie is checked (waiting for login info...)//
 		const is2faEnabled: boolean =
 			getAuthInfo(cookies)["isTwoFactorAuthenticationEnabled"];
 		setTwoFaEnabled(is2faEnabled);
