@@ -85,14 +85,9 @@ function ProfileSettings(
 		};
 
 		fetch(`/backend/auth/2fa/turn-on`, request).then(async (response) => {
-			const data = await response.json();
 			if (!response.ok) {
-				console.log("Error enabling 2fa: ", data.message);
-				createBanner(
-					"Error enabling 2fa: " + data.message,
-					setBanners,
-					BannerType.Alert
-				);
+				console.log("Error enabling 2fa");
+				createBanner("Error enabling 2fa ", setBanners, BannerType.Alert);
 				return;
 			}
 		});
@@ -111,14 +106,9 @@ function ProfileSettings(
 			},
 		};
 		fetch(`/backend/auth/2fa/turn-off`, request).then(async (response) => {
-			const data = await response.json();
 			if (!response.ok) {
-				console.log("Error disabling 2fa: ", data.message);
-				createBanner(
-					"Error disabling 2fa: " + data.message,
-					setBanners,
-					BannerType.Alert
-				);
+				console.log("Error disabling 2fa");
+				createBanner("Error disabling 2fa", setBanners, BannerType.Alert);
 				return;
 			}
 		});
