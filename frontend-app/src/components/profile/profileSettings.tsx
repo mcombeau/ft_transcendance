@@ -116,9 +116,6 @@ function ProfileSettings(
 		setTwoFaValidationCode("");
 		setQrcode(null);
 		setIs2faEnabled(false);
-		// TODO: post request to turn off
-		// TODO: if it works flip the switch
-		// TODO: check if cookie is up to date
 	}
 
 	function submitUserInfo(e: any) {
