@@ -103,6 +103,29 @@ function ProfileSettings(
 	}
 
 	function disable2Fa() {
+		var request: any = {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${cookies["token"]}`,
+			},
+		};
+		fetch(`/backend/auth/2fa/turn-off`, request).then(async (response) => {
+			const data = await response.json();
+			if (!response.ok) {
+				console.log("Error disabling 2fa: ", data.message);
+				createBanner(
+					"Error disabling 2fa: " + data.message,
+					setBanners,
+					BannerType.Alert
+				);
+				return;
+			}
+		});
+
+		setTwoFaValidationCode("");
+		setQrcode(null);
+		setIs2faEnabled(false);
 		// TODO: post request to turn off
 		// TODO: if it works flip the switch
 		// TODO: check if cookie is up to date
@@ -292,7 +315,13 @@ function ProfileSettings(
 					type="checkbox"
 					checked={is2faEnabled}
 					onChange={() => {
-						enable2Fa();
+						if (!is2faEnabled) {
+							console.log("Trying to enable 2fa");
+							enable2Fa();
+						} else {
+							console.log("Trying to disable 2fa");
+							disable2Fa();
+						}
 					}}
 				/>
 				<label> Enable two-factor authentication</label>
