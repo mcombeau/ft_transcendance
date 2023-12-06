@@ -274,6 +274,14 @@ export class UsersService {
 		return this.userRepository.update({ id }, { ...updatedInfo });
 	}
 
+	async getUser2faSecret(userID: number): Promise<string> {
+		const user = await this.userRepository.findOne({
+			where: { id: userID },
+			select: ["twoFactorAuthenticationSecret"],
+		});
+		return user.twoFactorAuthenticationSecret;
+	}
+
 	async setTwoFactorAuthenticationSecret(secret: string, id: number) {
 		return this.userRepository.update(
 			{ id },

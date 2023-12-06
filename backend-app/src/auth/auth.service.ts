@@ -132,7 +132,10 @@ export class AuthService {
 		res.redirect(302, `/user/${user.id}#settings`);
 	}
 
-	async generateTwoFactorAuthenticationSecret(userInfo: any) {
+	async generateTwoFactorAuthenticationSecret(userInfo: {
+		userID: number;
+		username: string;
+	}) {
 		const secret = authenticator.generateSecret();
 
 		const user = await this.userService.fetchUserByUsername(userInfo.username);
@@ -156,12 +159,13 @@ export class AuthService {
 
 	async isTwoFactorAuthenticationCodeValid(
 		twoFactorAuthenticationCode: string,
-		userInfo: any
+		userInfo: { userID: number; username: string }
 	) {
-		const user = await this.userService.fetchUserByUsername(userInfo.username);
+		const twoFactorAuthenticationSecret: string =
+			await this.userService.getUser2faSecret(userInfo.userID);
 		return authenticator.verify({
 			token: twoFactorAuthenticationCode,
-			secret: user.twoFactorAuthenticationSecret,
+			secret: twoFactorAuthenticationSecret,
 		});
 	}
 
