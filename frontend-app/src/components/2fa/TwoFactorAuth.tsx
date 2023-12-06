@@ -5,11 +5,13 @@ import { useNavigate } from "react-router-dom";
 import { AuthenticationContext } from "../authenticationState";
 import { BannerType, createBanner } from "../banner/Banner";
 
-function TwoFactorAuth({ setBanners }) {
+function FinalizeLogin({ setBanners }) {
 	const [twoFaCode, setTwoFaCode] = useState<string>("");
 	const [cookies, setCookie] = useCookies(["token"]);
 	const { setAuthenticatedUserID } = useContext(AuthenticationContext);
 	const navigate = useNavigate();
+
+	// TODO: Eject from this page if not supposed to be there //
 
 	async function submit2faCode(e: any) {
 		e.preventDefault();
@@ -72,4 +74,4 @@ function TwoFactorAuth({ setBanners }) {
 	);
 }
 
-export default TwoFactorAuth;
+export default FinalizeLogin;
