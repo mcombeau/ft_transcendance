@@ -1,4 +1,4 @@
-import { Inject, forwardRef } from "@nestjs/common";
+import { Inject, forwardRef, Logger } from "@nestjs/common";
 import {
 	Controller,
 	Body,
@@ -14,7 +14,6 @@ import {
 } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
-import { Jwt2faAuthGuard } from "./guards/jwt-2fa-auth.guard";
 import { LocalAuthGuard } from "./guards/local-auth.guard";
 import { school42AuthGuard } from "./guards/school42-auth.guard";
 import { ApiTags } from "@nestjs/swagger";
@@ -29,6 +28,8 @@ export class AuthController {
 		@Inject(forwardRef(() => UsersService))
 		private userService: UsersService
 	) {}
+
+	private readonly logger: Logger = new Logger("Auth Controller");
 
 	@UseGuards(LocalAuthGuard)
 	@Post("auth/login")
@@ -85,22 +86,18 @@ export class AuthController {
 		if (!isCodeValid) {
 			throw new UnauthorizedException("Wrong authentication code");
 		}
-		let user = await this.userService.fetchUserByUsername(
-			request.user.username
+		await this.userService.setTwoFactorAuthentication(
+			request.user.userID,
+			true
 		);
-		await this.userService.setTwoFactorAuthentication(user.username, true);
-		user = await this.userService.fetchUserByUsername(request.user.username);
 	}
 
 	@Post("auth/2fa/turn-off")
 	@UseGuards(JwtAuthGuard)
 	async turnOffTwoFactorAuthentication(@Req() request) {
 		await this.userService.setTwoFactorAuthentication(
-			request.user.username,
+			request.user.userID,
 			false
-		);
-		const user = await this.userService.fetchUserByUsername(
-			request.user.username
 		);
 	}
 

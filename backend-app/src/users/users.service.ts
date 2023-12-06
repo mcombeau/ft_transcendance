@@ -23,7 +23,7 @@ import { BadRequestException } from "@nestjs/common";
 import { sendGameDto } from "src/games/dtos/sendGame.dto";
 import { sendFriendDto } from "src/friends/dtos/sendFriend.dto";
 import { sendBlockedUserDto } from "src/blocked-users/dtos/sendBlockedUser.dto";
-import { join, extname } from "path";
+import { join } from "path";
 import { ValidateInputService } from "src/validate-input/validate-input.service";
 
 @Injectable()
@@ -289,8 +289,8 @@ export class UsersService {
 		);
 	}
 
-	async setTwoFactorAuthentication(username: string, state: boolean) {
-		const user = await this.fetchUserByUsername(username);
+	async setTwoFactorAuthentication(userID: number, state: boolean) {
+		const user = await this.fetchUserByID(userID);
 		this.logger.log(
 			`[Set Two Factor Authentication]: ${
 				state ? "Enable" : "Disable"
