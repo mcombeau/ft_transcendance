@@ -57,9 +57,9 @@ function ProfileSettings(
 			async (response) => {
 				const data = await response.json();
 				if (!response.ok) {
-					console.log("error QR code generation");
+					console.log("error QR code generation: ", data.message);
 					createBanner(
-						"Error generating QR code",
+						"Error generating QR code: " + data.message,
 						setBanners,
 						BannerType.Alert
 					);
@@ -87,7 +87,12 @@ function ProfileSettings(
 		fetch(`/backend/auth/2fa/turn-on`, request).then(async (response) => {
 			const data = await response.json();
 			if (!response.ok) {
-				createBanner("Error enabling 2fa", setBanners, BannerType.Alert);
+				console.log("Error enabling 2fa: ", data.message);
+				createBanner(
+					"Error enabling 2fa: " + data.message,
+					setBanners,
+					BannerType.Alert
+				);
 				return;
 			}
 		});
