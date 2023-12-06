@@ -14,6 +14,7 @@ import Logout from "./components/logout/logout";
 import { WebSocketContext } from "./contexts/WebsocketContext";
 import NotFound from "./components/notfound/notfound";
 import Banners, { Banner } from "./components/banner/Banner";
+import TwoFactorAuth from "./components/2fa/TwoFactorAuth";
 
 function App() {
 	const [cookies, ,] = useCookies(["token"]);
@@ -63,6 +64,11 @@ function App() {
 							<Route path="/logout" element={<Logout />} />
 							<Route path="*" element={<NotFound />} />
 							<Route path="/not-found" element={<NotFound />} />
+
+							<Route
+								path="/2fa"
+								element={<TwoFactorAuth setBanners={setBanners} />}
+							/>
 						</Routes>
 					</div>
 				</AuthenticationContext.Provider>
