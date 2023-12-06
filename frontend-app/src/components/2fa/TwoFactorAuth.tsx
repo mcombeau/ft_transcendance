@@ -1,12 +1,14 @@
 import jwtDecode from "jwt-decode";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
+import { getAuthInfo, getUserID } from "../../cookies";
 import { AuthenticationContext } from "../authenticationState";
 import { BannerType, createBanner } from "../banner/Banner";
 
 function FinalizeLogin({ setBanners }) {
 	const [twoFaCode, setTwoFaCode] = useState<string>("");
+	const [twoFaEnabled, setTwoFaEnabled] = useState<boolean>(true);
 	const [cookies, setCookie] = useCookies(["token"]);
 	const { setAuthenticatedUserID } = useContext(AuthenticationContext);
 	const navigate = useNavigate();
@@ -55,23 +57,48 @@ function FinalizeLogin({ setBanners }) {
 		}
 	}
 
-	return (
-		<div className="background-element">
-			<h3>Please enter the code provided by your Google Authenticator App</h3>
-			<form onSubmit={submit2faCode}>
-				<input
-					className="p-2 m-2"
-					type="text"
-					placeholder="2fa code"
-					value={twoFaCode}
-					onChange={(e) => {
-						setTwoFaCode(e.target.value);
-					}}
-				/>
-				<button className="button">Submit</button>
-			</form>
-		</div>
-	);
+	useEffect(() => {
+		// Check if user needs 2fa from cookie
+		const is2faEnabled: boolean =
+			getAuthInfo(cookies)["isTwoFactorAuthenticationEnabled"];
+		setTwoFaEnabled(is2faEnabled);
+	}, []);
+
+	function TwoFactorAuth() {
+		return (
+			<div className="background-element">
+				<h3>Please enter the code provided by your Google Authenticator App</h3>
+				<form onSubmit={submit2faCode}>
+					<input
+						className="p-2 m-2"
+						type="text"
+						placeholder="2fa code"
+						value={twoFaCode}
+						onChange={(e) => {
+							setTwoFaCode(e.target.value);
+						}}
+					/>
+					<button className="button">Submit</button>
+				</form>
+			</div>
+		);
+	}
+
+	function SuccessFullLogin() {
+		try {
+			const loggedUserID = getUserID(cookies);
+			setAuthenticatedUserID(loggedUserID);
+			navigate(`/user/${loggedUserID}#settings`);
+		} catch (e) {
+			console.warn("Send Auth: JWT decode error");
+			return;
+		}
+		return (
+			<div>You have logged in successfully, please wait for redirection</div>
+		);
+	}
+
+	return <div>{twoFaEnabled ? TwoFactorAuth() : SuccessFullLogin()}</div>;
 }
 
 export default FinalizeLogin;
