@@ -57,3 +57,6 @@ plog:
 
 pop:
 	python3 test/populate_database.py
+
+db_connect:
+	pgcli -h ${NGINX_HOST} -p ${DB_PORT} -u ${POSTGRES_USER} -d ${POSTGRES_DB}
