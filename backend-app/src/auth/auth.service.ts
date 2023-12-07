@@ -154,7 +154,10 @@ export class AuthService {
 	}
 
 	async generateQrCodeDataURL(otpAuthUrl: string) {
-		return toDataURL(otpAuthUrl);
+		return toDataURL(otpAuthUrl, { color: {
+			dark: '#265073',  // Blue dots
+			light: '#0000' // Transparent background
+		} });
 	}
 
 	async isTwoFactorAuthenticationCodeValid(
