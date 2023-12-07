@@ -21,7 +21,6 @@
 
 - Appearance
 
-  - CSS fix navbar resizing when between small and big screen size
   - CSS fix buttons
 
 - Backend
