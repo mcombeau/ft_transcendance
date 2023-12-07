@@ -1,6 +1,3 @@
-- 2fa 
-	- check works with 42 auth
-
 - Profile
 
   - Fix online/offline status AGAIN
@@ -33,6 +30,10 @@
 
   - enforce authorizations on contollers - check if user actually has the right to do what they're doing
   - check that 2fa is completed before accepting token
+
+- Security
+
+	- for each page check authentication and redirect with 404 if not authenticated
 
 - Project validation
 
