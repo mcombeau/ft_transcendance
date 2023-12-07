@@ -65,6 +65,7 @@ function ProfileSettings(
 					);
 					return;
 				}
+				console.log("QrCode", data);
 				setQrcode(data);
 			}
 		);
@@ -314,10 +315,16 @@ function ProfileSettings(
 				<label> Enable two-factor authentication</label>
 				{qrcode && (
 					<div>
-						<img src={qrcode}></img>
+						<div className="m-2 w-full">
+							<img
+								className="relative rounded-md overflow-hidden mx-auto"
+								src={qrcode}
+							></img>
+						</div>
 
 						<form onSubmit={submitTwoFaValidationCode}>
 							<input
+								className="bg-sage rounded-md p-2 m-2 focus:outline-none"
 								placeholder="2fa validation code"
 								value={twoFaValidationCode}
 								onChange={(e) => {
