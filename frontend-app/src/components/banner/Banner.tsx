@@ -57,7 +57,7 @@ function Banners(
 	}
 
 	return (
-		<div className="absolute top-24 right-0 z-30 m-2">
+		<div className="absolute top-16 lg:top-24 right-0 z-30 m-2">
 			{banners.filter((banner: Banner) => banner.display).map(displayBanner)}
 		</div>
 	);
