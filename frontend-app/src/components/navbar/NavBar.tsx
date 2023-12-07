@@ -63,17 +63,22 @@ function Navbar() {
 					</>
 				)}
 				{!authenticatedUserID && (
-						<>
-					<li className="navlink">
-						<a href="/login">Login</a>
-					</li>
-				<form action="/backend/auth/42login">
-					<button className="bg-darkblue rounded-md m-2 p-2 whitespace-nowrap">Login with 42</button>
-				</form>
+					<>
+						<li className="navlink">
+							<a href="/login">Login</a>
+						</li>
+						<form action="/backend/auth/42login">
+							<button className="bg-darkblue rounded-md m-2 p-2 px-4 whitespace-nowrap">
+								Login with 42
+							</button>
+						</form>
 					</>
 				)}
 			</ul>
-			<div onClick={handleNav} className={ `block ${nav ? "" : "md:hidden"} z-30` }>
+			<div
+				onClick={handleNav}
+				className={`block ${nav ? "" : "md:hidden"} z-30`}
+			>
 				{nav ? <AiOutlineClose size={20} /> : <AiOutlineMenu size={20} />}
 			</div>
 			<ul
@@ -110,7 +115,10 @@ function Navbar() {
 						<li className="navlink-extended">
 							<a href="/login">Login</a>
 						</li>
-						<form action="/backend/auth/42login" className="navlink-extended bg-darkblue">
+						<form
+							action="/backend/auth/42login"
+							className="navlink-extended bg-darkblue"
+						>
 							<button>Login with 42</button>
 						</form>
 					</>

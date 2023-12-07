@@ -949,7 +949,7 @@ export const Chat = ({ setBanners }) => {
 
 	useEffect(() => {
 		if (!authenticatedUserID) {
-			navigate('/not-found');
+			navigate("/not-found");
 		}
 	}, []);
 
