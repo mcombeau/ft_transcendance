@@ -3,10 +3,6 @@
     - Fuck off from finalize login if not signing in
 	- for each page check authentication and redirect with 404 if not authenticated
 
-- Profile
-
-  - Fix online/offline status AGAIN
-
 - Chat
     - limit number of password retries on join/accept invite
     - tell user to fuck off if wrong chat password
