@@ -63,9 +63,14 @@ function Navbar() {
 					</>
 				)}
 				{!authenticatedUserID && (
+						<>
 					<li className="navlink">
 						<a href="/login">Login</a>
 					</li>
+				<form action="/backend/auth/42login">
+					<button className="bg-darkblue rounded-md m-2 p-2 whitespace-nowrap">Login with 42</button>
+				</form>
+					</>
 				)}
 			</ul>
 			<div onClick={handleNav} className="block md:hidden">
