@@ -59,6 +59,7 @@ export class SocketGateway implements OnModuleInit {
 				this.logger.log(
 					`[Connection event]: A user connected: ${tokenInfo.username} - ${tokenInfo.userID} (${socket.id})`
 				);
+				this.onLogin(socket, token);
 				socket.broadcast.emit("connection event"); // TODO: probably remove
 				socket.on("disconnect", () => {
 					this.logger.log(
