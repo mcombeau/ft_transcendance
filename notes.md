@@ -1,3 +1,5 @@
+- LEADERBOARD !
+
 - Login
     - Login with 42 in navbar
     - Fuck off from finalize login if not signing in
@@ -20,8 +22,7 @@
 - Appearance
 
   - CSS fix navbar resizing when between small and big screen size
-  - CSS fix buttons and maybe font size on smaller screen
-  - Add global CSS rule to adapt front size to screen size
+  - CSS fix buttons
 
 - Backend
 
