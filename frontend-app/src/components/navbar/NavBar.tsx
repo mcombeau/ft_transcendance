@@ -73,7 +73,7 @@ function Navbar() {
 					</>
 				)}
 			</ul>
-			<div onClick={handleNav} className="block md:hidden">
+			<div onClick={handleNav} className={ `block ${nav ? "" : "md:hidden"} z-30` }>
 				{nav ? <AiOutlineClose size={20} /> : <AiOutlineMenu size={20} />}
 			</div>
 			<ul
@@ -106,9 +106,14 @@ function Navbar() {
 					</>
 				)}
 				{!authenticatedUserID && (
-					<li className="navlink-extended">
-						<a href="/login">Login</a>
-					</li>
+					<>
+						<li className="navlink-extended">
+							<a href="/login">Login</a>
+						</li>
+						<form action="/backend/auth/42login" className="navlink-extended bg-darkblue">
+							<button>Login with 42</button>
+						</form>
+					</>
 				)}
 			</ul>
 		</div>
