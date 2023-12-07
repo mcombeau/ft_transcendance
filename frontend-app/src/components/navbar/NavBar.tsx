@@ -36,7 +36,7 @@ function Navbar() {
 
 	return (
 		<div className="navbar flex justify-between items-center text-sage bg-teal ">
-			<h1 className={nav ? "w-full text-teal" : "w-full text-lg lg:text-3xl font-bold"}>
+			<h1 className={"w-full text-lg lg:text-3xl font-bold"}>
 				ft_transcendance
 			</h1>
 			<ul className="hidden md:flex font-mono">
@@ -74,11 +74,10 @@ function Navbar() {
 			<ul
 				className={
 					nav
-						? "fixed left-0 top-0 right-0 w-[60%] h-full bg-teal ease-in-out duration-500"
-						: "ease-in-out duration-500 fixed left-[-100%]"
+						? "fixed left-0 top-16 right-0 w-[60%] h-full bg-teal ease-in-out duration-500"
+						: "ease-in-out duration-500 fixed top-16 h-full left-[-100%]"
 				}
 			>
-				<h1 className="w-full text-3xl font-bold m-4">ft_transcendance</h1>
 				<li className="navlink-extended">
 					<a href="/">Home</a>
 				</li>
