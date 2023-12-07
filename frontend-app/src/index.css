@@ -13,11 +13,11 @@
 }
 
 .content {
-	@apply absolute top-24 bottom-0 left-0 right-0 overflow-y-scroll scrollbar-hide;
+	@apply absolute top-16 lg:top-24 bottom-0 left-0 right-0 overflow-y-scroll scrollbar-hide;
 }
 
 .navbar {
-	@apply h-24 px-4 w-full absolute top-0 left-0 right-0 z-50;
+	@apply h-16 lg:h-24 px-4 w-full absolute top-0 left-0 right-0 z-50;
 }
 
 .navlink {
