@@ -1,14 +1,15 @@
+- Login
+    - Login with 42 in navbar
+    - Fuck off from finalize login if not signing in
+	- for each page check authentication and redirect with 404 if not authenticated
+
 - Profile
 
   - Fix online/offline status AGAIN
-  - CSS fix buttons and maybe font size on smaller screen
 
-- Cleanup
-
-  - passwords
+- Chat
     - limit number of password retries on join/accept invite
-    - tell user to fuck off if wrong username/password
-  - allow access to chat/leaderboard ... but prompt for sign in
+    - tell user to fuck off if wrong chat password
 
 - Game
 
@@ -22,8 +23,8 @@
 
 - Appearance
 
-  - css for login page
   - CSS fix navbar resizing when between small and big screen size
+  - CSS fix buttons and maybe font size on smaller screen
   - Add global CSS rule to adapt front size to screen size
 
 - Backend
@@ -31,16 +32,14 @@
   - enforce authorizations on contollers - check if user actually has the right to do what they're doing
   - check that 2fa is completed before accepting token
 
-- Security
-
-	- for each page check authentication and redirect with 404 if not authenticated
-
 - Project validation
 
   - reset game score to 10
   - all libraries are in latest stable version
   - remove unused libraries/modules + fix dependancy issues on frontend backend container creation?
   - remove passwords for users
+  - remove login page
+  - rename finalize login page to login
   - force HTTPS and force redirect HTTP port 80 to HTTPS port 443
   - choose domain (localhost or ft_transcendance or whatever) and then fix callback URL for 42 auth
 
