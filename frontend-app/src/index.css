@@ -21,7 +21,7 @@
 }
 
 .navlink {
-	@apply p-4 text-sm lg:text-lg;
+	@apply p-4 text-sm lg:text-xl;
 }
 
 .navlink-extended {
@@ -53,4 +53,3 @@
 	@apply button;
 	@apply bg-sage text-darkblue hover:bg-darkblue hover:text-sage;
 }
-
