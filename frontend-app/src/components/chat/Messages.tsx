@@ -224,6 +224,8 @@ export const Messages = (
 			} else {
 				socket.emit("accept invite", info);
 			}
+		} else {
+			socket.emit("accept invite", info);
 		}
 	}
 
