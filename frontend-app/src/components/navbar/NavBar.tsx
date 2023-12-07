@@ -36,10 +36,10 @@ function Navbar() {
 
 	return (
 		<div className="navbar flex justify-between items-center text-sage bg-teal ">
-			<h1 className={nav ? "w-full text-teal" : "w-full text-3xl font-bold"}>
+			<h1 className={nav ? "w-full text-teal" : "w-full text-lg lg:text-3xl font-bold"}>
 				ft_transcendance
 			</h1>
-			<ul className="hidden md:flex font-mono text-lg">
+			<ul className="hidden md:flex font-mono">
 				<li className="navlink">
 					<a href="/">Home</a>
 				</li>

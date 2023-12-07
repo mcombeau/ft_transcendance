@@ -8,11 +8,25 @@
 	}
 }
 
-.navlink {
-	@apply p-4;
+.app {
+	@apply h-screen w-screen relative;
 }
+
+.content {
+	@apply absolute top-24 bottom-0 left-0 right-0 overflow-y-scroll scrollbar-hide;
+}
+
+.navbar {
+	@apply h-24 px-4 w-full absolute top-0 left-0 right-0 z-50;
+}
+
+.navlink {
+	@apply p-4 text-sm lg:text-lg;
+}
+
 .navlink-extended {
-	@apply navlink border-b border-sage;
+	@apply navlink;
+	@apply border-b border-sage;
 }
 
 .background-element {
@@ -40,14 +54,3 @@
 	@apply bg-sage text-darkblue hover:bg-darkblue hover:text-sage;
 }
 
-.app {
-	@apply h-screen w-screen relative;
-}
-
-.navbar {
-	@apply h-24 px-4 w-full absolute top-0 left-0 right-0 z-50;
-}
-
-.content {
-	@apply absolute top-24 bottom-0 left-0 right-0 overflow-y-scroll scrollbar-hide;
-}
