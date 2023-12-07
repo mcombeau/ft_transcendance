@@ -15,9 +15,6 @@ function FinalizeLogin({ setBanners }) {
 	);
 	const navigate = useNavigate();
 
-	// TODO: Eject from this page if not supposed to be there //
-	// TODO: Check 42 user has authenticatedUserID not set before getting here !!! //
-
 	async function submit2faCode(e: any) {
 		e.preventDefault();
 		var request = {
@@ -62,11 +59,16 @@ function FinalizeLogin({ setBanners }) {
 
 	useEffect(() => {
 		// Check if user needs 2fa from cookie
-		//  TODO: check that the cookie is set fast enough by the back for this check to work //
-		//  TODO: maybe do a waiting state before this is executed and the cookie is checked (waiting for login info...)//
-		const is2faEnabled: boolean =
-			getAuthInfo(cookies)["isTwoFactorAuthenticationEnabled"];
-		setTwoFaEnabled(is2faEnabled);
+		if (cookies["token"] && !authenticatedUserID)
+		{
+			const is2faEnabled: boolean =
+				getAuthInfo(cookies)["isTwoFactorAuthenticationEnabled"];
+			setTwoFaEnabled(is2faEnabled);
+		}
+		else
+		{
+			navigate(`/not-found`);
+		}
 	}, []);
 
 	function TwoFactorAuth() {
@@ -103,6 +105,9 @@ function FinalizeLogin({ setBanners }) {
 		);
 	}
 
+	if (authenticatedUserID || !cookies["token"]) {
+			return <></>
+	}
 	return <div>{twoFaEnabled ? TwoFactorAuth() : SuccessFullLogin()}</div>;
 }
 
