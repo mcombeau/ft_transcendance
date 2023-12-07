@@ -4,7 +4,6 @@
 
   - deal with broadband/network issues
   - check that when reloading lobby properly ejected from waitlist
-  - CSS maybe nicer You won/lost screen
 
 - Bugs
 

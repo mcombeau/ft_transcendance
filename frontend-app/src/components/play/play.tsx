@@ -96,7 +96,12 @@ function waitForGamePage() {
 
 function winPage(gameDetails: GameDetails, authenticatedUserID: number) {
 	if (!gameDetails) {
-		return <p>A player left the game</p>;
+		return (
+			<>
+				<h2 className="title-element">Oops, the game ended !</h2>
+				<p>A player left the game</p>
+			</>
+		);
 	}
 	const scoreDisplay = (
 		<p>
@@ -108,20 +113,23 @@ function winPage(gameDetails: GameDetails, authenticatedUserID: number) {
 		case gameDetails.winnerID:
 			return (
 				<>
-					<p>You won !</p> {scoreDisplay}
+					<h2 className="title-element">You won !</h2> {scoreDisplay}
 				</>
 			);
 		case gameDetails.loserID:
 			return (
 				<>
-					<p>You lost !</p> {scoreDisplay}
+					<h2 className="title-element">You lost !</h2> {scoreDisplay}
 				</>
 			);
 
 		default:
 			return (
 				<>
-					<p>{gameDetails.winnerUsername} won !</p> {scoreDisplay}
+					<h2 className="" title-element>
+						{gameDetails.winnerUsername} won !
+					</h2>{" "}
+					{scoreDisplay}
 				</>
 			);
 	}
@@ -206,7 +214,7 @@ export const Play = () => {
 
 	useEffect(() => {
 		if (!authenticatedUserID) {
-			navigate('/not-found');
+			navigate("/not-found");
 		}
 	}, []);
 
@@ -491,7 +499,7 @@ export const Play = () => {
 
 		case Page.EndGame:
 			return (
-				<div className="m-8 text-2xl text-darkblue flex flex-col items-center">
+				<div className="m-8 flex flex-col items-center background-element">
 					{winPage(endGameDetails, authenticatedUserID)}
 				</div>
 			);
