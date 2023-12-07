@@ -39,6 +39,11 @@ export function getUsername(cookies: any): string {
 export function getUserID(cookies: any): number {
 	var authInfo: AuthCookie = getAuthInfo(cookies);
 	if (authInfo) {
+		if (
+			authInfo["isTwoFactorAuthenticationEnabled"] &&
+			!authInfo["isTwoFactorAuthenticated"]
+		)
+			return null;
 		return getAuthInfo(cookies)["userID"];
 	} else {
 		return null;

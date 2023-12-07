@@ -10,7 +10,9 @@ function FinalizeLogin({ setBanners }) {
 	const [twoFaCode, setTwoFaCode] = useState<string>("");
 	const [twoFaEnabled, setTwoFaEnabled] = useState<boolean>(true);
 	const [cookies, setCookie, removeCookie] = useCookies(["token"]);
-	const { setAuthenticatedUserID } = useContext(AuthenticationContext);
+	const { authenticatedUserID, setAuthenticatedUserID } = useContext(
+		AuthenticationContext
+	);
 	const navigate = useNavigate();
 
 	// TODO: Eject from this page if not supposed to be there //
