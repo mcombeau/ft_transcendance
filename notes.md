@@ -1,9 +1,5 @@
 - LEADERBOARD !
 
-- Chat
-    - limit number of password retries on join/accept invite
-    - tell user to fuck off if wrong chat password
-
 - Game
 
   - deal with broadband/network issues
