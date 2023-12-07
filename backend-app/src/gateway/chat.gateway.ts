@@ -313,7 +313,7 @@ export class ChatGateway implements OnModuleInit {
 						RoomType.User
 					)
 				)
-				.emit("error", "Join chat error" + e.message);
+				.emit("error", "Join chat error: " + e.message);
 		}
 	}
 
