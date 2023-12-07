@@ -1,10 +1,5 @@
 - LEADERBOARD !
 
-- Login
-    - Login with 42 in navbar
-    - Fuck off from finalize login if not signing in
-	- for each page check authentication and redirect with 404 if not authenticated
-
 - Chat
     - limit number of password retries on join/accept invite
     - tell user to fuck off if wrong chat password

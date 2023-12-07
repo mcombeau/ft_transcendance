@@ -947,6 +947,12 @@ export const Chat = ({ setBanners }) => {
 		setRedirected(true);
 	}, [myChats]);
 
+	useEffect(() => {
+		if (!authenticatedUserID) {
+			navigate('/not-found');
+		}
+	}, []);
+
 	return (
 		<WebSocketProvider value={socket}>
 			<div className="absolute top-0  bottom-0 left-0 right-0 grid grid-cols-4 bg-sage ">

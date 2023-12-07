@@ -574,6 +574,12 @@ function Profile({ setBanners }) {
 		}
 	}, [user]);
 
+	useEffect(() => {
+		if (!authenticatedUserID) {
+			navigate('/not-found');
+		}
+	}, []);
+
 	return (
 		<div id="profile" className="grid grid-cols-2">
 			<div className="flex flex-col">

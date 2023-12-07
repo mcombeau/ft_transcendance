@@ -204,6 +204,12 @@ export const Play = () => {
 		setSkateOffsset2(newSize * 30 - newSize * 10);
 	}, [windowSize]);
 
+	useEffect(() => {
+		if (!authenticatedUserID) {
+			navigate('/not-found');
+		}
+	}, []);
+
 	function getPlayerUsername(player: number) {
 		switch (player) {
 			case 1:
