@@ -315,26 +315,27 @@ function ProfileSettings(
 				<label> Enable two-factor authentication</label>
 				{qrcode && (
 					<div>
-						<div className="m-2 w-full">
+						<div className="m-2 w-full flex">
 							<img
-								className="relative rounded-md overflow-hidden mx-auto"
+								className="bg-sage relative rounded-md overflow-hidden mx-auto my-2"
 								src={qrcode}
 							></img>
+							<div className="relative mx-auto justify-center">
+								<form onSubmit={submitTwoFaValidationCode}>
+									<input
+										className="bg-sage rounded-md p-2 m-2 focus:outline-none"
+										placeholder="2fa validation code"
+										value={twoFaValidationCode}
+										onChange={(e) => {
+											setTwoFaValidationCode(e.target.value);
+										}}
+									/>
+									<button className="rounded-md bg-darkblue text-sage text-sm p-2 py-2 m-2">
+										Submit
+									</button>
+								</form>
+							</div>
 						</div>
-
-						<form onSubmit={submitTwoFaValidationCode}>
-							<input
-								className="bg-sage rounded-md p-2 m-2 focus:outline-none"
-								placeholder="2fa validation code"
-								value={twoFaValidationCode}
-								onChange={(e) => {
-									setTwoFaValidationCode(e.target.value);
-								}}
-							/>
-							<button className="rounded-md bg-darkblue text-sage text-sm p-2 py-2 m-2">
-								Submit
-							</button>
-						</form>
 					</div>
 				)}
 				<canvas id="canvas"></canvas>
