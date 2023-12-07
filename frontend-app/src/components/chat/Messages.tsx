@@ -14,6 +14,7 @@ import { ReceivedInfo, typeInvite } from "./types";
 import { separatorLine } from "../styles/separator";
 import { CurrentPannel, PannelType } from "./Chat";
 import { formatDate, getFormattedTime, sameDay } from "../styles/dateFormat";
+import { ButtonIconType, getButtonIcon } from "../styles/icons";
 
 export function inviteMessage(invite: Invite) {
 	switch (invite.type) {
@@ -59,6 +60,18 @@ export const Messages = (
 		username: null,
 	});
 	const messagesContainer = useRef<HTMLInputElement>(null);
+	const [passwordPrompt, setPasswordPrompt] = useState<boolean>(false);
+	const [newPassword, setNewPassword] = useState<string>("");
+	const [promptedPublicChatRoom, setPromptedPublicChatRoom] =
+		useState<PublicChatRoom>(null);
+	const [promptedInvite, setPromptedInvite] = useState<Invite>(null);
+
+	useEffect(() => {
+		setPasswordPrompt(false);
+		setPromptedInvite(null);
+		setPromptedPublicChatRoom(null);
+		setNewPassword("");
+	}, [currentPannel]);
 
 	const messageStatus = (msg: Message, key: number, messages: Message[]) => {
 		if (msg.system) {
@@ -127,6 +140,78 @@ export const Messages = (
 		);
 	};
 
+	function submitPassword() {
+		const isInvite: boolean = Boolean(promptedInvite);
+		if (isInvite) {
+			var info: ReceivedInfo = {
+				token: cookies["token"],
+				inviteInfo: promptedInvite,
+				chatInfo: {
+					password: newPassword,
+				},
+			};
+			socket.emit("accept invite", info);
+		} else {
+			var info: ReceivedInfo = {
+				chatRoomID: promptedPublicChatRoom.chatRoomID,
+				token: cookies["token"],
+				chatInfo: {
+					password: newPassword,
+				},
+			};
+			socket.emit("join chat", info);
+		}
+		setPasswordPrompt(false);
+		setNewPassword("");
+		setPromptedPublicChatRoom(null);
+		setPromptedInvite(null);
+	}
+
+	function passwordPromptPannel() {
+		return (
+			<div className="absolute bg-teal border-2 border-sage rounded-md top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[50%]">
+				<div className="flex justify-between m-2">
+					<h2 className="font-bold text-sage text-lg">
+						Attempting to join{" "}
+						{promptedInvite
+							? promptedInvite.chatRoomName
+							: promptedPublicChatRoom.name}
+					</h2>
+					<button
+						onClick={() => {
+							setPasswordPrompt(false);
+							setNewPassword("");
+							setPromptedPublicChatRoom(null);
+							setPromptedInvite(null);
+						}}
+					>
+						{getButtonIcon(ButtonIconType.closeSettings, "w-6 h-6 text-sage")}
+					</button>
+				</div>
+				<div>
+					<form
+						className="p-2"
+						onSubmit={(e: any) => {
+							e.preventDefault();
+							submitPassword();
+						}}
+					>
+						<input
+							type="password"
+							className="bg-sage rounded-md p-2 m-2 focus:outline-none"
+							placeholder="Password"
+							value={newPassword}
+							onChange={(e) => {
+								setNewPassword(e.target.value);
+							}}
+						/>
+						<button className="button">Submit</button>
+					</form>
+				</div>
+			</div>
+		);
+	}
+
 	function acceptInvite(invite: Invite) {
 		var info: ReceivedInfo = {
 			token: cookies["token"],
@@ -134,15 +219,12 @@ export const Messages = (
 		};
 		if (invite.type === typeInvite.Chat) {
 			if (invite.chatHasPassword) {
-				var getPassword = prompt(
-					`${invite.chatRoomName} is password protected. Please enter password:`
-				);
+				setPromptedInvite(invite);
+				setPasswordPrompt(true);
+			} else {
+				socket.emit("accept invite", info);
 			}
-			info.chatInfo = {
-				password: getPassword,
-			};
 		}
-		socket.emit("accept invite", info);
 	}
 
 	const inviteStatus = (invite: Invite) => {
@@ -201,24 +283,17 @@ export const Messages = (
 				value={chat.chatRoomID}
 				onClick={(e) => {
 					if (chat.hasPassword) {
-						var getPassword = prompt(
-							`${chat.name} is password protected. Please enter password:`
-						);
+						setPromptedPublicChatRoom(chat);
+						setPasswordPrompt(true);
 					} else {
-						getPassword = "";
-					}
-					var info: ReceivedInfo = {
-						chatRoomID: parseInt(
-							(e.target as HTMLInputElement).getAttribute("value")
-						),
-						token: cookies["token"],
-					};
-					if (getPassword !== "") {
-						info.chatInfo = {
-							password: getPassword,
+						var info: ReceivedInfo = {
+							chatRoomID: parseInt(
+								(e.target as HTMLInputElement).getAttribute("value")
+							),
+							token: cookies["token"],
 						};
+						socket.emit("join chat", info);
 					}
-					socket.emit("join chat", info);
 				}}
 			>
 				Join
@@ -278,6 +353,7 @@ export const Messages = (
 					setBlockedUsers,
 					messagesContainer
 				)}
+				{passwordPrompt ? passwordPromptPannel() : <></>}
 			</div>
 		);
 	}
@@ -302,6 +378,7 @@ export const Messages = (
 					setBlockedUsers,
 					messagesContainer
 				)}
+				{passwordPrompt ? passwordPromptPannel() : <></>}
 			</div>
 		);
 	}
