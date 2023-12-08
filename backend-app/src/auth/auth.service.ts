@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable, Logger, UnauthorizedException } from "@nestjs/common";
 import { UsersService } from "../users/users.service";
 import { userStatus } from "../users/entities/user.entity";
 import { PasswordService } from "src/password/password.service";
@@ -20,8 +20,6 @@ export type JwtToken = {
 	exp: number;
 };
 
-// TODO: Do not store JWT token in cookie or local storage??? Store as cookie with 'HTTP only' !
-// prevent CSRF XSS.
 @Injectable()
 export class AuthService {
 	constructor(
@@ -61,59 +59,33 @@ export class AuthService {
 		});
 	}
 
-	private async doesTokenInformationMatchDatabase(
-		tokenInfo: JwtToken
-	): Promise<boolean> {
+	async checkTokenMatchesDatabaseUser(tokenInfo: JwtToken): Promise<void> {
 		const user = await this.userService.fetchUserByID(tokenInfo.userID);
 		if (
 			!user ||
 			user.id !== tokenInfo.userID ||
 			user.username !== tokenInfo.username
 		) {
-			return false;
+			throw new UnauthorizedException(
+				`User ${tokenInfo.username} (id ${tokenInfo.userID}) does not exist in database!`
+			);
 		}
-		return true;
 	}
 
-	private isUserFullyAuthenticated(tokenInfo: JwtToken): boolean {
+	checkUserIsFullyAuthenticated(tokenInfo: JwtToken): void {
 		if (
 			tokenInfo.isTwoFactorAuthenticationEnabled &&
 			!tokenInfo.isTwoFactorAuthenticated
 		) {
-			return false;
+			throw new UnauthorizedException(
+				`User ${tokenInfo.username} (id ${tokenInfo.userID}) is not fully logged in!`
+			);
 		}
-		return true;
 	}
 
 	async getValidTokenInfoFromHeaders(headers: Headers): Promise<JwtToken> {
 		const token = headers["authorization"].split(" ")[1];
 		return await this.validateToken(token);
-	}
-
-	async validateTokenAuthentication(tokenInfo: JwtToken): Promise<void> {
-		this.logger.debug("[Validate Token Auth]: validating token info");
-		try {
-			if (this.isUserFullyAuthenticated(tokenInfo) === false) {
-				this.logger.error(
-					`[Validate Token Auth]: User ${tokenInfo.username} of ID ${tokenInfo.userID} is not fully authenticated!`
-				);
-				throw new InvalidTokenError(
-					`User ${tokenInfo.username} of ID ${tokenInfo.userID} is not fully authenticated!`
-				);
-			}
-			if ((await this.doesTokenInformationMatchDatabase(tokenInfo)) === false) {
-				this.logger.error(
-					`[Validate Token Auth]: User ${tokenInfo.username} of ID ${tokenInfo.userID} does not exist in database!`
-				);
-				throw new UserNotFoundError(
-					`User ${tokenInfo.username} of ID ${tokenInfo.userID} does not exist in database!`
-				);
-			}
-			return;
-		} catch (e) {
-			this.logger.error(`[Validate Token Authentication] error: ${e.message}`);
-			throw new InvalidTokenError(e.message);
-		}
 	}
 
 	// Dont know if this should be elsewhere
@@ -129,12 +101,7 @@ export class AuthService {
 				token,
 				jwtConstants.secret
 			) as JwtToken;
-
-			if ((await this.doesTokenInformationMatchDatabase(tokenInfo)) === false) {
-				throw new UserNotFoundError(
-					`User ${tokenInfo.username} of ID ${tokenInfo.userID} does not exist in database!`
-				);
-			}
+			await this.checkTokenMatchesDatabaseUser(tokenInfo);
 			return tokenInfo;
 		} catch (e) {
 			this.logger.error(`[Validate Token] error: ${e.message}`);

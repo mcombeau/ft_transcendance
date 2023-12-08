@@ -1,6 +1,6 @@
 import { ExtractJwt, Strategy } from "passport-jwt";
 import { PassportStrategy } from "@nestjs/passport";
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable, Logger, UnauthorizedException } from "@nestjs/common";
 import { UsersService } from "../../users/users.service";
 import { AuthService, JwtToken } from "../auth.service";
 import { jwtConstants } from "../constants";
@@ -26,15 +26,14 @@ export class JwtPartialStrategy extends PassportStrategy(
 
 	private readonly logger: Logger = new Logger("JwtPartialStrategy");
 
-	// TODO: use this but don't check if the token is fully authenticated:
 	async validate(tokenInfo: JwtToken): Promise<UserEntity> {
 		this.logger.debug("[Validate]: validating token");
 		try {
-			// await this.authService.validateTokenAuthentication(tokenInfo);
+			await this.authService.checkTokenMatchesDatabaseUser(tokenInfo);
 			return await this.userService.fetchUserByID(tokenInfo.userID);
 		} catch (e) {
-			console.log(e.message);
-			return null;
+			this.logger.error(e.message);
+			throw new UnauthorizedException();
 		}
 	}
 }
