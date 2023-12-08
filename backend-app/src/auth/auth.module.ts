@@ -11,6 +11,7 @@ import { ConfigModule } from "@nestjs/config";
 import { school42Strategy } from "./strategies/school42.strategy";
 import { JwtFullStrategy } from "./strategies/jwt-full.strategy";
 import { JwtPartialStrategy } from "./strategies/jwt-partial.strategy";
+import { JwtSelfStrategy } from "./strategies/jwt-self.strategy";
 
 @Module({
 	imports: [
@@ -29,6 +30,7 @@ import { JwtPartialStrategy } from "./strategies/jwt-partial.strategy";
 		LocalStrategy,
 		JwtFullStrategy,
 		JwtPartialStrategy,
+		JwtSelfStrategy,
 		school42Strategy,
 	],
 	exports: [AuthService],

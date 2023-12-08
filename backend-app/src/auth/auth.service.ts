@@ -72,6 +72,14 @@ export class AuthService {
 		}
 	}
 
+	checkTokenMatchesUserID(tokenInfo: JwtToken, userID: number): void {
+		if (tokenInfo.userID !== userID) {
+			throw new UnauthorizedException(
+				`User ${tokenInfo.username} (id ${tokenInfo.userID}) is not user id ${userID}!`
+			);
+		}
+	}
+
 	checkUserIsFullyAuthenticated(tokenInfo: JwtToken): void {
 		if (
 			tokenInfo.isTwoFactorAuthenticationEnabled &&
