@@ -15,15 +15,15 @@ import {
 	ApiTags,
 	ApiUnprocessableEntityResponse,
 } from "@nestjs/swagger";
-import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 import { DeleteResult } from "typeorm";
 import { FriendsService } from "src/friends/friends.service";
 import { sendFriendDto } from "src/friends/dtos/sendFriend.dto";
 import { createFriendDto } from "src/friends/dtos/createFriend.dto";
 import { updateFriendDto } from "src/friends/dtos/updateFriend.dto";
 import { FriendEntity } from "src/friends/entities/Friend.entity";
+import { JwtFullAuthGuard } from "src/auth/guards/jwt-full-auth.guard";
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtFullAuthGuard)
 @ApiTags("friends")
 @Controller("friends")
 export class FriendsController {

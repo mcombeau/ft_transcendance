@@ -18,10 +18,10 @@ import {
 import { InvitesService } from "./invites.service";
 import { sendInviteDto } from "./dtos/sendInvite.dto";
 import { createInviteDto } from "./dtos/createInvite.dto";
-import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 import { DeleteResult } from "typeorm";
+import { JwtFullAuthGuard } from "src/auth/guards/jwt-full-auth.guard";
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtFullAuthGuard)
 @Controller("invites")
 @ApiTags("invites")
 export class InvitesController {

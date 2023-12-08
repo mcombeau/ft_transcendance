@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable, Logger, UnauthorizedException } from "@nestjs/common";
 import { UsersService } from "../users/users.service";
 import { userStatus } from "../users/entities/user.entity";
 import { PasswordService } from "src/password/password.service";
@@ -20,8 +20,6 @@ export type JwtToken = {
 	exp: number;
 };
 
-// TODO: Do not store JWT token in cookie or local storage??? Store as cookie with 'HTTP only' !
-// prevent CSRF XSS.
 @Injectable()
 export class AuthService {
 	constructor(
@@ -61,18 +59,41 @@ export class AuthService {
 		});
 	}
 
-	private async doesTokenInformationMatchDatabase(
-		tokenInfo: JwtToken
-	): Promise<boolean> {
+	async checkTokenMatchesDatabaseUser(tokenInfo: JwtToken): Promise<void> {
 		const user = await this.userService.fetchUserByID(tokenInfo.userID);
 		if (
 			!user ||
 			user.id !== tokenInfo.userID ||
 			user.username !== tokenInfo.username
 		) {
-			return false;
+			throw new UnauthorizedException(
+				`User ${tokenInfo.username} (id ${tokenInfo.userID}) does not exist in database!`
+			);
 		}
-		return true;
+	}
+
+	checkTokenMatchesUserID(tokenInfo: JwtToken, userID: number): void {
+		if (tokenInfo.userID !== userID) {
+			throw new UnauthorizedException(
+				`User ${tokenInfo.username} (id ${tokenInfo.userID}) is not user id ${userID}!`
+			);
+		}
+	}
+
+	checkUserIsFullyAuthenticated(tokenInfo: JwtToken): void {
+		if (
+			tokenInfo.isTwoFactorAuthenticationEnabled &&
+			!tokenInfo.isTwoFactorAuthenticated
+		) {
+			throw new UnauthorizedException(
+				`User ${tokenInfo.username} (id ${tokenInfo.userID}) is not fully logged in!`
+			);
+		}
+	}
+
+	async getValidTokenInfoFromHeaders(headers: Headers): Promise<JwtToken> {
+		const token = headers["authorization"].split(" ")[1];
+		return await this.validateToken(token);
 	}
 
 	// Dont know if this should be elsewhere
@@ -88,16 +109,9 @@ export class AuthService {
 				token,
 				jwtConstants.secret
 			) as JwtToken;
-
-			if ((await this.doesTokenInformationMatchDatabase(tokenInfo)) === false) {
-				throw new UserNotFoundError(
-					`User ${tokenInfo.username} of ID ${tokenInfo.userID} does not exist in database!`
-				);
-			}
+			await this.checkTokenMatchesDatabaseUser(tokenInfo);
 			return tokenInfo;
 		} catch (e) {
-			// TODO: emit signal to front that the token is invalid / no user in db
-
 			this.logger.error(`[Validate Token] error: ${e.message}`);
 			throw new InvalidTokenError(e.message);
 		}
@@ -132,13 +146,10 @@ export class AuthService {
 		res.redirect(302, `/finalize-login`);
 	}
 
-	async generateTwoFactorAuthenticationSecret(userInfo: {
-		userID: number;
-		username: string;
-	}) {
+	async generateTwoFactorAuthenticationSecret(userID: number) {
 		const secret = authenticator.generateSecret();
 
-		const user = await this.userService.fetchUserByUsername(userInfo.username);
+		const user = await this.userService.fetchUserByID(userID);
 		const otpAuthUrl = authenticator.keyuri(
 			user.email,
 			"ft_transcendance",
@@ -154,28 +165,28 @@ export class AuthService {
 	}
 
 	async generateQrCodeDataURL(otpAuthUrl: string) {
-		return toDataURL(otpAuthUrl, { color: {
-			dark: '#265073',  // Blue dots
-			light: '#0000' // Transparent background
-		} });
+		return toDataURL(otpAuthUrl, {
+			color: {
+				dark: "#265073", // Blue dots
+				light: "#0000", // Transparent background
+			},
+		});
 	}
 
 	async isTwoFactorAuthenticationCodeValid(
 		twoFactorAuthenticationCode: string,
-		userInfo: { userID: number; username: string }
+		userID: number
 	) {
 		const twoFactorAuthenticationSecret: string =
-			await this.userService.getUser2faSecret(userInfo.userID);
+			await this.userService.getUser2faSecret(userID);
 		return authenticator.verify({
 			token: twoFactorAuthenticationCode,
 			secret: twoFactorAuthenticationSecret,
 		});
 	}
 
-	async loginWith2fa(userWithoutPsw: Partial<UserEntity>) {
-		const user = await this.userService.fetchUserByUsername(
-			userWithoutPsw.username
-		);
+	async loginWith2fa(tokenInfo: JwtToken) {
+		const user = await this.userService.fetchUserByID(tokenInfo.userID);
 		const payload = {
 			userID: user.id,
 			username: user.username,

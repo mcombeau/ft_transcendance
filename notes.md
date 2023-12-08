@@ -1,8 +1,8 @@
 - LEADERBOARD !
 
-- Bugs
+- Game
 
-  - update or delete on table \"users\" violates foreign key constraint \"FK_fb6add83b1a7acc94433d385692\" on table \"chat_participants\"
+  - deal with broadband/network issues
 
 - Appearance
 
@@ -10,8 +10,8 @@
 
 - Backend
 
-  - enforce authorizations on contollers - check if user actually has the right to do what they're doing
-  - check that 2fa is completed before accepting token
+  - when new user logs in with 42, check if their 42login is in use as a username before setting their username === 42login
+  - update or delete on table \"users\" violates foreign key constraint \"FK_fb6add83b1a7acc94433d385692\" on table \"chat_participants\"
 
 - Project validation
 
@@ -23,7 +23,7 @@
   - rename finalize login page to login
   - force HTTPS and force redirect HTTP port 80 to HTTPS port 443
   - choose domain (localhost or ft_transcendance or whatever) and then fix callback URL for 42 auth
-  - deal with broadband/network issues
+  - remove unused controller paths (i.e. chats controller since all is done through sockets)
 
 - Nice to have
   - ping front for token refresh (can continue to use chat if you mess up token because token is only rechecked on page reload/navigate)

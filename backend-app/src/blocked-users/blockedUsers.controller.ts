@@ -15,15 +15,15 @@ import {
 	ApiTags,
 	ApiUnprocessableEntityResponse,
 } from "@nestjs/swagger";
-import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 import { DeleteResult } from "typeorm";
 import { BlockedUsersService } from "src/blocked-users/blockedUsers.service";
 import { sendBlockedUserDto } from "src/blocked-users/dtos/sendBlockedUser.dto";
 import { createBlockedUserDto } from "src/blocked-users/dtos/createBlockedUser.dto";
 import { updateBlockedUserDto } from "src/blocked-users/dtos/updateBlockedUser.dto";
 import { BlockedUserEntity } from "src/blocked-users/entities/BlockedUser.entity";
+import { JwtFullAuthGuard } from "src/auth/guards/jwt-full-auth.guard";
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtFullAuthGuard)
 @ApiTags("blocked users")
 @Controller("blocked-users")
 export class BlockedUsersController {
