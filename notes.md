@@ -1,9 +1,5 @@
 - LEADERBOARD !
 
-- Game
-
-  - deal with broadband/network issues
-
 - Bugs
 
   - update or delete on table \"users\" violates foreign key constraint \"FK_fb6add83b1a7acc94433d385692\" on table \"chat_participants\"
@@ -27,6 +23,7 @@
   - rename finalize login page to login
   - force HTTPS and force redirect HTTP port 80 to HTTPS port 443
   - choose domain (localhost or ft_transcendance or whatever) and then fix callback URL for 42 auth
+  - deal with broadband/network issues
 
 - Nice to have
   - ping front for token refresh (can continue to use chat if you mess up token because token is only rechecked on page reload/navigate)
