@@ -1,4 +1,4 @@
-import { Inject, forwardRef, Logger, Header } from "@nestjs/common";
+import { Inject, forwardRef, Logger } from "@nestjs/common";
 import {
 	Controller,
 	Body,
@@ -7,14 +7,14 @@ import {
 	Headers,
 	Post,
 	Request,
-	Req,
 	Response,
 	Res,
 	UseGuards,
 	UnauthorizedException,
 } from "@nestjs/common";
 import { AuthService, JwtToken } from "./auth.service";
-import { JwtAuthGuard } from "./guards/jwt-auth.guard";
+import { JwtFullAuthGuard } from "./guards/jwt-full-auth.guard";
+import { JwtPartialAuthGuard } from "./guards/jwt-partial-auth.guard";
 import { LocalAuthGuard } from "./guards/local-auth.guard";
 import { school42AuthGuard } from "./guards/school42-auth.guard";
 import { ApiTags } from "@nestjs/swagger";
@@ -38,7 +38,7 @@ export class AuthController {
 		return this.authService.login(req.user);
 	}
 
-	@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtFullAuthGuard)
 	@Post("auth/logout")
 	async logout(@Request() req: any): Promise<any> {
 		if (req.user === undefined) {
@@ -64,7 +64,7 @@ export class AuthController {
 	}
 
 	@Post("auth/2fa/generate")
-	@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtFullAuthGuard)
 	async register(@Response() response, @Headers() headers: Headers) {
 		const tokenInfo: JwtToken =
 			await this.authService.getValidTokenInfoFromHeaders(headers);
@@ -78,7 +78,7 @@ export class AuthController {
 	}
 
 	@Post("auth/2fa/turn-on")
-	@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtFullAuthGuard)
 	async turnOnTwoFactorAuthentication(
 		@Body() body: any,
 		@Headers() headers: Headers
@@ -97,7 +97,7 @@ export class AuthController {
 	}
 
 	@Post("auth/2fa/turn-off")
-	@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtFullAuthGuard)
 	async turnOffTwoFactorAuthentication(@Headers() headers: Headers) {
 		const tokenInfo: JwtToken =
 			await this.authService.getValidTokenInfoFromHeaders(headers);
@@ -107,6 +107,7 @@ export class AuthController {
 	@Post("auth/2fa/authenticate")
 	@HttpCode(200)
 	// TODO: There should be a not fully authorized guard here !
+	@UseGuards(JwtPartialAuthGuard)
 	async authenticate(@Body() body: any, @Headers() headers: Headers) {
 		const tokenInfo: JwtToken =
 			await this.authService.getValidTokenInfoFromHeaders(headers);

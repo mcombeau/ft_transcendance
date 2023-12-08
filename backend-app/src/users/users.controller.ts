@@ -22,7 +22,6 @@ import {
 	ApiTags,
 	ApiUnprocessableEntityResponse,
 } from "@nestjs/swagger";
-import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 import { UserNotFoundException } from "src/exceptions/not-found.exception";
 import { createUsersDto } from "src/users/dtos/createUsers.dto";
 import { updateUsersDto } from "src/users/dtos/updateUsers.dto";
@@ -35,13 +34,14 @@ import { sendFriendDto } from "src/friends/dtos/sendFriend.dto";
 import { UpdateResult, DeleteResult } from "typeorm";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { Response, Express } from "express";
+import { JwtFullAuthGuard } from "src/auth/guards/jwt-full-auth.guard";
 
 @ApiTags("users")
 @Controller("users")
 export class UsersController {
 	constructor(private userService: UsersService) {}
 
-	@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtFullAuthGuard)
 	@Get(":id")
 	@ApiOkResponse({
 		type: UserEntity,
@@ -55,7 +55,7 @@ export class UsersController {
 		return user;
 	}
 
-	@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtFullAuthGuard)
 	@Get(":id/chats")
 	@ApiOkResponse({
 		type: ChatEntity,
@@ -68,7 +68,7 @@ export class UsersController {
 		return this.userService.fetchUserChatsByUserID(id);
 	}
 
-	@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtFullAuthGuard)
 	@Get(":id/DMs")
 	@ApiOkResponse({
 		type: ChatEntity,
@@ -81,7 +81,7 @@ export class UsersController {
 		return this.userService.fetchUserChatDMsByUserID(id);
 	}
 
-	@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtFullAuthGuard)
 	@Get(":id/games")
 	@ApiOkResponse({
 		type: sendGameDto,
@@ -94,7 +94,7 @@ export class UsersController {
 		return this.userService.fetchUserGamesByUserID(id);
 	}
 
-	@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtFullAuthGuard)
 	@Get(":id/friends")
 	@ApiOkResponse({
 		type: sendFriendDto,
@@ -107,7 +107,7 @@ export class UsersController {
 		return this.userService.fetchUserFriendsByUserID(id);
 	}
 
-	@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtFullAuthGuard)
 	@Get(":id/blockedUsers")
 	@ApiOkResponse({
 		type: sendBlockedUserDto,
@@ -120,7 +120,7 @@ export class UsersController {
 		return this.userService.fetchUserBlockedUsersByUserID(id);
 	}
 
-	@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtFullAuthGuard)
 	@Get(":id/avatar")
 	@ApiOkResponse({
 		description: "Get avatar by user ID.",
@@ -145,7 +145,7 @@ export class UsersController {
 	}
 
 	// TODO: Make sure you can't change someone else's avatar
-	@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtFullAuthGuard)
 	@Post(":id/avatar")
 	@UseInterceptors(FileInterceptor("file"))
 	async uploadUserAvatarByUserID(
@@ -173,7 +173,7 @@ export class UsersController {
 		return this.userService.createUser(userDto);
 	}
 
-	@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtFullAuthGuard)
 	@Patch(":id")
 	@ApiCreatedResponse({ description: "Record updated." })
 	@ApiBadRequestResponse({ description: "Bad request" })
@@ -187,7 +187,7 @@ export class UsersController {
 		return this.userService.updateUserByID(id, updateUserDto);
 	}
 
-	@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtFullAuthGuard)
 	@Delete(":id/avatar")
 	async deleteUserAvatarByUserID(@Param("id", ParseIntPipe) id: number) {
 		return this.userService.removeUserAvatarByUserID(id);

@@ -1,13 +1,19 @@
 import { ExtractJwt, Strategy } from "passport-jwt";
 import { PassportStrategy } from "@nestjs/passport";
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { jwtConstants } from "../constants";
 import { UsersService } from "src/users/users.service";
 import { AuthService } from "../auth.service";
 import { UserEntity } from "src/users/entities/user.entity";
 
+// Checks if the JWT token in the request header is valid and corresponds to a database user
+// And also checks if user is fully authenticated with 2FA.
+
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class JwtFullStrategy extends PassportStrategy(
+	Strategy,
+	"jwt-full-auth"
+) {
 	constructor(
 		private authService: AuthService,
 		private userService: UsersService
@@ -19,8 +25,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 		});
 	}
 
+	private readonly logger: Logger = new Logger("JwtFullStrategy");
+
 	async validate(tokenInfo: any): Promise<UserEntity> {
-		console.log("[JwtStrategy][Validate]");
+		this.logger.debug("[Validate]: validating token");
 		try {
 			await this.authService.validateTokenAuthentication(tokenInfo);
 			return await this.userService.fetchUserByID(tokenInfo.userID);
