@@ -4,13 +4,14 @@
 
   - deal with broadband/network issues
 
-- Bugs
-
-  - update or delete on table \"users\" violates foreign key constraint \"FK_fb6add83b1a7acc94433d385692\" on table \"chat_participants\"
-
 - Appearance
 
   - CSS fix buttons
+
+- Backend
+
+  - when new user logs in with 42, check if their 42login is in use as a username before setting their username === 42login
+  - update or delete on table \"users\" violates foreign key constraint \"FK_fb6add83b1a7acc94433d385692\" on table \"chat_participants\"
 
 - Project validation
 
