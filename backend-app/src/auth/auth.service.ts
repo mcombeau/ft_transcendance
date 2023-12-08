@@ -75,6 +75,47 @@ export class AuthService {
 		return true;
 	}
 
+	private isUserFullyAuthenticated(tokenInfo: JwtToken): boolean {
+		if (
+			tokenInfo.isTwoFactorAuthenticationEnabled &&
+			!tokenInfo.isTwoFactorAuthenticated
+		) {
+			return false;
+		}
+		return true;
+	}
+
+	async getValidTokenInfoFromHeaders(headers: Headers): Promise<JwtToken> {
+		const token = headers["authorization"].split(" ")[1];
+		return await this.validateToken(token);
+	}
+
+	async validateTokenAuthentication(tokenInfo: JwtToken): Promise<void> {
+		this.logger.debug("[Validate Token Auth]: validating token info");
+		try {
+			if (this.isUserFullyAuthenticated(tokenInfo) === false) {
+				this.logger.error(
+					`[Validate Token Auth]: User ${tokenInfo.username} of ID ${tokenInfo.userID} is not fully authenticated!`
+				);
+				throw new InvalidTokenError(
+					`User ${tokenInfo.username} of ID ${tokenInfo.userID} is not fully authenticated!`
+				);
+			}
+			if ((await this.doesTokenInformationMatchDatabase(tokenInfo)) === false) {
+				this.logger.error(
+					`[Validate Token Auth]: User ${tokenInfo.username} of ID ${tokenInfo.userID} does not exist in database!`
+				);
+				throw new UserNotFoundError(
+					`User ${tokenInfo.username} of ID ${tokenInfo.userID} does not exist in database!`
+				);
+			}
+			return;
+		} catch (e) {
+			this.logger.error(`[Validate Token Authentication] error: ${e.message}`);
+			throw new InvalidTokenError(e.message);
+		}
+	}
+
 	// Dont know if this should be elsewhere
 	async validateToken(token: string): Promise<JwtToken> {
 		try {
@@ -96,8 +137,6 @@ export class AuthService {
 			}
 			return tokenInfo;
 		} catch (e) {
-			// TODO: emit signal to front that the token is invalid / no user in db
-
 			this.logger.error(`[Validate Token] error: ${e.message}`);
 			throw new InvalidTokenError(e.message);
 		}
@@ -132,13 +171,10 @@ export class AuthService {
 		res.redirect(302, `/finalize-login`);
 	}
 
-	async generateTwoFactorAuthenticationSecret(userInfo: {
-		userID: number;
-		username: string;
-	}) {
+	async generateTwoFactorAuthenticationSecret(userID: number) {
 		const secret = authenticator.generateSecret();
 
-		const user = await this.userService.fetchUserByUsername(userInfo.username);
+		const user = await this.userService.fetchUserByID(userID);
 		const otpAuthUrl = authenticator.keyuri(
 			user.email,
 			"ft_transcendance",
@@ -154,28 +190,28 @@ export class AuthService {
 	}
 
 	async generateQrCodeDataURL(otpAuthUrl: string) {
-		return toDataURL(otpAuthUrl, { color: {
-			dark: '#265073',  // Blue dots
-			light: '#0000' // Transparent background
-		} });
+		return toDataURL(otpAuthUrl, {
+			color: {
+				dark: "#265073", // Blue dots
+				light: "#0000", // Transparent background
+			},
+		});
 	}
 
 	async isTwoFactorAuthenticationCodeValid(
 		twoFactorAuthenticationCode: string,
-		userInfo: { userID: number; username: string }
+		userID: number
 	) {
 		const twoFactorAuthenticationSecret: string =
-			await this.userService.getUser2faSecret(userInfo.userID);
+			await this.userService.getUser2faSecret(userID);
 		return authenticator.verify({
 			token: twoFactorAuthenticationCode,
 			secret: twoFactorAuthenticationSecret,
 		});
 	}
 
-	async loginWith2fa(userWithoutPsw: Partial<UserEntity>) {
-		const user = await this.userService.fetchUserByUsername(
-			userWithoutPsw.username
-		);
+	async loginWith2fa(tokenInfo: JwtToken) {
+		const user = await this.userService.fetchUserByID(tokenInfo.userID);
 		const payload = {
 			userID: user.id,
 			username: user.username,

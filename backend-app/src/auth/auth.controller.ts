@@ -1,9 +1,10 @@
-import { Inject, forwardRef, Logger } from "@nestjs/common";
+import { Inject, forwardRef, Logger, Header } from "@nestjs/common";
 import {
 	Controller,
 	Body,
 	Get,
 	HttpCode,
+	Headers,
 	Post,
 	Request,
 	Req,
@@ -12,7 +13,7 @@ import {
 	UseGuards,
 	UnauthorizedException,
 } from "@nestjs/common";
-import { AuthService } from "./auth.service";
+import { AuthService, JwtToken } from "./auth.service";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
 import { LocalAuthGuard } from "./guards/local-auth.guard";
 import { school42AuthGuard } from "./guards/school42-auth.guard";
@@ -64,12 +65,13 @@ export class AuthController {
 
 	@Post("auth/2fa/generate")
 	@UseGuards(JwtAuthGuard)
-	async register(@Response() response, @Request() request) {
+	async register(@Response() response, @Headers() headers: Headers) {
+		const tokenInfo: JwtToken =
+			await this.authService.getValidTokenInfoFromHeaders(headers);
 		const { otpAuthUrl } =
 			await this.authService.generateTwoFactorAuthenticationSecret(
-				request.user
+				tokenInfo.userID
 			);
-
 		return response.json(
 			await this.authService.generateQrCodeDataURL(otpAuthUrl)
 		);
@@ -77,44 +79,47 @@ export class AuthController {
 
 	@Post("auth/2fa/turn-on")
 	@UseGuards(JwtAuthGuard)
-	async turnOnTwoFactorAuthentication(@Req() request, @Body() body) {
+	async turnOnTwoFactorAuthentication(
+		@Body() body: any,
+		@Headers() headers: Headers
+	) {
+		const tokenInfo: JwtToken =
+			await this.authService.getValidTokenInfoFromHeaders(headers);
 		const isCodeValid =
 			await this.authService.isTwoFactorAuthenticationCodeValid(
 				body.twoFactorAuthenticationCode,
-				request.user
+				tokenInfo.userID
 			);
 		if (!isCodeValid) {
 			throw new UnauthorizedException("Wrong authentication code");
 		}
-		await this.userService.setTwoFactorAuthentication(
-			request.user.userID,
-			true
-		);
+		await this.userService.setTwoFactorAuthentication(tokenInfo.userID, true);
 	}
 
 	@Post("auth/2fa/turn-off")
 	@UseGuards(JwtAuthGuard)
-	async turnOffTwoFactorAuthentication(@Req() request) {
-		await this.userService.setTwoFactorAuthentication(
-			request.user.userID,
-			false
-		);
+	async turnOffTwoFactorAuthentication(@Headers() headers: Headers) {
+		const tokenInfo: JwtToken =
+			await this.authService.getValidTokenInfoFromHeaders(headers);
+		await this.userService.setTwoFactorAuthentication(tokenInfo.userID, false);
 	}
 
 	@Post("auth/2fa/authenticate")
 	@HttpCode(200)
-	@UseGuards(JwtAuthGuard)
-	async authenticate(@Request() request, @Body() body) {
+	// TODO: There should be a not fully authorized guard here !
+	async authenticate(@Body() body: any, @Headers() headers: Headers) {
+		const tokenInfo: JwtToken =
+			await this.authService.getValidTokenInfoFromHeaders(headers);
 		const isCodeValid =
 			await this.authService.isTwoFactorAuthenticationCodeValid(
 				body.twoFactorAuthenticationCode,
-				request.user
+				tokenInfo.userID
 			);
 
 		if (!isCodeValid) {
 			throw new UnauthorizedException("Wrong authentication code");
 		}
 
-		return this.authService.loginWith2fa(request.user);
+		return this.authService.loginWith2fa(tokenInfo);
 	}
 }
