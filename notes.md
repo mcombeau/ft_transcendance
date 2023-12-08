@@ -12,11 +12,6 @@
 
   - CSS fix buttons
 
-- Backend
-
-  - enforce authorizations on contollers - check if user actually has the right to do what they're doing
-  - check that 2fa is completed before accepting token
-
 - Project validation
 
   - reset game score to 10
@@ -27,6 +22,7 @@
   - rename finalize login page to login
   - force HTTPS and force redirect HTTP port 80 to HTTPS port 443
   - choose domain (localhost or ft_transcendance or whatever) and then fix callback URL for 42 auth
+  - remove unused controller paths (i.e. chats controller since all is done through sockets)
 
 - Nice to have
   - ping front for token refresh (can continue to use chat if you mess up token because token is only rechecked on page reload/navigate)
