@@ -9,7 +9,7 @@ import { BannerType, createBanner } from "../banner/Banner";
 function FinalizeLogin({ setBanners }) {
 	const [twoFaCode, setTwoFaCode] = useState<string>("");
 	const [twoFaEnabled, setTwoFaEnabled] = useState<boolean>(true);
-	const [cookies, setCookie, removeCookie] = useCookies(["token"]);
+	const [cookies, setCookie] = useCookies(["token"]);
 	const { authenticatedUserID, setAuthenticatedUserID } = useContext(
 		AuthenticationContext
 	);
@@ -34,7 +34,6 @@ function FinalizeLogin({ setBanners }) {
 		).then(async (response) => {
 			const data = await response.json();
 			if (!response.ok) {
-				console.log("Error authenticating with 2fa");
 				createBanner(
 					"Error authenticating with 2fa ",
 					setBanners,
@@ -59,15 +58,12 @@ function FinalizeLogin({ setBanners }) {
 
 	useEffect(() => {
 		// Check if user needs 2fa from cookie
-		if (cookies["token"] && !authenticatedUserID)
-		{
+		if (cookies["token"] && !authenticatedUserID) {
 			const is2faEnabled: boolean =
 				getAuthInfo(cookies)["isTwoFactorAuthenticationEnabled"];
 			setTwoFaEnabled(is2faEnabled);
-		}
-		else
-		{
-			navigate(`/not-found`);
+		} else {
+			navigate(`/user/${authenticatedUserID}#settings`);
 		}
 	}, []);
 
@@ -92,6 +88,7 @@ function FinalizeLogin({ setBanners }) {
 	}
 
 	function SuccessFullLogin() {
+		// Not actually triggered because app.tsx is faster and sets authenticated user id before we get here
 		try {
 			const loggedUserID = getUserID(cookies);
 			setAuthenticatedUserID(loggedUserID);
@@ -106,7 +103,7 @@ function FinalizeLogin({ setBanners }) {
 	}
 
 	if (authenticatedUserID || !cookies["token"]) {
-			return <></>
+		return <></>;
 	}
 	return <div>{twoFaEnabled ? TwoFactorAuth() : SuccessFullLogin()}</div>;
 }
