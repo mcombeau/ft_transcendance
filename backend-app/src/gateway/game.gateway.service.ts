@@ -235,6 +235,7 @@ export class GameGatewayService {
 			`[Get Room or Wait]: Did not find opponent for ${player.username} with invite ${player.inviteID}`
 		);
 		if (!isAcceptingInvite) {
+			this.leaveWaitlist(player.userID);
 			this.waitList.push(player);
 		}
 		return null;

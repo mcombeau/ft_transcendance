@@ -3,7 +3,6 @@
 - Game
 
   - deal with broadband/network issues
-  - check that when reloading lobby properly ejected from waitlist
 
 - Bugs
 
