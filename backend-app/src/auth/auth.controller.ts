@@ -1,4 +1,4 @@
-import { Inject, forwardRef, Logger } from "@nestjs/common";
+import { Inject, forwardRef } from "@nestjs/common";
 import {
 	Controller,
 	Body,
@@ -29,8 +29,6 @@ export class AuthController {
 		@Inject(forwardRef(() => UsersService))
 		private userService: UsersService
 	) {}
-
-	private readonly logger: Logger = new Logger("Auth Controller");
 
 	@UseGuards(LocalAuthGuard)
 	@Post("auth/login")
@@ -64,8 +62,10 @@ export class AuthController {
 	}
 
 	@Post("auth/2fa/generate")
+	// TODO: Maybe add param for userID to path to be able to use
+	// JwtSelfAuthGuard to prevent other users from changing your 2fa secret
 	@UseGuards(JwtFullAuthGuard)
-	async register(@Response() response, @Headers() headers: Headers) {
+	async register(@Response() response: any, @Headers() headers: Headers) {
 		const tokenInfo: JwtToken =
 			await this.authService.getValidTokenInfoFromHeaders(headers);
 		const { otpAuthUrl } =
@@ -78,6 +78,8 @@ export class AuthController {
 	}
 
 	@Post("auth/2fa/turn-on")
+	// TODO: Maybe add param for userID to path to be able to use
+	// JwtSelfAuthGuard to prevent other users from turning on your 2fa
 	@UseGuards(JwtFullAuthGuard)
 	async turnOnTwoFactorAuthentication(
 		@Body() body: any,
@@ -97,6 +99,8 @@ export class AuthController {
 	}
 
 	@Post("auth/2fa/turn-off")
+	// TODO: Maybe add param for userID to path to be able to use
+	// JwtSelfAuthGuard to prevent other users from turning off your 2fa
 	@UseGuards(JwtFullAuthGuard)
 	async turnOffTwoFactorAuthentication(@Headers() headers: Headers) {
 		const tokenInfo: JwtToken =
@@ -106,7 +110,6 @@ export class AuthController {
 
 	@Post("auth/2fa/authenticate")
 	@HttpCode(200)
-	// TODO: There should be a not fully authorized guard here !
 	@UseGuards(JwtPartialAuthGuard)
 	async authenticate(@Body() body: any, @Headers() headers: Headers) {
 		const tokenInfo: JwtToken =
