@@ -8,10 +8,10 @@ Ft_transcendance is a 42 school team project where we must build a website where
 
 This project is made with:
 
-- docker & docker-compose
-- React
-- NestJS
-- Postgresql
+- [docker & docker-compose](https://www.docker.com/)
+- [React](https://react.dev/)
+- [NestJS](https://nestjs.com/)
+- [Postgresql](https://www.postgresql.org/)
 
 ## Usage
 
@@ -50,6 +50,7 @@ Ft_transcendance is a single-page application which includes a real-time multipl
 ### User Account/Profile Features
 
 On this website, users are able to:
+
 - create an account via the 42 OAuth API, by logging in with their 42 student account,
 - enable or disable 2 factor authentication (with, for example, Google Authenticator),
 - customize their profile with a unique username and avatar,
@@ -60,6 +61,7 @@ On this website, users are able to:
 ### Pong Game Features
 
 The game of Pong features:
+
 - a responsive, 1v1, 2D multiplayer game of pong,
 - a matchmaking system,
 - the ability to invite other players to a game,
@@ -70,6 +72,7 @@ The game of Pong features:
 ### Chat Features
 
 The live chat features:
+
 - creation of private and public chats, as well as direct messages between two users,
 - the ability to block individual users so as not to see messages from blocked accounts,
 - the ability for chat room creators to manage their chat rooms:
@@ -83,4 +86,5 @@ The live chat features:
 - a context menu enabling users to challenge others to a game of pong, invite them to a chat room, add them as friends, etc.
 
 ---
+
 Made by mkaploun, mcombeau and iazimzha
