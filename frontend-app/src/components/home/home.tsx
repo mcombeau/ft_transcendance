@@ -1,4 +1,9 @@
+import { useContext } from "react";
+import { AuthenticationContext } from "../authenticationState";
+
 function Home() {
+	const { authenticatedUserID } = useContext(AuthenticationContext);
+
 	return (
 		<>
 			<div className="background-element flex flex-col">
@@ -48,13 +53,17 @@ function Home() {
 					<li>customizing the appearance of the game,</li>
 					<li>reconnect to the current game in case of network issues</li>
 				</ul>
-				<div className="flex w-full justify-center">
-					<form action="/backend/auth/42login">
-						<button className="bg-darkblue text-sage rounded-md m-2 p-2 px-4 whitespace-nowrap">
-							Login with 42 to play!
-						</button>
-					</form>
-				</div>
+				{!authenticatedUserID ? (
+					<div className="flex w-full justify-center">
+						<form action="/backend/auth/42login">
+							<button className="bg-darkblue text-sage rounded-md m-2 p-2 px-4 whitespace-nowrap">
+								Login with 42 to play!
+							</button>
+						</form>
+					</div>
+				) : (
+					<></>
+				)}
 			</div>
 			<div className="background-element">
 				<h2 className="title-element">Live Chat</h2>
