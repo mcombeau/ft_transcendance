@@ -62,8 +62,6 @@ export class AuthController {
 	}
 
 	@Post("auth/2fa/generate")
-	// TODO: Maybe add param for userID to path to be able to use
-	// JwtSelfAuthGuard to prevent other users from changing your 2fa secret
 	@UseGuards(JwtFullAuthGuard)
 	async register(@Response() response: any, @Headers() headers: Headers) {
 		const tokenInfo: JwtToken =
@@ -78,8 +76,6 @@ export class AuthController {
 	}
 
 	@Post("auth/2fa/turn-on")
-	// TODO: Maybe add param for userID to path to be able to use
-	// JwtSelfAuthGuard to prevent other users from turning on your 2fa
 	@UseGuards(JwtFullAuthGuard)
 	async turnOnTwoFactorAuthentication(
 		@Body() body: any,
@@ -99,8 +95,6 @@ export class AuthController {
 	}
 
 	@Post("auth/2fa/turn-off")
-	// TODO: Maybe add param for userID to path to be able to use
-	// JwtSelfAuthGuard to prevent other users from turning off your 2fa
 	@UseGuards(JwtFullAuthGuard)
 	async turnOffTwoFactorAuthentication(@Headers() headers: Headers) {
 		const tokenInfo: JwtToken =
