@@ -55,11 +55,11 @@ function displayLineLeaderboard(
 	index: number
 ) {
 	return (
-		<tr className="bg-sage m-2 p-2 rounded-md">
-			<td className="bg-darkblue text-sage font-bold rounded-md p-2">
+		<tr className="border-b-2 border-lightblue hover:bg-teal hover:text-sage">
+			<td className="p-2 text-center font-bold border-r-2 border-lightblue border-dashed">
 				{index + 1}
 			</td>
-			<td>
+			<td className="flex p-2 justify-center border-r-2 border-lightblue border-dashed">
 				{authenticatedUserID ? (
 					<a className="font-bold m-2" href={"/user/" + leaderboardLine.userID}>
 						{leaderboardLine.username}
@@ -68,9 +68,13 @@ function displayLineLeaderboard(
 					<p className="font-bold m-2">{leaderboardLine.username}</p>
 				)}
 			</td>
-			<td>{leaderboardLine.nbWins}</td>
-			<td>{leaderboardLine.nbLosses}</td>
-			<td>{leaderboardLine.winDiff}</td>
+			<td className="p-2 text-center border-r-2 border-lightblue border-dashed">
+				{leaderboardLine.nbWins}
+			</td>
+			<td className="p-2 text-center border-r-2 border-lightblue border-dashed">
+				{leaderboardLine.nbLosses}
+			</td>
+			<td className="p-2 text-center">{leaderboardLine.winDiff}</td>
 		</tr>
 	);
 }
@@ -81,22 +85,20 @@ function displayLeaderboard(
 ) {
 	if (!leaderboard) return <></>;
 	return (
-		<table className="table-auto w-full">
-			<thead>
-				<tr>
-					<th>Rank</th>
-					<th>User</th>
-					<th>Wins</th>
-					<th>Losses</th>
-					<th>Diff</th>
+		<div className="rounded-md overflow-hidden">
+			<table className="table-auto w-full bg-sage">
+				<tr className="font-bold text-sage bg-darkblue">
+					<td className="p-2 text-center">Rank</td>
+					<td className="p-2 text-center">User</td>
+					<td className="p-2 text-center">Wins</td>
+					<td className="p-2 text-center">Losses</td>
+					<td className="p-2 text-center">Diff</td>
 				</tr>
-			</thead>
-			<tbody>
 				{leaderboard.map((leaderboardLine: LeaderboardLine, index: number) =>
 					displayLineLeaderboard(authenticatedUserID, leaderboardLine, index)
 				)}
-			</tbody>
-		</table>
+			</table>
+		</div>
 	);
 }
 
