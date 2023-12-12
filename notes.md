@@ -1,5 +1,3 @@
-- LEADERBOARD !
-
 - Game
 
   - deal with broadband/network issues
