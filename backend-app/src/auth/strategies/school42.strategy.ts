@@ -26,6 +26,23 @@ export class school42Strategy extends PassportStrategy(Strategy, "42") {
 			scope: ["public", "profile"],
 		});
 	}
+
+	private async generate_username(login42: string) {
+		let username: string = login42;
+		let userWithUsername = await this.userService.fetchUserByUsername(username);
+		if (userWithUsername.login42 === login42) {
+			return username;
+		} else {
+			let i = 0;
+			while (userWithUsername) {
+				username = login42 + "_" + i.toString();
+				i++;
+				userWithUsername = await this.userService.fetchUserByUsername(username);
+			}
+		}
+		return username;
+	}
+
 	async validate(
 		accessToken: string,
 		refreshToken: string,
@@ -42,28 +59,24 @@ export class school42Strategy extends PassportStrategy(Strategy, "42") {
 		}
 
 		const userInfo = {
-			username: userResponse.data.login,
+			username: await this.generate_username(userResponse.data.login),
 			login42: userResponse.data.login,
 			email: userResponse.data.email,
 			password: null,
 			// profilePicture = userInfo.image?.link
 		};
 
-		const userWithLogin = await this.userService.fetchUserBy42Login(
-			userInfo.username
+		const userWith42Login = await this.userService.fetchUserBy42Login(
+			userInfo.login42
 		);
-		const userWithUsername = await this.userService.fetchUserByUsername(
-			userInfo.username
-		);
+
 		let user: UserEntity;
-		if (!userWithLogin && !userWithUsername) {
+		if (!userWith42Login) {
 			user = await this.userService.createUser({
 				...userInfo,
 			});
-		} else if (userWithUsername) {
-			user = userWithUsername;
-		} else if (!userWithUsername && userWithLogin) {
-			user = userWithLogin;
+		} else {
+			user = userWith42Login;
 		}
 		done(null, user);
 	}
