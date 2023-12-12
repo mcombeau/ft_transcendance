@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
 import { GameDetails } from "../play/play";
 import { getLadderLevel, LadderLevels } from "../profile/ladder";
+import { AuthenticationContext } from "../authenticationState";
 
 type LeaderboardLine = {
 	userID: number;
@@ -48,24 +49,62 @@ function gamesToLeaderboard(games: GameDetails[]) {
 		.sort((a, b) => b.winDiff - a.winDiff);
 }
 
-function displayLineLeaderboard(leaderboardLine: LeaderboardLine) {
+function displayLineLeaderboard(
+	authenticatedUserID: number,
+	leaderboardLine: LeaderboardLine,
+	index: number
+) {
 	return (
-		<div>
-			{leaderboardLine.username} won {leaderboardLine.nbWins} games lost{" "}
-			{leaderboardLine.nbLosses} - diff: {leaderboardLine.winDiff}
-		</div>
+		<tr className="bg-sage m-2 p-2 rounded-md">
+			<td className="bg-darkblue text-sage font-bold rounded-md p-2">
+				{index + 1}
+			</td>
+			<td>
+				{authenticatedUserID ? (
+					<a className="font-bold m-2" href={"/user/" + leaderboardLine.userID}>
+						{leaderboardLine.username}
+					</a>
+				) : (
+					<p className="font-bold m-2">{leaderboardLine.username}</p>
+				)}
+			</td>
+			<td>{leaderboardLine.nbWins}</td>
+			<td>{leaderboardLine.nbLosses}</td>
+			<td>{leaderboardLine.winDiff}</td>
+		</tr>
 	);
 }
 
-function displayLeaderboard(leaderboard: LeaderboardLine[]) {
+function displayLeaderboard(
+	authenticatedUserID: number,
+	leaderboard: LeaderboardLine[]
+) {
 	if (!leaderboard) return <></>;
-	return leaderboard.map(displayLineLeaderboard);
+	return (
+		<table className="table-auto w-full">
+			<thead>
+				<tr>
+					<th>Rank</th>
+					<th>User</th>
+					<th>Wins</th>
+					<th>Losses</th>
+					<th>Diff</th>
+				</tr>
+			</thead>
+			<tbody>
+				{leaderboard.map((leaderboardLine: LeaderboardLine, index: number) =>
+					displayLineLeaderboard(authenticatedUserID, leaderboardLine, index)
+				)}
+			</tbody>
+		</table>
+	);
 }
 
 function Leaderboard() {
 	const [cookies] = useCookies(["token"]);
 	const [games, setGames] = useState<GameDetails[]>([]);
 	const [leaderboard, setLeaderboard] = useState<LeaderboardLine[]>(null);
+	const { authenticatedUserID } = useContext(AuthenticationContext);
 
 	async function fetchLeaderboard() {
 		var request = {
@@ -95,9 +134,9 @@ function Leaderboard() {
 	}, []);
 
 	return (
-		<div>
-			<h1>Leaderboard</h1>
-			{displayLeaderboard(leaderboard)}
+		<div className="background-element">
+			<h1 className="title-element">Leaderboard</h1>
+			{displayLeaderboard(authenticatedUserID, leaderboard)}
 		</div>
 	);
 }
