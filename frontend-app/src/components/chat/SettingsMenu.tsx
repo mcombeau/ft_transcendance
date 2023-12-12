@@ -45,6 +45,14 @@ export const SettingsMenu = (
 		setNewPassword("");
 	}
 
+	function getDMChannelAlias(channel: ChatRoom) {
+		return (
+			"DM with " +
+			channel.participants.find((p) => p.userID !== authenticatedUserID)
+				.username
+		);
+	}
+
 	if (settings && currentChatRoom) {
 		var leave_button = (
 			<button
@@ -133,8 +141,10 @@ export const SettingsMenu = (
 			<div className="relative m-4 text-darkblue">
 				<h3>
 					<span className="font-bold text-xl">Settings</span> for{" "}
-					{currentChatRoom.name} (
-					{currentChatRoom.isPrivate ? "private" : "public"})
+					{currentChatRoom.isDM
+						? getDMChannelAlias(currentChatRoom)
+						: currentChatRoom.name}{" "}
+					({currentChatRoom.isPrivate ? "private" : "public"})
 				</h3>
 				<hr className={`bg-darkblue border-0 h-0.5 mt-1 mb-6`}></hr>
 				{leave_button}
