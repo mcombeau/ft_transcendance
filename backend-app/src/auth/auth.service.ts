@@ -61,11 +61,7 @@ export class AuthService {
 
 	async checkTokenMatchesDatabaseUser(tokenInfo: JwtToken): Promise<void> {
 		const user = await this.userService.fetchUserByID(tokenInfo.userID);
-		if (
-			!user ||
-			user.id !== tokenInfo.userID ||
-			user.username !== tokenInfo.username
-		) {
+		if (!user || user.id !== tokenInfo.userID) {
 			throw new UnauthorizedException(
 				`User ${tokenInfo.username} (id ${tokenInfo.userID}) does not exist in database!`
 			);
