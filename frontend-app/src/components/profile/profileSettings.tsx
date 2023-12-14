@@ -91,13 +91,16 @@ function ProfileSettings(
 			if (!response.ok) {
 				console.log("Error enabling 2fa");
 				createBanner("Error enabling 2fa ", setBanners, BannerType.Alert);
+				setTwoFaValidationCode("");
+				setQrcode(null);
+				setIs2faEnabled(false);
 				return;
 			}
+			setTwoFaValidationCode("");
+			setQrcode(null);
+			setIs2faEnabled(true);
+			createBanner("2FA successfully enabled!", setBanners, BannerType.Notif);
 		});
-
-		setTwoFaValidationCode("");
-		setQrcode(null);
-		setIs2faEnabled(true);
 	}
 
 	function disable2Fa() {
@@ -114,6 +117,7 @@ function ProfileSettings(
 				createBanner("Error disabling 2fa", setBanners, BannerType.Alert);
 				return;
 			}
+			createBanner("2FA successfully disabled.", setBanners, BannerType.Notif);
 		});
 
 		setTwoFaValidationCode("");
@@ -150,6 +154,12 @@ function ProfileSettings(
 						setBanners,
 						BannerType.Alert
 					);
+				} else {
+					createBanner(
+						"User information successfully updated.",
+						setBanners,
+						BannerType.Notif
+					);
 				}
 			}
 		);
@@ -176,6 +186,12 @@ function ProfileSettings(
 						"Error: " + error.error + ": " + error.message,
 						setBanners,
 						BannerType.Alert
+					);
+				} else {
+					createBanner(
+						"Password successfully updated!",
+						setBanners,
+						BannerType.Notif
 					);
 				}
 			}
@@ -206,8 +222,13 @@ function ProfileSettings(
 						BannerType.Alert
 					);
 				} else {
-					setNewAvatar(null);
+					createBanner(
+						"Avatar successfully updated!",
+						setBanners,
+						BannerType.Notif
+					);
 				}
+				setNewAvatar(null);
 			}
 		);
 	}
@@ -229,6 +250,12 @@ function ProfileSettings(
 						"Error: " + error.error + ": " + error.message,
 						setBanners,
 						BannerType.Alert
+					);
+				} else {
+					createBanner(
+						"Avatar successfully removed.",
+						setBanners,
+						BannerType.Notif
 					);
 				}
 			}
