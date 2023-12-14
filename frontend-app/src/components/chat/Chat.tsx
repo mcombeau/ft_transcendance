@@ -588,7 +588,6 @@ export const Chat = ({ setBanners }) => {
 		});
 
 		socket.on("accept invite", async (info: ReceivedInfo) => {
-			// TODO: adapt to game invite
 			setInvites((prev) =>
 				prev.filter((invite: Invite) => invite.id !== info.inviteInfo.id)
 			);

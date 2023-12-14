@@ -63,7 +63,6 @@ export function getUserStatusColor(status: UserStatus) {
 }
 
 function userDetails(user: User) {
-	// TODO : add ladder level
 	if (user === undefined) return <div />;
 	return (
 		<div>

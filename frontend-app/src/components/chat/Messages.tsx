@@ -19,7 +19,7 @@ import { ButtonIconType, getButtonIcon } from "../styles/icons";
 export function inviteMessage(invite: Invite) {
 	switch (invite.type) {
 		case typeInvite.Game:
-			return <>wants to play</>;
+			return <>challenges you to a match of pong!</>;
 
 		case typeInvite.Friend:
 			return <>wants to be your friend</>;
