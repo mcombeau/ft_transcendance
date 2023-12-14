@@ -69,17 +69,13 @@ export class ChatsGatewayService {
 		if (participant) {
 			if (participant.isBanned) {
 				throw new ChatJoinError(
-					`User '${info.userID}' is banned from '${info.chatRoomID}'.`
+					`You have been banned from '${chatRoom.name}'.`
 				);
 			}
-			throw new ChatJoinError(
-				`User '${info.userID}' is already in chat '${info.chatRoomID}'.`
-			);
+			throw new ChatJoinError(`You are already in '${chatRoom.name}'.`);
 		}
 		if (participant && participant.isBanned) {
-			throw new ChatJoinError(
-				`User '${info.userID}' is banned from chat '${info.chatRoomID}'.`
-			);
+			throw new ChatJoinError(`You have been banned from '${chatRoom.name}'.`);
 		}
 		await this.chatsService.addParticipantToChatByUserChatID(info);
 	}
@@ -229,9 +225,10 @@ export class ChatsGatewayService {
 				userID: info.targetID,
 				chatRoomID: info.chatRoomID,
 			});
+		const chatRoom = await this.chatsService.fetchChatByID(info.chatRoomID);
 		if (target) {
 			throw new InviteCreationError(
-				`${target.user.id} cannot be invited: already in chat room ${info.chatRoomID}`
+				`${target.user.username} cannot be invited: already in chat room ${chatRoom.name}`
 			);
 		}
 		const invite = await this.inviteService.createInvite({
