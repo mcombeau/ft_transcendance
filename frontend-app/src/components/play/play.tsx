@@ -5,7 +5,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { WebSocketContext } from "../../contexts/WebsocketContext";
 import { AuthenticationContext } from "../authenticationState";
 import LiveGames from "../live-games/LiveGames";
-import { GameInfo } from "../profile/friendsList";
 import { useWindowSize } from "@uidotdev/usehooks";
 
 const UP = "ArrowUp";
@@ -54,6 +53,17 @@ export type GameDetails = {
 	loserScore: number;
 	winnerScore: number;
 	createdAt?: Date;
+};
+
+export type PlayerInfo = {
+	userID: number;
+	username: string;
+};
+
+export type GameInfo = {
+	player1: PlayerInfo;
+	player2: PlayerInfo;
+	socketRoomID: string;
 };
 
 enum Page {

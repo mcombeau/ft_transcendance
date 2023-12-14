@@ -17,17 +17,8 @@ import {
 	User,
 } from "./profile";
 import { Friend } from "./profile";
-
-export type PlayerInfo = {
-	userID: number;
-	username: string;
-};
-// TODO: move to play.tsx
-export type GameInfo = {
-	player1: PlayerInfo;
-	player2: PlayerInfo;
-	socketRoomID: string;
-};
+import { GameInfo } from "../play/play";
+import { IoEye } from "react-icons/io5";
 
 type BlockedUser = Friend;
 
