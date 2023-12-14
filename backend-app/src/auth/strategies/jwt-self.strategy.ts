@@ -29,7 +29,6 @@ export class JwtSelfStrategy extends PassportStrategy(
 	private readonly logger: Logger = new Logger("JwtSelfStrategy");
 
 	async validate(req: Request, tokenInfo: JwtToken): Promise<UserEntity> {
-		this.logger.debug("[Validate]: validating token");
 		try {
 			const paramID: number = parseInt((req as any).params.id);
 			this.authService.checkTokenMatchesUserID(tokenInfo, paramID);

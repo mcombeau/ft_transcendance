@@ -27,7 +27,6 @@ export class JwtPartialStrategy extends PassportStrategy(
 	private readonly logger: Logger = new Logger("JwtPartialStrategy");
 
 	async validate(tokenInfo: JwtToken): Promise<UserEntity> {
-		this.logger.debug("[Validate]: validating token");
 		try {
 			await this.authService.checkTokenMatchesDatabaseUser(tokenInfo);
 			return await this.userService.fetchUserByID(tokenInfo.userID);

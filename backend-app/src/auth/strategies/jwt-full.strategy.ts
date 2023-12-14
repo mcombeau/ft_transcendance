@@ -28,7 +28,6 @@ export class JwtFullStrategy extends PassportStrategy(
 	private readonly logger: Logger = new Logger("JwtFullStrategy");
 
 	async validate(tokenInfo: any): Promise<UserEntity> {
-		this.logger.debug("[Validate]: validating token");
 		try {
 			this.authService.checkUserIsFullyAuthenticated(tokenInfo);
 			await this.authService.checkTokenMatchesDatabaseUser(tokenInfo);
