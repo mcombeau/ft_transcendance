@@ -1,7 +1,6 @@
 - Appearance
 
   - CSS fix buttons
-  - Update user info on profile page when settings menu is closed
 
 - Backend
 

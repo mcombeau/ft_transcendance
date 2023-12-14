@@ -201,7 +201,7 @@ function ProfileSettings(
 						BannerType.Alert
 					);
 				} else {
-					// TODO: change current image
+					setNewAvatar(null);
 				}
 			}
 		);
@@ -239,6 +239,7 @@ function ProfileSettings(
 				<button
 					onClick={() => {
 						setIsEditingProfile(false);
+						setNewAvatar(null);
 						if (location.hash === "#settings") {
 							navigate("/user/" + authenticatedUserID);
 						}
