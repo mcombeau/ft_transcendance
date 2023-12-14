@@ -227,8 +227,13 @@ export class ChatsGatewayService {
 			});
 		const chatRoom = await this.chatsService.fetchChatByID(info.chatRoomID);
 		if (target) {
+			if (target.isBanned) {
+				throw new InviteCreationError(
+					`${target.user.username} is banned from chat room ${chatRoom.name}`
+				);
+			}
 			throw new InviteCreationError(
-				`${target.user.username} cannot be invited: already in chat room ${chatRoom.name}`
+				`${target.user.username} is already in chat room ${chatRoom.name}`
 			);
 		}
 		const invite = await this.inviteService.createInvite({
