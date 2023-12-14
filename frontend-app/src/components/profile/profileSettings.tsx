@@ -148,6 +148,7 @@ function ProfileSettings(
 		);
 	}
 
+	// TODO: Remove this since 42 users don't have passwords so can't update them
 	function submitNewPassword(e: any) {
 		var request = {
 			method: "PATCH",
@@ -277,6 +278,7 @@ function ProfileSettings(
 					<input
 						className="file:text-sage file:bg-darkblue file:border-none file:rounded-md file:p-1 file:text-sm bg-sage rounded-md p-1"
 						type="file"
+						accept=".png,.jpg,.jpeg"
 						name="file"
 						onChange={(event) => {
 							console.log(event.target.files[0]);
