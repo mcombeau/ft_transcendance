@@ -2,10 +2,6 @@
 
   - CSS fix buttons
 
-- Backend
-
-  - remove unused controller paths (i.e. chats controller since all is done through sockets)
-
 - Bugs
 
   - all libraries are in latest stable version
@@ -19,6 +15,7 @@
   - remove login page
   - force HTTPS and force redirect HTTP port 80 to HTTPS port 443
   - choose domain (localhost or ft_transcendance or whatever) and then fix callback URL for 42 auth
+  - remove unused controller paths (i.e. chats controller since all is done through sockets)
 
 - Nice to have
 
