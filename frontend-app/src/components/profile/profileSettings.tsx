@@ -4,18 +4,6 @@ import { ButtonIconType, getButtonIcon } from "../styles/icons";
 import { BannerType, createBanner } from "../banner/Banner";
 import { useLocation, useNavigate } from "react-router-dom";
 
-async function readStream(response: any) {
-	const reader = response.body.getReader();
-	while (true) {
-		const { done, value } = await reader.read();
-		if (done) {
-			// Do something with last chunk of data then exit reader
-			return value;
-		}
-		// Otherwise do something here to process current chunk
-	}
-}
-
 function ProfileSettings(
 	user: User,
 	cookies: any,
@@ -42,11 +30,6 @@ function ProfileSettings(
 			setIs2faEnabled(user.isTwoFaEnabled);
 		}
 	}, [user]);
-
-	// useEffect(() => {
-	// 	console.log("Changing 2fa status");
-	// 	setIs2faEnabled(getIs2faEnabled(cookies));
-	// }, [cookies]);
 
 	async function enable2Fa() {
 		var request: any = {
