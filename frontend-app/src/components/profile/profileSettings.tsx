@@ -72,7 +72,6 @@ function ProfileSettings(
 				setQrcode(data);
 			}
 		);
-		// TODO: post it to turn on and if it works close everything
 	}
 
 	function submitTwoFaValidationCode(e: any) {
@@ -123,19 +122,25 @@ function ProfileSettings(
 	}
 
 	function submitUserInfo(e: any) {
-		// TODO: dont send username if username has not changed
+		e.preventDefault();
+		var body: { username?: string; email?: string } = {};
+		if (newUsername != user.username) {
+			body.username = newUsername;
+		}
+		if (newEmail != user.email) {
+			body.email = newEmail;
+		}
+		if (!body.username && !body.email) {
+			return;
+		}
 		var request = {
 			method: "PATCH",
 			headers: {
 				"Content-Type": "application/json",
 				Authorization: `Bearer ${cookies["token"]}`,
 			},
-			body: JSON.stringify({
-				username: newUsername,
-				email: newEmail,
-			}),
+			body: JSON.stringify(body),
 		};
-		e.preventDefault();
 		fetch(`/backend/users/${authenticatedUserID}`, request).then(
 			async (response) => {
 				if (!response.ok) {
