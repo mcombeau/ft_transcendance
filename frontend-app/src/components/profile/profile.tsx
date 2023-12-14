@@ -510,7 +510,7 @@ function Profile({ setBanners }) {
 		if (authenticatedUserID === profileUserID) {
 			setIsMyPage(true);
 		}
-	}, [cookies, socket, profileUserID]);
+	}, [cookies, socket, profileUserID, isEditingProfile]);
 
 	// Checks for page user relationship to authenticated user
 	useEffect(() => {
@@ -576,7 +576,7 @@ function Profile({ setBanners }) {
 
 	useEffect(() => {
 		if (!authenticatedUserID) {
-			navigate('/not-found');
+			navigate("/not-found");
 		}
 	}, []);
 

@@ -2,6 +2,7 @@ import { User } from "./profile";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { ButtonIconType, getButtonIcon } from "../styles/icons";
 import { BannerType, createBanner } from "../banner/Banner";
+import { useLocation, useNavigate } from "react-router-dom";
 
 async function readStream(response: any) {
 	const reader = response.body.getReader();
@@ -31,6 +32,8 @@ function ProfileSettings(
 	const [qrcode, setQrcode] = useState();
 	const [twoFaValidationCode, setTwoFaValidationCode] = useState("");
 	const [newAvatar, setNewAvatar] = useState(null);
+	let location = useLocation();
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		if (user !== undefined) {
@@ -236,6 +239,9 @@ function ProfileSettings(
 				<button
 					onClick={() => {
 						setIsEditingProfile(false);
+						if (location.hash === "#settings") {
+							navigate("/user/" + authenticatedUserID);
+						}
 					}}
 				>
 					{getButtonIcon(ButtonIconType.closeSettings, "w-6 h-6 text-sage")}
