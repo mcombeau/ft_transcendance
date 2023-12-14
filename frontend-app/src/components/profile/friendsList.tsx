@@ -39,10 +39,10 @@ function removeFriendFromList(userID: number, setFriends: any) {
 export function linkToGame(gameInfo: GameInfo) {
 	return (
 		<a
-			className="text-sm hover:text-teal"
+			className=" hover:text-lightblue"
 			href={"/watch/" + gameInfo.socketRoomID}
 		>
-			[watch game]
+			<IoEye className="w-6 h-6" />
 		</a>
 	);
 }
