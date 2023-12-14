@@ -63,15 +63,25 @@ export class GameLogicService {
 		};
 	}
 
+	private get_random_value(min: number, max: number): number {
+		return Math.random() * (max - min) + min;
+	}
+
+	private normalize_vector(vector: Vector): Vector {
+		const norm = Math.sqrt(Math.pow(vector.x, 2) + Math.pow(vector.y, 2));
+		return {
+			x: vector.x / norm,
+			y: vector.y / norm,
+		};
+	}
+
 	randomInitialMove(gameState: State) {
-		// pseudo-random ball behavior
-		const moves = [
-			{ x: 1, y: 1 },
-			{ x: 1, y: -1 },
-			{ x: -1, y: -1 },
-			{ x: -1, y: 1 },
-		];
-		const initialMove = moves[Math.floor(Math.random() * moves.length)];
+		let initialMove = {
+			x: this.get_random_value(-1, 1),
+			y: this.get_random_value(-1, 1),
+		};
+
+		initialMove = this.normalize_vector(initialMove);
 		gameState.ballDir = initialMove;
 	}
 
