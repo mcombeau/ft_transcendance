@@ -276,7 +276,6 @@ export class ChatsGatewayService {
 				});
 			await this.permissionChecks.checkUserInviteHasNotExpired(info);
 
-			// TODO: can a banned user be invited to chatroom?
 			const user =
 				await this.chatParticipantsService.fetchParticipantEntityByUserChatID({
 					userID: info.invitedID,

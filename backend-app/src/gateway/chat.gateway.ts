@@ -607,7 +607,6 @@ export class ChatGateway implements OnModuleInit {
 		await this.chatGatewayService.acceptUserInviteToGame(info.inviteInfo);
 		info.username = user.username;
 		info.token = "";
-		// TODO emit to user 1 and 2 to join game
 		this.server
 			.to(
 				this.chatGatewayService.getSocketRoomIdentifier(
@@ -626,7 +625,6 @@ export class ChatGateway implements OnModuleInit {
 		await this.chatGatewayService.acceptUserInviteToFriends(info.inviteInfo);
 		info.username = user.username;
 		info.token = "";
-		// TODO emit to user 1 and 2 that they are now friends
 		this.server
 			.to(
 				this.chatGatewayService.getSocketRoomIdentifier(
