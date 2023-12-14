@@ -516,7 +516,7 @@ export const Chat = ({ setBanners }) => {
 					info.token = cookies["token"];
 					socket.emit("leave socket room", info);
 					const message = `You have been banned from ${info.chatInfo.name}`;
-					createBanner(message, setBanners);
+					createBanner(message, setBanners, BannerType.Alert);
 				}
 				// For other people, move participant to banned list
 				setMyChats((prev) => {

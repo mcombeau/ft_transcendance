@@ -255,13 +255,11 @@ export class ChatGateway implements OnModuleInit {
 		}
 	}
 
-	// TODO: Validate chat join by checking password if there is one.
 	@SubscribeMessage("join chat")
 	async onJoinChat(
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() info: ReceivedInfoDto
 	): Promise<void> {
-		// TODO: good error message "You have been banned"
 		try {
 			info.userID = await this.socketGateway.checkIdentity(info.token, socket);
 			const user = await this.userService.fetchUserByID(info.userID);
@@ -731,11 +729,15 @@ export class ChatGateway implements OnModuleInit {
 				targetID: info.targetID,
 				chatRoomID: info.chatRoomID,
 			});
+			const chatRoom = await this.chatsService.fetchChatByID(info.chatRoomID);
 			info = {
 				...info,
 				participantInfo: {
 					isBanned: isBanned,
 				},
+			};
+			info.chatInfo = {
+				name: chatRoom.name,
 			};
 			info.token = "";
 			this.server
