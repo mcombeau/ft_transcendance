@@ -450,6 +450,7 @@ function Profile({ setBanners }) {
 	const [cookies] = useCookies(["token"]);
 	const socket = useContext(WebSocketContext);
 	const [isEditingProfile, setIsEditingProfile] = useState(false);
+	const [changeProfile, setChangeProfile] = useState(false);
 	const [isMyFriend, setIsMyFriend] = useState(false);
 	const [isBlocked, setIsBlocked] = useState(false);
 	const { authenticatedUserID } = useContext(AuthenticationContext);
@@ -508,7 +509,7 @@ function Profile({ setBanners }) {
 		if (authenticatedUserID === profileUserID) {
 			setIsMyPage(true);
 		}
-	}, [cookies, socket, profileUserID, isEditingProfile]);
+	}, [cookies, socket, profileUserID, changeProfile]);
 
 	// Checks for page user relationship to authenticated user
 	useEffect(() => {
@@ -624,7 +625,8 @@ function Profile({ setBanners }) {
 					isEditingProfile,
 					setIsEditingProfile,
 					authenticatedUserID,
-					setBanners
+					setBanners,
+					setChangeProfile
 				)}
 			</div>
 		</div>

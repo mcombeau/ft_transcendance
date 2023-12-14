@@ -10,7 +10,8 @@ function ProfileSettings(
 	isEditingProfile: boolean,
 	setIsEditingProfile: Dispatch<SetStateAction<boolean>>,
 	authenticatedUserID: number,
-	setBanners: any
+	setBanners: any,
+	setChangeProfile: Dispatch<SetStateAction<boolean>>
 ) {
 	const [newUsername, setNewUsername] = useState("");
 	const [newEmail, setNewEmail] = useState("");
@@ -136,6 +137,7 @@ function ProfileSettings(
 						BannerType.Alert
 					);
 				} else {
+					setChangeProfile((prev) => !prev);
 					createBanner(
 						"User information successfully updated.",
 						setBanners,
@@ -170,6 +172,7 @@ function ProfileSettings(
 						BannerType.Alert
 					);
 				} else {
+					setChangeProfile((prev) => !prev);
 					createBanner(
 						"Avatar successfully updated!",
 						setBanners,
@@ -200,6 +203,7 @@ function ProfileSettings(
 						BannerType.Alert
 					);
 				} else {
+					setChangeProfile((prev) => !prev);
 					createBanner(
 						"Avatar successfully removed.",
 						setBanners,
