@@ -1,5 +1,3 @@
-import { Dispatch, SetStateAction } from "react";
-import { Socket } from "socket.io-client";
 import { linkToGame } from "../profile/friendsList";
 import { GameInfo } from "../play/play";
 
@@ -16,19 +14,12 @@ function displayLiveGame(game: GameInfo) {
 		</tr>
 	);
 }
-// <td className="p-2 border-r-2 border-lightblue border-dashed">
 
 function displayLiveGames(games: GameInfo[]) {
 	return games.map(displayLiveGame);
 }
 
-function LiveGames(
-	gameInfos: GameInfo[],
-	setGameInfos: Dispatch<SetStateAction<GameInfo[]>>,
-	authenticatedUserID: number,
-	socket: Socket,
-	cookies: any
-) {
+function LiveGames(gameInfos: GameInfo[]) {
 	return (
 		<div className="background-element">
 			<h1 className="title-element">Games currently live !</h1>

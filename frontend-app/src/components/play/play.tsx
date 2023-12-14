@@ -494,13 +494,7 @@ export const Play = () => {
 							Play
 						</button>
 					</div>
-					{LiveGames(
-						gameInfos,
-						setGameInfos,
-						authenticatedUserID,
-						socket,
-						cookies
-					)}
+					{LiveGames(gameInfos)}
 				</div>
 			);
 
