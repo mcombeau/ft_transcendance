@@ -26,3 +26,4 @@
   - replay button on you won/ you lost screens
   - dark mode
   - publish website (see clevercloud)
+  - It's not really fair to remove all games user participated in if user deletes account?
