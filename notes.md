@@ -1,7 +1,6 @@
 - Appearance
 
   - CSS fix buttons
-  - User profile -> Update user profile in background of settings menu instead of on settings menu close?
 
 - Backend
 
