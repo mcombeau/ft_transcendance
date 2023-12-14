@@ -246,7 +246,11 @@ export const ContextMenuEl = (
 						? getButtonIcon(ButtonIconType.operator, iconClass)
 						: getButtonIcon(ButtonIconType.operator, iconClass)
 				}
-				<span className={labelClass}>Toggle operator</span>
+				{checkStatus(channel, target.id) === Status.Operator ? (
+					<span className={labelClass}>Remove admin</span>
+				) : (
+					<span className={labelClass}>Make admin</span>
+				)}
 			</div>
 		);
 	}
