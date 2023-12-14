@@ -1,40 +1,33 @@
-import {
-	Column,
-	Entity,
-	OneToMany,
-	ManyToMany,
-	JoinTable,
-	PrimaryGeneratedColumn,
-} from 'typeorm';
-import {ChatMessageEntity} from '../../chat-messages/entities/chat-message.entity';
-import {ChatParticipantEntity} from '../../chat-participants/entities/chat-participant.entity';
-import {ApiProperty} from '@nestjs/swagger';
-import {GameEntity} from 'src/games/entities/game.entity';
-import {InviteEntity} from 'src/invites/entities/Invite.entity';
-import {FriendEntity} from 'src/friends/entities/Friend.entity';
-import {BlockedUserEntity} from 'src/blocked-users/entities/BlockedUser.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { ChatMessageEntity } from "../../chat-messages/entities/chat-message.entity";
+import { ChatParticipantEntity } from "../../chat-participants/entities/chat-participant.entity";
+import { ApiProperty } from "@nestjs/swagger";
+import { GameEntity } from "src/games/entities/game.entity";
+import { InviteEntity } from "src/invites/entities/Invite.entity";
+import { FriendEntity } from "src/friends/entities/Friend.entity";
+import { BlockedUserEntity } from "src/blocked-users/entities/BlockedUser.entity";
 
 export enum userStatus {
-	ONLINE = 'online',
-	OFFLINE = 'offline',
-	INGAME = 'in game',
+	ONLINE = "online",
+	OFFLINE = "offline",
+	INGAME = "in game",
 }
-@Entity({name: 'users'})
+@Entity({ name: "users" })
 export class UserEntity {
 	@ApiProperty()
 	@PrimaryGeneratedColumn()
 	id: number;
 
 	@ApiProperty()
-	@Column({unique: true})
+	@Column({ unique: true })
 	username: string;
 
 	@ApiProperty()
-	@Column({unique: true, nullable: true})
+	@Column({ unique: true, nullable: true })
 	login42: string;
 
 	// @ApiProperty()
-	@Column({nullable: true, select: false})
+	@Column({ nullable: true, select: false })
 	password: string;
 
 	@ApiProperty()
@@ -50,7 +43,7 @@ export class UserEntity {
 	createdAt: Date;
 
 	@ApiProperty()
-	@Column({type: 'enum', enum: userStatus, default: userStatus.OFFLINE})
+	@Column({ type: "enum", enum: userStatus, default: userStatus.OFFLINE })
 	status: userStatus;
 
 	@ApiProperty()
@@ -58,7 +51,7 @@ export class UserEntity {
 	isTwoFactorAuthenticationEnabled: boolean;
 
 	// @ApiProperty()
-	@Column({nullable: true, select: false})
+	@Column({ nullable: true, select: false })
 	twoFactorAuthenticationSecret: string;
 
 	// @ApiProperty({ type: () => ChatMessageEntity, isArray: true })
@@ -70,6 +63,8 @@ export class UserEntity {
 	// @ApiProperty({ type: () => ChatParticipantEntity, isArray: true })
 	@OneToMany(() => ChatParticipantEntity, (participant) => participant.user, {
 		nullable: true,
+		// cascade: true,
+		// onDelete: "CASCADE",
 	})
 	chatRooms: ChatParticipantEntity[];
 
@@ -86,26 +81,26 @@ export class UserEntity {
 	sentInvites: InviteEntity[];
 
 	// @ApiProperty({ type: () => GameEntity, isArray: true })
-	@OneToMany(() => GameEntity, (game) => game.winner, {nullable: true})
+	@OneToMany(() => GameEntity, (game) => game.winner, { nullable: true })
 	wonGames: GameEntity[];
 
 	// @ApiProperty({ type: () => GameEntity, isArray: true })
-	@OneToMany(() => GameEntity, (game) => game.loser, {nullable: true})
+	@OneToMany(() => GameEntity, (game) => game.loser, { nullable: true })
 	lostGames: GameEntity[];
 
 	// @ApiProperty({ type: () => FriendEntity, isArray: true })
-	@OneToMany(() => FriendEntity, (friend) => friend.user1, {nullable: true})
+	@OneToMany(() => FriendEntity, (friend) => friend.user1, { nullable: true })
 	friendTo: FriendEntity[];
 
 	// @ApiProperty({ type: () => FriendEntity, isArray: true })
-	@OneToMany(() => FriendEntity, (friend) => friend.user2, {nullable: true})
+	@OneToMany(() => FriendEntity, (friend) => friend.user2, { nullable: true })
 	friendOf: FriendEntity[];
 
 	// @ApiProperty({ type: () => FriendEntity, isArray: true })
 	@OneToMany(
 		() => BlockedUserEntity,
 		(blockedUser) => blockedUser.blockingUser,
-		{nullable: true},
+		{ nullable: true }
 	)
 	blockedUsers: BlockedUserEntity[];
 
@@ -113,7 +108,7 @@ export class UserEntity {
 	@OneToMany(
 		() => BlockedUserEntity,
 		(blockedUser) => blockedUser.blockedUser,
-		{nullable: true},
+		{ nullable: true }
 	)
 	blockedByUsers: BlockedUserEntity[];
 }

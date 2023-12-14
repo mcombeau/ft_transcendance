@@ -5,7 +5,6 @@
 
 - Backend
 
-  - update or delete on table \"users\" violates foreign key constraint \"FK_fb6add83b1a7acc94433d385692\" on table \"chat_participants\"
   - remove unused controller paths (i.e. chats controller since all is done through sockets)
 
 - Bugs
