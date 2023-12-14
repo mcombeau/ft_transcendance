@@ -37,7 +37,7 @@ export function isInChannel(
 
 export function checkStatus(channel: ChatRoom, userID: number): Status {
 	if (!channel) return Status.Normal;
-	var user = channel.participants.find((p) => p.userID === userID); //TODO: maybe add some error management
+	var user = channel.participants.find((p) => p.userID === userID);
 	if (!user) return Status.Normal;
 	if (user.isOwner) return Status.Owner;
 	if (user.isOperator) return Status.Operator;
@@ -50,7 +50,7 @@ export function isUserMuted(user: User): boolean {
 }
 
 export function isMuted(channel: ChatRoom, userID: number): boolean {
-	var user = channel.participants.find((p) => p.userID === userID); // TODO: understand how this can be undefined
+	var user = channel.participants.find((p) => p.userID === userID);
 	if (!user) return false;
 	if (user.mutedUntil < new Date().getTime()) {
 		return false;
@@ -361,7 +361,6 @@ export const Chat = ({ setBanners }) => {
 
 			setPublicChats((prev) => [...prev, publicChatRoom]);
 
-			// TODO : check if I have more info #socket refacto
 			if (info.userID === authenticatedUserID) {
 				var user: User = {
 					userID: info.userID,
@@ -927,7 +926,7 @@ export const Chat = ({ setBanners }) => {
 
 	useEffect(() => {
 		if (getUsername(cookies) === undefined) {
-			alert("You have no username"); // TODO : remove = for debug purposes
+			alert("You have no username");
 		}
 	}, [cookies]);
 

@@ -19,8 +19,6 @@ export function logoutUser(
 	setAuthenticatedUserID(null);
 	removeCookie("token", { path: "/" });
 	navigate("/");
-	// TODO: Check if this summons the devil or not.
-	window.location.reload();
 }
 
 function Logout() {

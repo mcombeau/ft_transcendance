@@ -240,12 +240,9 @@ export const ContextMenuEl = (
 					setContextMenu(false);
 				}}
 			>
-				{
-					// TODO: find icon for removing from operators
-					checkStatus(channel, target.id) === Status.Operator
-						? getButtonIcon(ButtonIconType.operator, iconClass)
-						: getButtonIcon(ButtonIconType.operator, iconClass)
-				}
+				{checkStatus(channel, target.id) === Status.Operator
+					? getButtonIcon(ButtonIconType.operator, iconClass)
+					: getButtonIcon(ButtonIconType.operator, iconClass)}
 				{checkStatus(channel, target.id) === Status.Operator ? (
 					<span className={labelClass}>Remove admin</span>
 				) : (
@@ -356,7 +353,7 @@ export const ContextMenuEl = (
 				) : (
 					<div></div>
 				)}
-				{canToggleOperator(target.id, authenticatedUserID, channel) ? ( // TODO: check if admin and switch button
+				{canToggleOperator(target.id, authenticatedUserID, channel) ? (
 					<div>{operatorButton()}</div>
 				) : (
 					<div></div>

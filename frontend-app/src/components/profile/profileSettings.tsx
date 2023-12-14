@@ -14,8 +14,6 @@ function ProfileSettings(
 ) {
 	const [newUsername, setNewUsername] = useState("");
 	const [newEmail, setNewEmail] = useState("");
-	const [currentPassword, setCurrentPassword] = useState("");
-	const [newPassword, setNewPassword] = useState("");
 	const [is2faEnabled, setIs2faEnabled] = useState(false);
 	const [qrcode, setQrcode] = useState();
 	const [twoFaValidationCode, setTwoFaValidationCode] = useState("");
@@ -140,40 +138,6 @@ function ProfileSettings(
 				} else {
 					createBanner(
 						"User information successfully updated.",
-						setBanners,
-						BannerType.Notif
-					);
-				}
-			}
-		);
-	}
-
-	// TODO: Remove this since 42 users don't have passwords so can't update them
-	function submitNewPassword(e: any) {
-		var request = {
-			method: "PATCH",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${cookies["token"]}`,
-			},
-			body: JSON.stringify({
-				currentPassword: currentPassword,
-				newPassword: newPassword,
-			}),
-		};
-		e.preventDefault();
-		fetch(`/backend/users/${authenticatedUserID}`, request).then(
-			async (response) => {
-				if (!response.ok) {
-					const error = await response.json();
-					createBanner(
-						"Error: " + error.error + ": " + error.message,
-						setBanners,
-						BannerType.Alert
-					);
-				} else {
-					createBanner(
-						"Password successfully updated!",
 						setBanners,
 						BannerType.Notif
 					);

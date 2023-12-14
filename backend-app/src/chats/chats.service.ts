@@ -135,7 +135,6 @@ export class ChatsService {
 		const user2 = await this.getUserToCreateChatRoomOrFail(chatDetails.userID2);
 
 		const chatRoomName = this.generateDMName([user1.id, user2.id]);
-		// TODO: Maybe add security by checking if DM with these two users exists in DB
 		this.logger.debug(`[Create DM] DM name: ${chatRoomName}`);
 		await this.checkChatRoomWithNameCanBeCreated(chatRoomName, true);
 

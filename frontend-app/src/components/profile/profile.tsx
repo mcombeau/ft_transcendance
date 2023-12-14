@@ -253,7 +253,6 @@ function friendButton(
 	setIsMyFriend: any,
 	isBlocked: boolean
 ) {
-	// TODO: check if need be async
 	if (isBlocked) return <div></div>;
 	if (isMyFriend) {
 		return (

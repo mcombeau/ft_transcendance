@@ -107,7 +107,7 @@ export const Messages = (
 								selfSent ? "hidden" : ""
 							}`}
 							onClick={() => {
-								navigate("/user/" + msg.senderID); // TODO: create front profile page and go there
+								navigate("/user/" + msg.senderID);
 							}}
 							onContextMenu={(e) => {
 								e.preventDefault();

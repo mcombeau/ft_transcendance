@@ -29,7 +29,6 @@ export const SidePannel = (
 	setCurrentPannel: Dispatch<SetStateAction<CurrentPannel>>
 ) => {
 	const createChannel = (e: any) => {
-		console.log(e); // TODO: maybe change any
 		e.preventDefault();
 		if (newchannel === "") return;
 		console.log("Emit new chan");
@@ -91,7 +90,7 @@ export const SidePannel = (
 					channel.chatRoomID === currentPannel.chatRoomID
 				)
 					isCurrent = true;
-				channel_alias = channel.isDM ? ( // TODO: change with actual name (get from back)
+				channel_alias = channel.isDM ? (
 					<>
 						<MdOutlineMessage className="m-1 mr-2" />{" "}
 						{getDMChannelAlias(channel)}

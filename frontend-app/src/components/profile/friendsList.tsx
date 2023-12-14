@@ -149,8 +149,6 @@ function displayFriend(
 		showButtons = <div></div>;
 	}
 
-	// TODO: add a challenge button
-	// TODO: maybe add an add friend/unfriend button
 	return (
 		<li
 			className="grid grid-cols-2 border border-sage rounded-md my-2"

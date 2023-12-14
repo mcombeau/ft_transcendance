@@ -32,7 +32,7 @@ function Login() {
 					console.log("error user login");
 					return;
 				}
-				setCookie("token", data.access_token, { path: "/" }); // TODO: check if await is needed/if it does anything
+				setCookie("token", data.access_token, { path: "/" });
 				return data.access_token;
 			}
 		);
