@@ -162,7 +162,7 @@ export const SidePannel = (
 					<BiCommentAdd className="w-5 h-5" />
 				</button>
 			</form>
-			<hr className="bg-lightblue dark:bg-lightblue h-1 border-0 mx-2"></hr>
+			<hr className="bg-lightblue dark:bg-darklightblue h-1 border-0 mx-2"></hr>
 			<div id="flex flex-col">
 				{channelInfo(ChanType.Invites)}
 				{channelInfo(ChanType.PublicChans)}

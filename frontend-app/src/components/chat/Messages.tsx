@@ -125,10 +125,10 @@ export const Messages = (
 						</a>
 						<div
 							key={key}
-							className={`peer rounded-md text-sage dark:text-darksage max-w-xl flex flex-col p-2 ${
+							className={`peer rounded-md text-sage dark:text-darkdarkblue max-w-xl flex flex-col p-2 ${
 								selfSent
 									? "bg-teal dark:bg-darkteal"
-									: "bg-darkblue dark:bg-darkdarkblue "
+									: "bg-darkblue dark:bg-darksage "
 							}`}
 						>
 							<div className="flex-1 break-words">{msg.msg}</div>

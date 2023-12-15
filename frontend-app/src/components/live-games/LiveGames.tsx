@@ -25,7 +25,7 @@ function LiveGames(gameInfos: GameInfo[]) {
 			<h1 className="title-element">Games currently live !</h1>
 			<div className="rounded-md overflow-hidden">
 				<table className="table-auto w-full bg-sage dark:bg-darksage">
-					<tr className="font-bold text-sage dark:text-darksage bg-darkblue dark:bg-darkdarkblue">
+					<tr className="font-bold text-sage dark:text-darksage bg-darkblue dark:bg-darkteal">
 						<td className="p-2 text-center">Player 1</td>
 						<td className="p-2 text-center">Player 2</td>
 						<td className="p-2 text-center">Watch Game</td>

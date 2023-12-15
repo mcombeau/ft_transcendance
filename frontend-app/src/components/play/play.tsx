@@ -324,7 +324,10 @@ export const Play = () => {
 					</div>
 					<div>Waiting for other player... </div>
 				</div>
-				<button className="button" onClick={leaveLobby}>
+				<button
+					className="button dark:bg-darkteal hover:dark:bg-darklightblue hover:dark:text-darkdarkblue"
+					onClick={leaveLobby}
+				>
 					Stop waiting
 				</button>
 			</div>
@@ -488,7 +491,7 @@ export const Play = () => {
 				<div>
 					<div className="grid place-content-center">
 						<button
-							className="p-4 m-6 px-20 bg-darkblue dark:bg-darkdarkblue text-sage dark:text-darksage rounded-lg text-lg hover:bg-teal hover:dark:bg-darkteal"
+							className="p-4 m-6 px-20 font-bold bg-darkblue dark:bg-darkteal text-sage dark:text-darksage rounded-lg text-lg hover:bg-teal hover:dark:bg-darklightblue hover:dark:text-darkdarkblue"
 							onClick={enterLobby}
 						>
 							Play
