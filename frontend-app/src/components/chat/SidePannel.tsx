@@ -147,10 +147,13 @@ export const SidePannel = (
 	};
 
 	return (
-		<>
-			<form className="flex m-2 space-x-2" onSubmit={createChannel}>
+		<div className="">
+			<form
+				className="grid grid-cols-4 md:grid-cols-6 place-content-center gap-1 m-2"
+				onSubmit={createChannel}
+			>
 				<input
-					className="rounded-md flex-1 bg-sage dark:bg-darksage p-2 placeholder:text-darkblue placeholder:dark:text-darkdarkblue placeholder:opacity-50 focus:outline-none"
+					className="rounded-md col-span-3 md:col-span-5 bg-sage dark:bg-darksage p-2 placeholder:text-darkblue placeholder:dark:text-darkdarkblue placeholder:opacity-50 focus:outline-none"
 					type="text"
 					placeholder="Create new channel"
 					value={newchannel}
@@ -158,8 +161,8 @@ export const SidePannel = (
 						setNewchannel(e.target.value);
 					}}
 				/>
-				<button className="bg-darkblue dark:bg-darkdarkblue text-sage dark:text-darksage hover:bg-teal hover:dark:bg-darkteal py-1 px-4 rounded-md hidden xl:block">
-					<BiCommentAdd className="w-5 h-5" />
+				<button className="flex justify-center bg-darkblue dark:bg-darkdarkblue text-sage dark:text-darksage hover:bg-teal hover:dark:bg-darkteal p-1 py-2 rounded-md">
+					<BiCommentAdd className="w-4 h-4 lg:w-6 lg:h-6" />
 				</button>
 			</form>
 			<hr className="bg-lightblue dark:bg-darklightblue h-1 border-0 mx-2"></hr>
@@ -181,7 +184,7 @@ export const SidePannel = (
 						channelInfo(ChanType.Channel, channel, key)
 					)}
 			</div>
-		</>
+		</div>
 	);
 };
 
