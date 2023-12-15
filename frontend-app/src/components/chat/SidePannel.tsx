@@ -50,6 +50,7 @@ export const SidePannel = (
 
 	const channelInfo = (type: ChanType, channel?: ChatRoom, key?: number) => {
 		let isCurrent: boolean = false;
+		let channel_icon: ReactElement;
 		let channel_alias: ReactElement;
 		let settingButton: ReactElement;
 
@@ -75,11 +76,13 @@ export const SidePannel = (
 		switch (type) {
 			case ChanType.Invites:
 				if (currentPannel.type === PannelType.invite) isCurrent = true;
+				channel_icon = <></>;
 				channel_alias = <>Invites</>;
 				settingButton = <></>;
 				break;
 			case ChanType.PublicChans:
 				if (currentPannel.type === PannelType.publicChats) isCurrent = true;
+				channel_icon = <></>;
 				channel_alias = <>Public Chats</>;
 				settingButton = <></>;
 				break;
@@ -90,19 +93,24 @@ export const SidePannel = (
 					channel.chatRoomID === currentPannel.chatRoomID
 				)
 					isCurrent = true;
-				channel_alias = channel.isDM ? (
+				channel_icon = channel.isDM ? (
 					<>
-						<MdOutlineMessage className="m-1 mr-2" />{" "}
-						{getDMChannelAlias(channel)}
+						<MdOutlineMessage className="m-1 mr-2" />
 					</>
 				) : (
 					<>
-						<PiChatsDuotone className="m-1 mr-2" /> {channel.name}
+						<PiChatsDuotone className="m-1 mr-2" />
 					</>
+				);
+
+				channel_alias = channel.isDM ? (
+					<>{getDMChannelAlias(channel)}</>
+				) : (
+					<>{channel.name}</>
 				);
 				settingButton = (
 					<button
-						className={`border-2 border-darkblue dark:border-darkdarkblue text-sage dark:text-darksage m-2 rounded-md w-5 h-5 items-center ${
+						className={`border-2 border-darkblue dark:border-darkdarkblue text-sage dark:text-darksage m-2 rounded-md w-5 h-5 ${
 							settings && isCurrent
 								? "bg-teal dark:bg-darkteal hover:bg-darkblue hover:dark:bg-darkdarkblue"
 								: "bg-darkblue dark:bg-darkdarkblue hover:bg-teal hover:dark:bg-darkteal"
@@ -132,16 +140,15 @@ export const SidePannel = (
 		return (
 			<div
 				onClick={() => select(type)}
-				className={`text-darkblue dark:text-darkdarkblue rounded-md p-2 m-2 flex ${
+				className={`flex items-center justify-normal text-darkblue dark:text-darkdarkblue rounded-md p-2 m-2 ${
 					isCurrent
 						? "bg-sage dark:bg-darksage border-2 border-darkblue dark:border-darkdarkblue"
 						: "bg-sage dark:bg-darksage"
 				}`}
 			>
-				<div className="flex-1 flex align-middle items-center ml-2">
-					{channel_alias}
-				</div>
-				{settingButton}
+				<div className="hidden md:block">{channel_icon}</div>
+				{channel_alias}
+				<div className="justify-self-end">{settingButton}</div>
 			</div>
 		);
 	};
