@@ -52,10 +52,10 @@ function Navbar() {
 				ft_transcendance
 			</h1>
 			<div onClick={toggleDarkModeCookie}>
-				{isDarkModeEnabled(cookies["darkmode"]) ? (
-					<IoSunnyOutline className="w-6 h-6" />
+				{isDarkModeEnabled(cookies) ? (
+					<IoSunnyOutline className="w-6 h-6 m-2" />
 				) : (
-					<FaRegMoon className="w-6 h-6" />
+					<FaRegMoon className="w-6 h-6 m-2" />
 				)}
 			</div>
 
