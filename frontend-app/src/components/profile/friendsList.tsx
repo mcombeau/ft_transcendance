@@ -39,7 +39,7 @@ function removeFriendFromList(userID: number, setFriends: any) {
 export function linkToGame(gameInfo: GameInfo) {
 	return (
 		<a
-			className=" hover:text-lightblue"
+			className=" hover:text-lightblue hover:dark:text-darklightblue"
 			href={"/watch/" + gameInfo.socketRoomID}
 		>
 			<IoEye className="w-6 h-6" />

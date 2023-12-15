@@ -615,7 +615,7 @@ function Profile({ setBanners }) {
 			</div>
 			<div className="">{GameHistory(user, cookies)}</div>
 			<div
-				className={`bg-teal border-2 border-teal border-y-8 rounded-md absolute top-0 bottom-0 left-0 right-0 m-auto w-1/2 h-3/4 overflow-scroll scrollbar-hide ${
+				className={`bg-teal dark:bg-darkteal border-2 border-teal dark:border-darkteal border-y-8 rounded-md absolute top-0 bottom-0 left-0 right-0 m-auto w-1/2 h-3/4 overflow-scroll scrollbar-hide ${
 					isEditingProfile ? "" : "hidden"
 				}`}
 			>

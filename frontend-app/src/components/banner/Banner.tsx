@@ -46,7 +46,7 @@ function Banners(
 		let style: string = "rounded-md px-6 p-4 m-4 shadow-md";
 		switch (banner.type) {
 			case BannerType.Notif:
-				style += " bg-teal text-sage dark:text-darksage ";
+				style += " bg-teal dark:bg-darkteal text-sage dark:text-darksage ";
 				break;
 			case BannerType.Alert:
 				style += " bg-red-500 text-sage dark:text-darksage ";

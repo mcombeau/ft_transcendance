@@ -100,7 +100,7 @@ export const SettingsMenu = (
 						onSubmit={submitNewPassword}
 					>
 						<input
-							className="bg-sage dark:bg-darksage rounded-md p-2 placeholder:text-darkblue placeholder:opacity-40"
+							className="bg-sage dark:bg-darksage rounded-md p-2 placeholder:text-darkblue placeholder:dark:text-darkdarkblue placeholder:opacity-40"
 							placeholder="password"
 							type="password"
 							value={newPassword}
@@ -138,7 +138,7 @@ export const SettingsMenu = (
 			);
 		}
 		return (
-			<div className="relative m-4 text-darkblue">
+			<div className="relative m-4 text-darkblue dark:text-darkdarkblue">
 				<h3>
 					<span className="font-bold text-xl">Settings</span> for{" "}
 					{currentChatRoom.isDM
@@ -146,10 +146,14 @@ export const SettingsMenu = (
 						: currentChatRoom.name}{" "}
 					({currentChatRoom.isPrivate ? "private" : "public"})
 				</h3>
-				<hr className={`bg-darkblue border-0 h-0.5 mt-1 mb-6`}></hr>
+				<hr
+					className={`bg-darkblue dark:bg-darkdarkblue border-0 h-0.5 mt-1 mb-6`}
+				></hr>
 				{leave_button}
 				{private_public}
-				<hr className={`bg-darkblue border-0 h-0.5 mt-1 mb-6`}></hr>
+				<hr
+					className={`bg-darkblue dark:bg-darkdarkblue border-0 h-0.5 mt-1 mb-6`}
+				></hr>
 				<div className="ml-2">
 					<div className="flex items-center mb-4">
 						{currentChatRoom.hasPassword ? (
@@ -166,7 +170,9 @@ export const SettingsMenu = (
 					{password_form}
 				</div>
 				<h3 className="font-bold text-xl mb-1 mt-4">Channel members</h3>
-				<hr className={`bg-darkblue border-0 h-0.5 mb-4`}></hr>
+				<hr
+					className={`bg-darkblue dark:bg-darkdarkblue border-0 h-0.5 mb-4`}
+				></hr>
 				{ListParticipants(
 					currentChatRoom,
 					navigate,

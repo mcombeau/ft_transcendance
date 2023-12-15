@@ -35,7 +35,7 @@ export const ContextMenuEl = (
 	const [iCanChallenge, setICanChallenge] = useState<boolean>(false);
 	const iconClass: string = "w-6 h-6 p-1";
 	const buttonClass: string =
-		"flex items-center pr-2 hover:bg-darkblue rounded-md m-1";
+		"flex items-center pr-2 hover:bg-darkblue hover:dark:bg-darkdarkblue rounded-md m-1";
 	const labelClass: string = "";
 
 	useEffect(() => {
@@ -71,7 +71,7 @@ export const ContextMenuEl = (
 	function displayChatInviteButton(chat: ChatRoom) {
 		return (
 			<div
-				className="hover:text-darkblue rounded-md m-1"
+				className="hover:text-darkblue hover:dark:text-darkdarkblue rounded-md m-1"
 				onClick={() => invite(target, typeInvite.Chat, chat)}
 			>
 				{chat.name}
@@ -379,7 +379,7 @@ export const ContextMenuEl = (
 	return (
 		<div
 			ref={menuRef}
-			className={`bg-teal rounded-md text-sage dark:text-darksage absolute p-0 overflow-y-scroll z-40 scrollbar-hide font-light text-xs`}
+			className={`bg-teal dark:bg-darkteal rounded-md text-sage dark:text-darksage absolute p-0 overflow-y-scroll z-40 scrollbar-hide font-light text-xs`}
 			style={{
 				top: `${
 					contextMenuPos.y - messagesContainer.current.getBoundingClientRect().y

@@ -264,10 +264,14 @@ export const ListParticipants = (
 		<div className="participant_list">
 			{channel.participants.map(displayParticipant)}
 			<h3 className="font-bold text-xl mb-1 mt-4">Banned users</h3>
-			<hr className={`bg-darkblue border-0 h-0.5 mb-4`}></hr>
+			<hr
+				className={`bg-darkblue dark:bg-darkdarkblue border-0 h-0.5 mb-4`}
+			></hr>
 			{channel.banned.map(displayBanned)}
 			<h3 className="font-bold text-xl mb-1 mt-4">Invited users</h3>
-			<hr className={`bg-darkblue border-0 h-0.5 mb-4`}></hr>
+			<hr
+				className={`bg-darkblue dark:bg-darkdarkblue border-0 h-0.5 mb-4`}
+			></hr>
 			{channel.invited.map(displayInvited)}
 		</div>
 	);

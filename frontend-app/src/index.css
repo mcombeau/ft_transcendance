@@ -30,7 +30,7 @@
 }
 
 .background-element {
-	@apply bg-lightblue rounded-lg m-4 p-4 text-darkblue;
+	@apply bg-lightblue dark:bg-darklightblue rounded-lg m-4 p-4 text-darkblue dark:text-darkdarkblue;
 }
 
 .title-element {
@@ -38,7 +38,7 @@
 }
 
 .button {
-	@apply bg-darkblue text-sage dark:text-darksage hover:bg-teal p-1 m-2 rounded-md;
+	@apply bg-darkblue dark:bg-darkdarkblue text-sage dark:text-darksage hover:bg-teal hover:dark:bg-darkteal p-1 m-2 rounded-md;
 }
 
 .button-icon {
@@ -51,5 +51,5 @@
 
 .button-sm {
 	@apply button;
-	@apply bg-sage dark:bg-darksage text-darkblue hover:bg-darkblue hover:text-sage dark:hover:text-darksage;
+	@apply bg-sage dark:bg-darksage text-darkblue dark:text-darkdarkblue hover:bg-darkblue hover:dark:bg-darkdarkblue hover:text-sage dark:hover:text-darksage;
 }

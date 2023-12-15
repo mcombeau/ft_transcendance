@@ -55,11 +55,11 @@ function displayLineLeaderboard(
 	index: number
 ) {
 	return (
-		<tr className="border-b-2 border-lightblue hover:bg-teal hover:text-sage hover:dark:text-darksage">
-			<td className="p-2 text-center font-bold border-r-2 border-lightblue border-dashed">
+		<tr className="border-b-2 border-lightblue dark:border-darklightblue hover:bg-teal dark:hover:bg-darkteal hover:text-sage hover:dark:text-darksage">
+			<td className="p-2 text-center font-bold border-r-2 border-lightblue dark:border-darklightblue border-dashed">
 				{index + 1}
 			</td>
-			<td className="flex p-2 justify-center border-r-2 border-lightblue border-dashed">
+			<td className="flex p-2 justify-center border-r-2 border-lightblue dark:border-darklightblue border-dashed">
 				{authenticatedUserID ? (
 					<a className="font-bold m-2" href={"/user/" + leaderboardLine.userID}>
 						{leaderboardLine.username}
@@ -68,10 +68,10 @@ function displayLineLeaderboard(
 					<p className="font-bold m-2">{leaderboardLine.username}</p>
 				)}
 			</td>
-			<td className="p-2 text-center border-r-2 border-lightblue border-dashed">
+			<td className="p-2 text-center border-r-2 border-lightblue dark:border-darklightblue border-dashed">
 				{leaderboardLine.nbWins}
 			</td>
-			<td className="p-2 text-center border-r-2 border-lightblue border-dashed">
+			<td className="p-2 text-center border-r-2 border-lightblue dark:border-darklightblue border-dashed">
 				{leaderboardLine.nbLosses}
 			</td>
 			<td className="p-2 text-center">{leaderboardLine.winDiff}</td>
@@ -87,7 +87,7 @@ function displayLeaderboard(
 	return (
 		<div className="rounded-md overflow-hidden">
 			<table className="table-auto w-full bg-sage dark:bg-darksage ">
-				<tr className="font-bold text-sage dark:text-darksage bg-darkblue">
+				<tr className="font-bold text-sage dark:text-darksage bg-darkblue dark:bg-darkdarkblue">
 					<td className="p-2 text-center">Rank</td>
 					<td className="p-2 text-center">User</td>
 					<td className="p-2 text-center">Wins</td>

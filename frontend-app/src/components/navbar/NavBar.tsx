@@ -47,7 +47,7 @@ function Navbar() {
 	}
 
 	return (
-		<div className="navbar flex justify-between items-center text-sage dark:text-darksage bg-teal">
+		<div className="navbar flex justify-between items-center text-sage dark:text-darksage bg-teal dark:bg-darkteal">
 			<h1 className={"w-full text-lg lg:text-3xl font-bold"}>
 				ft_transcendance
 			</h1>
@@ -88,7 +88,7 @@ function Navbar() {
 							<a href="/login">Login</a>
 						</li>
 						<form action="/backend/auth/42login">
-							<button className="bg-darkblue rounded-md m-2 p-2 px-4 whitespace-nowrap">
+							<button className="bg-darkblue dark:bg-darkdarkblue rounded-md m-2 p-2 px-4 whitespace-nowrap">
 								Login with 42
 							</button>
 						</form>
@@ -104,7 +104,7 @@ function Navbar() {
 			<ul
 				className={
 					nav
-						? "fixed left-0 top-16 right-0 w-[60%] h-full bg-teal ease-in-out duration-500"
+						? "fixed left-0 top-16 right-0 w-[60%] h-full bg-teal dark:bg-darkteal ease-in-out duration-500"
 						: "ease-in-out duration-500 fixed top-16 h-full left-[-100%]"
 				}
 			>
@@ -137,7 +137,7 @@ function Navbar() {
 						</li>
 						<form
 							action="/backend/auth/42login"
-							className="navlink-extended bg-darkblue"
+							className="navlink-extended bg-darkblue dark:bg-darkdarkblue"
 						>
 							<button>Login with 42</button>
 						</form>
