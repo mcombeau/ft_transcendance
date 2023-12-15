@@ -7,12 +7,13 @@ import { useCookies } from "react-cookie";
 import { logoutUser } from "../logout/logout";
 import { IoSunnyOutline } from "react-icons/io5";
 import { FaRegMoon } from "react-icons/fa6";
+import { isDarkModeEnabled } from "../../cookies";
 
-function Navbar({ setDarkmode, darkmode }) {
+function Navbar() {
 	const { authenticatedUserID, setAuthenticatedUserID } = useContext(
 		AuthenticationContext
 	);
-	const [cookies, , removeCookie] = useCookies(["token"]);
+	const [cookies, setCookie, removeCookie] = useCookies(["token", "darkmode"]);
 	const [nav, setNav] = useState(false);
 	const socket = useContext(WebSocketContext);
 	const navigate = useNavigate();
@@ -36,13 +37,22 @@ function Navbar({ setDarkmode, darkmode }) {
 		};
 	}, []);
 
+	function toggleDarkModeCookie() {
+		if (isDarkModeEnabled(cookies)) {
+			setCookie("darkmode", "false");
+		} else {
+			setCookie("darkmode", "true");
+		}
+		console.log("After set cookie:", cookies["darkmode"]);
+	}
+
 	return (
 		<div className="navbar flex justify-between items-center text-sage dark:text-darksage bg-teal">
 			<h1 className={"w-full text-lg lg:text-3xl font-bold"}>
 				ft_transcendance
 			</h1>
-			<div onClick={() => setDarkmode((prev: boolean) => !prev)}>
-				{darkmode ? (
+			<div onClick={toggleDarkModeCookie}>
+				{isDarkModeEnabled(cookies["darkmode"]) ? (
 					<IoSunnyOutline className="w-6 h-6" />
 				) : (
 					<FaRegMoon className="w-6 h-6" />

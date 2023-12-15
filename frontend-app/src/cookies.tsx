@@ -76,3 +76,19 @@ export function getUserIDFromToken(token: string): number {
 		return null;
 	}
 }
+
+export function isDarkModeEnabled(cookies: any): boolean {
+	if (
+		!cookies ||
+		cookies == undefined ||
+		!cookies["darkmode"] ||
+		cookies["darkmode"] == undefined
+	) {
+		return false;
+	}
+	if (cookies["darkmode"] == "true") {
+		return true;
+	} else if (cookies["darkmode"] == "false") {
+		return false;
+	}
+}
