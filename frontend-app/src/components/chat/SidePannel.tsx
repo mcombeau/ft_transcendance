@@ -102,10 +102,10 @@ export const SidePannel = (
 				);
 				settingButton = (
 					<button
-						className={`border-2 border-darkblue text-sage m-2 rounded-md w-5 h-5 items-center ${
+						className={`border-2 border-darkblue dark:border-darkdarkblue text-sage dark:text-darksage m-2 rounded-md w-5 h-5 items-center ${
 							settings && isCurrent
-								? "bg-teal hover:bg-darkblue"
-								: "bg-darkblue hover:bg-teal"
+								? "bg-teal dark:bg-darkteal hover:bg-darkblue hover:dark:bg-darkdarkblue"
+								: "bg-darkblue dark:bg-darkdarkblue hover:bg-teal hover:dark:bg-darkteal"
 						}`}
 						onClick={() => {
 							setSettings(!settings);
@@ -132,8 +132,10 @@ export const SidePannel = (
 		return (
 			<div
 				onClick={() => select(type)}
-				className={`text-darkblue rounded-md p-2 m-2 flex ${
-					isCurrent ? "bg-sage border-2 border-darkblue" : "bg-sage"
+				className={`text-darkblue dark:text-darkdarkblue rounded-md p-2 m-2 flex ${
+					isCurrent
+						? "bg-sage dark:bg-darksage border-2 border-darkblue dark:border-darkdarkblue"
+						: "bg-sage dark:bg-darksage"
 				}`}
 			>
 				<div className="flex-1 flex align-middle items-center ml-2">
@@ -148,7 +150,7 @@ export const SidePannel = (
 		<>
 			<form className="flex m-2 space-x-2" onSubmit={createChannel}>
 				<input
-					className="rounded-md flex-1 bg-sage p-2 placeholder:text-darkblue placeholder:opacity-50 focus:outline-none"
+					className="rounded-md flex-1 bg-sage dark:bg-darksage p-2 placeholder:text-darkblue placeholder:dark:text-darkdarkblue placeholder:opacity-50 focus:outline-none"
 					type="text"
 					placeholder="Create new channel"
 					value={newchannel}
@@ -156,11 +158,11 @@ export const SidePannel = (
 						setNewchannel(e.target.value);
 					}}
 				/>
-				<button className="bg-darkblue text-sage hover:bg-teal py-1 px-4 rounded-md hidden xl:block">
+				<button className="bg-darkblue dark:bg-darkdarkblue text-sage dark:text-darksage hover:bg-teal hover:dark:bg-darkteal py-1 px-4 rounded-md hidden xl:block">
 					<BiCommentAdd className="w-5 h-5" />
 				</button>
 			</form>
-			<hr className="bg-lightblue h-1 border-0 mx-2"></hr>
+			<hr className="bg-lightblue dark:bg-darklightblue h-1 border-0 mx-2"></hr>
 			<div id="flex flex-col">
 				{channelInfo(ChanType.Invites)}
 				{channelInfo(ChanType.PublicChans)}

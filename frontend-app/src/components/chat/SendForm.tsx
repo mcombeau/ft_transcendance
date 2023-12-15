@@ -52,12 +52,12 @@ export const SendForm = (
 	}
 	return (
 		<form
-			className="bg-lightblue absolute bottom-0 left-0 right-0 h-10 m-2 flex space-x-2"
+			className="bg-lightblue dark:bg-darklightblue absolute bottom-0 left-0 right-0 h-10 m-2 flex space-x-2"
 			id="form"
 			onSubmit={handleSendMessage}
 		>
 			<input
-				className="rounded-md bg-sage flex-1 focus:outline-none p-2 placeholder:text-darkblue placeholder:opacity-40 text-darkblue"
+				className="rounded-md bg-sage dark:bg-darksage flex-1 focus:outline-none p-2 placeholder:text-darkblue placeholder:dark:text-darkdarkblue placeholder:opacity-40 text-darkblue dark:text-darkdarkblue"
 				placeholder="New message ... "
 				type="text"
 				value={value}
@@ -65,7 +65,7 @@ export const SendForm = (
 					setValue(e.target.value);
 				}}
 			/>
-			<button className="bg-darkblue text-sage hover:bg-teal p-2 px-4 rounded-md">
+			<button className="bg-darkblue dark:bg-darkdarkblue text-sage dark:text-darksage hover:bg-teal hover:dark:bg-darkteal p-2 px-4 rounded-md">
 				Send
 			</button>
 		</form>

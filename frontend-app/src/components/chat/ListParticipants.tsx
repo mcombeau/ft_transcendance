@@ -95,7 +95,7 @@ export const ListParticipants = (
 		return (
 			<>
 				<select
-					className="rounded-md bg-sage px-2 py-0 h-8"
+					className="rounded-md bg-sage dark:bg-darksage px-2 py-0 h-8"
 					id={"mute " + participant.username}
 				>
 					<option value="1">1 minute</option>
@@ -192,7 +192,7 @@ export const ListParticipants = (
 
 	function displayParticipant(participant: User) {
 		return (
-			<div className="items-center grid grid-cols-5 bg-sage rounded m-2 p-2 py-0">
+			<div className="items-center grid grid-cols-5 bg-sage dark:bg-darksage rounded m-2 p-2 py-0">
 				<div id="username" className="col-span-1">
 					{displayUser(participant)}
 				</div>
@@ -224,7 +224,7 @@ export const ListParticipants = (
 
 	function displayBanned(participant: User) {
 		return (
-			<div className="grid grid-cols-5 bg-sage rounded m-2 p-2 items-center py-0">
+			<div className="grid grid-cols-5 bg-sage dark:bg-darksage rounded m-2 p-2 items-center py-0">
 				<div className="col-span-1">
 					<span>{participant.username}</span>
 				</div>
@@ -264,10 +264,14 @@ export const ListParticipants = (
 		<div className="participant_list">
 			{channel.participants.map(displayParticipant)}
 			<h3 className="font-bold text-xl mb-1 mt-4">Banned users</h3>
-			<hr className={`bg-darkblue border-0 h-0.5 mb-4`}></hr>
+			<hr
+				className={`bg-darkblue dark:bg-darkdarkblue border-0 h-0.5 mb-4`}
+			></hr>
 			{channel.banned.map(displayBanned)}
 			<h3 className="font-bold text-xl mb-1 mt-4">Invited users</h3>
-			<hr className={`bg-darkblue border-0 h-0.5 mb-4`}></hr>
+			<hr
+				className={`bg-darkblue dark:bg-darkdarkblue border-0 h-0.5 mb-4`}
+			></hr>
 			{channel.invited.map(displayInvited)}
 		</div>
 	);

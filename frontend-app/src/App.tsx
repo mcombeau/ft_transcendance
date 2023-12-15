@@ -8,7 +8,7 @@ import Leaderboard from "./components/leaderboard/leaderboard";
 import Profile from "./components/profile/profile";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { useCookies } from "react-cookie";
-import { getUserID } from "./cookies";
+import { getUserID, isDarkModeEnabled } from "./cookies";
 import { AuthenticationContext } from "./components/authenticationState";
 import Logout from "./components/logout/logout";
 import { WebSocketContext } from "./contexts/WebsocketContext";
@@ -17,7 +17,7 @@ import Banners, { Banner } from "./components/banner/Banner";
 import FinalizeLogin from "./components/2fa/TwoFactorAuth";
 
 function App() {
-	const [cookies, ,] = useCookies(["token"]);
+	const [cookies, ,] = useCookies(["token", "darkmode"]);
 	const [authenticatedUserID, setAuthenticatedUserID] = useState(
 		getUserID(cookies)
 	);
@@ -38,9 +38,13 @@ function App() {
 		};
 	}, []);
 
+	useEffect(() => {
+		console.log("Dark mode toggled");
+	}, []);
+
 	return (
 		<Router>
-			<div className="app">
+			<div className={`app ${isDarkModeEnabled(cookies) ? "dark" : ""}`}>
 				<AuthenticationContext.Provider value={value}>
 					<NavBar />
 					{Banners(banners, setBanners)}

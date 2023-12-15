@@ -217,9 +217,11 @@ function ProfileSettings(
 	if (!isEditingProfile) return <div></div>;
 
 	return (
-		<div className="text-darkblue">
+		<div className="text-darkblue dark:text-darkdarkblue">
 			<div className="flex justify-between mx-2">
-				<h2 className="font-bold text-sage text-lg">Settings</h2>
+				<h2 className="font-bold text-sage dark:text-darksage text-lg">
+					Settings
+				</h2>
 				<button
 					onClick={() => {
 						setIsEditingProfile(false);
@@ -229,10 +231,13 @@ function ProfileSettings(
 						}
 					}}
 				>
-					{getButtonIcon(ButtonIconType.closeSettings, "w-6 h-6 text-sage")}
+					{getButtonIcon(
+						ButtonIconType.closeSettings,
+						"w-6 h-6 text-sage dark:text-darksage"
+					)}
 				</button>
 			</div>
-			<div className="bg-lightblue rounded-md m-2 p-2">
+			<div className="bg-lightblue dark:bg-darklightblue rounded-md m-2 p-2">
 				<h3 className="font-bold">Avatar</h3>
 				{newAvatar && (
 					<img
@@ -244,7 +249,7 @@ function ProfileSettings(
 				)}
 				<form id="avatar-form" className="m-2">
 					<input
-						className="file:text-sage file:bg-darkblue file:border-none file:rounded-md file:p-1 file:text-sm bg-sage rounded-md p-1"
+						className="file:text-sage file:dark:text-darksage file:bg-darkblue file:dark:bg-darkdarkblue file:border-none file:rounded-md file:p-1 file:text-sm bg-sage dark:bg-darksage rounded-md p-1"
 						type="file"
 						accept=".png,.jpg,.jpeg"
 						name="file"
@@ -254,42 +259,42 @@ function ProfileSettings(
 						}}
 					/>
 					<button
-						className="rounded-md bg-darkblue text-sage text-sm p-2 py-2 m-2"
+						className="rounded-md bg-darkblue dark:bg-darkdarkblue text-sage dark:text-darksage text-sm p-2 py-2 m-2"
 						onClick={submitNewAvatar}
 					>
 						Save new avatar
 					</button>
 					<button
-						className="rounded-md bg-darkblue text-sage text-sm p-2 py-2 m-2"
+						className="rounded-md bg-darkblue dark:bg-darkdarkblue text-sage dark:text-darksage text-sm p-2 py-2 m-2"
 						onClick={removeAvatar}
 					>
 						Remove avatar
 					</button>
 				</form>
 			</div>
-			<div className="bg-lightblue rounded-md m-2 p-2">
+			<div className="bg-lightblue dark:bg-darklightblue rounded-md m-2 p-2">
 				<h3 className="font-bold">Personal Information</h3>
 				<form className="edit_field" onSubmit={submitUserInfo}>
 					<input
-						className="bg-sage rounded-md p-2 m-2 focus:outline-none"
+						className="bg-sage dark:bg-darksage rounded-md p-2 m-2 focus:outline-none"
 						value={newUsername}
 						onChange={(e) => {
 							setNewUsername(e.target.value);
 						}}
 					/>
 					<input
-						className="bg-sage rounded-md p-2 m-2 focus:outline-none"
+						className="bg-sage dark:bg-darksage rounded-md p-2 m-2 focus:outline-none"
 						value={newEmail}
 						onChange={(e) => {
 							setNewEmail(e.target.value);
 						}}
 					/>
-					<button className="rounded-md bg-darkblue text-sage text-sm p-2 py-2 m-2">
+					<button className="rounded-md bg-darkblue dark:bg-darkdarkblue text-sage dark:text-darksage text-sm p-2 py-2 m-2">
 						Save changes
 					</button>
 				</form>
 			</div>
-			<div className="bg-lightblue rounded-md m-2 p-2 mb-0">
+			<div className="bg-lightblue dark:bg-darklightblue rounded-md m-2 p-2 mb-0">
 				<h3 className="font-bold">Security</h3>
 				<input
 					type="checkbox"
@@ -309,20 +314,20 @@ function ProfileSettings(
 					<div>
 						<div className="m-2 w-full flex">
 							<img
-								className="bg-sage relative rounded-md overflow-hidden mx-auto my-2"
+								className="bg-sage dark:bg-darksage relative rounded-md overflow-hidden mx-auto my-2"
 								src={qrcode}
 							></img>
 							<div className="relative mx-auto justify-center">
 								<form onSubmit={submitTwoFaValidationCode}>
 									<input
-										className="bg-sage rounded-md p-2 m-2 focus:outline-none"
+										className="bg-sage dark:bg-darksage rounded-md p-2 m-2 focus:outline-none"
 										placeholder="2fa validation code"
 										value={twoFaValidationCode}
 										onChange={(e) => {
 											setTwoFaValidationCode(e.target.value);
 										}}
 									/>
-									<button className="rounded-md bg-darkblue text-sage text-sm p-2 py-2 m-2">
+									<button className="rounded-md bg-darkblue dark:bg-darkdarkblue text-sage dark:text-darksage text-sm p-2 py-2 m-2">
 										Submit
 									</button>
 								</form>

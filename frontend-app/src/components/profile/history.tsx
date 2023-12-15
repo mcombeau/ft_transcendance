@@ -31,7 +31,7 @@ function getColorLadderLevel(level: LadderLevels) {
 		case LadderLevels.Wood:
 			return "border-wood";
 		default:
-			return "border-sage";
+			return "border-sage dark:border-darksage";
 	}
 }
 
@@ -49,11 +49,11 @@ function displayGame(
 	}
 	const border_color = newLadderLevel
 		? getColorLadderLevel(getLadderLevel(nbWins))
-		: "border-sage";
+		: "border-sage dark:border-darksage";
 
 	return (
 		<p
-			className={`group bg-sage border-4 ${border_color} m-2 p-2 rounded-md flex justify-between ${
+			className={`group bg-sage dark:bg-darksage border-4 ${border_color} m-2 p-2 rounded-md flex justify-between ${
 				key < 10 || showMore ? "" : "hidden"
 			}`}
 			key={key}
@@ -104,7 +104,7 @@ function displayGames(games: Game[], showMore: boolean) {
 
 function displayStat(title: string, value: any) {
 	return (
-		<div className="flex justify-between border-b border-sage py-2">
+		<div className="flex justify-between border-b border-sage dark:border-darksage py-2">
 			<div className="">{title}</div>
 			<div className="font-bold">{value}</div>
 		</div>

@@ -41,7 +41,7 @@ function titleProfile(isMyPage: boolean, user: User) {
 	return (
 		<div className="flex items-center mb-3">
 			<h2 className="w-full font-bold text-3xl ">{user.username}</h2>
-			<div className="flex items-center bg-sage rounded-lg p-1.5">
+			<div className="flex items-center bg-sage dark:bg-darksage rounded-lg p-1.5">
 				<span className={`rounded-full w-1 h-1 p-1.5 m-2 ${statusColor}`} />
 				<p className="px-2 hidden lg:block"> {user.status}</p>
 			</div>
@@ -615,7 +615,7 @@ function Profile({ setBanners }) {
 			</div>
 			<div className="">{GameHistory(user, cookies)}</div>
 			<div
-				className={`bg-teal border-2 border-teal border-y-8 rounded-md absolute top-0 bottom-0 left-0 right-0 m-auto w-1/2 h-3/4 overflow-scroll scrollbar-hide ${
+				className={`bg-teal dark:bg-darkteal border-2 border-teal dark:border-darkteal border-y-8 rounded-md absolute top-0 bottom-0 left-0 right-0 m-auto w-1/2 h-3/4 overflow-scroll scrollbar-hide ${
 					isEditingProfile ? "" : "hidden"
 				}`}
 			>

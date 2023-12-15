@@ -90,7 +90,7 @@ enum UrlState {
 
 function gameDoesNotExitPage() {
 	return (
-		<div className="m-8 text-2xl text-darkblue flex flex-col items-center">
+		<div className="m-8 text-2xl text-darkblue dark:text-darkdarkblue flex flex-col items-center">
 			Game does not exist
 		</div>
 	);
@@ -318,13 +318,16 @@ export const Play = () => {
 	function lobbyPage() {
 		return (
 			<div className="grid place-content-center">
-				<div className=" m-8 text-2xl text-darkblue flex ">
+				<div className=" m-8 text-2xl text-darkblue dark:text-darkdarkblue flex ">
 					<div className=" rounded-full p-1 mx-2">
 						<TbLoader2 className="animate-spin" />
 					</div>
 					<div>Waiting for other player... </div>
 				</div>
-				<button className="button" onClick={leaveLobby}>
+				<button
+					className="button dark:bg-darkteal hover:dark:bg-darklightblue hover:dark:text-darkdarkblue"
+					onClick={leaveLobby}
+				>
 					Stop waiting
 				</button>
 			</div>
@@ -488,7 +491,7 @@ export const Play = () => {
 				<div>
 					<div className="grid place-content-center">
 						<button
-							className="p-4 m-6 px-20 bg-darkblue text-sage rounded-lg text-lg hover:bg-teal"
+							className="p-4 m-6 px-20 font-bold bg-darkblue dark:bg-darkteal text-sage dark:text-darksage rounded-lg text-lg hover:bg-teal hover:dark:bg-darklightblue hover:dark:text-darkdarkblue"
 							onClick={enterLobby}
 						>
 							Play
@@ -510,36 +513,38 @@ export const Play = () => {
 
 		case Page.Play:
 			return (
-				<div className="absolute bg-sage top-0 bottom-0 left-0 right-0 flex flex-col items-center">
-					<div className="bg-lightblue flex flex-col items-center m-4 p-4 rounded-md">
-						<div className="grid grid-cols-2 text-darkblue mb-4 w-full space-x-2">
+				<div className="absolute bg-sage dark:bg-darksage top-0 bottom-0 left-0 right-0 flex flex-col items-center">
+					<div className="bg-lightblue dark:bg-darklightblue flex flex-col items-center m-4 p-4 rounded-md">
+						<div className="grid grid-cols-2 text-darkblue dark:text-darkdarkblue mb-4 w-full space-x-2">
 							<div
 								className={`grid grid-cols-2 space-x-2  rounded-md p-1 ${
 									authenticatedUserID === getPlayerID(1)
-										? "border-2 border-teal"
+										? "border-2 border-teal dark:border-darkteal"
 										: ""
 								}`}
 							>
 								<div
-									className={`bg-sage  rounded-md p-2 text-center font-bold`}
+									className={`bg-sage dark:bg-darksage  rounded-md p-2 text-center font-bold`}
 								>
 									{getPlayerUsername(1)}
 								</div>
-								<div className="bg-sage w-30 rounded-md p-2 text-center">
+								<div className="bg-sage dark:bg-darksage w-30 rounded-md p-2 text-center">
 									{gameState.score[0]}
 								</div>
 							</div>
 							<div
 								className={`grid grid-cols-2  space-x-2 rounded-md p-1 ${
 									authenticatedUserID === getPlayerID(2)
-										? "border-2 border-teal "
+										? "border-2 border-teal dark:border-darkteal "
 										: ""
 								}`}
 							>
-								<div className="bg-sage w-30 rounded-md p-2 text-center">
+								<div className="bg-sage dark:bg-darksage w-30 rounded-md p-2 text-center">
 									{gameState.score[1]}
 								</div>
-								<div className={`bg-sage rounded-md p-2 text-center font-bold`}>
+								<div
+									className={`bg-sage dark:bg-darksage rounded-md p-2 text-center font-bold`}
+								>
 									{getPlayerUsername(2)}
 								</div>
 							</div>

@@ -5,12 +5,15 @@ import { WebSocketContext } from "../../contexts/WebsocketContext";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import { logoutUser } from "../logout/logout";
+import { IoSunnyOutline } from "react-icons/io5";
+import { FaRegMoon } from "react-icons/fa6";
+import { isDarkModeEnabled } from "../../cookies";
 
 function Navbar() {
 	const { authenticatedUserID, setAuthenticatedUserID } = useContext(
 		AuthenticationContext
 	);
-	const [cookies, , removeCookie] = useCookies(["token"]);
+	const [cookies, setCookie, removeCookie] = useCookies(["token", "darkmode"]);
 	const [nav, setNav] = useState(false);
 	const socket = useContext(WebSocketContext);
 	const navigate = useNavigate();
@@ -34,11 +37,28 @@ function Navbar() {
 		};
 	}, []);
 
+	function toggleDarkModeCookie() {
+		if (isDarkModeEnabled(cookies)) {
+			setCookie("darkmode", "false");
+		} else {
+			setCookie("darkmode", "true");
+		}
+		console.log("After set cookie:", cookies["darkmode"]);
+	}
+
 	return (
-		<div className="navbar flex justify-between items-center text-sage bg-teal ">
+		<div className="navbar flex justify-between items-center text-sage dark:text-darksage bg-teal dark:bg-darkteal">
 			<h1 className={"w-full text-lg lg:text-3xl font-bold"}>
 				ft_transcendance
 			</h1>
+			<div onClick={toggleDarkModeCookie}>
+				{isDarkModeEnabled(cookies["darkmode"]) ? (
+					<IoSunnyOutline className="w-6 h-6" />
+				) : (
+					<FaRegMoon className="w-6 h-6" />
+				)}
+			</div>
+
 			<ul className="hidden md:flex font-mono">
 				<li className="navlink">
 					<a href="/">Home</a>
@@ -68,7 +88,7 @@ function Navbar() {
 							<a href="/login">Login</a>
 						</li>
 						<form action="/backend/auth/42login">
-							<button className="bg-darkblue rounded-md m-2 p-2 px-4 whitespace-nowrap">
+							<button className="bg-darkblue dark:bg-darkdarkblue rounded-md m-2 p-2 px-4 whitespace-nowrap">
 								Login with 42
 							</button>
 						</form>
@@ -84,7 +104,7 @@ function Navbar() {
 			<ul
 				className={
 					nav
-						? "fixed left-0 top-16 right-0 w-[60%] h-full bg-teal ease-in-out duration-500"
+						? "fixed left-0 top-16 right-0 w-[60%] h-full bg-teal dark:bg-darkteal ease-in-out duration-500"
 						: "ease-in-out duration-500 fixed top-16 h-full left-[-100%]"
 				}
 			>
@@ -117,7 +137,7 @@ function Navbar() {
 						</li>
 						<form
 							action="/backend/auth/42login"
-							className="navlink-extended bg-darkblue"
+							className="navlink-extended bg-darkblue dark:bg-darkdarkblue"
 						>
 							<button>Login with 42</button>
 						</form>

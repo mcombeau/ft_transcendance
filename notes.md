@@ -7,6 +7,13 @@
   - all libraries are in latest stable version
   - remove unused libraries/modules + fix dependancy issues on frontend backend container creation?
   - Fix offline/online AGAIN
+  - grosse photo marche pas 
+  - quand fiona se connecte ça marche pas (avec 42)
+  - button challenge in profile doesn't work
+  - change size game window height
+
+- Check
+	- check it is ok to see status onlines for people not friends with
 
 - Project validation
 

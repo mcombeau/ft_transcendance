@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+	darkMode: "class",
 	content: ["./src/**/*.tsx", "./src/*.tsx", "./src/**/**/*.tsx"],
 	theme: {
 		extend: {
@@ -8,6 +9,10 @@ module.exports = {
 				lightblue: "#9AD0C2",
 				teal: "#2D9596",
 				darkblue: "#265073",
+				darkdarkblue: "#ECF4D6", // sage replaces darkblue
+				darkteal: "#23716D", // for teal
+				darklightblue: "#173842", // for lightblue
+				darksage: "#102330", // darkdarkblue replaces sage
 				online: "#66CC66",
 				offline: "#FF6961",
 				ingame: "#FFE662",

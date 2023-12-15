@@ -19,22 +19,28 @@ function Home() {
 				<p className="px-2 my-2">
 					This project is made with: [
 					<a
-						className="underline hover:text-teal"
+						className="underline hover:text-teal hover:dark:text-darkteal"
 						href="https://www.docker.com/"
 					>
 						docker & docker-compose
 					</a>
 					] - [
-					<a className="underline hover:text-teal" href="https://react.dev/">
+					<a
+						className="underline hover:text-teal hover:dark:text-darkteal"
+						href="https://react.dev/"
+					>
 						React
 					</a>
 					] - [
-					<a className="underline hover:text-teal" href="https://nestjs.com/">
+					<a
+						className="underline hover:text-teal hover:dark:text-darkteal"
+						href="https://nestjs.com/"
+					>
 						NestJS
 					</a>
 					] - [
 					<a
-						className="underline hover:text-teal"
+						className="underline hover:text-teal hover:dark:text-darkteal"
 						href="https://www.postgresql.org/"
 					>
 						Postgresql
@@ -56,7 +62,7 @@ function Home() {
 				{!authenticatedUserID ? (
 					<div className="flex w-full justify-center">
 						<form action="/backend/auth/42login">
-							<button className="bg-darkblue text-sage rounded-md m-2 p-2 px-4 whitespace-nowrap">
+							<button className="bg-darkblue dark:bg-darkdarkblue text-sage dark:text-darksage rounded-md m-2 p-2 px-4 whitespace-nowrap">
 								Login with 42 to play!
 							</button>
 						</form>
