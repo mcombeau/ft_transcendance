@@ -1,19 +1,16 @@
-- Appearance
-
-  - CSS fix buttons
-
 - Bugs
 
   - all libraries are in latest stable version
   - remove unused libraries/modules + fix dependancy issues on frontend backend container creation?
   - Fix offline/online AGAIN
-  - grosse photo marche pas 
+  - grosse photo marche pas
   - quand fiona se connecte ça marche pas (avec 42)
   - button challenge in profile doesn't work
   - change size game window height
 
 - Check
-	- check it is ok to see status onlines for people not friends with
+
+  - check it is ok to see status onlines for people not friends with
 
 - Project validation
 
@@ -28,7 +25,6 @@
 
   - all tokens are taken directly from socket
   - replay button on you won/ you lost screens
-  - dark mode
   - publish website (see clevercloud)
 
 - IF PROBLEMS WITH LOGOUT/BAD TOKEN:

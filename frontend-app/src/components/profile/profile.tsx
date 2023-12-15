@@ -580,14 +580,14 @@ function Profile({ setBanners }) {
 	}, []);
 
 	return (
-		<div id="profile" className="grid grid-cols-2">
+		<div id="profile" className=" md:grid md:grid-cols-2">
 			<div className="flex flex-col">
-				<div className="background-element grid grid-cols-2">
+				<div className="background-element flex flex-row">
 					<img
 						src={profilePicture}
 						className="w-20 h-20 rounded-full xl:w-60 xl:h-60 m-4"
 					></img>
-					<div className="relative">
+					<div className="relative grow">
 						{titleProfile(isMyPage, user)}
 						{userDetails(user)}
 						{interactWithUser(
