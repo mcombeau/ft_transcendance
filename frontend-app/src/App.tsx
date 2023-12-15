@@ -27,6 +27,7 @@ function App() {
 		[authenticatedUserID]
 	);
 	const [banners, setBanners] = useState<Banner[]>([]);
+	const [darkmode, setDarkmode] = useState<Boolean>(false);
 
 	useEffect(() => {
 		socket.on("logout", () => {
@@ -38,11 +39,15 @@ function App() {
 		};
 	}, []);
 
+	useEffect(() => {
+		console.log("Dark mode toggled:", darkmode);
+	}, [darkmode]);
+
 	return (
 		<Router>
-			<div className="app">
+			<div className={`app ${darkmode ? "dark" : ""}`}>
 				<AuthenticationContext.Provider value={value}>
-					<NavBar />
+					<NavBar setDarkmode={setDarkmode} darkmode={darkmode} />
 					{Banners(banners, setBanners)}
 					<div className="content">
 						<Routes>

@@ -5,8 +5,10 @@ import { WebSocketContext } from "../../contexts/WebsocketContext";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import { logoutUser } from "../logout/logout";
+import { IoSunnyOutline } from "react-icons/io5";
+import { FaRegMoon } from "react-icons/fa6";
 
-function Navbar() {
+function Navbar({ setDarkmode, darkmode }) {
 	const { authenticatedUserID, setAuthenticatedUserID } = useContext(
 		AuthenticationContext
 	);
@@ -35,10 +37,18 @@ function Navbar() {
 	}, []);
 
 	return (
-		<div className="navbar flex justify-between items-center text-sage bg-teal ">
+		<div className="navbar flex justify-between items-center text-sage bg-teal">
 			<h1 className={"w-full text-lg lg:text-3xl font-bold"}>
 				ft_transcendance
 			</h1>
+			<div onClick={() => setDarkmode((prev: boolean) => !prev)}>
+				{darkmode ? (
+					<IoSunnyOutline className="w-6 h-6" />
+				) : (
+					<FaRegMoon className="w-6 h-6" />
+				)}
+			</div>
+
 			<ul className="hidden md:flex font-mono">
 				<li className="navlink">
 					<a href="/">Home</a>
