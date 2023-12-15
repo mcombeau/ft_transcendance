@@ -120,7 +120,7 @@ function displayFriend(
 	if (blocked) {
 		return (
 			<li
-				className="grid grid-cols-2 border border-sage rounded-md my-2"
+				className="grid grid-cols-2 border border-sage dark:border-darksage rounded-md my-2"
 				key={key}
 			>
 				<a className="flex items-center" href={"/user/" + friend.id}>
@@ -151,7 +151,7 @@ function displayFriend(
 
 	return (
 		<li
-			className="grid grid-cols-2 border border-sage rounded-md my-2"
+			className="grid grid-cols-2 border border-sage dark:border-darksage rounded-md my-2"
 			key={key}
 		>
 			<div className="flex items-center">

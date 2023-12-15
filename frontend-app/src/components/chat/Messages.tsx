@@ -125,7 +125,7 @@ export const Messages = (
 						</a>
 						<div
 							key={key}
-							className={`peer rounded-md text-sage max-w-xl flex flex-col p-2 ${
+							className={`peer rounded-md text-sage dark:text-darksage max-w-xl flex flex-col p-2 ${
 								selfSent ? "bg-teal" : "bg-darkblue "
 							}`}
 						>
@@ -169,9 +169,9 @@ export const Messages = (
 
 	function passwordPromptPannel() {
 		return (
-			<div className="absolute bg-teal border-2 border-sage rounded-md top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[50%]">
+			<div className="absolute bg-teal border-2 border-sage dark:border-darksage rounded-md top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[50%]">
 				<div className="flex justify-between m-2">
-					<h2 className="font-bold text-sage text-lg">
+					<h2 className="font-bold text-sage dark:text-darksage text-lg">
 						Attempting to join{" "}
 						{promptedInvite
 							? promptedInvite.chatRoomName
@@ -185,7 +185,10 @@ export const Messages = (
 							setPromptedInvite(null);
 						}}
 					>
-						{getButtonIcon(ButtonIconType.closeSettings, "w-6 h-6 text-sage")}
+						{getButtonIcon(
+							ButtonIconType.closeSettings,
+							"w-6 h-6 text-sage dark:text-darksage"
+						)}
 					</button>
 				</div>
 				<div>
@@ -198,7 +201,7 @@ export const Messages = (
 					>
 						<input
 							type="password"
-							className="bg-sage rounded-md p-2 m-2 focus:outline-none"
+							className="bg-sage dark:bg-darksage rounded-md p-2 m-2 focus:outline-none"
 							placeholder="Password"
 							value={newPassword}
 							onChange={(e) => {
@@ -235,7 +238,7 @@ export const Messages = (
 		return (
 			<div
 				id="messages_invite"
-				className="bg-teal rounded-md p-2 m-2 text-sage flex flex-col"
+				className="bg-teal rounded-md p-2 m-2 text-sage dark:text-darksage flex flex-col"
 			>
 				<div className="self-center">
 					<b>{invite.senderUsername}</b> {messageInvite}
@@ -247,7 +250,7 @@ export const Messages = (
 				</div>
 				<div className="self-center">
 					<button
-						className="bg-sage rounded-md p-2 m-2 text-teal hover:bg-darkblue hover:text-sage "
+						className="bg-sage dark:bg-darksage rounded-md p-2 m-2 text-teal hover:bg-darkblue hover:text-sage hover:dark:text-darksage "
 						id="accept"
 						onClick={() => {
 							acceptInvite(invite);
@@ -258,7 +261,7 @@ export const Messages = (
 
 					<button
 						id="refuse"
-						className="bg-sage rounded-md p-2 m-2 text-teal hover:bg-darkblue hover:text-sage "
+						className="bg-sage dark:bg-darksage rounded-md p-2 m-2 text-teal hover:bg-darkblue hover:text-sage hover:dark:text-darksage "
 						onClick={() => {
 							const info = {
 								token: cookies["token"],
@@ -281,7 +284,7 @@ export const Messages = (
 		if (alreadyInChat) return <></>;
 		var joinButton = (
 			<button
-				className="bg-sage rounded-md p-2 m-2 text-teal hover:bg-darkblue hover:text-sage "
+				className="bg-sage dark:bg-darksage rounded-md p-2 m-2 text-teal hover:bg-darkblue hover:text-sage hover:dark:text-darksage "
 				value={chat.chatRoomID}
 				onClick={(e) => {
 					if (chat.hasPassword) {
@@ -303,7 +306,7 @@ export const Messages = (
 		);
 		return (
 			<div
-				className="bg-teal rounded-md p-1 m-2 text-sage flex justify-between items-center"
+				className="bg-teal rounded-md p-1 m-2 text-sage dark:text-darksage flex justify-between items-center"
 				id="publicchat"
 			>
 				<span className="pl-3">{chat.name}</span>

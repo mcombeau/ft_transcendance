@@ -56,7 +56,7 @@ function Home() {
 				{!authenticatedUserID ? (
 					<div className="flex w-full justify-center">
 						<form action="/backend/auth/42login">
-							<button className="bg-darkblue text-sage rounded-md m-2 p-2 px-4 whitespace-nowrap">
+							<button className="bg-darkblue text-sage dark:text-darksage rounded-md m-2 p-2 px-4 whitespace-nowrap">
 								Login with 42 to play!
 							</button>
 						</form>

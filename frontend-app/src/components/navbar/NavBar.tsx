@@ -37,7 +37,7 @@ function Navbar({ setDarkmode, darkmode }) {
 	}, []);
 
 	return (
-		<div className="navbar flex justify-between items-center text-sage bg-teal">
+		<div className="navbar flex justify-between items-center text-sage dark:text-darksage bg-teal">
 			<h1 className={"w-full text-lg lg:text-3xl font-bold"}>
 				ft_transcendance
 			</h1>

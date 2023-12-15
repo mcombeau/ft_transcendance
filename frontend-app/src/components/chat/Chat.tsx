@@ -953,7 +953,7 @@ export const Chat = ({ setBanners }) => {
 
 	return (
 		<WebSocketProvider value={socket}>
-			<div className="absolute top-0  bottom-0 left-0 right-0 grid grid-cols-4 bg-sage ">
+			<div className="absolute top-0  bottom-0 left-0 right-0 grid grid-cols-4 bg-sage dark:bg-darksage ">
 				<div className="overflow-y-scroll col-span-1 rounded bg-lightblue m-4 border-4 border-lightblue relative scrollbar-hide">
 					{SidePannel(
 						newchannel,

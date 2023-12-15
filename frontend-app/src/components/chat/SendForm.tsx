@@ -57,7 +57,7 @@ export const SendForm = (
 			onSubmit={handleSendMessage}
 		>
 			<input
-				className="rounded-md bg-sage flex-1 focus:outline-none p-2 placeholder:text-darkblue placeholder:opacity-40 text-darkblue"
+				className="rounded-md bg-sage dark:bg-darksage flex-1 focus:outline-none p-2 placeholder:text-darkblue placeholder:opacity-40 text-darkblue"
 				placeholder="New message ... "
 				type="text"
 				value={value}
@@ -65,7 +65,7 @@ export const SendForm = (
 					setValue(e.target.value);
 				}}
 			/>
-			<button className="bg-darkblue text-sage hover:bg-teal p-2 px-4 rounded-md">
+			<button className="bg-darkblue text-sage dark:text-darksage hover:bg-teal p-2 px-4 rounded-md">
 				Send
 			</button>
 		</form>

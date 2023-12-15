@@ -488,7 +488,7 @@ export const Play = () => {
 				<div>
 					<div className="grid place-content-center">
 						<button
-							className="p-4 m-6 px-20 bg-darkblue text-sage rounded-lg text-lg hover:bg-teal"
+							className="p-4 m-6 px-20 bg-darkblue text-sage dark:text-darksage rounded-lg text-lg hover:bg-teal"
 							onClick={enterLobby}
 						>
 							Play
@@ -510,7 +510,7 @@ export const Play = () => {
 
 		case Page.Play:
 			return (
-				<div className="absolute bg-sage top-0 bottom-0 left-0 right-0 flex flex-col items-center">
+				<div className="absolute bg-sage dark:bg-darksage top-0 bottom-0 left-0 right-0 flex flex-col items-center">
 					<div className="bg-lightblue flex flex-col items-center m-4 p-4 rounded-md">
 						<div className="grid grid-cols-2 text-darkblue mb-4 w-full space-x-2">
 							<div
@@ -521,11 +521,11 @@ export const Play = () => {
 								}`}
 							>
 								<div
-									className={`bg-sage  rounded-md p-2 text-center font-bold`}
+									className={`bg-sage dark:bg-darksage  rounded-md p-2 text-center font-bold`}
 								>
 									{getPlayerUsername(1)}
 								</div>
-								<div className="bg-sage w-30 rounded-md p-2 text-center">
+								<div className="bg-sage dark:bg-darksage w-30 rounded-md p-2 text-center">
 									{gameState.score[0]}
 								</div>
 							</div>
@@ -536,10 +536,12 @@ export const Play = () => {
 										: ""
 								}`}
 							>
-								<div className="bg-sage w-30 rounded-md p-2 text-center">
+								<div className="bg-sage dark:bg-darksage w-30 rounded-md p-2 text-center">
 									{gameState.score[1]}
 								</div>
-								<div className={`bg-sage rounded-md p-2 text-center font-bold`}>
+								<div
+									className={`bg-sage dark:bg-darksage rounded-md p-2 text-center font-bold`}
+								>
 									{getPlayerUsername(2)}
 								</div>
 							</div>

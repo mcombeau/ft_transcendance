@@ -327,7 +327,10 @@ export const ContextMenuEl = (
 					setInvitesMenu(false);
 				}}
 			>
-				{getButtonIcon(ButtonIconType.closeSettings, "w-5 h-5 text-sage")}
+				{getButtonIcon(
+					ButtonIconType.closeSettings,
+					"w-5 h-5 text-sage dark:text-sagedark"
+				)}
 			</div>
 		);
 	}
@@ -376,7 +379,7 @@ export const ContextMenuEl = (
 	return (
 		<div
 			ref={menuRef}
-			className={`bg-teal rounded-md text-sage absolute p-0 overflow-y-scroll z-40 scrollbar-hide font-light text-xs`}
+			className={`bg-teal rounded-md text-sage dark:text-darksage absolute p-0 overflow-y-scroll z-40 scrollbar-hide font-light text-xs`}
 			style={{
 				top: `${
 					contextMenuPos.y - messagesContainer.current.getBoundingClientRect().y

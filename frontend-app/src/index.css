@@ -4,7 +4,7 @@
 @tailwind utilities;
 @layer base {
 	body {
-		@apply bg-sage text-xs md:text-sm lg:text-lg;
+		@apply bg-sage dark:bg-darksage text-xs md:text-sm lg:text-lg;
 	}
 }
 
@@ -26,7 +26,7 @@
 
 .navlink-extended {
 	@apply navlink;
-	@apply border-b border-sage;
+	@apply border-b border-sage dark:border-darksage;
 }
 
 .background-element {
@@ -38,7 +38,7 @@
 }
 
 .button {
-	@apply bg-darkblue text-sage hover:bg-teal p-1 m-2 rounded-md;
+	@apply bg-darkblue text-sage dark:text-darksage hover:bg-teal p-1 m-2 rounded-md;
 }
 
 .button-icon {
@@ -51,5 +51,5 @@
 
 .button-sm {
 	@apply button;
-	@apply bg-sage text-darkblue hover:bg-darkblue hover:text-sage;
+	@apply bg-sage dark:bg-darksage text-darkblue hover:bg-darkblue hover:text-sage dark:hover:text-darksage;
 }

@@ -3,7 +3,7 @@ import { GameInfo } from "../play/play";
 
 function displayLiveGame(game: GameInfo) {
 	return (
-		<tr className="border-b-2 border-lightblue hover:bg-teal hover:text-sage">
+		<tr className="border-b-2 border-lightblue hover:bg-teal hover:text-sage hover:dark:text-darksage">
 			<td className="p-2 text-center font-bold border-r-2 border-lightblue border-dashed">
 				<a href={`/user/${game.player1.userID}`}>{game.player1.username}</a>
 			</td>
@@ -24,8 +24,8 @@ function LiveGames(gameInfos: GameInfo[]) {
 		<div className="background-element">
 			<h1 className="title-element">Games currently live !</h1>
 			<div className="rounded-md overflow-hidden">
-				<table className="table-auto w-full bg-sage">
-					<tr className="font-bold text-sage bg-darkblue">
+				<table className="table-auto w-full bg-sage dark:bg-darksage">
+					<tr className="font-bold text-sage dark:text-darksage bg-darkblue">
 						<td className="p-2 text-center">Player 1</td>
 						<td className="p-2 text-center">Player 2</td>
 						<td className="p-2 text-center">Watch Game</td>

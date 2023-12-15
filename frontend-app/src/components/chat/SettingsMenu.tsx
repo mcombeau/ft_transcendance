@@ -100,7 +100,7 @@ export const SettingsMenu = (
 						onSubmit={submitNewPassword}
 					>
 						<input
-							className="bg-sage rounded-md p-2 placeholder:text-darkblue placeholder:opacity-40"
+							className="bg-sage dark:bg-darksage rounded-md p-2 placeholder:text-darkblue placeholder:opacity-40"
 							placeholder="password"
 							type="password"
 							value={newPassword}
