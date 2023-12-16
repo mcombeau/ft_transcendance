@@ -50,7 +50,6 @@ export const SidePannel = (
 
 	const channelInfo = (type: ChanType, channel?: ChatRoom, key?: number) => {
 		let isCurrent: boolean = false;
-		let channel_icon: ReactElement;
 		let channel_alias: ReactElement;
 		let settingButton: ReactElement;
 
@@ -89,20 +88,17 @@ export const SidePannel = (
 					channel.chatRoomID === currentPannel.chatRoomID
 				)
 					isCurrent = true;
-				channel_icon = channel.isDM ? (
-					<>
-						<MdOutlineMessage className="m-1 mr-2" />
-					</>
-				) : (
-					<>
-						<PiChatsDuotone className="m-1 mr-2" />
-					</>
-				);
 
 				channel_alias = channel.isDM ? (
-					<div className="col-span-4">{getDMChannelAlias(channel)}</div>
+					<div className="col-span-5 flex justify-normal items-center">
+						<MdOutlineMessage className="m-1 mr-2" />
+						{getDMChannelAlias(channel)}
+					</div>
 				) : (
-					<div className="col-span-4">{channel.name}</div>
+					<div className="col-span-5 flex justify-normal items-center">
+						<PiChatsDuotone className="m-1 mr-2" />
+						{channel.name}
+					</div>
 				);
 				settingButton = (
 					<button
@@ -142,11 +138,6 @@ export const SidePannel = (
 						: "bg-sage dark:bg-darksage"
 				}`}
 			>
-				{channel_icon ? (
-					<div className="col-span-1">{channel_icon}</div>
-				) : (
-					<></>
-				)}
 				{channel_alias}
 				{settingButton ? (
 					<div className="col-span-1 flex justify-end">{settingButton}</div>
