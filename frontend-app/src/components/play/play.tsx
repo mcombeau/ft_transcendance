@@ -196,16 +196,15 @@ export const Play = () => {
 	);
 
 	useEffect(() => {
-		console.log("windowSize width:", windowSize.width);
 		let newSize: number = 1;
-		if (windowSize.width < 800) {
-			console.log("Triggered small game");
+		if (windowSize.width < 768 || windowSize.height < 640) {
 			newSize = 0.5;
-		} else if (windowSize.width >= 800 && windowSize.width < 1300) {
-			console.log("Triggered large game");
+		} else if (
+			(windowSize.width >= 768 && windowSize.width < 1280) ||
+			(windowSize.height >= 640 && windowSize.height < 768)
+		) {
 			newSize = 1;
-		} else if (windowSize.width >= 1300) {
-			console.log("Triggered large game");
+		} else if (windowSize.width >= 1280 || windowSize.height >= 768) {
 			newSize = 1.5;
 		}
 		setSizeGame(newSize);
