@@ -55,7 +55,7 @@ function displayLineLeaderboard(
 	index: number
 ) {
 	return (
-		<tr className="border-b-2 border-lightblue dark:border-darklightblue hover:bg-teal dark:hover:bg-darkteal hover:text-sage hover:dark:text-darksage">
+		<tr className="border-b-2 border-lightblue dark:border-darklightblue hover:bg-teal dark:hover:bg-darkteal hover:text-sage hover:dark:text-darksage border-t-2 border-t-darkblue dark:border-t-darksage">
 			<td className="p-2 text-center font-bold border-r-2 border-lightblue dark:border-darklightblue border-dashed">
 				{index + 1}
 			</td>

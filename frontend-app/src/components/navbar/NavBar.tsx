@@ -47,7 +47,7 @@ function Navbar() {
 	}
 
 	return (
-		<div className="navbar flex justify-between items-center text-sage dark:text-darksage bg-teal dark:bg-darkteal">
+		<div className="navbar flex justify-between items-center text-sage dark:text-darkdarkblue bg-teal dark:bg-darkteal">
 			<h1 className={"w-full text-lg lg:text-3xl font-bold"}>
 				ft_transcendance
 			</h1>
@@ -88,7 +88,7 @@ function Navbar() {
 							<a href="/login">Login</a>
 						</li>
 						<form action="/backend/auth/42login">
-							<button className="bg-darkblue dark:bg-darkdarkblue rounded-md m-2 p-2 px-4 whitespace-nowrap">
+							<button className="bg-darkblue font-bold dark:bg-darkdarkblue dark:text-darksage rounded-md m-2 p-2 px-4 whitespace-nowrap">
 								Login with 42
 							</button>
 						</form>

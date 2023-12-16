@@ -216,27 +216,8 @@ function ProfileSettings(
 
 	if (!isEditingProfile) return <div></div>;
 
-	return (
-		<div className="text-darkblue dark:text-darkdarkblue">
-			<div className="flex justify-between mx-2">
-				<h2 className="font-bold text-sage dark:text-darksage text-lg">
-					Settings
-				</h2>
-				<button
-					onClick={() => {
-						setIsEditingProfile(false);
-						setNewAvatar(null);
-						if (location.hash === "#settings") {
-							navigate("/user/" + authenticatedUserID);
-						}
-					}}
-				>
-					{getButtonIcon(
-						ButtonIconType.closeSettings,
-						"w-6 h-6 text-sage dark:text-darksage"
-					)}
-				</button>
-			</div>
+	function avatarSetting() {
+		return (
 			<div className="bg-lightblue dark:bg-darklightblue rounded-md m-2 p-2">
 				<h3 className="font-bold">Avatar</h3>
 				{newAvatar && (
@@ -272,6 +253,11 @@ function ProfileSettings(
 					</button>
 				</form>
 			</div>
+		);
+	}
+
+	function personalInfoSetting() {
+		return (
 			<div className="bg-lightblue dark:bg-darklightblue rounded-md m-2 p-2">
 				<h3 className="font-bold">Personal Information</h3>
 				<form className="edit_field" onSubmit={submitUserInfo}>
@@ -294,9 +280,15 @@ function ProfileSettings(
 					</button>
 				</form>
 			</div>
-			<div className="bg-lightblue dark:bg-darklightblue rounded-md m-2 p-2 mb-0">
+		);
+	}
+
+	function twoFactorSetting() {
+		return (
+			<div className="bg-lightblue dark:bg-darklightblue rounded-md m-2 mb-6 p-2">
 				<h3 className="font-bold">Security</h3>
 				<input
+					className="m-2 py-2"
 					type="checkbox"
 					checked={is2faEnabled}
 					onChange={() => {
@@ -312,9 +304,9 @@ function ProfileSettings(
 				<label> Enable two-factor authentication</label>
 				{qrcode && (
 					<div>
-						<div className="m-2 w-full flex">
+						<div className="flex w-full m-2">
 							<img
-								className="bg-sage dark:bg-darksage relative rounded-md overflow-hidden mx-auto my-2"
+								className="bg-sage dark:bg-darkdarkblue relative rounded-md overflow-hidden mx-auto my-2"
 								src={qrcode}
 							></img>
 							<div className="relative mx-auto justify-center">
@@ -335,7 +327,36 @@ function ProfileSettings(
 						</div>
 					</div>
 				)}
-				<canvas id="canvas"></canvas>
+				<canvas id="canvas" className="hidden"></canvas>
+			</div>
+		);
+	}
+
+	return (
+		<div className="text-darkblue dark:text-darkdarkblue h-full">
+			<div className="flex justify-between m-2">
+				<h2 className="font-bold text-sage dark:text-darksage text-lg">
+					Settings
+				</h2>
+				<button
+					onClick={() => {
+						setIsEditingProfile(false);
+						setNewAvatar(null);
+						if (location.hash === "#settings") {
+							navigate("/user/" + authenticatedUserID);
+						}
+					}}
+				>
+					{getButtonIcon(
+						ButtonIconType.closeSettings,
+						"w-6 h-6 text-sage dark:text-darksage"
+					)}
+				</button>
+			</div>
+			<div className="h-[90%] m-b-4 overflow-y-scroll scrollbar-hide">
+				{avatarSetting()}
+				{personalInfoSetting()}
+				{twoFactorSetting()}
 			</div>
 		</div>
 	);

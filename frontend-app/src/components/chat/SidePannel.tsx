@@ -75,13 +75,11 @@ export const SidePannel = (
 		switch (type) {
 			case ChanType.Invites:
 				if (currentPannel.type === PannelType.invite) isCurrent = true;
-				channel_alias = <>Invites</>;
-				settingButton = <></>;
+				channel_alias = <div className="col-span-6">Invites</div>;
 				break;
 			case ChanType.PublicChans:
 				if (currentPannel.type === PannelType.publicChats) isCurrent = true;
-				channel_alias = <>Public Chats</>;
-				settingButton = <></>;
+				channel_alias = <div className="col-span-6">Public Chats</div>;
 				break;
 
 			default:
@@ -90,19 +88,21 @@ export const SidePannel = (
 					channel.chatRoomID === currentPannel.chatRoomID
 				)
 					isCurrent = true;
+
 				channel_alias = channel.isDM ? (
-					<>
-						<MdOutlineMessage className="m-1 mr-2" />{" "}
+					<div className="col-span-5 flex justify-normal items-center">
+						<MdOutlineMessage className="m-1 mr-2" />
 						{getDMChannelAlias(channel)}
-					</>
+					</div>
 				) : (
-					<>
-						<PiChatsDuotone className="m-1 mr-2" /> {channel.name}
-					</>
+					<div className="col-span-5 flex justify-normal items-center">
+						<PiChatsDuotone className="m-1 mr-2" />
+						{channel.name}
+					</div>
 				);
 				settingButton = (
 					<button
-						className={`border-2 border-darkblue dark:border-darkdarkblue text-sage dark:text-darksage m-2 rounded-md w-5 h-5 items-center ${
+						className={`border-2 border-darkblue dark:border-darkdarkblue text-sage dark:text-darksage m-2 rounded-md w-5 h-5 ${
 							settings && isCurrent
 								? "bg-teal dark:bg-darkteal hover:bg-darkblue hover:dark:bg-darkdarkblue"
 								: "bg-darkblue dark:bg-darkdarkblue hover:bg-teal hover:dark:bg-darkteal"
@@ -132,25 +132,30 @@ export const SidePannel = (
 		return (
 			<div
 				onClick={() => select(type)}
-				className={`text-darkblue dark:text-darkdarkblue rounded-md p-2 m-2 flex ${
+				className={`grid grid-cols-6 items-center justify-end text-darkblue dark:text-darkdarkblue rounded-md p-2 m-2 ${
 					isCurrent
 						? "bg-sage dark:bg-darksage border-2 border-darkblue dark:border-darkdarkblue"
 						: "bg-sage dark:bg-darksage"
 				}`}
 			>
-				<div className="flex-1 flex align-middle items-center ml-2">
-					{channel_alias}
-				</div>
-				{settingButton}
+				{channel_alias}
+				{settingButton ? (
+					<div className="col-span-1 flex justify-end">{settingButton}</div>
+				) : (
+					<></>
+				)}
 			</div>
 		);
 	};
 
 	return (
-		<>
-			<form className="flex m-2 space-x-2" onSubmit={createChannel}>
+		<div className="">
+			<form
+				className="grid grid-cols-4 md:grid-cols-6 place-content-center gap-1 m-2"
+				onSubmit={createChannel}
+			>
 				<input
-					className="rounded-md flex-1 bg-sage dark:bg-darksage p-2 placeholder:text-darkblue placeholder:dark:text-darkdarkblue placeholder:opacity-50 focus:outline-none"
+					className="rounded-md col-span-3 md:col-span-5 bg-sage dark:bg-darksage p-2 placeholder:text-darkblue placeholder:dark:text-darkdarkblue placeholder:opacity-50 focus:outline-none focus:text-darkblue dark:focus:text-darkdarkblue"
 					type="text"
 					placeholder="Create new channel"
 					value={newchannel}
@@ -158,11 +163,11 @@ export const SidePannel = (
 						setNewchannel(e.target.value);
 					}}
 				/>
-				<button className="bg-darkblue dark:bg-darkdarkblue text-sage dark:text-darksage hover:bg-teal hover:dark:bg-darkteal py-1 px-4 rounded-md hidden xl:block">
-					<BiCommentAdd className="w-5 h-5" />
+				<button className="flex justify-center bg-darkblue dark:bg-darkdarkblue text-sage dark:text-darksage hover:bg-teal hover:dark:bg-darkteal p-1 py-2 rounded-md">
+					<BiCommentAdd className="w-4 h-4 lg:w-6 lg:h-6" />
 				</button>
 			</form>
-			<hr className="bg-lightblue dark:bg-darklightblue h-1 border-0 mx-2"></hr>
+			<hr className="invisible h-1 mx-2"></hr>
 			<div id="flex flex-col">
 				{channelInfo(ChanType.Invites)}
 				{channelInfo(ChanType.PublicChans)}
@@ -181,7 +186,7 @@ export const SidePannel = (
 						channelInfo(ChanType.Channel, channel, key)
 					)}
 			</div>
-		</>
+		</div>
 	);
 };
 
