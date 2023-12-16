@@ -119,17 +119,24 @@ function winPage(gameDetails: GameDetails, authenticatedUserID: number) {
 			{gameDetails.loserUsername}: {gameDetails.loserScore})
 		</p>
 	);
+	const replayButton = (
+		<a className="button" href="/play">
+			Play again!
+		</a>
+	);
 	switch (authenticatedUserID) {
 		case gameDetails.winnerID:
 			return (
 				<>
-					<h2 className="title-element">You won !</h2> {scoreDisplay}
+					<h2 className="title-element">You won !</h2> {scoreDisplay}{" "}
+					{replayButton}
 				</>
 			);
 		case gameDetails.loserID:
 			return (
 				<>
-					<h2 className="title-element">You lost !</h2> {scoreDisplay}
+					<h2 className="title-element">You lost !</h2> {scoreDisplay}{" "}
+					{replayButton}
 				</>
 			);
 
@@ -140,6 +147,7 @@ function winPage(gameDetails: GameDetails, authenticatedUserID: number) {
 						{gameDetails.winnerUsername} won !
 					</h2>
 					{scoreDisplay}
+					{replayButton}
 				</>
 			);
 	}
@@ -267,7 +275,7 @@ export const Play = () => {
 		if (event.key === "w" || event.key === "k" || event.key === UP) {
 			event.preventDefault();
 			socket.emit("up", cookies["token"]);
-		} else if (event.key === "s" || event === "j" || event.key === DOWN) {
+		} else if (event.key === "s" || event.key === "j" || event.key === DOWN) {
 			event.preventDefault();
 			socket.emit("down", cookies["token"]);
 		}
