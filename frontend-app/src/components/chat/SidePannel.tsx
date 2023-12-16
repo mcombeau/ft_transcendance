@@ -76,15 +76,11 @@ export const SidePannel = (
 		switch (type) {
 			case ChanType.Invites:
 				if (currentPannel.type === PannelType.invite) isCurrent = true;
-				channel_icon = <></>;
-				channel_alias = <>Invites</>;
-				settingButton = <></>;
+				channel_alias = <div className="col-span-6">Invites</div>;
 				break;
 			case ChanType.PublicChans:
 				if (currentPannel.type === PannelType.publicChats) isCurrent = true;
-				channel_icon = <></>;
-				channel_alias = <>Public Chats</>;
-				settingButton = <></>;
+				channel_alias = <div className="col-span-6">Public Chats</div>;
 				break;
 
 			default:
@@ -104,9 +100,9 @@ export const SidePannel = (
 				);
 
 				channel_alias = channel.isDM ? (
-					<>{getDMChannelAlias(channel)}</>
+					<div className="col-span-4">{getDMChannelAlias(channel)}</div>
 				) : (
-					<>{channel.name}</>
+					<div className="col-span-4">{channel.name}</div>
 				);
 				settingButton = (
 					<button
@@ -140,15 +136,23 @@ export const SidePannel = (
 		return (
 			<div
 				onClick={() => select(type)}
-				className={`flex items-center justify-normal text-darkblue dark:text-darkdarkblue rounded-md p-2 m-2 ${
+				className={`grid grid-cols-6 items-center justify-end text-darkblue dark:text-darkdarkblue rounded-md p-2 m-2 ${
 					isCurrent
 						? "bg-sage dark:bg-darksage border-2 border-darkblue dark:border-darkdarkblue"
 						: "bg-sage dark:bg-darksage"
 				}`}
 			>
-				<div className="hidden md:block">{channel_icon}</div>
+				{channel_icon ? (
+					<div className="col-span-1">{channel_icon}</div>
+				) : (
+					<></>
+				)}
 				{channel_alias}
-				<div className="justify-self-end">{settingButton}</div>
+				{settingButton ? (
+					<div className="col-span-1 flex justify-end">{settingButton}</div>
+				) : (
+					<></>
+				)}
 			</div>
 		);
 	};
@@ -172,7 +176,7 @@ export const SidePannel = (
 					<BiCommentAdd className="w-4 h-4 lg:w-6 lg:h-6" />
 				</button>
 			</form>
-			<hr className="bg-lightblue dark:bg-darklightblue h-1 border-0 mx-2"></hr>
+			<hr className="invisible h-1 mx-2"></hr>
 			<div id="flex flex-col">
 				{channelInfo(ChanType.Invites)}
 				{channelInfo(ChanType.PublicChans)}
