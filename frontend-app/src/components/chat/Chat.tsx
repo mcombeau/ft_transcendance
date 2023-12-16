@@ -28,6 +28,7 @@ import {
 	MdOutlineKeyboardDoubleArrowLeft,
 	MdOutlineKeyboardDoubleArrowRight,
 } from "react-icons/md";
+import { useWindowSize } from "@uidotdev/usehooks";
 
 export function isInChannel(
 	userID: number,
@@ -221,6 +222,7 @@ export const Chat = ({ setBanners }) => {
 	const [redirected, setRedirected] = useState(false);
 	const { authenticatedUserID } = useContext(AuthenticationContext);
 	const [sidePannel, setSidePannel] = useState(true);
+	const windowSize = useWindowSize();
 
 	var urlUserID: string = useParams().userID;
 	let navigate = useNavigate();
@@ -920,6 +922,13 @@ export const Chat = ({ setBanners }) => {
 				}
 			);
 		}
+
+		if (windowSize.width > 768) {
+			return;
+		}
+		if (currentPannel.type != PannelType.home && sidePannel === true) {
+			setSidePannel(false);
+		}
 	}, [currentPannel]);
 
 	useEffect(() => {
@@ -953,6 +962,15 @@ export const Chat = ({ setBanners }) => {
 		setCurrentPannel({ type: PannelType.chat, chatRoomID: targetDMID });
 		setRedirected(true);
 	}, [myChats]);
+
+	useEffect(() => {
+		if (windowSize.width > 768) {
+			return;
+		}
+		if (settings === true && sidePannel === true) {
+			setSettings(false);
+		}
+	}, [sidePannel]);
 
 	useEffect(() => {
 		if (!authenticatedUserID) {
