@@ -286,7 +286,7 @@ export const Messages = (
 		if (alreadyInChat) return <></>;
 		var joinButton = (
 			<button
-				className="bg-sage dark:bg-darksage rounded-md p-2 m-2 text-teal dark:text-darkteal hover:bg-darkblue hover:dark:bg-darkdarkblue hover:text-sage hover:dark:text-darksage "
+				className="bg-sage dark:bg-darksage rounded-md p-2 m-2 text-teal dark:text-darkdarkblue hover:bg-darkblue hover:dark:bg-darkdarkblue hover:text-sage hover:dark:text-darksage "
 				value={chat.chatRoomID}
 				onClick={(e) => {
 					if (chat.hasPassword) {
@@ -308,7 +308,7 @@ export const Messages = (
 		);
 		return (
 			<div
-				className="bg-teal dark:bg-darkteal rounded-md p-1 m-2 text-sage dark:text-darksage flex justify-between items-center"
+				className="bg-teal dark:bg-darkteal rounded-md p-1 m-2 text-sage dark:text-darkdarkblue flex justify-between items-center"
 				id="publicchat"
 			>
 				<span className="pl-3">{chat.name}</span>
