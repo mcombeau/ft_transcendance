@@ -17,7 +17,6 @@
 - Nice to have
 
   - all tokens are taken directly from socket
-  - replay button on you won/ you lost screens
   - publish website (see clevercloud)
 
 - IF PROBLEMS WITH LOGOUT/BAD TOKEN:
