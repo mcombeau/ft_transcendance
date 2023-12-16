@@ -1003,14 +1003,16 @@ export const Chat = ({ setBanners }) => {
 					)}
 				</div>
 				<div
-					className={`block z-20 text-darkblue dark:text-darkdarkblue pl-1 translate-y-1/2 `}
+					className={` z-20 text-darkblue dark:text-darkdarkblue overflow-y-clip `}
 					onClick={toggleSidePannel}
 				>
-					{sidePannel ? (
-						<MdOutlineKeyboardDoubleArrowLeft size={25} />
-					) : (
-						<MdOutlineKeyboardDoubleArrowRight size={25} />
-					)}
+					<div className="h-full translate-y-1/2 pl-1">
+						{sidePannel ? (
+							<MdOutlineKeyboardDoubleArrowLeft size={25} />
+						) : (
+							<MdOutlineKeyboardDoubleArrowRight size={25} />
+						)}
+					</div>
 				</div>
 				<div
 					className={`flex-grow justify-between bg-lightblue dark:bg-darklightblue rounded m-4 relative`}
