@@ -5,7 +5,6 @@
   - Fix offline/online AGAIN
   - upload avatar: large file size breaks everything ([mcombeau]kali-cubism.jpg image is also a problem)
   - new 42 user login broken (500 server error)
-  - button challenge in profile doesn't work
 
 - Project validation
 

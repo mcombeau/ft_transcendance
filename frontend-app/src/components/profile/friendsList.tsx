@@ -11,6 +11,7 @@ import { AuthenticationContext } from "../authenticationState";
 import { getButtonIcon, ButtonIconType } from "../styles/icons";
 import {
 	blockUser,
+	challenge,
 	getUserStatusColor,
 	unblockUser,
 	unfriend,
@@ -19,6 +20,7 @@ import {
 import { Friend } from "./profile";
 import { GameInfo } from "../play/play";
 import { IoEye } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 
 type BlockedUser = Friend;
 
@@ -107,6 +109,22 @@ function unfriendButton(
 	);
 }
 
+function challengeButton(
+	myID: number,
+	friendID: number,
+	cookies: any,
+	navigate: any
+) {
+	return (
+		<button
+			className="button-sm"
+			onClick={() => challenge(friendID, myID, cookies, navigate)}
+		>
+			{getButtonIcon(ButtonIconType.challenge, "button-icon-sm")}
+		</button>
+	);
+}
+
 function displayFriend(
 	friend: Friend,
 	isMyPage: boolean,
@@ -114,6 +132,7 @@ function displayFriend(
 	cookies: any,
 	setFriends: any,
 	gameInfos: GameInfo[],
+	navigate: any,
 	key: number,
 	blocked: boolean = false
 ) {
@@ -140,9 +159,7 @@ function displayFriend(
 			<div className="justify-self-end">
 				{blockButton(myID, friend.id, cookies, setFriends)}
 				{unfriendButton(myID, friend.id, cookies, setFriends)}
-				<button className="button-sm">
-					{getButtonIcon(ButtonIconType.challenge, "button-icon-sm")}
-				</button>
+				{challengeButton(myID, friend.id, cookies, navigate)}
 			</div>
 		);
 	} else {
@@ -184,6 +201,7 @@ function displayFriends(
 	cookies: any,
 	setFriends: any,
 	gameInfos: GameInfo[],
+	navigate: any,
 	blocked: boolean = false
 ) {
 	if (friends === undefined)
@@ -198,6 +216,7 @@ function displayFriends(
 					cookies,
 					setFriends,
 					gameInfos,
+					navigate,
 					key,
 					blocked
 				)
@@ -217,6 +236,7 @@ function FriendsList(
 	const [blockedUsers, setBlockedUsers] = useState<BlockedUser[]>();
 	const { authenticatedUserID } = useContext(AuthenticationContext);
 	const socket = useContext(WebSocketContext);
+	const navigate = useNavigate();
 
 	async function fetchFriends(userID: number, cookies: any) {
 		var request = {
@@ -330,7 +350,8 @@ function FriendsList(
 					authenticatedUserID,
 					cookies,
 					setFriends,
-					gameInfos
+					gameInfos,
+					navigate
 				)}
 			</div>
 			{isMyPage ? (
@@ -343,6 +364,7 @@ function FriendsList(
 						cookies,
 						setBlockedUsers,
 						gameInfos,
+						navigate,
 						true
 					)}
 				</div>

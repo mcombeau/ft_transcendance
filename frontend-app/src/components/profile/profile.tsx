@@ -315,8 +315,8 @@ function blockButton(
 	);
 }
 
-async function challenge(
-	user: User,
+export async function challenge(
+	userID: number,
 	authenticatedUserID: number,
 	cookies: any,
 	navigate: any
@@ -330,7 +330,7 @@ async function challenge(
 		body: JSON.stringify({
 			type: typeInvite.Game,
 			senderID: authenticatedUserID,
-			invitedUserID: user.id,
+			invitedUserID: userID,
 		}),
 	};
 	const inviteID = await fetch("/backend/invites", request).then(
@@ -357,7 +357,7 @@ function challengeButton(
 	return (
 		<button
 			className="button"
-			onClick={() => challenge(user, authenticatedUserID, cookies, navigate)}
+			onClick={() => challenge(user.id, authenticatedUserID, cookies, navigate)}
 		>
 			{getButtonIcon(ButtonIconType.challenge)}
 		</button>
