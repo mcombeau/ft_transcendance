@@ -5,7 +5,7 @@ import {
 	GameRoom,
 } from "./game.gateway.service";
 
-export const WINNING_SCORE = 50;
+export const WINNING_SCORE = 10;
 export const GAME_SPEED = 6;
 
 const TERRAIN_HEIGHT = 400;
