@@ -51,9 +51,7 @@ export class SocketGateway implements OnModuleInit {
 		this.server.on("connection", async (socket) => {
 			try {
 				this.logger.debug("[Connection event]: Received connection event");
-				this.logger.debug(socket.handshake.headers);
 				const token = socket.handshake.headers.authorization.split(" ")[1];
-				this.logger.debug(token);
 				const tokenInfo: JwtToken = await this.authService.validateToken(token);
 				if (tokenInfo === null) return;
 				const user = await this.userService.fetchUserByID(tokenInfo.userID);
