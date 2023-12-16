@@ -164,7 +164,7 @@ export const SidePannel = (
 				onSubmit={createChannel}
 			>
 				<input
-					className="rounded-md col-span-3 md:col-span-5 bg-sage dark:bg-darksage p-2 placeholder:text-darkblue placeholder:dark:text-darkdarkblue placeholder:opacity-50 focus:outline-none"
+					className="rounded-md col-span-3 md:col-span-5 bg-sage dark:bg-darksage p-2 placeholder:text-darkblue placeholder:dark:text-darkdarkblue placeholder:opacity-50 focus:outline-none focus:text-darkblue dark:focus:text-darkdarkblue"
 					type="text"
 					placeholder="Create new channel"
 					value={newchannel}
