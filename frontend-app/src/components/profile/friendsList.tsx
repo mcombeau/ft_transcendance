@@ -334,7 +334,7 @@ function FriendsList(
 				)}
 			</div>
 			{isMyPage ? (
-				<div className="border-t">
+				<div className="border-t border-sage dark:border-darksage">
 					<h3 className="title-element">Blocked Users:</h3>
 					{displayFriends(
 						blockedUsers,
