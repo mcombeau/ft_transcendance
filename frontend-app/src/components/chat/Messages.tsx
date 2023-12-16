@@ -240,7 +240,7 @@ export const Messages = (
 		return (
 			<div
 				id="messages_invite"
-				className="bg-teal dark:bg-darkteal rounded-md p-2 m-2 text-sage dark:text-darksage flex flex-col"
+				className="bg-teal dark:bg-darkteal rounded-md p-2 m-2 text-sage dark:text-darkdarkblue flex flex-col"
 			>
 				<div className="self-center">
 					<b>{invite.senderUsername}</b> {messageInvite}
@@ -252,7 +252,7 @@ export const Messages = (
 				</div>
 				<div className="self-center">
 					<button
-						className="bg-sage dark:bg-darksage rounded-md p-2 m-2 text-teal dark:text-darkteal hover:bg-darkblue hover:dark:bg-darkdarkblue hover:text-sage hover:dark:text-darksage "
+						className="bg-sage dark:bg-darksage rounded-md p-2 m-2 text-teal dark:text-darkdarkblue hover:bg-darkblue hover:dark:bg-darkdarkblue hover:text-sage hover:dark:text-darksage "
 						id="accept"
 						onClick={() => {
 							acceptInvite(invite);
@@ -263,7 +263,7 @@ export const Messages = (
 
 					<button
 						id="refuse"
-						className="bg-sage dark:bg-darksage rounded-md p-2 m-2 text-teal dark:text-darkteal hover:bg-darkblue hover:dark:bg-darkdarkblue hover:text-sage hover:dark:text-darksage "
+						className="bg-sage dark:bg-darksage rounded-md p-2 m-2 text-teal dark:text-darkdarkblue hover:bg-darkblue hover:dark:bg-darkdarkblue hover:text-sage hover:dark:text-darksage "
 						onClick={() => {
 							const info = {
 								token: cookies["token"],
