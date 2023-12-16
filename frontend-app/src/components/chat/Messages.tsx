@@ -203,7 +203,7 @@ export const Messages = (
 					>
 						<input
 							type="password"
-							className="bg-sage dark:bg-darksage rounded-md p-2 m-2 focus:outline-none"
+							className="bg-sage dark:bg-darksage rounded-md p-2 m-2 focus:outline-none focus:text-sage focus:dark:text-darkdarkblue"
 							placeholder="Password"
 							value={newPassword}
 							onChange={(e) => {
