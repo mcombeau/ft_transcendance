@@ -985,7 +985,7 @@ export const Chat = ({ setBanners }) => {
 					className={`overflow-y-scroll rounded bg-lightblue dark:bg-darklightblue m-4 border-4 border-lightblue dark:border-darklightblue scrollbar-hide ${
 						sidePannel
 							? "relative left-0 top-0 w-[100%] md:w-[30%] rounded-md ease-in-out duration-500 z-10"
-							: "ease-in-out duration-500 fixed top-0 h-full left-[-100%] z-10"
+							: "ease-in-out duration-500 fixed h-full left-[-100%] z-10"
 					}`}
 				>
 					{SidePannel(
