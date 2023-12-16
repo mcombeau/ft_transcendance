@@ -138,7 +138,7 @@ function winPage(gameDetails: GameDetails, authenticatedUserID: number) {
 				<>
 					<h2 className="" title-element>
 						{gameDetails.winnerUsername} won !
-					</h2>{" "}
+					</h2>
 					{scoreDisplay}
 				</>
 			);
@@ -264,10 +264,10 @@ export const Play = () => {
 	}
 
 	function handleKeyPress(event: any, cookies: any) {
-		if (event.key === "w" || event.key === UP) {
+		if (event.key === "w" || event.key === "k" || event.key === UP) {
 			event.preventDefault();
 			socket.emit("up", cookies["token"]);
-		} else if (event.key === "s" || event.key === DOWN) {
+		} else if (event.key === "s" || event === "j" || event.key === DOWN) {
 			event.preventDefault();
 			socket.emit("down", cookies["token"]);
 		}
@@ -646,8 +646,8 @@ export const Play = () => {
 					</div>
 					<div id="controls" className="text-darkblue">
 						<p className="text-sm">
-							[Hint]: Use W or ↑ to move your paddle up and S or ↓ to move your
-							paddle down.
+							[Hint]: Use W or K or ↑ to move your paddle up and S or J or ↓ to
+							move your paddle down.
 						</p>
 					</div>
 				</div>
