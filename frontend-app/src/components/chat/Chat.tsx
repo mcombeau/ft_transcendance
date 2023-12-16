@@ -24,6 +24,10 @@ import {
 import { AuthenticationContext } from "../authenticationState";
 import { getFormattedTime } from "../styles/dateFormat";
 import { BannerType, createBanner } from "../banner/Banner";
+import {
+	MdOutlineKeyboardDoubleArrowLeft,
+	MdOutlineKeyboardDoubleArrowRight,
+} from "react-icons/md";
 
 export function isInChannel(
 	userID: number,
@@ -212,13 +216,18 @@ export const Chat = ({ setBanners }) => {
 	const [currentPannel, setCurrentPannel] = useState<CurrentPannel>({
 		type: PannelType.home,
 	});
-
 	const [blockedUsers, setBlockedUsers] = useState([]);
 	const [invites, setInvites] = useState([]);
 	const [redirected, setRedirected] = useState(false);
 	const { authenticatedUserID } = useContext(AuthenticationContext);
+	const [sidePannel, setSidePannel] = useState(true);
+
 	var urlUserID: string = useParams().userID;
 	let navigate = useNavigate();
+
+	const toggleSidePannel = () => {
+		setSidePannel(!sidePannel);
+	};
 
 	function getChannel(chatRoomID: number): ChatRoom {
 		return myChats.find((e) => e.chatRoomID === chatRoomID);
@@ -953,8 +962,14 @@ export const Chat = ({ setBanners }) => {
 
 	return (
 		<WebSocketProvider value={socket}>
-			<div className="absolute top-0  bottom-0 left-0 right-0 flex bg-sage dark:bg-darksage ">
-				<div className="relative flex-none w-1/4 md:w-1/4 overflow-y-scroll rounded bg-lightblue dark:bg-darklightblue m-4 border-4 border-lightblue dark:border-darklightblue scrollbar-hide">
+			<div className="absolute flex top-0 bottom-0 left-0 right-0 bg-sage dark:bg-darksage ">
+				<div
+					className={`overflow-y-scroll rounded bg-lightblue dark:bg-darklightblue m-4 border-4 border-lightblue dark:border-darklightblue scrollbar-hide ${
+						sidePannel
+							? "relative left-0 top-0 w-[100%] md:w-[30%] rounded-md ease-in-out duration-500 z-10"
+							: "ease-in-out duration-500 fixed top-0 h-full left-[-100%] z-10"
+					}`}
+				>
 					{SidePannel(
 						newchannel,
 						setNewchannel,
@@ -967,6 +982,16 @@ export const Chat = ({ setBanners }) => {
 						authenticatedUserID,
 						currentPannel,
 						setCurrentPannel
+					)}
+				</div>
+				<div
+					className={`block z-20 text-darkblue dark:text-darkdarkblue pl-1 translate-y-1/2 `}
+					onClick={toggleSidePannel}
+				>
+					{sidePannel ? (
+						<MdOutlineKeyboardDoubleArrowLeft size={25} />
+					) : (
+						<MdOutlineKeyboardDoubleArrowRight size={25} />
 					)}
 				</div>
 				<div
