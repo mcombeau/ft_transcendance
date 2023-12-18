@@ -30,7 +30,11 @@ export class school42Strategy extends PassportStrategy(Strategy, "42") {
 	private async generate_username(login42: string) {
 		let username: string = login42;
 		let userWithUsername = await this.userService.fetchUserByUsername(username);
-		if (userWithUsername.login42 === login42) {
+		if (
+			userWithUsername &&
+			userWithUsername.login42 &&
+			userWithUsername.login42 === login42
+		) {
 			return username;
 		} else {
 			let i = 0;
