@@ -87,16 +87,18 @@ function displayLeaderboard(
 	return (
 		<div className="rounded-md overflow-hidden">
 			<table className="table-auto w-full bg-sage dark:bg-darksage ">
-				<tr className="font-bold text-sage dark:text-darksage bg-darkblue dark:bg-darkteal">
-					<td className="p-2 text-center">Rank</td>
-					<td className="p-2 text-center">User</td>
-					<td className="p-2 text-center">Wins</td>
-					<td className="p-2 text-center">Losses</td>
-					<td className="p-2 text-center">Diff</td>
-				</tr>
-				{leaderboard.map((leaderboardLine: LeaderboardLine, index: number) =>
-					displayLineLeaderboard(authenticatedUserID, leaderboardLine, index)
-				)}
+				<tbody>
+					<tr className="font-bold text-sage dark:text-darksage bg-darkblue dark:bg-darkteal">
+						<td className="p-2 text-center">Rank</td>
+						<td className="p-2 text-center">User</td>
+						<td className="p-2 text-center">Wins</td>
+						<td className="p-2 text-center">Losses</td>
+						<td className="p-2 text-center">Diff</td>
+					</tr>
+					{leaderboard.map((leaderboardLine: LeaderboardLine, index: number) =>
+						displayLineLeaderboard(authenticatedUserID, leaderboardLine, index)
+					)}
+				</tbody>
 			</table>
 		</div>
 	);
