@@ -393,9 +393,9 @@ function interactWithUser(
 	iCanChallenge: boolean
 ) {
 	if (user === undefined) return <div />;
-	if (isMyPage) return <p></p>;
+	if (isMyPage) return <></>;
 	return (
-		<p className="absolute bottom-0 right-0">
+		<div className="absolute bottom-0 right-0">
 			{friendButton(
 				user,
 				authenticatedUserID,
@@ -411,7 +411,7 @@ function interactWithUser(
 				<></>
 			)}
 			{DMButton(user, cookies, navigate, socket)}
-		</p>
+		</div>
 	);
 }
 
