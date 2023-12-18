@@ -103,7 +103,7 @@ export class SocketGateway implements OnModuleInit {
 			return tokenInfo.userID;
 		} catch (e) {
 			this.logger.warn(`[Check Identity]: unauthorized: ${e.message}`);
-			throw new ChatPermissionError("no token to identify user!");
+			throw new ChatPermissionError("Invalid Token");
 		}
 	}
 
