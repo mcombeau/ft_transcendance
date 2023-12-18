@@ -125,18 +125,25 @@ export const SidePannel = (
 					</button>
 				);
 				select = () => {
+					if (windowWidth < 768) {
+						setSidePannel(false);
+					}
 					var targetChannel = channel.chatRoomID;
 					setCurrentPannel({
 						type: PannelType.chat,
 						chatRoomID: targetChannel,
 					});
 				};
-
 				break;
 		}
 		return (
 			<div
-				onClick={() => select(type)}
+				onClick={() => {
+					if (windowWidth < 768) {
+						setSidePannel(false);
+					}
+					select(type);
+				}}
 				className={`grid grid-cols-6 items-center justify-end text-darkblue dark:text-darkdarkblue rounded-md p-2 m-2 ${
 					isCurrent
 						? "bg-sage dark:bg-darksage border-2 border-darkblue dark:border-darkdarkblue"

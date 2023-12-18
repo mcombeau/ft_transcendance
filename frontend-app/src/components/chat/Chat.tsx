@@ -984,13 +984,13 @@ export const Chat = ({ setBanners }) => {
 		const targetDMID: number = targetDM.chatRoomID;
 		setCurrentPannel({ type: PannelType.chat, chatRoomID: targetDMID });
 		setRedirected(true);
-	}, [myChats]);
+	}, [myChats, redirected, urlUserID]);
 
 	useEffect(() => {
 		if (!authenticatedUserID) {
 			navigate("/not-found");
 		}
-	}, []);
+	}, [authenticatedUserID, navigate]);
 
 	return (
 		<WebSocketProvider value={socket}>
