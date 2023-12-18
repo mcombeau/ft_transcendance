@@ -584,8 +584,8 @@ function Profile({ setBanners }) {
 			<div className="flex flex-col">
 				<div className="background-element flex flex-row">
 					<img
+						className="object-cover w-20 h-20 rounded-full xl:w-60 xl:h-60 m-4"
 						src={profilePicture}
-						className="w-20 h-20 rounded-full xl:w-60 xl:h-60 m-4"
 					></img>
 					<div className="relative grow">
 						{titleProfile(isMyPage, user)}
