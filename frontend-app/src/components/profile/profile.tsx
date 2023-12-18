@@ -331,7 +331,8 @@ export async function challenge(
 		async (response) => {
 			const data = await response.json();
 			if (!response.ok) {
-				console.warn("Error inviting friend to play");
+				console.warn("Error inviting friend to play", data.message);
+				// TODO: Add banner here with data.message as content
 				return null;
 			}
 			return data.id;

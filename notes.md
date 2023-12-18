@@ -2,6 +2,7 @@
 
   - Fix offline/online AGAIN
   - Frontend console logs: Remove errors from front to not scare correctors
+  - There should be an alert banner when you try to challenge someone you blocked to a game
 
 - Project validation
 
