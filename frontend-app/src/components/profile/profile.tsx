@@ -1,5 +1,5 @@
 import { ReceivedInfo } from "../chat/types";
-import { useContext, useEffect, useRef } from "react";
+import { useCallback, useContext, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
 import { useCookies } from "react-cookie";
@@ -459,7 +459,7 @@ function Profile({ setBanners }) {
 	const [iCanChallenge, setICanChallenge] = useState<boolean>(false);
 	const navigate = useNavigate();
 
-	async function fetchUser() {
+	const fetchUser = useCallback(() => {
 		var request = {
 			headers: {
 				"Content-Type": "application/json",
@@ -501,7 +501,7 @@ function Profile({ setBanners }) {
 				setProfilePicture(src);
 			}
 		);
-	}
+	}, [cookies, navigate, profileUserID, setBanners]);
 
 	// Fetch user and check if is authenticated
 	useEffect(() => {
@@ -509,13 +509,20 @@ function Profile({ setBanners }) {
 		if (authenticatedUserID === profileUserID) {
 			setIsMyPage(true);
 		}
-	}, [cookies, socket, profileUserID, changeProfile]);
+	}, [
+		cookies,
+		socket,
+		profileUserID,
+		changeProfile,
+		authenticatedUserID,
+		fetchUser,
+	]);
 
 	// Checks for page user relationship to authenticated user
 	useEffect(() => {
 		checkIfIsMyFriend(user, authenticatedUserID, cookies, setIsMyFriend);
 		checkIfIsBlocked(user, authenticatedUserID, cookies, setIsBlocked);
-	}, [user]);
+	}, [user, authenticatedUserID, cookies]);
 
 	// Socket receivers for status
 	useEffect(() => {
@@ -555,12 +562,12 @@ function Profile({ setBanners }) {
 			socket.off("status change");
 			socket.off("in a game");
 		};
-	}, []);
+	}, [socket]);
 
 	// Check game status via socket
 	useEffect(() => {
 		socket.emit("is in game", cookies["token"]);
-	}, []);
+	}, [cookies, socket]);
 
 	// Check url hash for settings
 	useEffect(() => {
@@ -571,13 +578,13 @@ function Profile({ setBanners }) {
 		) {
 			setIsEditingProfile(true);
 		}
-	}, [user]);
+	}, [user, authenticatedUserID, location.hash, profileUserID]);
 
 	useEffect(() => {
 		if (!authenticatedUserID) {
 			navigate("/not-found");
 		}
-	}, []);
+	}, [authenticatedUserID, navigate]);
 
 	return (
 		<div id="profile" className=" md:grid md:grid-cols-2">
@@ -585,6 +592,7 @@ function Profile({ setBanners }) {
 				<div className="background-element flex flex-row">
 					<img
 						className="object-cover w-20 h-20 rounded-full xl:w-60 xl:h-60 m-4"
+						alt="Avatar"
 						src={profilePicture}
 					></img>
 					<div className="relative grow">

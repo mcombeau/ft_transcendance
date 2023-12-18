@@ -100,8 +100,6 @@ export function getButtonIcon(
 			return <CgUnblock className={className} />;
 		case ButtonIconType.unblock:
 			return <CgUnblock className={className} />;
-		case ButtonIconType.unblock:
-			return <CgUnblock className={className} />;
 		case ButtonIconType.dm:
 			return (
 				<svg

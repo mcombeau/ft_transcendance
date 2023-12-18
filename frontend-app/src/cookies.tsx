@@ -80,15 +80,15 @@ export function getUserIDFromToken(token: string): number {
 export function isDarkModeEnabled(cookies: any): boolean {
 	if (
 		!cookies ||
-		cookies == undefined ||
+		cookies === undefined ||
 		!cookies["darkmode"] ||
-		cookies["darkmode"] == undefined
+		cookies["darkmode"] === undefined
 	) {
 		return false;
 	}
-	if (cookies["darkmode"] == "true") {
+	if (cookies["darkmode"] === "true") {
 		return true;
-	} else if (cookies["darkmode"] == "false") {
+	} else if (cookies["darkmode"] === "false") {
 		return false;
 	}
 }

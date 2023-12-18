@@ -36,7 +36,7 @@ function App() {
 		return () => {
 			socket.off("logout");
 		};
-	}, []);
+	});
 
 	useEffect(() => {
 		console.log("Dark mode toggled");
