@@ -1,8 +1,7 @@
 - Bugs
 
   - Fix offline/online AGAIN
-  - Backend: Remove errors from back to not scare correctors
-  - Frontend console logs: Remove errors from back to not scare correctors
+  - Frontend console logs: Remove errors from front to not scare correctors
 
 - Project validation
 

@@ -103,9 +103,13 @@ export class GameGateway implements OnModuleInit {
 
 	@SubscribeMessage("up")
 	async onUp(@ConnectedSocket() socket: Socket, @MessageBody() token: string) {
-		const tokenUserID = await this.socketGateway.checkIdentity(token, socket);
+		try {
+			const tokenUserID = await this.socketGateway.checkIdentity(token, socket);
 
-		this.gameGatewayService.movePlayer(tokenUserID, Direction.Up);
+			this.gameGatewayService.movePlayer(tokenUserID, Direction.Up);
+		} catch (e) {
+			this.logger.warn(`[On Up]: ${e.message}`);
+		}
 	}
 
 	@SubscribeMessage("down")
@@ -113,9 +117,13 @@ export class GameGateway implements OnModuleInit {
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() token: string
 	) {
-		const tokenUserID = await this.socketGateway.checkIdentity(token, socket);
+		try {
+			const tokenUserID = await this.socketGateway.checkIdentity(token, socket);
 
-		this.gameGatewayService.movePlayer(tokenUserID, Direction.Down);
+			this.gameGatewayService.movePlayer(tokenUserID, Direction.Down);
+		} catch (e) {
+			this.logger.warn(`[On Down]: ${e.message}`);
+		}
 	}
 
 	@SubscribeMessage("get games")
@@ -123,18 +131,22 @@ export class GameGateway implements OnModuleInit {
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() token: string
 	) {
-		const userID: number = await this.socketGateway.checkIdentity(
-			token,
-			socket
-		);
-		const user = await this.usersService.fetchUserByID(userID);
-		if (!user) {
-			throw new UserNotFoundError();
+		try {
+			const userID: number = await this.socketGateway.checkIdentity(
+				token,
+				socket
+			);
+			const user = await this.usersService.fetchUserByID(userID);
+			if (!user) {
+				throw new UserNotFoundError();
+			}
+			const gameInfos: GameInfo[] = this.gameGatewayService.gameRooms.map(
+				this.gameGatewayService.gameToGameInfo
+			);
+			socket.emit("get games", gameInfos);
+		} catch (e) {
+			this.logger.warn(`[Get Games]: ${e.message}`);
 		}
-		const gameInfos: GameInfo[] = this.gameGatewayService.gameRooms.map(
-			this.gameGatewayService.gameToGameInfo
-		);
-		socket.emit("get games", gameInfos);
 	}
 
 	@SubscribeMessage("leave game")
@@ -142,11 +154,15 @@ export class GameGateway implements OnModuleInit {
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() token: string
 	) {
-		const tokenUserID = await this.socketGateway.checkIdentity(token, socket);
-		const gameRoom: GameRoom =
-			this.gameGatewayService.getCurrentPlayRoom(tokenUserID);
+		try {
+			const tokenUserID = await this.socketGateway.checkIdentity(token, socket);
+			const gameRoom: GameRoom =
+				this.gameGatewayService.getCurrentPlayRoom(tokenUserID);
 
-		await this.gameGatewayService.stopGame(gameRoom, false, tokenUserID);
+			await this.gameGatewayService.stopGame(gameRoom, false, tokenUserID);
+		} catch (e) {
+			this.logger.warn(`[On Leave Game]: ${e.message}`);
+		}
 	}
 
 	@SubscribeMessage("stop watching")
@@ -154,8 +170,12 @@ export class GameGateway implements OnModuleInit {
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() token: string
 	) {
-		const tokenUserID = await this.socketGateway.checkIdentity(token, socket);
-		await this.gameGatewayService.stopWatchingAllGames(tokenUserID, socket);
+		try {
+			const tokenUserID = await this.socketGateway.checkIdentity(token, socket);
+			await this.gameGatewayService.stopWatchingAllGames(tokenUserID, socket);
+		} catch (e) {
+			this.logger.warn(`[Stop Watching]: ${e.message}`);
+		}
 	}
 
 	@SubscribeMessage("reconnect")
@@ -163,15 +183,22 @@ export class GameGateway implements OnModuleInit {
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() token: string
 	) {
-		const tokenUserID = await this.socketGateway.checkIdentity(token, socket);
-		const currentGameRoom: GameRoom = await this.reconnect(socket, tokenUserID);
+		try {
+			const tokenUserID = await this.socketGateway.checkIdentity(token, socket);
+			const currentGameRoom: GameRoom = await this.reconnect(
+				socket,
+				tokenUserID
+			);
 
-		let data: Outcome = {
-			success: Boolean(currentGameRoom),
-			gameInfo: this.gameGatewayService.gameToGameInfo(currentGameRoom),
-		};
+			let data: Outcome = {
+				success: Boolean(currentGameRoom),
+				gameInfo: this.gameGatewayService.gameToGameInfo(currentGameRoom),
+			};
 
-		socket.emit("reconnect", data);
+			socket.emit("reconnect", data);
+		} catch (e) {
+			this.logger.warn(`[Reconnect]: ${e.message}`);
+		}
 	}
 
 	@SubscribeMessage("watch")
@@ -179,35 +206,41 @@ export class GameGateway implements OnModuleInit {
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() body: { token: string; gameID: string }
 	) {
-		const tokenUserID = await this.socketGateway.checkIdentity(
-			body.token,
-			socket
-		);
-		const user: UserEntity = await this.usersService.fetchUserByID(tokenUserID);
-
-		await this.gameGatewayService.cleanupUserGames(tokenUserID, socket);
-
-		const targetGameRoom: GameRoom = this.gameGatewayService.getRoomByID(
-			body.gameID
-		);
-
-		let data: Outcome = {
-			success: Boolean(targetGameRoom),
-			gameInfo: this.gameGatewayService.gameToGameInfo(targetGameRoom),
-		};
-
-		if (data.success) {
-			const watcher: Watcher = {
-				userID: user.id,
-				username: user.username,
-				socket: socket,
-			};
-			await this.gameGatewayService.addWatcherToGameRoom(
-				watcher,
-				targetGameRoom
+		try {
+			const tokenUserID = await this.socketGateway.checkIdentity(
+				body.token,
+				socket
 			);
+			const user: UserEntity = await this.usersService.fetchUserByID(
+				tokenUserID
+			);
+
+			await this.gameGatewayService.cleanupUserGames(tokenUserID, socket);
+
+			const targetGameRoom: GameRoom = this.gameGatewayService.getRoomByID(
+				body.gameID
+			);
+
+			let data: Outcome = {
+				success: Boolean(targetGameRoom),
+				gameInfo: this.gameGatewayService.gameToGameInfo(targetGameRoom),
+			};
+
+			if (data.success) {
+				const watcher: Watcher = {
+					userID: user.id,
+					username: user.username,
+					socket: socket,
+				};
+				await this.gameGatewayService.addWatcherToGameRoom(
+					watcher,
+					targetGameRoom
+				);
+			}
+			socket.emit("watch", data);
+		} catch (e) {
+			this.logger.warn(`[Watch]: ${e.message}`);
 		}
-		socket.emit("watch", data);
 	}
 
 	@SubscribeMessage("wait invite")
@@ -215,30 +248,34 @@ export class GameGateway implements OnModuleInit {
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() body: { token: string; inviteID: string }
 	) {
-		const tokenUserID = await this.socketGateway.checkIdentity(
-			body.token,
-			socket
-		);
+		try {
+			const tokenUserID = await this.socketGateway.checkIdentity(
+				body.token,
+				socket
+			);
 
-		const inviteID: number = this.permissionChecks.convertInviteIDFromString(
-			body.inviteID
-		);
-		await this.gameGatewayService.cleanupUserGames(
-			tokenUserID,
-			socket,
-			inviteID
-		);
-		const outcome: LobbyStatus = await this.gameGatewayService.waitInvite(
-			tokenUserID,
-			inviteID,
-			socket
-		);
-		if (outcome === LobbyStatus.InvalidInvite) {
-			socket.emit("wait invite", { success: false });
-		} else if (outcome === LobbyStatus.WaitInLobby) {
-			socket.emit("wait invite", { success: true });
+			const inviteID: number = this.permissionChecks.convertInviteIDFromString(
+				body.inviteID
+			);
+			await this.gameGatewayService.cleanupUserGames(
+				tokenUserID,
+				socket,
+				inviteID
+			);
+			const outcome: LobbyStatus = await this.gameGatewayService.waitInvite(
+				tokenUserID,
+				inviteID,
+				socket
+			);
+			if (outcome === LobbyStatus.InvalidInvite) {
+				socket.emit("wait invite", { success: false });
+			} else if (outcome === LobbyStatus.WaitInLobby) {
+				socket.emit("wait invite", { success: true });
+			}
+			// else the game gateway service has already called start game
+		} catch (e) {
+			this.logger.warn(`[Wait Invite]: ${e.message}`);
 		}
-		// else the game gateway service has already called start game
 	}
 
 	@SubscribeMessage("enter lobby")
@@ -246,11 +283,15 @@ export class GameGateway implements OnModuleInit {
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() body: { token: string; inviteID: string }
 	) {
-		const tokenUserID = await this.socketGateway.checkIdentity(
-			body.token,
-			socket
-		);
-		await this.gameGatewayService.enterLobby(tokenUserID, socket);
+		try {
+			const tokenUserID = await this.socketGateway.checkIdentity(
+				body.token,
+				socket
+			);
+			await this.gameGatewayService.enterLobby(tokenUserID, socket);
+		} catch (e) {
+			this.logger.warn(`[Enter Lobby]: ${e.message}`);
+		}
 	}
 
 	@SubscribeMessage("leave lobby")
@@ -258,8 +299,12 @@ export class GameGateway implements OnModuleInit {
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() token: string
 	) {
-		const tokenUserID = await this.socketGateway.checkIdentity(token, socket);
-		await this.gameGatewayService.leaveLobby(tokenUserID);
+		try {
+			const tokenUserID = await this.socketGateway.checkIdentity(token, socket);
+			await this.gameGatewayService.leaveLobby(tokenUserID);
+		} catch (e) {
+			this.logger.warn(`[Leave Lobby]: ${e.message}`);
+		}
 	}
 
 	@SubscribeMessage("is in game")
@@ -267,10 +312,14 @@ export class GameGateway implements OnModuleInit {
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() token: string
 	) {
-		const tokenUserID = await this.socketGateway.checkIdentity(token, socket);
-		const isInGame: boolean = Boolean(
-			this.gameGatewayService.getCurrentPlayRoom(tokenUserID)
-		);
-		socket.emit("is in game", isInGame);
+		try {
+			const tokenUserID = await this.socketGateway.checkIdentity(token, socket);
+			const isInGame: boolean = Boolean(
+				this.gameGatewayService.getCurrentPlayRoom(tokenUserID)
+			);
+			socket.emit("is in game", isInGame);
+		} catch (e) {
+			this.logger.warn(`[Is In Game]: ${e.message}`);
+		}
 	}
 }
