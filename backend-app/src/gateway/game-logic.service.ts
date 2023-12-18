@@ -91,7 +91,6 @@ export class GameLogicService {
 			gameState.ballPos.x + BALL_RADIUS + gameState.ballDir.x <=
 			gameState.skate1.x + SKATE_WIDTH
 		) {
-			this.logger.debug("Ball collided with goal left");
 			gameState.score = [gameState.score[0], gameState.score[1] + 1];
 			this.resetBall(gameState);
 			this.randomInitialMove(gameState);
@@ -100,7 +99,6 @@ export class GameLogicService {
 			gameState.ballPos.x - BALL_RADIUS + gameState.ballDir.x >=
 			gameState.skate2.x - SKATE_WIDTH
 		) {
-			this.logger.debug("Ball collided with goal right");
 			gameState.score = [gameState.score[0] + 1, gameState.score[1]];
 			this.resetBall(gameState);
 			this.randomInitialMove(gameState);
@@ -134,7 +132,6 @@ export class GameLogicService {
 			!(ball.bottom <= skate.top) &&
 			!(ball.top >= skate.bottom)
 		) {
-			this.logger.debug("Ball collision side of skate");
 			this.reboundBall(gameState, { x: -SPEED_INCREASE, y: 1 });
 		} else if (
 			ball.bottom >= skate.top &&
@@ -142,7 +139,6 @@ export class GameLogicService {
 			ball.left <= skate.right
 		) {
 			//Collision top of skate 1
-			this.logger.debug("Ball collision TOP of skate");
 			this.reboundBall(gameState, { x: 1, y: -SPEED_INCREASE });
 		} else if (
 			ball.top <= skate.bottom &&
@@ -150,7 +146,6 @@ export class GameLogicService {
 			ball.left <= skate.right
 		) {
 			////Collision bottom of skate 1
-			this.logger.debug("Ball collision BOTTOM of skate");
 			this.reboundBall(gameState, { x: 1, y: -SPEED_INCREASE });
 		}
 	}
@@ -175,7 +170,6 @@ export class GameLogicService {
 			!(ball.top >= skate.bottom)
 		) {
 			// Collision right of skate 2
-			this.logger.debug("Ball collision side of skate");
 			this.reboundBall(gameState, { x: -SPEED_INCREASE, y: 1 });
 		} else if (
 			ball.bottom >= skate.top &&
@@ -183,7 +177,6 @@ export class GameLogicService {
 			ball.right >= skate.left
 		) {
 			//Collision top of skate 2
-			this.logger.debug("Ball collision TOP of skate");
 			this.reboundBall(gameState, { x: 1, y: -SPEED_INCREASE });
 		} else if (
 			ball.top <= skate.bottom &&
@@ -191,7 +184,6 @@ export class GameLogicService {
 			ball.right >= skate.left
 		) {
 			////Collision bottom of skate 2
-			this.logger.debug("Ball collision BOTTOM of skate");
 			this.reboundBall(gameState, { x: 1, y: -SPEED_INCREASE });
 		}
 	}

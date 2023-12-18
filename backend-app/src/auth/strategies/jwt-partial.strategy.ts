@@ -31,7 +31,7 @@ export class JwtPartialStrategy extends PassportStrategy(
 			await this.authService.checkTokenMatchesDatabaseUser(tokenInfo);
 			return await this.userService.fetchUserByID(tokenInfo.userID);
 		} catch (e) {
-			this.logger.error(e.message);
+			this.logger.warn(e.message);
 			throw new UnauthorizedException();
 		}
 	}

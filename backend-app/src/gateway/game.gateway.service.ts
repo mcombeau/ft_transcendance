@@ -101,7 +101,7 @@ export class GameGatewayService {
 		isGameFinished: boolean,
 		leavingUserID?: number
 	) {
-		this.logger.debug(
+		this.logger.log(
 			`[Stop Game]: game stopping (${gameRoom.player1.username} - ${gameRoom.player2.username})`
 		);
 
@@ -139,9 +139,6 @@ export class GameGatewayService {
 		this.gameRoomID++;
 
 		await this.clearAcceptedInvite(player1, player2);
-		this.logger.debug(
-			`[Create Game Room]: Creating game room of id ${socketRoomID}, with player1 ${player1.userID} of username ${player1.username} and player2 ${player2.userID} of username ${player2.username}`
-		);
 		await player1.socket.join(socketRoomID);
 		await player2.socket.join(socketRoomID);
 		delete player1.socket;
@@ -208,9 +205,6 @@ export class GameGatewayService {
 				opponent.inviteID === player.inviteID &&
 				opponent.userID !== player.userID
 			) {
-				this.logger.debug(
-					`[Get Invited Player]: Found opponent ${opponent.username} with invite ${opponent.inviteID} for player ${player.username} with invite ${player.inviteID}`
-				);
 				this.waitList.splice(i, 1);
 				return opponent;
 			}
@@ -226,14 +220,8 @@ export class GameGatewayService {
 			opponent = this.getFreePlayer(player);
 		}
 		if (opponent) {
-			this.logger.debug(
-				`[Get Room or Wait]: Found opponent ${opponent.username} with invite ${opponent.inviteID}`
-			);
 			return this.createRoom(player, opponent);
 		}
-		this.logger.debug(
-			`[Get Room or Wait]: Did not find opponent for ${player.username} with invite ${player.inviteID}`
-		);
 		if (!isAcceptingInvite) {
 			this.leaveWaitlist(player.userID);
 			this.waitList.push(player);
@@ -369,9 +357,6 @@ export class GameGatewayService {
 			player2.inviteID &&
 			player1.inviteID === player2.inviteID
 		) {
-			this.logger.debug(
-				`[Clear Accepted Invite]: clearing invite ${player1.inviteID} for user ${player1.username}`
-			);
 			await this.invitesService.deleteInviteByID(player1.inviteID);
 		} else {
 			throw new Error("Player invites mismatched! (clear accepted invite)");
@@ -445,7 +430,6 @@ export class GameGatewayService {
 		socket: Socket,
 		inviteID: number = null
 	) {
-		this.logger.log("[Cleanup]: Cleaning up player games");
 		const currentPlayRoom: GameRoom = this.getCurrentPlayRoom(userID);
 		if (currentPlayRoom) {
 			throw new Error(

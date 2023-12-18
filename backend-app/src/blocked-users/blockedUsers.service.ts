@@ -181,7 +181,7 @@ export class BlockedUsersService {
 				userID2: blockedUser.id,
 			});
 		} catch (e) {
-			this.logger.error("[Create Blocked User]: Error:", e.message);
+			this.logger.warn(`[Create Blocked User]: Error: ${e.message}`);
 		}
 		return this.blockedUserRepository.save(newBlockedUser);
 	}

@@ -5,13 +5,13 @@ import {
 	HttpException,
 	HttpStatus,
 	Logger,
-} from '@nestjs/common';
+} from "@nestjs/common";
 import {
 	CannotCreateEntityIdMapError,
 	EntityNotFoundError,
 	QueryFailedError,
-} from 'typeorm';
-import {Response, Request} from 'express';
+} from "typeorm";
+import { Response, Request } from "express";
 
 @Catch(QueryFailedError, EntityNotFoundError, CannotCreateEntityIdMapError)
 export class TypeormExceptionFilter implements ExceptionFilter {
@@ -20,12 +20,12 @@ export class TypeormExceptionFilter implements ExceptionFilter {
 		const response = ctx.getResponse<Response>();
 		const request = ctx.getRequest<Request>();
 		let message = (exception as any).message.message;
-		let code = 'HttpException';
+		let code = "HttpException";
 
-		Logger.error(
+		Logger.warn(
 			message,
 			(exception as any).stack,
-			`${request.method} ${request.url}`,
+			`${request.method} ${request.url}`
 		);
 
 		let status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -59,4 +59,3 @@ export class TypeormExceptionFilter implements ExceptionFilter {
 		});
 	}
 }
-

@@ -95,7 +95,7 @@ export class GameGateway implements OnModuleInit {
 		}
 		await this.updatePlayerStatus(userStatus.INGAME, userID);
 		await socket.join(myGameRoom.socketRoomID);
-		this.logger.debug(
+		this.logger.log(
 			`[Reconnect]: setting up user ${userID} to join game room ${myGameRoom.socketRoomID}`
 		);
 		return myGameRoom;

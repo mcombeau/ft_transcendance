@@ -34,7 +34,7 @@ export class JwtSelfStrategy extends PassportStrategy(
 			this.authService.checkTokenMatchesUserID(tokenInfo, paramID);
 			return await this.userService.fetchUserByID(tokenInfo.userID);
 		} catch (e) {
-			this.logger.error(e.message);
+			this.logger.warn(e.message);
 			throw new UnauthorizedException();
 		}
 	}

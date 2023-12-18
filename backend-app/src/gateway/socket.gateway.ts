@@ -50,10 +50,11 @@ export class SocketGateway implements OnModuleInit {
 	onModuleInit(): void {
 		this.server.on("connection", async (socket) => {
 			try {
-				this.logger.debug("[Connection event]: Received connection event");
 				const token = socket.handshake.headers.authorization.split(" ")[1];
 				const tokenInfo: JwtToken = await this.authService.validateToken(token);
+
 				if (tokenInfo === null) return;
+
 				const user = await this.userService.fetchUserByID(tokenInfo.userID);
 
 				this.logger.log(
@@ -71,8 +72,8 @@ export class SocketGateway implements OnModuleInit {
 					await this.chatGateway.joinSocketRooms(socket, user.id);
 				}
 			} catch (e) {
-				this.logger.error(
-					`[Connection event]: unauthorized connection: ${e.message}`
+				this.logger.warn(
+					`[Connection event]: Forcing logout: unauthorized connection: ${e.message}`
 				);
 				socket.emit("logout");
 				return;
@@ -101,9 +102,8 @@ export class SocketGateway implements OnModuleInit {
 			}
 			return tokenInfo.userID;
 		} catch (e) {
-			this.logger.error(`[Check Identity]: unauthorized: ${e.message}`);
+			this.logger.warn(`[Check Identity]: unauthorized: ${e.message}`);
 			throw new ChatPermissionError("no token to identify user!");
-			return;
 		}
 	}
 
@@ -128,7 +128,7 @@ export class SocketGateway implements OnModuleInit {
 				userStatus: userStatus.ONLINE,
 			});
 		} catch (e) {
-			this.logger.error(`[Login event]: ${e.message}`);
+			this.logger.warn(`[Login event]: ${e.message}`);
 		}
 	}
 
@@ -155,7 +155,7 @@ export class SocketGateway implements OnModuleInit {
 				userStatus: userStatus.OFFLINE,
 			});
 		} catch (e) {
-			this.logger.error(`[Logout event]: ${e.message}`);
+			this.logger.warn(`[Logout event]: ${e.message}`);
 		}
 	}
 }

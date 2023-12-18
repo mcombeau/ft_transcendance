@@ -171,13 +171,7 @@ export class UsersService {
 		}
 		unlink(filename, (err) => {
 			if (err) {
-				this.logger.error(
-					`[Remove Avatar] Failed to remove avatar ${filename}`
-				);
-			} else {
-				this.logger.debug(
-					`[Remove Avatar] Avatar ${filename} removed successfully!`
-				);
+				this.logger.warn(`[Remove Avatar] Failed to remove avatar ${filename}`);
 			}
 		});
 	}
@@ -230,7 +224,7 @@ export class UsersService {
 
 		writeFile(filepath, file.buffer, "binary", (err) => {
 			if (!err)
-				this.logger.debug(
+				this.logger.log(
 					`[Upload Avatar] Avatar ${filename} uploaded successfully! Path: ${filepath}`
 				);
 		});

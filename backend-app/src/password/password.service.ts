@@ -14,11 +14,8 @@ export class PasswordService {
 		private chatService: ChatsService
 	) {}
 
-	private readonly logger: Logger = new Logger("Users Service");
-
 	async hashPassword(password: string) {
 		if (!password || password === "") {
-			this.logger.debug("[Hash Password] No password to hash");
 			return password;
 		}
 		const salt = await bcrypt.genSalt();
@@ -29,9 +26,6 @@ export class PasswordService {
 	async checkPassword(password: string, user: UserEntity) {
 		const hash = await this.userService.getUserPasswordHash(user.id);
 		const isMatch = await bcrypt.compare(password, hash);
-		this.logger.debug(
-			`[Check User Password] Password is match result: ${isMatch}`
-		);
 		return isMatch;
 	}
 
@@ -41,21 +35,12 @@ export class PasswordService {
 	): Promise<boolean> {
 		const hash = await this.chatService.getChatRoomPasswordHash(chat.id);
 		if (hash === "" || hash === null || hash === undefined) {
-			this.logger.debug(
-				`[Check Chat Password] Password is match result: true because no password`
-			);
 			return true;
 		}
 		if (password == null || password == undefined) {
-			this.logger.debug(
-				`[Check Chat Password] Password is match result: false`
-			);
 			return false;
 		}
 		const isMatch = await bcrypt.compare(password, hash);
-		this.logger.debug(
-			`[Check Chat Password] Password is match result: ${isMatch}`
-		);
 		return isMatch;
 	}
 

@@ -307,7 +307,6 @@ export class ChatsGatewayService {
 
 	async acceptUserInviteToGame(info: sendInviteDto): Promise<void> {
 		try {
-			this.logger.debug("[Accept user invite to game]:", info);
 			const invite = await this.inviteService.fetchInviteByID(info.id);
 			if (!invite) {
 				throw Error("Can't find invite!");
@@ -331,7 +330,6 @@ export class ChatsGatewayService {
 
 	async acceptUserInviteToFriends(info: sendInviteDto): Promise<void> {
 		try {
-			this.logger.debug("Accept user Invite to friends", info);
 			const invite = await this.inviteService.fetchInviteByID(info.id);
 			if (!invite) {
 				throw Error("Can't find invite!");

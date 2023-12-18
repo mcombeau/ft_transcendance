@@ -50,7 +50,7 @@ export class AuthService {
 	async logout(userID: number): Promise<void> {
 		const dbUser = await this.userService.fetchUserByID(userID);
 		if (!dbUser) {
-			this.logger.error(`[Logout]: user ${userID} not in database!`);
+			this.logger.warn(`[Logout]: user ${userID} not in database!`);
 			throw new UserNotFoundError();
 		}
 		this.logger.log(`[Logout]: user ${dbUser.username} logging out`);
@@ -108,7 +108,7 @@ export class AuthService {
 			await this.checkTokenMatchesDatabaseUser(tokenInfo);
 			return tokenInfo;
 		} catch (e) {
-			this.logger.error(`[Validate Token] error: ${e.message}`);
+			this.logger.warn(`[Validate Token] error: ${e.message}`);
 			throw new InvalidTokenError(e.message);
 		}
 	}
