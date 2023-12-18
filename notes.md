@@ -3,7 +3,6 @@
   - all libraries are in latest stable version
   - remove unused libraries/modules + fix dependancy issues on frontend backend container creation?
   - Fix offline/online AGAIN
-  - upload avatar: large file size breaks everything ([mcombeau]kali-cubism.jpg image is also a problem)
 
 - Project validation
 
