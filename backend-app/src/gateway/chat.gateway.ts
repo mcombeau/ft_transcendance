@@ -223,6 +223,7 @@ export class ChatGateway implements OnModuleInit {
 				.emit("dm", info);
 		} catch (e) {
 			this.logger.warn(`[Add DM]: ${e.message}`);
+			// TODO: Why is this commented?
 			// this.server
 			// 	.to(this.getSocketRoomIdentifier(info.userID, RoomType.User))
 			// 	.emit("error", err_msg);

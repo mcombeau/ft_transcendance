@@ -48,7 +48,7 @@ export class AuthController {
 	@Get("auth/42login")
 	@UseGuards(school42AuthGuard)
 	async school42Auth(): Promise<void> {
-		console.log("[Auth Controller]: GET on auth/42login");
+		return;
 	}
 
 	@Get("auth/callback")
@@ -57,7 +57,6 @@ export class AuthController {
 		@Request() req: Request,
 		@Res({ passthrough: true }) res: Response
 	): Promise<void> {
-		console.log("[Auth Controller]: GET on auth/callback");
 		return this.authService.school42Login(req, res);
 	}
 
