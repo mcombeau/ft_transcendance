@@ -90,8 +90,11 @@ enum UrlState {
 
 function gameDoesNotExitPage() {
 	return (
-		<div className="m-8 text-2xl text-darkblue dark:text-darkdarkblue flex flex-col items-center">
-			Game does not exist
+		<div className="m-8 flex flex-col items-center background-element">
+			<h1 className="title-element">Game does not exist</h1>
+			<a className="button" href="/play">
+				Back to play
+			</a>
 		</div>
 	);
 }
@@ -110,6 +113,9 @@ function winPage(gameDetails: GameDetails, authenticatedUserID: number) {
 			<>
 				<h2 className="title-element">Oops, the game ended !</h2>
 				<p>A player left the game</p>
+				<a className="button" href="/play">
+					Back to play
+				</a>
 			</>
 		);
 	}
@@ -119,24 +125,23 @@ function winPage(gameDetails: GameDetails, authenticatedUserID: number) {
 			{gameDetails.loserUsername}: {gameDetails.loserScore})
 		</p>
 	);
-	const replayButton = (
-		<a className="button" href="/play">
-			Play again!
-		</a>
-	);
 	switch (authenticatedUserID) {
 		case gameDetails.winnerID:
 			return (
 				<>
 					<h2 className="title-element">You won !</h2> {scoreDisplay}{" "}
-					{replayButton}
+					<a className="button" href="/play">
+						Play again!
+					</a>
 				</>
 			);
 		case gameDetails.loserID:
 			return (
 				<>
 					<h2 className="title-element">You lost !</h2> {scoreDisplay}{" "}
-					{replayButton}
+					<a className="button" href="/play">
+						Play again!
+					</a>
 				</>
 			);
 
@@ -147,7 +152,9 @@ function winPage(gameDetails: GameDetails, authenticatedUserID: number) {
 						{gameDetails.winnerUsername} won !
 					</h2>
 					{scoreDisplay}
-					{replayButton}
+					<a className="button" href="/play">
+						Back to play
+					</a>
 				</>
 			);
 	}
