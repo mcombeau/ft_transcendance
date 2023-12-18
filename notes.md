@@ -1,10 +1,11 @@
 - Bugs
 
-  - Fix offline/online AGAIN
+  - Mute is weird when we unmute someone + mute broken when mute from context menu + mute from settings menu
+  - warn when an invite to play is refused (right now we just wait for the game to start)
+  - Fix offline/online AGAIN: Switch to offline everytime we click on a link
   - There should be an alert banner when you try to challenge someone you blocked to a game (or just remove challenge button of the profile pages of users you're blocking, like with the add friend button)
   - Frontend console logs: Remove errors from front to not scare correctors
   - On Leaderboard page, there is a DOM error about not having a unique key for each child
-  -
 
 - Game Bugs:
 
@@ -26,7 +27,7 @@
 
 - Nice to have
 
-  -
+  - when we print an error because of invalid charset, we should specify what are the invalid charsets
   - all tokens are taken directly from socket
   - publish website (see clevercloud)
 
@@ -35,16 +36,12 @@
 
 Fiona :
 
-- Switch to offline everytime we click on a link
-- warn when an invite to play is refused (right now we just wait for the game to start)
 - search bar ?
-- when we print an error because of invalid charset, we should specify what are the invalid charsets
-- mute is weird when we unmute someone
 
 - on my computer (ubuntu), I need to change all the "docker-compose" command with "docker compose" (remove the '-')
 - when I make fclean on my computer (ubuntu), I have this error :
   `docker volume rm ft_transcendance_database
-        Error response from daemon: get ft_transcendance_database: no such volume
-        make: *** [Makefile:39 : delete_db] Erreur 1
-   `
+     Error response from daemon: get ft_transcendance_database: no such volume
+     make: *** [Makefile:39 : delete_db] Erreur 1
+`
   but it might be me that did not use the project right
