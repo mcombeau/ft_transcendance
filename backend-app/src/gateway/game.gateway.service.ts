@@ -101,6 +101,9 @@ export class GameGatewayService {
 		isGameFinished: boolean,
 		leavingUserID?: number
 	) {
+		if (!gameRoom || !gameRoom.player1 || !gameRoom.player2) {
+			return;
+		}
 		this.logger.log(
 			`[Stop Game]: game stopping (${gameRoom.player1.username} - ${gameRoom.player2.username})`
 		);
