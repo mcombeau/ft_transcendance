@@ -215,6 +215,25 @@ function ProfileSettings(
 
 	if (!isEditingProfile) return <div></div>;
 
+	function validateUploadedAvatarSize(fileSize: number): boolean {
+		if (fileSize > 1_000_000) {
+			createBanner(
+				"Error: File too large (max. 1 MB)",
+				setBanners,
+				BannerType.Alert
+			);
+			return false;
+		} else if (fileSize < 10) {
+			createBanner(
+				"Error: File too small (min: 10 B)",
+				setBanners,
+				BannerType.Alert
+			);
+			return false;
+		}
+		return true;
+	}
+
 	function avatarSetting() {
 		return (
 			<div className="bg-lightblue dark:bg-darklightblue rounded-md m-2 p-2">
@@ -234,8 +253,11 @@ function ProfileSettings(
 						accept=".png,.jpg,.jpeg"
 						name="file"
 						onChange={(event) => {
-							console.log(event.target.files[0]);
-							setNewAvatar(event.target.files[0]);
+							if (!validateUploadedAvatarSize(event.target.files[0].size)) {
+								event.target.value = null;
+							} else {
+								setNewAvatar(event.target.files[0]);
+							}
 						}}
 					/>
 					<button
