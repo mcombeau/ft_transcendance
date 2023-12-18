@@ -9,7 +9,7 @@ function Home() {
 			<div className="background-element flex flex-col">
 				<h1 className="title-element">Let's Play PONG!</h1>
 				<div className="flex justify-center mb-4">
-					<img src="./ft_transcendencee.png"></img>
+					<img alt="ft_transcendance badge" src="./ft_transcendencee.png"></img>
 				</div>
 				<p className="px-2 my-2">
 					Ft_transcendance is a 42 school team project in which we have built a
