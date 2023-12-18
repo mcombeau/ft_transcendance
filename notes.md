@@ -41,13 +41,11 @@ Fiona :
 - search bar ?
 - when we print an error because of invalid charset, we should specify what are the invalid charsets
 - mute is weird when we unmute someone
-- lightmode -> invisible password typing to join channel
 
 - on my computer (ubuntu), I need to change all the "docker-compose" command with "docker compose" (remove the '-')
 - when I make fclean on my computer (ubuntu), I have this error :
   `docker volume rm ft_transcendance_database
-            Error response from daemon: get ft_transcendance_database: no such volume
-            make: *** [Makefile:39 : delete_db] Erreur 1
-       `
+          Error response from daemon: get ft_transcendance_database: no such volume
+          make: *** [Makefile:39 : delete_db] Erreur 1
+     `
   but it might be me that did not use the project right
-
