@@ -67,7 +67,6 @@ export class school42Strategy extends PassportStrategy(Strategy, "42") {
 			login42: userResponse.data.login,
 			email: userResponse.data.email,
 			password: null,
-			// profilePicture = userInfo.image?.link
 		};
 
 		const userWith42Login = await this.userService.fetchUserBy42Login(

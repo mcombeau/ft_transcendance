@@ -4,7 +4,6 @@
   - remove unused libraries/modules + fix dependancy issues on frontend backend container creation?
   - Fix offline/online AGAIN
   - upload avatar: large file size breaks everything ([mcombeau]kali-cubism.jpg image is also a problem)
-  - new 42 user login broken (500 server error)
 
 - Project validation
 
