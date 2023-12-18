@@ -589,7 +589,7 @@ function Profile({ setBanners }) {
 						alt="Avatar"
 						src={profilePicture}
 					></img>
-					<div className="relative grow">
+					<div className="relative grow grid grid-rows-3">
 						{titleProfile(isMyPage, user)}
 						{userDetails(user)}
 						{interactWithUser(
