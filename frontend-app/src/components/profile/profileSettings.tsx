@@ -165,9 +165,8 @@ function ProfileSettings(
 			async (response) => {
 				if (!response.ok) {
 					console.log("There was an issue with changing your avatar");
-					const error = await response.json();
 					createBanner(
-						"Error: " + error.error + ": " + error.message,
+						"Error: Invalid file type or size (max. 5 MB)",
 						setBanners,
 						BannerType.Alert
 					);
