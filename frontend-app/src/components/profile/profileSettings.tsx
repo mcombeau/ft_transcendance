@@ -255,6 +255,7 @@ function ProfileSettings(
 						onChange={(event) => {
 							if (!validateUploadedAvatarSize(event.target.files[0].size)) {
 								event.target.value = null;
+								setNewAvatar(null);
 							} else {
 								setNewAvatar(event.target.files[0]);
 							}
