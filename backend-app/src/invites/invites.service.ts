@@ -250,14 +250,14 @@ export class InvitesService {
 		inviteDetails: inviteParams
 	): Promise<InviteEntity> {
 		if (inviteDetails.senderID === inviteDetails.invitedUserID) {
-			throw new InviteCreationError("Cannot invite yourself.");
+			throw new InviteCreationError("cannot invite yourself.");
 		}
 		const sender = await this.userService.fetchUserByID(inviteDetails.senderID);
 		const invitedUser = await this.userService.fetchUserByID(
 			inviteDetails.invitedUserID
 		);
 		if (!sender || !invitedUser) {
-			throw new InviteCreationError("invalid parameters for invite creation.");
+			throw new InviteCreationError("invalid parameters.");
 		}
 
 		const userIsBlocking =
@@ -266,16 +266,12 @@ export class InvitesService {
 				invitedUser.id
 			);
 		if (userIsBlocking) {
-			throw new InviteCreationError(
-				"cannot create game invite for users who are blocking each other."
-			);
+			throw new InviteCreationError("users are blocking each other.");
 		}
 
 		await this.deleteAllSenderGameInvites(sender.id);
 		if (this.gameGatewayService.getCurrentPlayRoom(sender.id)) {
-			throw new InviteCreationError(
-				"cannot invite when playing or watching a game."
-			);
+			throw new InviteCreationError("already playing or watching a game.");
 		}
 
 		let inviteExpiry = 0;
