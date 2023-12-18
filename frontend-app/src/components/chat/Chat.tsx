@@ -234,24 +234,14 @@ export const Chat = ({ setBanners }) => {
 	let navigate = useNavigate();
 
 	const toggleSidePannel = () => {
+		if (windowSize.width < 768) {
+			setSettings(false);
+		}
 		setSidePannel(!sidePannel);
 	};
 
 	function getChannel(chatRoomID: number): ChatRoom {
 		return myChats.find((e) => e.chatRoomID === chatRoomID);
-	}
-
-	function serviceAnnouncement(content: string, chatRoomID: number) {
-		var message: Message = {
-			msg: content,
-			datestamp: new Date(),
-			senderID: null,
-			chatRoomID: chatRoomID,
-			read: true,
-			system: true,
-			senderUsername: null,
-		};
-		addMessageToChatRoom(message, chatRoomID);
 	}
 
 	const addMessageToChatRoom = useCallback(
@@ -287,6 +277,22 @@ export const Chat = ({ setBanners }) => {
 			});
 		},
 		[authenticatedUserID, setBanners]
+	);
+
+	const serviceAnnouncement = useCallback(
+		(content: string, chatRoomID: number) => {
+			var message: Message = {
+				msg: content,
+				datestamp: new Date(),
+				senderID: null,
+				chatRoomID: chatRoomID,
+				read: true,
+				system: true,
+				senderUsername: null,
+			};
+			addMessageToChatRoom(message, chatRoomID);
+		},
+		[addMessageToChatRoom]
 	);
 
 	useEffect(() => {
@@ -834,7 +840,15 @@ export const Chat = ({ setBanners }) => {
 			socket.off("refuse invite");
 			socket.off("set password");
 		};
-	}, [socket, addMessageToChatRoom]);
+	}, [
+		socket,
+		addMessageToChatRoom,
+		authenticatedUserID,
+		cookies,
+		navigate,
+		serviceAnnouncement,
+		setBanners,
+	]);
 
 	useEffect(() => {
 		var request = {
@@ -931,14 +945,14 @@ export const Chat = ({ setBanners }) => {
 				}
 			);
 		}
-
-		if (windowSize.width > 768) {
-			return;
-		}
-		if (currentPannel.type !== PannelType.home && sidePannel === true) {
-			setSidePannel(false);
-		}
-	}, [currentPannel]);
+	}, [
+		currentPannel,
+		authenticatedUserID,
+		blockedUsers,
+		cookies,
+		myChats,
+		publicChats,
+	]);
 
 	useEffect(() => {
 		var message_els = document.getElementById("messages");
@@ -973,15 +987,6 @@ export const Chat = ({ setBanners }) => {
 	}, [myChats]);
 
 	useEffect(() => {
-		if (windowSize.width > 768) {
-			return;
-		}
-		if (settings === true && sidePannel === true) {
-			setSettings(false);
-		}
-	}, [sidePannel]);
-
-	useEffect(() => {
 		if (!authenticatedUserID) {
 			navigate("/not-found");
 		}
@@ -1008,7 +1013,9 @@ export const Chat = ({ setBanners }) => {
 						cookies,
 						authenticatedUserID,
 						currentPannel,
-						setCurrentPannel
+						setCurrentPannel,
+						windowSize.width,
+						setSidePannel
 					)}
 				</div>
 				<div

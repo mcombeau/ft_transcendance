@@ -26,7 +26,9 @@ export const SidePannel = (
 	cookies: any,
 	authenticatedUserID: number,
 	currentPannel: CurrentPannel,
-	setCurrentPannel: Dispatch<SetStateAction<CurrentPannel>>
+	setCurrentPannel: Dispatch<SetStateAction<CurrentPannel>>,
+	windowWidth: number,
+	setSidePannel: Dispatch<SetStateAction<boolean>>
 ) => {
 	const createChannel = (e: any) => {
 		e.preventDefault();
@@ -108,6 +110,9 @@ export const SidePannel = (
 								: "bg-darkblue dark:bg-darkdarkblue hover:bg-teal hover:dark:bg-darkteal"
 						}`}
 						onClick={() => {
+							if (windowWidth < 768) {
+								setSidePannel(false);
+							}
 							setSettings(!settings);
 							setContextMenu(false);
 							setCurrentPannel({
