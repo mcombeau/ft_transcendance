@@ -26,7 +26,9 @@ export const SidePannel = (
 	cookies: any,
 	authenticatedUserID: number,
 	currentPannel: CurrentPannel,
-	setCurrentPannel: Dispatch<SetStateAction<CurrentPannel>>
+	setCurrentPannel: Dispatch<SetStateAction<CurrentPannel>>,
+	windowWidth: number,
+	setSidePannel: Dispatch<SetStateAction<boolean>>
 ) => {
 	const createChannel = (e: any) => {
 		e.preventDefault();
@@ -108,6 +110,9 @@ export const SidePannel = (
 								: "bg-darkblue dark:bg-darkdarkblue hover:bg-teal hover:dark:bg-darkteal"
 						}`}
 						onClick={() => {
+							if (windowWidth < 768) {
+								setSidePannel(false);
+							}
 							setSettings(!settings);
 							setContextMenu(false);
 							setCurrentPannel({
@@ -120,18 +125,25 @@ export const SidePannel = (
 					</button>
 				);
 				select = () => {
+					if (windowWidth < 768) {
+						setSidePannel(false);
+					}
 					var targetChannel = channel.chatRoomID;
 					setCurrentPannel({
 						type: PannelType.chat,
 						chatRoomID: targetChannel,
 					});
 				};
-
 				break;
 		}
 		return (
 			<div
-				onClick={() => select(type)}
+				onClick={() => {
+					if (windowWidth < 768) {
+						setSidePannel(false);
+					}
+					select(type);
+				}}
 				className={`grid grid-cols-6 items-center justify-end text-darkblue dark:text-darkdarkblue rounded-md p-2 m-2 ${
 					isCurrent
 						? "bg-sage dark:bg-darksage border-2 border-darkblue dark:border-darkdarkblue"

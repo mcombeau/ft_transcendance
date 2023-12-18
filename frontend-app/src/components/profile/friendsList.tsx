@@ -2,6 +2,7 @@ import {
 	Dispatch,
 	ReactElement,
 	SetStateAction,
+	useCallback,
 	useContext,
 	useEffect,
 	useState,
@@ -173,7 +174,11 @@ function displayFriend(
 		>
 			<div className="flex items-center">
 				<a className="relative px-1" href={"/user/" + friend.id}>
-					<img className="rounded-full h-8 w-8 m-2" src={friend.avatar} />
+					<img
+						className="rounded-full h-8 w-8 m-2"
+						alt="Friend Avatar"
+						src={friend.avatar}
+					/>
 					<span
 						className={`absolute bottom-0 right-0 rounded-full w-1 h-1 p-1.5 m-2 ${getUserStatusColor(
 							friend.status
@@ -238,87 +243,94 @@ function FriendsList(
 	const socket = useContext(WebSocketContext);
 	const navigate = useNavigate();
 
-	async function fetchFriends(userID: number, cookies: any) {
-		var request = {
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${cookies["token"]}`,
-			},
-		};
-		await fetch(`/backend/users/${userID}/friends`, request).then(
-			async (response) => {
-				const friendsData = await response.json();
-				if (!response.ok) {
-					console.log("error response loading friends list");
-					return <h1>No Friends loaded</h1>;
-				}
-				var fetchedFriends = await Promise.all(
-					friendsData.map(async (fetchedFriend: any) => {
-						const amIUser1 = fetchedFriend.userID1 === user.id;
-
-						const avatar: string = await fetch(
-							`/backend/users/${
-								amIUser1 ? fetchedFriend.userID2 : fetchedFriend.userID1
-							}/avatar`,
-							request
-						).then(async (response) => {
-							const data = await response.blob();
-							if (!response.ok) {
-								console.log("error fetching avatar");
-								return null;
-							}
-							const src = URL.createObjectURL(data);
-							return src;
-						});
-						if (!amIUser1) {
-							var newFriend: Friend = {
-								id: fetchedFriend.userID1,
-								username: fetchedFriend.username1,
-								status: fetchedFriend.userStatus1,
-								avatar: avatar,
-							};
-						} else {
-							var newFriend: Friend = {
-								id: fetchedFriend.userID2,
-								username: fetchedFriend.username2,
-								status: fetchedFriend.userStatus2,
-								avatar: avatar,
-							};
-						}
-						return newFriend;
-					})
-				);
-				setFriends([...fetchedFriends]);
-			}
-		);
-		fetch(`/backend/users/${userID}/blockedUsers`, request).then(
-			async (response) => {
-				const blockedData = await response.json();
-				if (!response.ok) {
-					console.log("error response loading blocked users list");
-					return <h1>No Blocked Users loaded</h1>;
-				}
-				var fetchedBlockedUsers = blockedData.map((fetchedBlockedUser: any) => {
-					const amIUser1 = fetchedBlockedUser.userID1 === user.id;
-					if (!amIUser1) {
-						var newBlockedUser: BlockedUser = {
-							id: fetchedBlockedUser.blockedUserID,
-							username: fetchedBlockedUser.blockedUsername,
-							status: fetchedBlockedUser.blockedUserStatus,
-						};
-					} else {
-						var newBlockedUser: BlockedUser = {
-							id: fetchedBlockedUser.blockedUserID,
-							username: fetchedBlockedUser.blockedUsername,
-							status: fetchedBlockedUser.blockedUserStatus,
-						};
+	const fetchFriends = useCallback(
+		async (userID: number, cookies: any) => {
+			var request = {
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${cookies["token"]}`,
+				},
+			};
+			await fetch(`/backend/users/${userID}/friends`, request).then(
+				async (response) => {
+					const friendsData = await response.json();
+					if (!response.ok) {
+						console.log("error response loading friends list");
+						return <h1>No Friends loaded</h1>;
 					}
-					return newBlockedUser;
-				});
-				setBlockedUsers([...fetchedBlockedUsers]);
-			}
-		);
-	}
+					var fetchedFriends = await Promise.all(
+						friendsData.map(async (fetchedFriend: any) => {
+							const amIUser1 = fetchedFriend.userID1 === user.id;
+
+							const avatar: string = await fetch(
+								`/backend/users/${
+									amIUser1 ? fetchedFriend.userID2 : fetchedFriend.userID1
+								}/avatar`,
+								request
+							).then(async (response) => {
+								const data = await response.blob();
+								if (!response.ok) {
+									console.log("error fetching avatar");
+									return null;
+								}
+								const src = URL.createObjectURL(data);
+								return src;
+							});
+							let newFriend: Friend;
+							if (!amIUser1) {
+								newFriend = {
+									id: fetchedFriend.userID1,
+									username: fetchedFriend.username1,
+									status: fetchedFriend.userStatus1,
+									avatar: avatar,
+								};
+							} else {
+								newFriend = {
+									id: fetchedFriend.userID2,
+									username: fetchedFriend.username2,
+									status: fetchedFriend.userStatus2,
+									avatar: avatar,
+								};
+							}
+							return newFriend;
+						})
+					);
+					setFriends([...fetchedFriends]);
+				}
+			);
+			fetch(`/backend/users/${userID}/blockedUsers`, request).then(
+				async (response) => {
+					const blockedData = await response.json();
+					if (!response.ok) {
+						console.log("error response loading blocked users list");
+						return <h1>No Blocked Users loaded</h1>;
+					}
+					var fetchedBlockedUsers = blockedData.map(
+						(fetchedBlockedUser: any) => {
+							const amIUser1 = fetchedBlockedUser.userID1 === user.id;
+							let newBlockedUser: BlockedUser;
+							if (!amIUser1) {
+								newBlockedUser = {
+									id: fetchedBlockedUser.blockedUserID,
+									username: fetchedBlockedUser.blockedUsername,
+									status: fetchedBlockedUser.blockedUserStatus,
+								};
+							} else {
+								newBlockedUser = {
+									id: fetchedBlockedUser.blockedUserID,
+									username: fetchedBlockedUser.blockedUsername,
+									status: fetchedBlockedUser.blockedUserStatus,
+								};
+							}
+							return newBlockedUser;
+						}
+					);
+					setBlockedUsers([...fetchedBlockedUsers]);
+				}
+			);
+		},
+		[setFriends, user]
+	);
 
 	useEffect(() => {
 		if (user !== undefined) {
@@ -326,7 +338,7 @@ function FriendsList(
 		}
 
 		socket.emit("get games", cookies["token"]);
-	}, [user]);
+	}, [user, cookies, fetchFriends, socket]);
 
 	useEffect(() => {
 		socket.on("get games", (data: GameInfo[]) => {
@@ -334,7 +346,7 @@ function FriendsList(
 				setGameInfos(data);
 			}
 		});
-	}, []);
+	}, [socket]);
 
 	if (user === undefined) {
 		return <div></div>;

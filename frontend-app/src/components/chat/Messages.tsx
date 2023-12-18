@@ -106,9 +106,7 @@ export const Messages = (
 							className={`text-sm italic text-darkblue dark:text-darkdarkblue hover:text-teal hover:dark:text-darkteal hover:underline ${
 								selfSent ? "hidden" : ""
 							}`}
-							onClick={() => {
-								navigate("/user/" + msg.senderID);
-							}}
+							href={`/user/${msg.senderID}`}
 							onContextMenu={(e) => {
 								e.preventDefault();
 								if (currentChatRoom.name !== "" && settings === false) {
@@ -144,8 +142,9 @@ export const Messages = (
 
 	function submitPassword() {
 		const isInvite: boolean = Boolean(promptedInvite);
+		let info: ReceivedInfo;
 		if (isInvite) {
-			var info: ReceivedInfo = {
+			info = {
 				token: cookies["token"],
 				inviteInfo: promptedInvite,
 				chatInfo: {
@@ -154,7 +153,7 @@ export const Messages = (
 			};
 			socket.emit("accept invite", info);
 		} else {
-			var info: ReceivedInfo = {
+			info = {
 				chatRoomID: promptedPublicChatRoom.chatRoomID,
 				token: cookies["token"],
 				chatInfo: {

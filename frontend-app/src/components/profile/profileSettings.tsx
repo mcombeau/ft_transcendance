@@ -110,10 +110,10 @@ function ProfileSettings(
 	function submitUserInfo(e: any) {
 		e.preventDefault();
 		var body: { username?: string; email?: string } = {};
-		if (newUsername != user.username) {
+		if (newUsername !== user.username) {
 			body.username = newUsername;
 		}
-		if (newEmail != user.email) {
+		if (newEmail !== user.email) {
 			body.email = newEmail;
 		}
 		if (!body.username && !body.email) {
@@ -329,6 +329,7 @@ function ProfileSettings(
 						<div className="flex w-full m-2">
 							<img
 								className="bg-sage dark:bg-darkdarkblue relative rounded-md overflow-hidden mx-auto my-2"
+								alt="QR code"
 								src={qrcode}
 							></img>
 							<div className="relative mx-auto justify-center">

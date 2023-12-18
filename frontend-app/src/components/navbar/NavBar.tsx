@@ -35,7 +35,7 @@ function Navbar() {
 		return () => {
 			socket.off("logout");
 		};
-	}, []);
+	}, [cookies, navigate, removeCookie, setAuthenticatedUserID, socket]);
 
 	function toggleDarkModeCookie() {
 		if (isDarkModeEnabled(cookies)) {

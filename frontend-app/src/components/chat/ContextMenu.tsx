@@ -3,6 +3,7 @@ import { ChangeStatus } from "./Chat";
 import {
 	Dispatch,
 	MutableRefObject,
+	ReactElement,
 	SetStateAction,
 	useEffect,
 	useRef,
@@ -40,7 +41,7 @@ export const ContextMenuEl = (
 
 	useEffect(() => {
 		setUserIsBlocked(blockedUsers.includes(target.id));
-	}, []);
+	}, [blockedUsers, target]);
 
 	function invite(
 		target: { id: number; username: string },
@@ -79,16 +80,6 @@ export const ContextMenuEl = (
 		);
 	}
 
-	function onPageClick(event: any) {
-		event.stopPropagation();
-		if (menuRef && menuRef.current && !menuRef.current.contains(event.target)) {
-			console.log("Deactivated context menu");
-			console.log(event);
-			console.log(menuRef.current.getBoundingClientRect());
-			setContextMenu(false);
-		}
-	}
-
 	// Socket receiver for game status
 	useEffect(() => {
 		socket.on("is in game", (isActive: boolean) => {
@@ -98,25 +89,13 @@ export const ContextMenuEl = (
 		return () => {
 			socket.off("in a game");
 		};
-	}, [contextMenu]);
+	}, [contextMenu, socket]);
 
 	// Check via socket the game status
 	useEffect(() => {
 		socket.emit("is in game", cookies["token"]);
 		setInvitesMenu(false);
-	}, [contextMenu]);
-
-	// Add event listener
-	// useEffect(() => {
-	// 	if (contextMenu) {
-	// 		console.log("activated event listener");
-	// 		document.addEventListener("click", onPageClick, { capture: true });
-	// 	} else {
-	// 		console.log("removed event listener");
-	// 		document.removeEventListener("click", onPageClick);
-	// 	}
-	// 	return () => document.removeEventListener("click", onPageClick);
-	// }, [contextMenu]);
+	}, [contextMenu, cookies, socket]);
 
 	if (!contextMenu) {
 		return <div></div>;
@@ -335,8 +314,9 @@ export const ContextMenuEl = (
 		);
 	}
 
+	let options: ReactElement;
 	if (!invitesMenu) {
-		var options = (
+		options = (
 			<>
 				<div className="flex justify-between items-center p-1">
 					<span className="text-sm">{target.username}</span>
@@ -365,7 +345,7 @@ export const ContextMenuEl = (
 		);
 	} else {
 		// List chat you can join
-		var options = (
+		options = (
 			<>
 				<div className="flex justify-between p-1">
 					<span>{target.username}</span>

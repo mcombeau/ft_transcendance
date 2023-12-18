@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
 import { TbLoader2 } from "react-icons/tb";
 import { useNavigate, useParams } from "react-router-dom";
@@ -199,9 +199,7 @@ export const Play = () => {
 	});
 	const [ballRadius, setBallRadius] = useState<number>(sizeGame * 10);
 	const [skateOffsset1, setSkateOffsset1] = useState<number>(sizeGame * 30);
-	const [skateOffsset2, setSkateOffsset2] = useState<number>(
-		skateOffsset1 - skate.width
-	);
+	const [, setSkateOffsset2] = useState<number>(skateOffsset1 - skate.width);
 
 	useEffect(() => {
 		let newSize: number = 1;
@@ -233,7 +231,7 @@ export const Play = () => {
 		if (!authenticatedUserID) {
 			navigate("/not-found");
 		}
-	}, []);
+	}, [authenticatedUserID, navigate]);
 
 	function getPlayerUsername(player: number) {
 		switch (player) {
@@ -257,29 +255,38 @@ export const Play = () => {
 		}
 	}
 
-	function activateKeyHandler(cookies: any) {
-		console.log("Key handler activated");
-		window.addEventListener("keydown", (event) => {
-			handleKeyPress(event, cookies);
-		});
-	}
+	const handleKeyPress = useCallback(
+		(event: any, cookies: any) => {
+			if (event.key === "w" || event.key === "k" || event.key === UP) {
+				event.preventDefault();
+				socket.emit("up", cookies["token"]);
+			} else if (event.key === "s" || event.key === "j" || event.key === DOWN) {
+				event.preventDefault();
+				socket.emit("down", cookies["token"]);
+			}
+		},
+		[socket]
+	);
 
-	function deactivateKeyHandler(cookies: any) {
-		console.log("Key handler deactivated");
-		window.removeEventListener("keydown", (event) => {
-			handleKeyPress(event, cookies);
-		});
-	}
+	const activateKeyHandler = useCallback(
+		(cookies: any) => {
+			console.log("Key handler activated");
+			window.addEventListener("keydown", (event) => {
+				handleKeyPress(event, cookies);
+			});
+		},
+		[handleKeyPress]
+	);
 
-	function handleKeyPress(event: any, cookies: any) {
-		if (event.key === "w" || event.key === "k" || event.key === UP) {
-			event.preventDefault();
-			socket.emit("up", cookies["token"]);
-		} else if (event.key === "s" || event.key === "j" || event.key === DOWN) {
-			event.preventDefault();
-			socket.emit("down", cookies["token"]);
-		}
-	}
+	const deactivateKeyHandler = useCallback(
+		(cookies: any) => {
+			console.log("Key handler deactivated");
+			window.removeEventListener("keydown", (event) => {
+				handleKeyPress(event, cookies);
+			});
+		},
+		[handleKeyPress]
+	);
 
 	function enterLobby() {
 		console.log("Entered Lobby");
@@ -347,13 +354,13 @@ export const Play = () => {
 		return () => {
 			deactivateKeyHandler(cookies);
 		};
-	}, [page]);
+	}, [page, cookies, activateKeyHandler, deactivateKeyHandler]);
 
-	function checkUrlState(): UrlState {
+	const checkUrlState = useCallback((): UrlState => {
 		if (watchGameID) return UrlState.Watch;
 		if (inviteID) return UrlState.Invite;
 		return UrlState.Play;
-	}
+	}, [inviteID, watchGameID]);
 
 	useEffect(() => {
 		socket.on("reconnect", (data: Response) => {
@@ -482,12 +489,20 @@ export const Play = () => {
 			socket.off("leave game");
 			socket.off("get games");
 		};
-	}, []);
+	}, [
+		authenticatedUserID,
+		checkUrlState,
+		cookies,
+		inviteID,
+		sizeGame,
+		socket,
+		watchGameID,
+	]);
 
 	useEffect(() => {
 		socket.emit("get games", cookies["token"]);
 		socket.emit("reconnect", cookies["token"]);
-	}, []);
+	}, [socket, cookies]);
 
 	switch (page) {
 		case Page.GameError:

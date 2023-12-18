@@ -4,7 +4,7 @@ export function separatorLine(
 	backgroundColor: string = "lightblue"
 ) {
 	let dmTextColor = "darkblue";
-	if (textColor == "sage") {
+	if (textColor === "sage") {
 		dmTextColor = "teal";
 	}
 

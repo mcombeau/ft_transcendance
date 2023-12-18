@@ -65,7 +65,7 @@ function FinalizeLogin({ setBanners }) {
 		} else {
 			navigate(`/user/${authenticatedUserID}#settings`);
 		}
-	}, []);
+	}, [authenticatedUserID, cookies, navigate]);
 
 	function TwoFactorAuth() {
 		return (

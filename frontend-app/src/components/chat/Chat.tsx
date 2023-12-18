@@ -1,4 +1,10 @@
-import { ReactElement, useContext, useEffect, useState } from "react";
+import {
+	ReactElement,
+	useCallback,
+	useContext,
+	useEffect,
+	useState,
+} from "react";
 import {
 	WebSocketContext,
 	WebSocketProvider,
@@ -228,6 +234,9 @@ export const Chat = ({ setBanners }) => {
 	let navigate = useNavigate();
 
 	const toggleSidePannel = () => {
+		if (windowSize.width < 768) {
+			setSettings(false);
+		}
 		setSidePannel(!sidePannel);
 	};
 
@@ -235,50 +244,56 @@ export const Chat = ({ setBanners }) => {
 		return myChats.find((e) => e.chatRoomID === chatRoomID);
 	}
 
-	function serviceAnnouncement(content: string, chatRoomID: number) {
-		var message: Message = {
-			msg: content,
-			datestamp: new Date(),
-			senderID: null,
-			chatRoomID: chatRoomID,
-			read: true,
-			system: true,
-			senderUsername: null,
-		};
-		addMessageToChatRoom(message, chatRoomID);
-	}
-
-	function addMessageToChatRoom(message: Message, chatRoomID: number) {
-		setMyChats((prev) => {
-			const temp = [...prev];
-			return temp.map((chat: ChatRoom) => {
-				if (chat.chatRoomID === chatRoomID) {
-					if (
-						message.senderID !== authenticatedUserID &&
-						message.system === false
-					) {
-						const notifMessage: ReactElement = (
-							<>
-								<b>{message.senderUsername}</b>
-								{chat.isDM ? (
-									""
-								) : (
-									<>
-										{" "}
-										in <b>{chat.name}</b>
-									</>
-								)}{" "}
-								: {message.msg.slice(0, 20)}...
-							</>
-						);
-						createBanner(notifMessage, setBanners);
+	const addMessageToChatRoom = useCallback(
+		(message: Message, chatRoomID: number) => {
+			setMyChats((prev) => {
+				const temp = [...prev];
+				return temp.map((chat: ChatRoom) => {
+					if (chat.chatRoomID === chatRoomID) {
+						if (
+							message.senderID !== authenticatedUserID &&
+							message.system === false
+						) {
+							const notifMessage: ReactElement = (
+								<>
+									<b>{message.senderUsername}</b>
+									{chat.isDM ? (
+										""
+									) : (
+										<>
+											{" "}
+											in <b>{chat.name}</b>
+										</>
+									)}{" "}
+									: {message.msg.slice(0, 20)}...
+								</>
+							);
+							createBanner(notifMessage, setBanners);
+						}
+						chat.messages = [...chat.messages, message];
 					}
-					chat.messages = [...chat.messages, message];
-				}
-				return chat;
+					return chat;
+				});
 			});
-		});
-	}
+		},
+		[authenticatedUserID, setBanners]
+	);
+
+	const serviceAnnouncement = useCallback(
+		(content: string, chatRoomID: number) => {
+			var message: Message = {
+				msg: content,
+				datestamp: new Date(),
+				senderID: null,
+				chatRoomID: chatRoomID,
+				read: true,
+				system: true,
+				senderUsername: null,
+			};
+			addMessageToChatRoom(message, chatRoomID);
+		},
+		[addMessageToChatRoom]
+	);
 
 	useEffect(() => {
 		var request = {
@@ -558,7 +573,7 @@ export const Chat = ({ setBanners }) => {
 							chat.banned = chat.banned.filter(
 								(p) => p.userID !== info.targetID
 							);
-							if (info.targetID == authenticatedUserID) {
+							if (info.targetID === authenticatedUserID) {
 								const message = `You have been unbanned from ${info.chatInfo.name}`;
 								createBanner(message, setBanners);
 							}
@@ -825,7 +840,15 @@ export const Chat = ({ setBanners }) => {
 			socket.off("refuse invite");
 			socket.off("set password");
 		};
-	}, []);
+	}, [
+		socket,
+		addMessageToChatRoom,
+		authenticatedUserID,
+		cookies,
+		navigate,
+		serviceAnnouncement,
+		setBanners,
+	]);
 
 	useEffect(() => {
 		var request = {
@@ -917,19 +940,19 @@ export const Chat = ({ setBanners }) => {
 					setInvites([]);
 					data.map((invite: Invite) => {
 						console.log("fetching invites", invite);
-						setInvites((prev) => [...prev, invite]);
+						return setInvites((prev) => [...prev, invite]);
 					});
 				}
 			);
 		}
-
-		if (windowSize.width > 768) {
-			return;
-		}
-		if (currentPannel.type != PannelType.home && sidePannel === true) {
-			setSidePannel(false);
-		}
-	}, [currentPannel]);
+	}, [
+		currentPannel,
+		authenticatedUserID,
+		blockedUsers,
+		cookies,
+		myChats,
+		publicChats,
+	]);
 
 	useEffect(() => {
 		var message_els = document.getElementById("messages");
@@ -961,22 +984,13 @@ export const Chat = ({ setBanners }) => {
 		const targetDMID: number = targetDM.chatRoomID;
 		setCurrentPannel({ type: PannelType.chat, chatRoomID: targetDMID });
 		setRedirected(true);
-	}, [myChats]);
-
-	useEffect(() => {
-		if (windowSize.width > 768) {
-			return;
-		}
-		if (settings === true && sidePannel === true) {
-			setSettings(false);
-		}
-	}, [sidePannel]);
+	}, [myChats, redirected, urlUserID]);
 
 	useEffect(() => {
 		if (!authenticatedUserID) {
 			navigate("/not-found");
 		}
-	}, []);
+	}, [authenticatedUserID, navigate]);
 
 	return (
 		<WebSocketProvider value={socket}>
@@ -999,7 +1013,9 @@ export const Chat = ({ setBanners }) => {
 						cookies,
 						authenticatedUserID,
 						currentPannel,
-						setCurrentPannel
+						setCurrentPannel,
+						windowSize.width,
+						setSidePannel
 					)}
 				</div>
 				<div

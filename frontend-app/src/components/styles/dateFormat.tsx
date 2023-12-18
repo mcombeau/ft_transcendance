@@ -44,7 +44,7 @@ export function formatDate(inputDate: Date) {
 	var dt = new Date(inputDatestamp),
 		date = dt.getDate(),
 		month = months[dt.getMonth()],
-		timeDiff = inputDatestamp - Date.now(),
+		// timeDiff = inputDatestamp - Date.now(),
 		diffDays = new Date().getDate() - date,
 		diffMonths = new Date().getMonth() - dt.getMonth(),
 		diffYears = new Date().getFullYear() - dt.getFullYear();

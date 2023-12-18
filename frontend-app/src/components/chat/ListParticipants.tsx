@@ -182,7 +182,7 @@ export const ListParticipants = (
 					}}
 				>
 					{getButtonIcon(ButtonIconType.operator, "button-icon-sm")}
-					{checkStatus(channel, participant.userID) == Status.Operator
+					{checkStatus(channel, participant.userID) === Status.Operator
 						? "Remove from admins"
 						: "Make admin"}
 				</button>

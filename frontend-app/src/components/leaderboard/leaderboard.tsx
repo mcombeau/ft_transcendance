@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
 import { GameDetails } from "../play/play";
 import { getLadderLevel, LadderLevels } from "../profile/ladder";
@@ -35,8 +35,9 @@ function gamesToLeaderboard(games: GameDetails[]) {
 				(game: GameDetails) =>
 					game.winnerID === userID || game.loserID === userID
 			);
-			if (random_game.winnerID == userID) username = random_game.winnerUsername;
-			if (random_game.loserID == userID) username = random_game.loserUsername;
+			if (random_game.winnerID === userID)
+				username = random_game.winnerUsername;
+			if (random_game.loserID === userID) username = random_game.loserUsername;
 			return {
 				userID: userID,
 				username: username,
@@ -108,7 +109,7 @@ function Leaderboard() {
 	const [leaderboard, setLeaderboard] = useState<LeaderboardLine[]>(null);
 	const { authenticatedUserID } = useContext(AuthenticationContext);
 
-	async function fetchLeaderboard() {
+	const fetchLeaderboard = useCallback(async () => {
 		var request = {
 			method: "GET",
 			headers: {
@@ -124,7 +125,7 @@ function Leaderboard() {
 			}
 			setGames(data);
 		});
-	}
+	}, [cookies]);
 
 	useEffect(() => {
 		console.log("Games", games);
@@ -133,7 +134,7 @@ function Leaderboard() {
 
 	useEffect(() => {
 		if (games.length === 0) fetchLeaderboard();
-	}, []);
+	}, [fetchLeaderboard, games]);
 
 	return (
 		<div className="background-element">

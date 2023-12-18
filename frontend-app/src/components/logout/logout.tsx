@@ -29,7 +29,7 @@ function Logout() {
 
 	useEffect(() => {
 		logoutUser(socket, cookies, setAuthenticatedUserID, removeCookie, navigate);
-	}, []);
+	}, [cookies, navigate, removeCookie, setAuthenticatedUserID, socket]);
 
 	return <div></div>;
 }

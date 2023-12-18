@@ -175,7 +175,7 @@ function GameHistory(user: User, cookies: any) {
 		if (user !== undefined) {
 			fetchGames(user.id, cookies);
 		}
-	}, [user]);
+	}, [user, cookies]);
 
 	if (user === undefined) {
 		return <div></div>;
