@@ -1,4 +1,10 @@
-import { ReactElement, useContext, useEffect, useState } from "react";
+import {
+	ReactElement,
+	useCallback,
+	useContext,
+	useEffect,
+	useState,
+} from "react";
 import {
 	WebSocketContext,
 	WebSocketProvider,
@@ -248,37 +254,40 @@ export const Chat = ({ setBanners }) => {
 		addMessageToChatRoom(message, chatRoomID);
 	}
 
-	function addMessageToChatRoom(message: Message, chatRoomID: number) {
-		setMyChats((prev) => {
-			const temp = [...prev];
-			return temp.map((chat: ChatRoom) => {
-				if (chat.chatRoomID === chatRoomID) {
-					if (
-						message.senderID !== authenticatedUserID &&
-						message.system === false
-					) {
-						const notifMessage: ReactElement = (
-							<>
-								<b>{message.senderUsername}</b>
-								{chat.isDM ? (
-									""
-								) : (
-									<>
-										{" "}
-										in <b>{chat.name}</b>
-									</>
-								)}{" "}
-								: {message.msg.slice(0, 20)}...
-							</>
-						);
-						createBanner(notifMessage, setBanners);
+	const addMessageToChatRoom = useCallback(
+		(message: Message, chatRoomID: number) => {
+			setMyChats((prev) => {
+				const temp = [...prev];
+				return temp.map((chat: ChatRoom) => {
+					if (chat.chatRoomID === chatRoomID) {
+						if (
+							message.senderID !== authenticatedUserID &&
+							message.system === false
+						) {
+							const notifMessage: ReactElement = (
+								<>
+									<b>{message.senderUsername}</b>
+									{chat.isDM ? (
+										""
+									) : (
+										<>
+											{" "}
+											in <b>{chat.name}</b>
+										</>
+									)}{" "}
+									: {message.msg.slice(0, 20)}...
+								</>
+							);
+							createBanner(notifMessage, setBanners);
+						}
+						chat.messages = [...chat.messages, message];
 					}
-					chat.messages = [...chat.messages, message];
-				}
-				return chat;
+					return chat;
+				});
 			});
-		});
-	}
+		},
+		[authenticatedUserID, setBanners]
+	);
 
 	useEffect(() => {
 		var request = {
@@ -558,7 +567,7 @@ export const Chat = ({ setBanners }) => {
 							chat.banned = chat.banned.filter(
 								(p) => p.userID !== info.targetID
 							);
-							if (info.targetID == authenticatedUserID) {
+							if (info.targetID === authenticatedUserID) {
 								const message = `You have been unbanned from ${info.chatInfo.name}`;
 								createBanner(message, setBanners);
 							}
@@ -825,7 +834,7 @@ export const Chat = ({ setBanners }) => {
 			socket.off("refuse invite");
 			socket.off("set password");
 		};
-	}, []);
+	}, [socket, addMessageToChatRoom]);
 
 	useEffect(() => {
 		var request = {
@@ -917,7 +926,7 @@ export const Chat = ({ setBanners }) => {
 					setInvites([]);
 					data.map((invite: Invite) => {
 						console.log("fetching invites", invite);
-						setInvites((prev) => [...prev, invite]);
+						return setInvites((prev) => [...prev, invite]);
 					});
 				}
 			);
@@ -926,7 +935,7 @@ export const Chat = ({ setBanners }) => {
 		if (windowSize.width > 768) {
 			return;
 		}
-		if (currentPannel.type != PannelType.home && sidePannel === true) {
+		if (currentPannel.type !== PannelType.home && sidePannel === true) {
 			setSidePannel(false);
 		}
 	}, [currentPannel]);
