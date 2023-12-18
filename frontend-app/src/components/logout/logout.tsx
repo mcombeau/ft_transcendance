@@ -12,7 +12,6 @@ export function logoutUser(
 	removeCookie: any,
 	navigate: NavigateFunction
 ) {
-	console.log("Logout user");
 	socket.emit("leave game", cookies["token"]);
 	socket.emit("stop watching", cookies["token"]);
 	socket.emit("logout", cookies["token"]);

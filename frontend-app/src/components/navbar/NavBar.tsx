@@ -23,7 +23,6 @@ function Navbar() {
 
 	useEffect(() => {
 		socket.on("logout", () => {
-			console.log("Socket on logout");
 			logoutUser(
 				socket,
 				cookies,
@@ -43,7 +42,6 @@ function Navbar() {
 		} else {
 			setCookie("darkmode", "true");
 		}
-		console.log("After set cookie:", cookies["darkmode"]);
 	}
 
 	return (

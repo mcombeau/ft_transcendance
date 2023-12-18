@@ -74,7 +74,6 @@ export const ListParticipants = (
 			<button
 				className="button"
 				onClick={() => {
-					console.log("Muted");
 					var info: ReceivedInfo = {
 						token: cookies["token"],
 						chatRoomID: channel.chatRoomID,
@@ -110,7 +109,6 @@ export const ListParticipants = (
 							"mute " + participant.username
 						)["value"];
 						muteTime = parseInt(muteTime);
-						console.log("Muted for ", muteTime);
 						var info: ReceivedInfo = {
 							token: cookies["token"],
 							chatRoomID: channel.chatRoomID,
@@ -133,7 +131,6 @@ export const ListParticipants = (
 			<button
 				className="button"
 				onClick={() => {
-					console.log("Kicked");
 					var info: ReceivedInfo = {
 						token: cookies["token"],
 						chatRoomID: channel.chatRoomID,
@@ -152,7 +149,6 @@ export const ListParticipants = (
 			<button
 				className="button"
 				onClick={() => {
-					console.log("Banned " + participant);
 					var info: ReceivedInfo = {
 						token: cookies["token"],
 						chatRoomID: channel.chatRoomID,
@@ -172,7 +168,6 @@ export const ListParticipants = (
 				<button
 					className="button flex"
 					onClick={() => {
-						console.log("Made operator " + participant);
 						var info: ReceivedInfo = {
 							token: cookies["token"],
 							chatRoomID: channel.chatRoomID,
@@ -233,7 +228,6 @@ export const ListParticipants = (
 						<button
 							className="button"
 							onClick={() => {
-								console.log("unban " + participant.username);
 								var info: ReceivedInfo = {
 									token: cookies["token"],
 									chatRoomID: channel.chatRoomID,

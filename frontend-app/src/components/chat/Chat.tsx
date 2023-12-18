@@ -76,7 +76,6 @@ export function ChangeStatus(
 ) {
 	const status_values = ["mute", "kick", "ban", "operator", "invite", "dm"];
 	if (!status_values.includes(userStatus)) return;
-	console.log("Change status invite info", info);
 	socket.emit(userStatus, info);
 }
 
@@ -137,7 +136,7 @@ export async function fetchChatParticipants(
 	).then(async (response) => {
 		const participant_data = await response.json();
 		if (!response.ok) {
-			console.log("error response load participants");
+			console.warn("error response load participants");
 			return null;
 		}
 		var participants = participant_data.map((user: any) => {
@@ -167,7 +166,7 @@ export async function fetchChatMessages(
 	).then(async (response) => {
 		const message_data = await response.json();
 		if (!response.ok) {
-			console.log("error response load messages");
+			console.warn("error response load messages");
 			return null;
 		}
 		var messages = message_data.map((message: any) => {
@@ -195,7 +194,7 @@ export async function fetchHasPassword(
 		async (response) => {
 			const hasPassword = await response.json();
 			if (!response.ok) {
-				console.log("error response load has password");
+				console.warn("error response load has password");
 				return null;
 			}
 			return hasPassword;
@@ -307,7 +306,6 @@ export const Chat = ({ setBanners }) => {
 		});
 
 		socket.on("chat message", (info: ReceivedInfo) => {
-			console.log("RECEIVED", "chat message", info);
 			var message: Message = {
 				datestamp: info.messageInfo.sentAt,
 				msg: info.messageInfo.message,
@@ -321,7 +319,6 @@ export const Chat = ({ setBanners }) => {
 		});
 
 		socket.on("delete chat", (info: ReceivedInfo) => {
-			console.log("RECEIVED", "delete chat", info);
 			setMyChats((prev) =>
 				prev.filter((e: ChatRoom) => e.chatRoomID !== info.chatRoomID)
 			);
@@ -334,7 +331,6 @@ export const Chat = ({ setBanners }) => {
 		});
 
 		socket.on("toggle private", async (info: ReceivedInfo) => {
-			console.log("RECEIVED", "toggle private", info);
 			if (info.chatInfo.isPrivate) {
 				// the chat is becoming private
 				setPublicChats((prev) =>
@@ -375,10 +371,6 @@ export const Chat = ({ setBanners }) => {
 		});
 
 		socket.on("add chat", (info: ReceivedInfo) => {
-			console.log("RECEIVED", "add chat", info);
-			console.log("Added new chat");
-			console.log(info);
-
 			var publicChatRoom: PublicChatRoom = {
 				chatRoomID: info.chatRoomID,
 				name: info.chatInfo.name,
@@ -453,7 +445,6 @@ export const Chat = ({ setBanners }) => {
 		});
 
 		socket.on("leave chat", (info: ReceivedInfo) => {
-			console.log("RECEIVED", "leave chat", info);
 			// For everybody in the chat, update participants
 			setMyChats((prev) => {
 				const temp = [...prev];
@@ -483,7 +474,6 @@ export const Chat = ({ setBanners }) => {
 		});
 
 		socket.on("mute", (info: ReceivedInfo) => {
-			console.log("RECEIVED", "mute", info);
 			setMyChats((prev) => {
 				const temp = [...prev];
 				return temp.map((chan: ChatRoom) => {
@@ -527,7 +517,6 @@ export const Chat = ({ setBanners }) => {
 		});
 
 		socket.on("ban", (info: ReceivedInfo) => {
-			console.log("RECEIVED", "ban", info);
 			// If somebody is being banned
 			if (info.participantInfo.isBanned) {
 				if (info.targetID === authenticatedUserID) {
@@ -616,7 +605,6 @@ export const Chat = ({ setBanners }) => {
 			setInvites((prev) =>
 				prev.filter((invite: Invite) => invite.id !== info.inviteInfo.id)
 			);
-			console.log("RECEIVED", "accept invite", info);
 			if (info.inviteInfo.type === typeInvite.Chat) {
 				var user: User = {
 					userID: info.userID,
@@ -666,8 +654,6 @@ export const Chat = ({ setBanners }) => {
 		});
 
 		socket.on("set password", (info: ReceivedInfo) => {
-			console.log("RECEIVED", "set password", info);
-
 			setPublicChats((prev: PublicChatRoom[]) => {
 				const temp = [...prev];
 				return temp.map((chat: PublicChatRoom) => {
@@ -712,7 +698,6 @@ export const Chat = ({ setBanners }) => {
 		});
 
 		socket.on("kick", (info: ReceivedInfo) => {
-			console.log("RECEIVED", "kick", info);
 			// For everybody in the chat, update participants
 			setMyChats((prev) => {
 				const temp = [...prev];
@@ -749,7 +734,6 @@ export const Chat = ({ setBanners }) => {
 		});
 
 		socket.on("operator", (info: ReceivedInfo) => {
-			console.log("RECEIVED", "operator", info);
 			setMyChats((prev) => {
 				const temp = [...prev];
 				return temp.map((chan: ChatRoom) => {
@@ -778,8 +762,6 @@ export const Chat = ({ setBanners }) => {
 		});
 
 		socket.on("dm", (info: ReceivedInfo) => {
-			console.log("RECEIVED", "dm", info);
-			console.log(info);
 			var user1: User = {
 				userID: info.userID,
 				username: info.username,
@@ -822,7 +804,6 @@ export const Chat = ({ setBanners }) => {
 		});
 
 		return () => {
-			console.log("unregistering events");
 			socket.off("chat message");
 			socket.off("error");
 			socket.off("delete chat");
@@ -857,17 +838,15 @@ export const Chat = ({ setBanners }) => {
 				Authorization: `Bearer ${cookies["token"]}`,
 			},
 		};
-		console.log("authenticated user id ", authenticatedUserID);
 		if (myChats.length === 0 && authenticatedUserID) {
 			// Fetching Chats
 			fetch(`/backend/users/${authenticatedUserID}/chats`, request).then(
 				async (response) => {
 					const chat_data = await response.json();
 					if (!response.ok) {
-						console.log("error response load channels");
+						console.warn("error response load channels");
 						return;
 					}
-					console.log("RECEIVED private CHAT DATA", chat_data);
 					chat_data.map(async (chatRoom: any) => {
 						var chan = await fetchChatData(
 							chatRoom.id,
@@ -895,10 +874,9 @@ export const Chat = ({ setBanners }) => {
 				async (response) => {
 					const data = await response.json();
 					if (!response.ok) {
-						console.log("error response load channels");
+						console.warn("error response load channels");
 						return;
 					}
-					console.log("RECEIVED blocked users data", data);
 					data.map(async (blockedRelationship: any) => {
 						setBlockedUsers((prev) => [
 							...prev,
@@ -913,10 +891,9 @@ export const Chat = ({ setBanners }) => {
 			fetch(`/backend/chats/public`, request).then(async (response) => {
 				const chat_data = await response.json();
 				if (!response.ok) {
-					console.log("error response load channels");
+					console.warn("error response load channels");
 					return;
 				}
-				console.log("RECEIVED public CHAT DATA", chat_data);
 				chat_data.map(async (chatRoom: any) => {
 					const newPublicChat: PublicChatRoom = {
 						chatRoomID: chatRoom.id,
@@ -934,12 +911,11 @@ export const Chat = ({ setBanners }) => {
 				async (response) => {
 					const data = await response.json();
 					if (!response.ok) {
-						console.log("error response load invites");
+						console.warn("error response load invites");
 						return;
 					}
 					setInvites([]);
 					data.map((invite: Invite) => {
-						console.log("fetching invites", invite);
 						return setInvites((prev) => [...prev, invite]);
 					});
 				}
@@ -960,10 +936,6 @@ export const Chat = ({ setBanners }) => {
 
 		message_els.scrollTop = message_els.scrollHeight;
 	}, [myChats]);
-
-	useEffect(() => {
-		console.log("Public chats", publicChats);
-	}, [publicChats]);
 
 	useEffect(() => {
 		if (getUsername(cookies) === undefined) {

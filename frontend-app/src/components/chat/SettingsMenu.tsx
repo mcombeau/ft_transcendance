@@ -20,7 +20,6 @@ export const SettingsMenu = (
 	const [newPassword, setNewPassword] = useState("");
 
 	function removePassword() {
-		console.log("Removing password");
 		var info: ReceivedInfo = {
 			token: cookies["token"],
 			chatRoomID: currentChatRoom.chatRoomID,
@@ -32,7 +31,6 @@ export const SettingsMenu = (
 	}
 
 	function submitNewPassword(e: any) {
-		console.log("Setting new password");
 		e.preventDefault();
 		var info: ReceivedInfo = {
 			token: cookies["token"],
@@ -58,7 +56,6 @@ export const SettingsMenu = (
 			<button
 				className="button"
 				onClick={() => {
-					console.log("Leaving " + currentChatRoom.name);
 					var info: ReceivedInfo = {
 						token: cookies["token"],
 						chatRoomID: currentChatRoom.chatRoomID,
@@ -87,7 +84,6 @@ export const SettingsMenu = (
 							token: cookies["token"],
 						};
 						socket.emit("delete chat", info);
-						console.log("Deleting " + currentChatRoom.name);
 					}}
 				>
 					Delete channel

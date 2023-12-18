@@ -33,7 +33,6 @@ export const SidePannel = (
 	const createChannel = (e: any) => {
 		e.preventDefault();
 		if (newchannel === "") return;
-		console.log("Emit new chan");
 		var info: ReceivedInfo = {
 			chatInfo: {
 				name: newchannel,

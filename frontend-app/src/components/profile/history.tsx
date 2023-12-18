@@ -148,7 +148,7 @@ function GameHistory(user: User, cookies: any) {
 		fetch(`/backend/users/${userID}/games`, request).then(async (response) => {
 			const gamesData = await response.json();
 			if (!response.ok) {
-				console.log("error response load games");
+				console.warn("error response load games");
 				return <h1>No Games loaded</h1>;
 			}
 			var fetchedGames = gamesData.map((fetchedGame: any) => {

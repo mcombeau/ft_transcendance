@@ -29,7 +29,7 @@ function Login() {
 			async (response) => {
 				const data = await response.json();
 				if (!response.ok) {
-					console.log("error user login");
+					console.warn("error user login");
 					return;
 				}
 				setCookie("token", data.access_token, { path: "/" });
@@ -63,13 +63,10 @@ function Login() {
 			}),
 		};
 		fetch("/backend/users", request).then(async (response) => {
-			const data = await response.json();
 			if (!response.ok) {
-				console.log("error user creation");
+				console.warn("error user creation");
 				return;
 			}
-			console.log("Response: ", data);
-			console.log("New user ", newUsername, " ", newPassword, " ", email);
 		});
 		setNewUsername("");
 		setNewPassword("");

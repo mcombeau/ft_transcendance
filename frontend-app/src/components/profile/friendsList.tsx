@@ -255,7 +255,7 @@ function FriendsList(
 				async (response) => {
 					const friendsData = await response.json();
 					if (!response.ok) {
-						console.log("error response loading friends list");
+						console.warn("error response loading friends list");
 						return <h1>No Friends loaded</h1>;
 					}
 					var fetchedFriends = await Promise.all(
@@ -270,7 +270,7 @@ function FriendsList(
 							).then(async (response) => {
 								const data = await response.blob();
 								if (!response.ok) {
-									console.log("error fetching avatar");
+									console.warn("error fetching avatar");
 									return null;
 								}
 								const src = URL.createObjectURL(data);
@@ -302,7 +302,7 @@ function FriendsList(
 				async (response) => {
 					const blockedData = await response.json();
 					if (!response.ok) {
-						console.log("error response loading blocked users list");
+						console.warn("error response loading blocked users list");
 						return <h1>No Blocked Users loaded</h1>;
 					}
 					var fetchedBlockedUsers = blockedData.map(

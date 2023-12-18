@@ -42,7 +42,7 @@ function ProfileSettings(
 			async (response) => {
 				const data = await response.json();
 				if (!response.ok) {
-					console.log("error QR code generation: ", data.message);
+					console.warn("error QR code generation: ", data.message);
 					createBanner(
 						"Error generating QR code: " + data.message,
 						setBanners,
@@ -50,7 +50,6 @@ function ProfileSettings(
 					);
 					return;
 				}
-				console.log("QrCode", data);
 				setQrcode(data);
 			}
 		);
@@ -71,7 +70,7 @@ function ProfileSettings(
 
 		fetch(`/backend/auth/2fa/turn-on`, request).then(async (response) => {
 			if (!response.ok) {
-				console.log("Error enabling 2fa");
+				console.warn("Error enabling 2fa");
 				createBanner("Error enabling 2fa ", setBanners, BannerType.Alert);
 				setTwoFaValidationCode("");
 				setQrcode(null);
@@ -95,7 +94,7 @@ function ProfileSettings(
 		};
 		fetch(`/backend/auth/2fa/turn-off`, request).then(async (response) => {
 			if (!response.ok) {
-				console.log("Error disabling 2fa");
+				console.warn("Error disabling 2fa");
 				createBanner("Error disabling 2fa", setBanners, BannerType.Alert);
 				return;
 			}
@@ -151,8 +150,6 @@ function ProfileSettings(
 	async function submitNewAvatar(e: any) {
 		e.preventDefault();
 		const formData = new FormData(e.target.closest("form"));
-		console.log("Form data");
-		console.log(formData);
 
 		var request = {
 			method: "POST",
@@ -164,7 +161,7 @@ function ProfileSettings(
 		await fetch(`/backend/users/${authenticatedUserID}/avatar`, request).then(
 			async (response) => {
 				if (!response.ok) {
-					console.log("There was an issue with changing your avatar");
+					console.warn("There was an issue with changing your avatar");
 					createBanner(
 						"Error: Invalid file type or size (max. 5 MB)",
 						setBanners,
@@ -194,7 +191,7 @@ function ProfileSettings(
 		await fetch(`/backend/users/${authenticatedUserID}/avatar`, request).then(
 			async (response) => {
 				if (!response.ok) {
-					console.log("There was an issue with removing your avatar");
+					console.warn("There was an issue with removing your avatar");
 					const error = await response.json();
 					createBanner(
 						"Error: " + error.error + ": " + error.message,
@@ -315,10 +312,8 @@ function ProfileSettings(
 					checked={is2faEnabled}
 					onChange={() => {
 						if (!is2faEnabled) {
-							console.log("Trying to enable 2fa");
 							enable2Fa();
 						} else {
-							console.log("Trying to disable 2fa");
 							disable2Fa();
 						}
 					}}

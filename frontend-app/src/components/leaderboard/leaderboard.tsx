@@ -21,7 +21,6 @@ function gamesToLeaderboard(games: GameDetails[]) {
 		return game.loserID;
 	});
 	const userIDs = Array.from(new Set([...winners, ...losers]));
-	console.log("users", userIDs);
 	return userIDs
 		.map((userID: number) => {
 			let username: string;
@@ -120,7 +119,7 @@ function Leaderboard() {
 		await fetch(`/backend/games`, request).then(async (response) => {
 			const data = await response.json();
 			if (!response.ok) {
-				console.log("Error fetching games");
+				console.warn("Error fetching games");
 				return;
 			}
 			setGames(data);
@@ -128,7 +127,6 @@ function Leaderboard() {
 	}, [cookies]);
 
 	useEffect(() => {
-		console.log("Games", games);
 		setLeaderboard(gamesToLeaderboard(games));
 	}, [games]);
 

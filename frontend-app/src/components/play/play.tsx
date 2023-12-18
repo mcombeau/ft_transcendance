@@ -270,7 +270,6 @@ export const Play = () => {
 
 	const activateKeyHandler = useCallback(
 		(cookies: any) => {
-			console.log("Key handler activated");
 			window.addEventListener("keydown", (event) => {
 				handleKeyPress(event, cookies);
 			});
@@ -280,7 +279,6 @@ export const Play = () => {
 
 	const deactivateKeyHandler = useCallback(
 		(cookies: any) => {
-			console.log("Key handler deactivated");
 			window.removeEventListener("keydown", (event) => {
 				handleKeyPress(event, cookies);
 			});
@@ -289,13 +287,11 @@ export const Play = () => {
 	);
 
 	function enterLobby() {
-		console.log("Entered Lobby");
 		setPage(Page.Lobby);
 		socket.emit("enter lobby", { token: cookies["token"] });
 	}
 
 	async function endGame(gameFinished: boolean, gameDetails?: GameDetails) {
-		console.log("Game ended", gameDetails);
 		if (gameFinished) {
 			setEndGameDetails(gameDetails);
 		}
@@ -303,7 +299,6 @@ export const Play = () => {
 	}
 
 	function leaveGame() {
-		console.log("Leave game");
 		if (watching) {
 			socket.emit("stop watching", cookies["token"]);
 		} else {
@@ -365,13 +360,11 @@ export const Play = () => {
 	useEffect(() => {
 		socket.on("reconnect", (data: Response) => {
 			if (data.success) {
-				console.log("[Reconnect]: reconnected");
 				setPage(Page.Play);
 				setPlayers(data.gameInfo);
 				setWatching(false);
 				return;
 			}
-			console.log("[Reconnect]: fail");
 
 			const urlState: UrlState = checkUrlState();
 			switch (urlState) {
@@ -414,7 +407,6 @@ export const Play = () => {
 		});
 
 		socket.on("start game", (data: GameInfo) => {
-			console.log("Start Game");
 			setPlayers(data);
 			if (
 				data.player1.userID === authenticatedUserID ||
@@ -429,7 +421,6 @@ export const Play = () => {
 		});
 
 		socket.on("tick", (data: any) => {
-			console.log("tick. Game size:", sizeGame);
 			setSizeGame((prev: number) => {
 				const newGameState = {
 					score: data.gameState.score,
@@ -459,7 +450,6 @@ export const Play = () => {
 
 		socket.on("leave game", (leavingUserID: number) => {
 			if (leavingUserID !== authenticatedUserID) {
-				console.log("The other player left the game");
 				endGame(false);
 			}
 		});

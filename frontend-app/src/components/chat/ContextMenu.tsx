@@ -62,8 +62,6 @@ export const ContextMenuEl = (
 			}
 			info.chatRoomID = chat.chatRoomID;
 		}
-		console.log("Sent invite", info);
-		console.log("Invite info", info.inviteInfo);
 		ChangeStatus(info, "invite", socket);
 		setContextMenu(false);
 		setInvitesMenu(false);
@@ -107,7 +105,6 @@ export const ContextMenuEl = (
 				<div
 					className={buttonClass}
 					onClick={() => {
-						console.log("Unblocked " + target.username);
 						if (unblockUser(target.id, authenticatedUserID, cookies)) {
 							setBlockedUsers((prev) =>
 								prev.filter((userID: number) => userID !== target.id)
@@ -126,7 +123,6 @@ export const ContextMenuEl = (
 			<div
 				className={buttonClass}
 				onClick={() => {
-					console.log("Blocked " + target.username);
 					if (blockUser(target.id, authenticatedUserID, cookies)) {
 						setBlockedUsers([...blockedUsers, target.id]);
 						setUserIsBlocked(true);
@@ -168,7 +164,6 @@ export const ContextMenuEl = (
 			<div
 				className={buttonClass}
 				onClick={() => {
-					console.log("Kicked " + target.username);
 					var info: ReceivedInfo = {
 						token: cookies["token"],
 						chatRoomID: channel.chatRoomID,
@@ -189,7 +184,6 @@ export const ContextMenuEl = (
 			<div
 				className={buttonClass}
 				onClick={() => {
-					console.log("Banned " + target.username);
 					var info: ReceivedInfo = {
 						token: cookies["token"],
 						chatRoomID: channel.chatRoomID,
@@ -209,7 +203,6 @@ export const ContextMenuEl = (
 			<div
 				className={buttonClass}
 				onClick={() => {
-					console.log("Made operator " + target.username);
 					var info: ReceivedInfo = {
 						token: cookies["token"],
 						chatRoomID: channel.chatRoomID,
@@ -236,7 +229,6 @@ export const ContextMenuEl = (
 			<div
 				className={buttonClass}
 				onClick={() => {
-					console.log("DM " + target.username);
 					var info: ReceivedInfo = {
 						token: cookies["token"],
 						chatRoomID: channel.chatRoomID,
@@ -257,7 +249,6 @@ export const ContextMenuEl = (
 			<div
 				className={buttonClass}
 				onClick={() => {
-					console.log("Invited " + target.username);
 					setInvitesMenu(true);
 				}}
 			>
@@ -272,7 +263,6 @@ export const ContextMenuEl = (
 			<div
 				className={buttonClass}
 				onClick={() => {
-					console.log("Challenged " + target.username);
 					invite(target, typeInvite.Game);
 				}}
 			>
@@ -287,7 +277,6 @@ export const ContextMenuEl = (
 			<div
 				className={buttonClass}
 				onClick={(e) => {
-					console.log("Added as friend " + target.username);
 					invite(target, typeInvite.Friend);
 				}}
 			>

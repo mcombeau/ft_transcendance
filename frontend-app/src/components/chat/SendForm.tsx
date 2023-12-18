@@ -25,9 +25,6 @@ export const SendForm = (
 			) ||
 			isMuted(currentChatRoom, authenticatedUserID)
 		) {
-			console.log(
-				"Message is empty or channel is not defined or not logged in. Or not in the channel"
-			);
 			return;
 		}
 		var info: ReceivedInfo = {

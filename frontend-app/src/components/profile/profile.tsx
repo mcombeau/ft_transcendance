@@ -99,7 +99,7 @@ async function befriend(
 	};
 	return fetch(`/backend/invites`, request).then(async (response) => {
 		if (!response.ok) {
-			console.log("Error inviting friend");
+			console.warn("Error inviting friend");
 			return false;
 		}
 		return true;
@@ -123,10 +123,8 @@ export async function unfriend(
 		}),
 	};
 	return fetch(`/backend/friends`, request).then(async (response) => {
-		console.log("response");
-		console.log(response);
 		if (!response.ok) {
-			console.log("Error removing friend");
+			console.warn("Error removing friend");
 			return false;
 		}
 		return true;
@@ -154,7 +152,7 @@ async function checkIfIsMyFriend(
 	await fetch(`/backend/friends/isMyFriend`, request).then(async (response) => {
 		const data = await response.json();
 		if (!response.ok) {
-			console.log("Fetch friends bad request");
+			console.warn("Fetch friends bad request");
 			return;
 		}
 		setIsMyFriend(data.areFriends);
@@ -183,7 +181,7 @@ async function checkIfIsBlocked(
 		async (response) => {
 			const data = await response.json();
 			if (!response.ok) {
-				console.log("Fetch is user blocked bad request");
+				console.warn("Fetch is user blocked bad request");
 				return;
 			}
 			setIsBlocked(data.isBlocked);
@@ -196,7 +194,6 @@ export async function blockUser(
 	authenticatedUserID: number,
 	cookies: any
 ) {
-	console.log("blocking user");
 	var request = {
 		method: "POST",
 		headers: {
@@ -210,7 +207,7 @@ export async function blockUser(
 	};
 	return fetch(`/backend/blocked-users`, request).then(async (response) => {
 		if (!response.ok) {
-			console.log("Error blocking user");
+			console.warn("Error blocking user");
 			return false;
 		}
 		return true;
@@ -222,7 +219,6 @@ export async function unblockUser(
 	authenticatedUserID: number,
 	cookies: any
 ) {
-	console.log("Unblocking user");
 	var request = {
 		method: "DELETE",
 		headers: {
@@ -235,10 +231,8 @@ export async function unblockUser(
 		}),
 	};
 	return fetch(`/backend/blocked-users`, request).then(async (response) => {
-		console.log("response");
-		console.log(response);
 		if (!response.ok) {
-			console.log("Error unblocking user");
+			console.warn("Error unblocking user");
 			return false;
 		}
 		return true;
@@ -337,7 +331,7 @@ export async function challenge(
 		async (response) => {
 			const data = await response.json();
 			if (!response.ok) {
-				console.log("Error inviting friend to play");
+				console.warn("Error inviting friend to play");
 				return null;
 			}
 			return data.id;
@@ -470,7 +464,7 @@ function Profile({ setBanners }) {
 		fetch(`/backend/users/${profileUserID}`, request).then(async (response) => {
 			const data = await response.json();
 			if (!response.ok) {
-				console.log("error response fetching user");
+				console.warn("error response fetching user");
 				navigate("/not-found");
 				return;
 			}
@@ -489,7 +483,7 @@ function Profile({ setBanners }) {
 			async (response) => {
 				const data = await response.blob();
 				if (!response.ok) {
-					console.log("error fetching avatar");
+					console.warn("error fetching avatar");
 					createBanner(
 						"Error while fetching avatar",
 						setBanners,
@@ -531,7 +525,6 @@ function Profile({ setBanners }) {
 			(body: { userID: number; userStatus: UserStatus }) => {
 				setUser((user: User) => {
 					if (!user) return user;
-					console.log("user inside", user);
 					if (user.id === body.userID) {
 						return {
 							...user,

@@ -30,17 +30,12 @@ function App() {
 
 	useEffect(() => {
 		socket.on("logout", () => {
-			console.log("RECEIVED LOGOUT EMIT");
 			setAuthenticatedUserID(null);
 		});
 		return () => {
 			socket.off("logout");
 		};
 	});
-
-	useEffect(() => {
-		console.log("Dark mode toggled");
-	}, []);
 
 	return (
 		<Router>
