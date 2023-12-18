@@ -1,7 +1,5 @@
 - Bugs
 
-  - all libraries are in latest stable version
-  - remove unused libraries/modules + fix dependancy issues on frontend backend container creation?
   - Fix offline/online AGAIN
   - Backend: Remove errors from back to not scare correctors
   - Frontend console logs: Remove errors from back to not scare correctors
