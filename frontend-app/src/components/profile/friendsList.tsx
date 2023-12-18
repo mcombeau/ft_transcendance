@@ -298,38 +298,40 @@ function FriendsList(
 					setFriends([...fetchedFriends]);
 				}
 			);
-			fetch(`/backend/users/${userID}/blockedUsers`, request).then(
-				async (response) => {
-					const blockedData = await response.json();
-					if (!response.ok) {
-						console.warn("error response loading blocked users list");
-						return <h1>No Blocked Users loaded</h1>;
-					}
-					var fetchedBlockedUsers = blockedData.map(
-						(fetchedBlockedUser: any) => {
-							const amIUser1 = fetchedBlockedUser.userID1 === user.id;
-							let newBlockedUser: BlockedUser;
-							if (!amIUser1) {
-								newBlockedUser = {
-									id: fetchedBlockedUser.blockedUserID,
-									username: fetchedBlockedUser.blockedUsername,
-									status: fetchedBlockedUser.blockedUserStatus,
-								};
-							} else {
-								newBlockedUser = {
-									id: fetchedBlockedUser.blockedUserID,
-									username: fetchedBlockedUser.blockedUsername,
-									status: fetchedBlockedUser.blockedUserStatus,
-								};
-							}
-							return newBlockedUser;
+			if (isMyPage) {
+				fetch(`/backend/users/${userID}/blockedUsers`, request).then(
+					async (response) => {
+						const blockedData = await response.json();
+						if (!response.ok) {
+							console.warn("error response loading blocked users list");
+							return <h1>No Blocked Users loaded</h1>;
 						}
-					);
-					setBlockedUsers([...fetchedBlockedUsers]);
-				}
-			);
+						var fetchedBlockedUsers = blockedData.map(
+							(fetchedBlockedUser: any) => {
+								const amIUser1 = fetchedBlockedUser.userID1 === user.id;
+								let newBlockedUser: BlockedUser;
+								if (!amIUser1) {
+									newBlockedUser = {
+										id: fetchedBlockedUser.blockedUserID,
+										username: fetchedBlockedUser.blockedUsername,
+										status: fetchedBlockedUser.blockedUserStatus,
+									};
+								} else {
+									newBlockedUser = {
+										id: fetchedBlockedUser.blockedUserID,
+										username: fetchedBlockedUser.blockedUsername,
+										status: fetchedBlockedUser.blockedUserStatus,
+									};
+								}
+								return newBlockedUser;
+							}
+						);
+						setBlockedUsers([...fetchedBlockedUsers]);
+					}
+				);
+			}
 		},
-		[setFriends, user]
+		[setFriends, user, isMyPage]
 	);
 
 	useEffect(() => {
