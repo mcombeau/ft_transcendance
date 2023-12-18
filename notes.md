@@ -1,9 +1,14 @@
 - Bugs
 
   - Fix offline/online AGAIN
-  - There should be an alert banner when you try to challenge someone you blocked to a game (or just remove challeng button if blocking, like with the add friend button)
+  - There should be an alert banner when you try to challenge someone you blocked to a game (or just remove challenge button of the profile pages of users you're blocking, like with the add friend button)
   - Frontend console logs: Remove errors from front to not scare correctors
     - On Leaderboard page, there is a DOM error about not having a unique key for each child
+
+- Game Bugs:
+
+  - Weird speed up x2 when ball hits corner of skate
+  - random initial move should be limited to not be too close to x +/-1 and y +/-1
 
 - Project validation
 
