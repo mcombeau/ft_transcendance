@@ -120,7 +120,7 @@ function displayStats(games: Game[]) {
 		games.map((game: Game) => game.myScore).reduce((p, c) => p + c, 0) /
 		games.length;
 	return (
-		<table className="w-full">
+		<div className="w-full">
 			{displayStat("Ladder Level", getLadderLevelDescription(nbWins))}
 			{displayStat("Played games", games.length)}
 			{displayStat("Won games", nbWins)}
@@ -130,7 +130,7 @@ function displayStats(games: Game[]) {
 				"Average Score",
 				isNaN(averageScore) ? "-" : averageScore.toFixed(2)
 			)}
-		</table>
+		</div>
 	);
 }
 
