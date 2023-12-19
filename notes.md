@@ -24,7 +24,6 @@
 
 - Nice to have
 
-  - highline the line on leaderboard that is you
   - when we print an error because of invalid charset, we should specify what are the invalid charsets
   - search bar to find other users more easily
   - all tokens are taken directly from socket
