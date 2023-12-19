@@ -72,7 +72,7 @@ function displayGame(
 			<span className="font-bold">
 				{game.myScore} - {game.otherPlayerScore}
 			</span>{" "}
-			<span className="hidden font-light lg:block">{dateString}</span>
+			<span className="hidden font-light xl:block">{dateString}</span>
 			<span className=" hidden sm:block ">
 				<span className="flex justify-between space-x-1">
 					<span className="p-1">
