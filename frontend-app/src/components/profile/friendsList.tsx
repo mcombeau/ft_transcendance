@@ -368,7 +368,7 @@ function FriendsList(
 					navigate
 				)}
 			</div>
-			{isMyPage ? (
+			{isMyPage && blockedUsers && blockedUsers.length !== 0 ? (
 				<div className="border-t border-sage dark:border-darksage">
 					<h3 className="title-element">Blocked Users:</h3>
 					{displayFriends(
