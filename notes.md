@@ -2,7 +2,7 @@
 
   - Profile settings -> choose avatar -> close settings panel before saving new avatar -> big red error ?? Can't reproduce
   - Mute is weird when we unmute someone + mute broken when mute from context menu + mute from settings menu
-  - Fix offline/online AGAIN: Switch to offline everytime we click on a link
+  - Fix CSS on chat settings for small height screens
 
 - Project validation
 
@@ -15,6 +15,7 @@
 
 - Nice to have
 
+  - Fix offline/online AGAIN: Switch to offline everytime we click on a link
   - warn when an invite to play is refused (right now we just wait for the game to start)
   - search bar to find other users more easily
   - all tokens are taken directly from socket
