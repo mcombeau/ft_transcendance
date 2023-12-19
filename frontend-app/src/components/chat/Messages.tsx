@@ -8,7 +8,7 @@ import {
 } from "react";
 import { NavigateFunction } from "react-router-dom";
 import { Socket } from "socket.io-client";
-import { Message, ChatRoom, Invite, PublicChatRoom } from "./types";
+import { Message, ChatRoom, Invite, PublicChatRoom, User } from "./types";
 import { ContextMenuEl } from "./ContextMenu";
 import { ReceivedInfo, typeInvite } from "./types";
 import { separatorLine } from "../styles/separator";
@@ -55,10 +55,7 @@ export const Messages = (
 	setCurrentPannel: Dispatch<SetStateAction<CurrentPannel>>
 ) => {
 	const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
-	const [contextMenuTarget, setContextMenuTarget] = useState({
-		id: null,
-		username: null,
-	});
+	const [contextMenuTarget, setContextMenuTarget] = useState<User>(null);
 	const messagesContainer = useRef<HTMLInputElement>(null);
 	const [passwordPrompt, setPasswordPrompt] = useState<boolean>(false);
 	const [newPassword, setNewPassword] = useState<string>("");
@@ -112,10 +109,10 @@ export const Messages = (
 								if (currentChatRoom.name !== "" && settings === false) {
 									setContextMenu(true);
 									setContextMenuPos({ x: e.pageX, y: e.pageY });
-									setContextMenuTarget({
-										id: msg.senderID,
-										username: msg.senderUsername,
-									});
+									var targetUser: User = currentChatRoom.participants.find(
+										(user: User) => user.userID === msg.senderID
+									);
+									setContextMenuTarget(targetUser);
 								}
 							}}
 						>
