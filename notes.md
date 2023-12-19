@@ -3,7 +3,6 @@
   - Profile settings -> choose avatar -> close settings panel before saving new avatar -> big red error ?? Can't reproduce
   - Mute is weird when we unmute someone + mute broken when mute from context menu + mute from settings menu
   - Fix offline/online AGAIN: Switch to offline everytime we click on a link
-  - There should be an alert banner when you try to challenge someone you blocked to a game (or just remove challenge button of the profile pages of users you're blocking, like with the add friend button)
   - Frontend console logs: Remove errors from front to not scare correctors
   - On Leaderboard page, there is a DOM error about not having a unique key for each child
   - On Banner.tsx:59, there is a DOM error about not having a unique key for each child (profile settings -> bad png upload -> save new avatar)
