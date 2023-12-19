@@ -5,7 +5,7 @@ import {
 	GameRoom,
 } from "./game.gateway.service";
 
-export const WINNING_SCORE = 10;
+export const WINNING_SCORE = 50;
 export const GAME_SPEED = 6;
 
 const TERRAIN_HEIGHT = 400;
@@ -111,11 +111,27 @@ export class GameLogicService {
 		}
 	}
 
+	private capSpeedIncrease(direction: Vector) {
+		const maxSpeed: number = 4;
+		if (direction.x < -maxSpeed) {
+			direction.x = -maxSpeed;
+		} else if (direction.x > maxSpeed) {
+			direction.x = maxSpeed;
+		}
+		if (direction.y < -maxSpeed) {
+			direction.y = -maxSpeed;
+		} else if (direction.y > maxSpeed) {
+			direction.y = maxSpeed;
+		}
+		return direction;
+	}
+
 	private reboundBall(gameState: State, direction: Vector) {
-		gameState.ballDir = {
+		let newDir: Vector = {
 			x: gameState.ballDir.x * direction.x,
 			y: gameState.ballDir.y * direction.y,
 		};
+		gameState.ballDir = this.capSpeedIncrease(newDir);
 	}
 
 	private checkSkate1Collision(gameState: State) {
