@@ -56,6 +56,7 @@ function displayLineLeaderboard(
 ) {
 	return (
 		<tr
+			key={index}
 			className={`${
 				authenticatedUserID == leaderboardLine.userID
 					? "bg-lightblue dark:bg-darklightblue text-darkblue dark:text-darkdarkblue border-x-2 border-b-2 border-sage dark:border-darksage"
@@ -118,7 +119,10 @@ function displayLeaderboard(
 		<div className="rounded-md overflow-hidden">
 			<table className="table-auto w-full bg-sage dark:bg-darksage ">
 				<tbody>
-					<tr className="font-bold text-sage dark:text-darksage bg-darkblue dark:bg-darkteal">
+					<tr
+						key="header"
+						className="font-bold text-sage dark:text-darksage bg-darkblue dark:bg-darkteal"
+					>
 						<td className="p-2 text-center">Rank</td>
 						<td className="p-2 text-center">User</td>
 						<td className="p-2 text-center">Wins</td>
