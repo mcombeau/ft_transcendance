@@ -28,7 +28,7 @@ import {
 	typeInvite,
 } from "./types";
 import { AuthenticationContext } from "../authenticationState";
-import { getFormattedTime } from "../styles/dateFormat";
+import { formatDate, getFormattedTime } from "../styles/dateFormat";
 import { BannerType, createBanner } from "../banner/Banner";
 import {
 	MdOutlineKeyboardDoubleArrowLeft,
@@ -503,9 +503,9 @@ export const Chat = ({ setBanners }) => {
 			});
 			if (new Date(info.participantInfo.mutedUntil) > new Date()) {
 				serviceAnnouncement(
-					`${info.username} has been muted until ${getFormattedTime(
+					`${info.username} has been muted until ${formatDate(
 						new Date(info.participantInfo.mutedUntil)
-					)}.`,
+					)} ${getFormattedTime(new Date(info.participantInfo.mutedUntil))}.`,
 					info.chatRoomID
 				);
 			} else {
