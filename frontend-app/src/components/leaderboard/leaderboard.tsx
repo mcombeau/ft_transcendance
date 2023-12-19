@@ -55,11 +55,29 @@ function displayLineLeaderboard(
 	index: number
 ) {
 	return (
-		<tr className="border-b-2 border-lightblue dark:border-darklightblue hover:bg-teal dark:hover:bg-darkteal hover:text-sage hover:dark:text-darksage border-t-2 border-t-darkblue dark:border-t-darksage">
-			<td className="p-2 text-center font-bold border-r-2 border-lightblue dark:border-darklightblue border-dashed">
+		<tr
+			className={`${
+				authenticatedUserID == leaderboardLine.userID
+					? "bg-lightblue dark:bg-darklightblue text-darkblue dark:text-darkdarkblue border-x-2 border-b-2 border-sage dark:border-darksage"
+					: "border-b-2 border-lightblue dark:border-darklightblue"
+			} hover:bg-teal dark:hover:bg-darkteal hover:text-sage hover:dark:text-darksage hover:dark:border-t-2 hover:dark:border-darklightblue`}
+		>
+			<td
+				className={`p-2 text-center font-bold ${
+					authenticatedUserID == leaderboardLine.userID
+						? "border-r-2 border-sage dark:border-darksage border-dashed"
+						: "border-r-2 border-lightblue dark:border-darklightblue border-dashed "
+				}`}
+			>
 				{index + 1}
 			</td>
-			<td className="flex p-2 justify-center border-r-2 border-lightblue dark:border-darklightblue border-dashed">
+			<td
+				className={`flex p-2 justify-center ${
+					authenticatedUserID == leaderboardLine.userID
+						? "border-r-2 border-sage dark:border-darksage border-dashed"
+						: "border-r-2 border-lightblue dark:border-darklightblue border-dashed "
+				}`}
+			>
 				{authenticatedUserID ? (
 					<a className="font-bold m-2" href={"/user/" + leaderboardLine.userID}>
 						{leaderboardLine.username}
@@ -68,10 +86,22 @@ function displayLineLeaderboard(
 					<p className="font-bold m-2">{leaderboardLine.username}</p>
 				)}
 			</td>
-			<td className="p-2 text-center border-r-2 border-lightblue dark:border-darklightblue border-dashed">
+			<td
+				className={`p-2 text-center ${
+					authenticatedUserID == leaderboardLine.userID
+						? "border-r-2 border-sage dark:border-darksage border-dashed"
+						: "border-r-2 border-lightblue dark:border-darklightblue border-dashed "
+				}`}
+			>
 				{leaderboardLine.nbWins}
 			</td>
-			<td className="p-2 text-center border-r-2 border-lightblue dark:border-darklightblue border-dashed">
+			<td
+				className={`p-2 text-center ${
+					authenticatedUserID == leaderboardLine.userID
+						? "border-r-2 border-sage dark:border-darksage border-dashed"
+						: "border-r-2 border-lightblue dark:border-darklightblue border-dashed "
+				}`}
+			>
 				{leaderboardLine.nbLosses}
 			</td>
 			<td className="p-2 text-center">{leaderboardLine.winDiff}</td>
