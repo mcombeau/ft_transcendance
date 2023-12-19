@@ -64,7 +64,13 @@ export class GameLogicService {
 	}
 
 	private get_random_value(min: number, max: number): number {
-		return Math.random() * (max - min) + min;
+		let value = 0;
+
+		while (value > -0.2 && value < 0.2) {
+			value = Math.random() * (max - min) + min;
+		}
+
+		return value;
 	}
 
 	private normalize_vector(vector: Vector): Vector {

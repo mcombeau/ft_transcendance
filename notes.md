@@ -12,7 +12,6 @@
 
   - Celerity max for ball (when the ball goes too fast, the ball goes behond the paddle and marks a point when it shoud not)
   - Weird speed up x2 when ball hits corner of skate (the ball speeds up too mutch because it is in contact with a paddle multiple times) (limit to 1 bonce on each paddle)
-  - random initial move should be limited to not be too close to x +/-1 and y +/-1
 
 - Project validation
 
