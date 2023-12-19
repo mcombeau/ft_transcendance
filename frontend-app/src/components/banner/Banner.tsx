@@ -17,7 +17,7 @@ export function createBanner(
 	message: string | ReactElement,
 	setBanners: Dispatch<SetStateAction<Banner[]>>,
 	bannerType: BannerType = BannerType.Notif,
-	displayTime: number = 2000
+	displayTime: number = 2000 * 2
 ) {
 	setBanners((prev: Banner[]) => {
 		const id = prev.length;
