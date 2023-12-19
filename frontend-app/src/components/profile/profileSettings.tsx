@@ -245,7 +245,7 @@ function ProfileSettings(
 				)}
 				<form id="avatar-form" className="m-2">
 					<input
-						className="file:text-sage file:dark:text-darksage file:bg-darkblue file:dark:bg-darkdarkblue file:border-none file:rounded-md file:p-1 file:text-sm bg-sage dark:bg-darksage rounded-md p-1"
+						className="file:text-sage file:dark:text-darkdarkblue file:bg-darkblue file:dark:bg-darkteal hover:file:dark:bg-darklightblue hover:file:bg-teal file:border-none file:rounded-md file:p-1 file:text-sm bg-sage dark:bg-darksage rounded-md p-1"
 						type="file"
 						accept=".png,.jpg,.jpeg"
 						name="file"
@@ -259,13 +259,13 @@ function ProfileSettings(
 						}}
 					/>
 					<button
-						className="rounded-md bg-darkblue dark:bg-darkdarkblue text-sage dark:text-darksage text-sm p-2 py-2 m-2"
+						className="rounded-md bg-darkblue dark:bg-darkteal text-sage dark:text-darkdarkblue hover:bg-teal hover:dark:bg-darkdarkblue hover:text-sage hover:dark:text-darksage text-sm p-2 py-2 m-2"
 						onClick={submitNewAvatar}
 					>
 						Save new avatar
 					</button>
 					<button
-						className="rounded-md bg-darkblue dark:bg-darkdarkblue text-sage dark:text-darksage text-sm p-2 py-2 m-2"
+						className="rounded-md bg-darkblue dark:bg-darkteal text-sage dark:text-darkdarkblue hover:bg-teal hover:dark:bg-darkdarkblue hover:text-sage hover:dark:text-darksage text-sm p-2 py-2 m-2"
 						onClick={removeAvatar}
 					>
 						Remove avatar
@@ -294,7 +294,7 @@ function ProfileSettings(
 							setNewEmail(e.target.value);
 						}}
 					/>
-					<button className="rounded-md bg-darkblue dark:bg-darkdarkblue text-sage dark:text-darksage text-sm p-2 py-2 m-2">
+					<button className="rounded-md bg-darkblue dark:bg-darkteal text-sage dark:text-darkdarkblue hover:bg-teal hover:dark:bg-darkdarkblue hover:text-sage hover:dark:text-darksage text-sm p-2 py-2 m-2">
 						Save changes
 					</button>
 				</form>
@@ -337,7 +337,7 @@ function ProfileSettings(
 											setTwoFaValidationCode(e.target.value);
 										}}
 									/>
-									<button className="rounded-md bg-darkblue dark:bg-darkdarkblue text-sage dark:text-darksage text-sm p-2 py-2 m-2">
+									<button className="rounded-md bg-darkblue dark:bg-darkteal text-sage dark:text-darkdarkblue hover:bg-teal hover:dark:bg-darkdarkblue hover:text-sage hover:dark:text-darksage text-sm p-2 py-2 m-2">
 										Submit
 									</button>
 								</form>
@@ -351,32 +351,43 @@ function ProfileSettings(
 	}
 
 	return (
-		<div className="text-darkblue dark:text-darkdarkblue h-full">
-			<div className="flex justify-between m-2">
-				<h2 className="font-bold text-sage dark:text-darksage text-lg">
-					Settings
-				</h2>
-				<button
-					onClick={() => {
-						setIsEditingProfile(false);
-						setNewAvatar(null);
-						if (location.hash === "#settings") {
-							navigate("/user/" + authenticatedUserID);
-						}
-					}}
-				>
-					{getButtonIcon(
-						ButtonIconType.closeSettings,
-						"w-6 h-6 text-sage dark:text-darksage"
-					)}
-				</button>
+		<>
+			<div
+				className={`fixed left-0 top-0  h-full w-full overflow-y-auto overflow-x-hidden outline-none ${
+					isEditingProfile ? "" : "hidden"
+				}`}
+			>
+				<div className="pointer-events-none relative h-[calc(80%-1rem)] w-auto translate-y-[20%] min-[576px]:mx-auto min-[576px]:mt-7 min-[576px]:h-[calc(85%-3.5rem)] min-[576px]:max-w-[500px]">
+					<div className="pointer-events-auto relative flex max-h-[90%] w-full flex-col overflow-hidden bg-clip-padding shadow-lg bg-teal dark:bg-darkteal border-2 border-teal dark:border-darkteal border-b-8 rounded-md text-darkblue dark:text-darkdarkblue">
+						<div className="flex flex-shrink-0 items-center justify-between rounded-t-md p-4">
+							<h2 className="font-bold text-sage dark:text-darkdarkblue text-lg">
+								Settings
+							</h2>
+							<button
+								onClick={() => {
+									setIsEditingProfile(false);
+									setNewAvatar(null);
+									if (location.hash === "#settings") {
+										navigate("/user/" + authenticatedUserID);
+									}
+								}}
+							>
+								{getButtonIcon(
+									ButtonIconType.closeSettings,
+									"w-6 h-6 text-sage dark:text-darkdarlblue"
+								)}
+							</button>
+						</div>
+
+						<div className="relative overflow-y-auto scrollbar-hide">
+							{avatarSetting()}
+							{personalInfoSetting()}
+							{twoFactorSetting()}
+						</div>
+					</div>
+				</div>
 			</div>
-			<div className="h-[90%] m-b-4 overflow-y-scroll scrollbar-hide">
-				{avatarSetting()}
-				{personalInfoSetting()}
-				{twoFactorSetting()}
-			</div>
-		</div>
+		</>
 	);
 }
 

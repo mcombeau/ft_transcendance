@@ -13,10 +13,6 @@
   - Weird speed up x2 when ball hits corner of skate (the ball speeds up too mutch because it is in contact with a paddle multiple times) (limit to 1 bonce on each paddle)
   - random initial move should be limited to not be too close to x +/-1 and y +/-1
 
-- CSS bugs:
-
-  - Issues with profile settings when window height is mofidied -> See this for possible reimplementation: https://tw-elements.com/docs/standard/components/modal/ (Coule be used to password prompt in chat too)
-
 - Project validation
 
   - remove passwords for users

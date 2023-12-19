@@ -616,21 +616,15 @@ function Profile({ setBanners }) {
 				{FriendsList(isMyPage, user, cookies, friends, setFriends)}
 			</div>
 			<div className="">{GameHistory(user, cookies)}</div>
-			<div
-				className={`absolute top-0 bottom-0 left-0 right-0 m-auto w-[90%] md:w-[50%] h-[90%] md:h-[70%] bg-teal dark:bg-darkteal border-2 border-teal dark:border-darkteal border-y-8 rounded-md ${
-					isEditingProfile ? "" : "hidden"
-				}`}
-			>
-				{ProfileSettings(
-					user,
-					cookies,
-					isEditingProfile,
-					setIsEditingProfile,
-					authenticatedUserID,
-					setBanners,
-					setChangeProfile
-				)}
-			</div>
+			{ProfileSettings(
+				user,
+				cookies,
+				isEditingProfile,
+				setIsEditingProfile,
+				authenticatedUserID,
+				setBanners,
+				setChangeProfile
+			)}
 		</div>
 	);
 }
