@@ -7,11 +7,6 @@
   - Frontend console logs: Remove errors from front to not scare correctors
   - On Leaderboard page, there is a DOM error about not having a unique key for each child
 
-- Game Bugs:
-
-  - Celerity max for ball (when the ball goes too fast, the ball goes behond the paddle and marks a point when it shoud not)
-  - Weird speed up x2 when ball hits corner of skate (the ball speeds up too mutch because it is in contact with a paddle multiple times) (limit to 1 bonce on each paddle)
-
 - Project validation
 
   - set score back to 10 for game
