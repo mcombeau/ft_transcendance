@@ -15,6 +15,7 @@
 
 - Project validation
 
+  - set score back to 10 for game
   - remove passwords for users
   - remove login page
   - force HTTPS and force redirect HTTP port 80 to HTTPS port 443
