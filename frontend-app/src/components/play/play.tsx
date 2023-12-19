@@ -101,8 +101,13 @@ function gameDoesNotExitPage() {
 
 function waitForGamePage() {
 	return (
-		<div style={{ textAlign: "center", textEmphasis: "true" }}>
-			Please wait ...
+		<div className="grid place-content-center">
+			<div className=" m-8 text-2xl text-darkblue dark:text-darkdarkblue flex ">
+				<div className=" rounded-full p-1 mx-2">
+					<TbLoader2 className="animate-spin" />
+				</div>
+				<div>Please wait... </div>
+			</div>
 		</div>
 	);
 }
