@@ -1,8 +1,7 @@
 - Bugs
 
-  - Profile settings -> choose avatar -> close settings panel before saving new avatar -> big red error
+  - Profile settings -> choose avatar -> close settings panel before saving new avatar -> big red error ?? Can't reproduce
   - Mute is weird when we unmute someone + mute broken when mute from context menu + mute from settings menu
-  - warn when an invite to play is refused (right now we just wait for the game to start)
   - Fix offline/online AGAIN: Switch to offline everytime we click on a link
   - There should be an alert banner when you try to challenge someone you blocked to a game (or just remove challenge button of the profile pages of users you're blocking, like with the add friend button)
   - Frontend console logs: Remove errors from front to not scare correctors
@@ -24,6 +23,7 @@
 
 - Nice to have
 
+  - warn when an invite to play is refused (right now we just wait for the game to start)
   - search bar to find other users more easily
   - all tokens are taken directly from socket
   - publish website (see clevercloud)
