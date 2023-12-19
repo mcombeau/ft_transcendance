@@ -6,6 +6,7 @@
   - There should be an alert banner when you try to challenge someone you blocked to a game (or just remove challenge button of the profile pages of users you're blocking, like with the add friend button)
   - Frontend console logs: Remove errors from front to not scare correctors
   - On Leaderboard page, there is a DOM error about not having a unique key for each child
+  - On Banner.tsx:59, there is a DOM error about not having a unique key for each child (profile settings -> bad png upload -> save new avatar)
 
 - Project validation
 
