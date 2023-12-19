@@ -406,12 +406,12 @@ function interactWithUser(
 				isBlocked
 			)}
 			{blockButton(user, authenticatedUserID, cookies, isBlocked, setIsBlocked)}
-			{iCanChallenge ? (
+			{iCanChallenge && !isBlocked ? (
 				challengeButton(user, authenticatedUserID, cookies, navigate)
 			) : (
 				<></>
 			)}
-			{DMButton(user, cookies, navigate, socket)}
+			{isBlocked ? <></> : DMButton(user, cookies, navigate, socket)}
 		</div>
 	);
 }
