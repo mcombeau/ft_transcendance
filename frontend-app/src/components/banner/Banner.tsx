@@ -38,11 +38,8 @@ export function createBanner(
 	});
 }
 
-function Banners(
-	banners: Banner[],
-	setBanners: Dispatch<SetStateAction<Banner[]>>
-) {
-	function displayBanner(banner: Banner) {
+function Banners(banners: Banner[]) {
+	function displayBanner(banner: Banner, index: number) {
 		let style: string = "rounded-md px-6 p-4 m-4 shadow-md";
 		switch (banner.type) {
 			case BannerType.Notif:
@@ -53,12 +50,18 @@ function Banners(
 				break;
 		}
 		style += " " + banner.style;
-		return <div className={style}>{banner.message}</div>;
+		return (
+			<div key={index} className={style}>
+				{banner.message}
+			</div>
+		);
 	}
 
 	return (
 		<div className="absolute top-16 lg:top-24 right-0 z-30 m-2">
-			{banners.filter((banner: Banner) => banner.display).map(displayBanner)}
+			{banners
+				.filter((banner: Banner) => banner.display)
+				.map((banner: Banner, index: number) => displayBanner(banner, index))}
 		</div>
 	);
 }

@@ -42,7 +42,7 @@ function App() {
 			<div className={`app ${isDarkModeEnabled(cookies) ? "dark" : ""}`}>
 				<AuthenticationContext.Provider value={value}>
 					<NavBar />
-					{Banners(banners, setBanners)}
+					{Banners(banners)}
 					<div className="content">
 						<Routes>
 							<Route path="/" element={<Home />} />
