@@ -81,28 +81,27 @@ export class GameLogicService {
 		};
 	}
 
-	// TODO: put back
-	// randomInitialMove(gameState: State) {
-	// 	let initialMove = {
-	// 		x: this.get_random_value(-1, 1),
-	// 		y: this.get_random_value(-1, 1),
-	// 	};
-
-	// 	initialMove = this.normalize_vector(initialMove);
-	// 	gameState.ballDir = initialMove;
-	// }
-
 	randomInitialMove(gameState: State) {
-		// pseudo-random ball behavior
-		const moves = [
-			{ x: 1, y: 1 },
-			{ x: 1, y: -1 },
-			{ x: -1, y: -1 },
-			{ x: -1, y: 1 },
-		];
-		const initialMove = moves[Math.floor(Math.random() * moves.length)];
+		let initialMove = {
+			x: this.get_random_value(-1, 1),
+			y: this.get_random_value(-1, 1),
+		};
+
+		initialMove = this.normalize_vector(initialMove);
 		gameState.ballDir = initialMove;
 	}
+
+	// randomInitialMove(gameState: State) {
+	// 	// pseudo-random ball behavior
+	// 	const moves = [
+	// 		{ x: 1, y: 1 },
+	// 		{ x: 1, y: -1 },
+	// 		{ x: -1, y: -1 },
+	// 		{ x: -1, y: 1 },
+	// 	];
+	// 	const initialMove = moves[Math.floor(Math.random() * moves.length)];
+	// 	gameState.ballDir = initialMove;
+	// }
 	private checkBallGoalCollision(gameState: State) {
 		//checking if the ball touches the left and right borders of the terrain
 		if (
@@ -112,7 +111,7 @@ export class GameLogicService {
 			gameState.score = [gameState.score[0], gameState.score[1] + 1];
 			this.resetBall(gameState);
 			this.randomInitialMove(gameState);
-			this.logger.debug("[LEFT GOAL]");
+			// this.logger.debug("[LEFT GOAL]");
 		}
 		if (
 			gameState.ballPos.x - BALL_RADIUS + gameState.ballDir.x >=
@@ -121,7 +120,7 @@ export class GameLogicService {
 			gameState.score = [gameState.score[0] + 1, gameState.score[1]];
 			this.resetBall(gameState);
 			this.randomInitialMove(gameState);
-			this.logger.debug("[RIGHT GOAL]");
+			// this.logger.debug("[RIGHT GOAL]");
 		}
 	}
 
@@ -141,7 +140,7 @@ export class GameLogicService {
 	}
 
 	private reboundBall(gameState: State, direction: Vector) {
-		this.logger.debug("[REBOUND BALL]");
+		// this.logger.debug("[REBOUND BALL]");
 		let newDir: Vector = {
 			x: gameState.ballDir.x * direction.x,
 			y: gameState.ballDir.y * direction.y,
@@ -260,13 +259,13 @@ export class GameLogicService {
 			((ball.bottom > skate1.top && ball.top < skate1.bottom) ||
 				(ball.top < skate1.bottom && ball.bottom > skate1.top))
 		) {
-			this.logger.debug("[BALL INSIDE SKATE 1]");
+			// this.logger.debug("[BALL INSIDE SKATE 1]");
 		} else if (
 			ball.right > skate2.left &&
 			((ball.bottom > skate2.top && ball.top < skate2.bottom) ||
 				(ball.top < skate2.bottom && ball.bottom > skate2.top))
 		) {
-			this.logger.debug("[BALL INSIDE SKATE 2]");
+			// this.logger.debug("[BALL INSIDE SKATE 2]");
 		}
 	}
 
