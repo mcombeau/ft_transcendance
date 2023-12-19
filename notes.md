@@ -24,7 +24,6 @@
 
 - Nice to have
 
-  - when we print an error because of invalid charset, we should specify what are the invalid charsets
   - search bar to find other users more easily
   - all tokens are taken directly from socket
   - publish website (see clevercloud)

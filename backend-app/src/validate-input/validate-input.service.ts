@@ -37,7 +37,9 @@ export class ValidateInputService {
 			);
 		}
 		if (!this.checkIfContainsOnlyPatternCharacters(name, /^[A-Za-z0-9\-_]*$/)) {
-			throw new InvalidNameError("name contains invalid characters");
+			throw new InvalidNameError(
+				"name can only contain: A-Z, a-z, 0-9, - and _"
+			);
 		}
 	}
 
