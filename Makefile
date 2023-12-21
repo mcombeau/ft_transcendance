@@ -25,7 +25,7 @@ logs:
 	docker-compose logs
 
 setup:
-	./configure-host.sh
+	# ./configure-host.sh
 	mkdir -p ${DATA_PATH}
 	mkdir -p ${DATA_PATH}/database
 
