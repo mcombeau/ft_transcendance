@@ -10,9 +10,7 @@ services:
         networks:
             - ft_transcendance
         ports:
-            - "1080:1080"
-            - "1443:1443"
-        # volumes:
+            - "8080:80"
         depends_on:
             - frontend
             - backend
