@@ -549,6 +549,7 @@ export class ChatGateway implements OnModuleInit {
 					throw new InviteCreationError("Invalid invite type");
 			}
 		} catch (e) {
+			info.token = "";
 			this.logger.warn(`[Accept Invite]: ${e.message}`);
 			this.server
 				.to(
@@ -558,6 +559,14 @@ export class ChatGateway implements OnModuleInit {
 					)
 				)
 				.emit("error", "Accept Invite: " + e.message);
+			this.server
+				.to(
+					this.chatGatewayService.getSocketRoomIdentifier(
+						info.userID,
+						RoomType.User
+					)
+				)
+				.emit("refuse invite", info);
 		}
 	}
 

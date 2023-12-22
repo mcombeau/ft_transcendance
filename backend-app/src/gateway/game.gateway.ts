@@ -22,6 +22,10 @@ import {
 	LobbyStatus,
 	Watcher,
 } from "./game.gateway.service";
+import { InviteEntity } from "src/invites/entities/Invite.entity";
+import { sendInviteDto } from "src/invites/dtos/sendInvite.dto";
+import { ChatsGatewayService, RoomType } from "./chat.gateway.service";
+import { ReceivedInfoDto } from "./dtos/chatGateway.dto";
 
 export type Outcome = {
 	success: boolean;
@@ -46,7 +50,9 @@ export class GameGateway implements OnModuleInit {
 		@Inject(forwardRef(() => SocketGateway))
 		private socketGateway: SocketGateway,
 		@Inject(forwardRef(() => GameGatewayService))
-		private gameGatewayService: GameGatewayService
+		private gameGatewayService: GameGatewayService,
+		@Inject(forwardRef(() => ChatsGatewayService))
+		private chatGatewayService: ChatsGatewayService
 	) {}
 	@WebSocketServer()
 	server: Server;
@@ -77,6 +83,28 @@ export class GameGateway implements OnModuleInit {
 		this.server
 			.to(gameRoom.socketRoomID)
 			.emit("start game", this.gameGatewayService.gameToGameInfo(gameRoom));
+	}
+
+	async sendRefuseInvite(invite: sendInviteDto) {
+		const info: ReceivedInfoDto = {
+			token: "",
+			inviteInfo: invite,
+		};
+
+		this.server
+			// .to(
+			// 	this.chatGatewayService.getSocketRoomIdentifier(
+			// 		invite.invitedID,
+			// 		RoomType.User
+			// 	)
+			// )
+			.to(
+				this.chatGatewayService.getSocketRoomIdentifier(
+					invite.senderID,
+					RoomType.User
+				)
+			)
+			.emit("refuse invite", info);
 	}
 
 	async updatePlayerStatus(userStatus: userStatus, userID: number) {
