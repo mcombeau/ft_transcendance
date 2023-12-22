@@ -137,6 +137,7 @@ export const SidePannel = (
 		}
 		return (
 			<div
+				key={key}
 				onClick={() => {
 					if (windowWidth < 768) {
 						setSidePannel(false);

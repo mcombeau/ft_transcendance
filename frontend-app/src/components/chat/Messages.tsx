@@ -335,7 +335,7 @@ export const Messages = (
 			.map((message: Message, index: number, messages: Message[]) =>
 				messageStatus(message, index, messages)
 			);
-		return <div>{messages}</div>;
+		return <div key="messages">{messages}</div>;
 	}
 
 	if (currentPannel.type === PannelType.invite) {
