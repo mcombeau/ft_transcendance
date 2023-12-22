@@ -22,19 +22,23 @@ function displayLiveGames(games: GameInfo[]) {
 function LiveGames(gameInfos: GameInfo[]) {
 	return (
 		<div className="background-element">
-			<h1 className="title-element">Games currently live !</h1>
-			<div className="rounded-md overflow-hidden">
-				<table className="table-auto w-full bg-sage dark:bg-darksage">
-					<tbody>
-						<tr className="font-bold text-sage dark:text-darksage bg-darkblue dark:bg-darkteal">
-							<td className="p-2 text-center">Player 1</td>
-							<td className="p-2 text-center">Player 2</td>
-							<td className="p-2 text-center">Watch Game</td>
-						</tr>
-						{displayLiveGames(gameInfos)}
-					</tbody>
-				</table>
-			</div>
+			<h1 className="title-element">Games currently live!</h1>
+			{gameInfos.length > 0 ? (
+				<div className="rounded-md overflow-hidden">
+					<table className="table-auto w-full bg-sage dark:bg-darksage">
+						<tbody>
+							<tr className="font-bold text-sage dark:text-darksage bg-darkblue dark:bg-darkteal">
+								<td className="p-2 text-center">Player 1</td>
+								<td className="p-2 text-center">Player 2</td>
+								<td className="p-2 text-center">Watch Game</td>
+							</tr>
+							{displayLiveGames(gameInfos)}
+						</tbody>
+					</table>
+				</div>
+			) : (
+				<div className="mx-2">No current live games. Check back later!</div>
+			)}
 		</div>
 	);
 }
