@@ -87,9 +87,6 @@ function Navbar() {
 				)}
 				{!authenticatedUserID && (
 					<>
-						<li className="navlink">
-							<a href="/login">Login</a>
-						</li>
 						<form action="/backend/auth/42login">
 							<button className="bg-darkblue font-bold dark:bg-darkdarkblue dark:text-darksage rounded-md m-2 p-2 px-4 whitespace-nowrap">
 								Login with 42
@@ -138,9 +135,6 @@ function Navbar() {
 				)}
 				{!authenticatedUserID && (
 					<>
-						<li className="navlink-extended">
-							<a href="/login">Login</a>
-						</li>
 						<form
 							action="/backend/auth/42login"
 							className="navlink-extended bg-darkblue text-sage dark:bg-darkdarkblue dark:text-darksage font-bold"
