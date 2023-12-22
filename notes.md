@@ -4,7 +4,6 @@
 
   - Profile settings -> choose avatar -> close settings panel before saving new avatar -> big red error ?? Can't reproduce
   - Fix CSS on chat settings for small height screens
-  - SidePannel.tx:181 each child in list shoudl have a unique key prop
 
 ---
 
