@@ -2,14 +2,14 @@
 
   - Profile settings -> choose avatar -> close settings panel before saving new avatar -> big red error ?? Can't reproduce
   - Fix CSS on chat settings for small height screens
+  - SidePannel.tx:181 each child in list shoudl have a unique key prop
 
 - Project validation
 
+  - fix callback URL with 42API to use machine IP address port 8080
   - set score back to 10 for game
   - remove passwords for users
   - remove login page
-  - force HTTPS and force redirect HTTP port 80 to HTTPS port 443
-  - choose domain (localhost or ft_transcendance or whatever) and then fix callback URL for 42 auth
   - remove unused controller paths (i.e. chats controller since all is done through sockets)
 
 - Nice to have
