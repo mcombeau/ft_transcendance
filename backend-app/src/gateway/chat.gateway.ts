@@ -566,10 +566,12 @@ export class ChatGateway implements OnModuleInit {
 		info: ReceivedInfoDto,
 		@ConnectedSocket() socket: Socket
 	): Promise<ReceivedInfoDto> {
-		await this.permissionChecks.checkChatRoomPassword(
-			info.chatInfo.password,
-			info.inviteInfo.chatRoomID
-		);
+		if (info.inviteInfo.chatHasPassword == true) {
+			await this.permissionChecks.checkChatRoomPassword(
+				info.chatInfo.password,
+				info.inviteInfo.chatRoomID
+			);
+		}
 		await this.chatGatewayService.acceptUserInviteToChatRoom(info.inviteInfo);
 		info.username = user.username;
 		info.token = "";
