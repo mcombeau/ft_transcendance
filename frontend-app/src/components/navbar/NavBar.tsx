@@ -135,7 +135,7 @@ function Navbar() {
 						</li>
 						<form
 							action="/backend/auth/42login"
-							className="navlink-extended bg-darkblue dark:bg-darkdarkblue"
+							className="navlink-extended bg-darkblue text-sage dark:bg-darkdarkblue dark:text-darksage font-bold"
 						>
 							<button>Login with 42</button>
 						</form>
