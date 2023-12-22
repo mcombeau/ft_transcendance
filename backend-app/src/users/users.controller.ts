@@ -192,17 +192,4 @@ export class UsersController {
 	async deleteUserAvatarByUserID(@Param("id", ParseIntPipe) id: number) {
 		return this.userService.removeUserAvatarByUserID(id);
 	}
-
-	@Delete(":id")
-	@UseGuards(JwtFullAuthGuard, JwtSelfAuthGuard)
-	@ApiOkResponse({ description: "Record deleted by ID." })
-	@ApiBadRequestResponse({ description: "Bad request" })
-	@ApiUnprocessableEntityResponse({
-		description: "Database error. (Unprocessable entity)",
-	})
-	async deleteUserByID(
-		@Param("id", ParseIntPipe) id: number
-	): Promise<DeleteResult> {
-		return this.userService.deleteUserByID(id);
-	}
 }
