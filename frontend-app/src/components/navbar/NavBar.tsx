@@ -5,7 +5,7 @@ import { WebSocketContext } from "../../contexts/WebsocketContext";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import { logoutUser } from "../logout/logout";
-import { IoSunnyOutline } from "react-icons/io5";
+import { IoSearchSharp, IoSunnyOutline } from "react-icons/io5";
 import { FaRegMoon } from "react-icons/fa6";
 import { isDarkModeEnabled } from "../../cookies";
 
@@ -58,6 +58,11 @@ function Navbar() {
 			</div>
 
 			<ul className="hidden md:flex font-mono">
+				<li className="navlink">
+					<a href="/search">
+						<IoSearchSharp className="w-6 h-6 m-2" />
+					</a>
+				</li>
 				<li className="navlink">
 					<a href="/">Home</a>
 				</li>
@@ -122,6 +127,9 @@ function Navbar() {
 						</li>
 						<li className="navlink-extended">
 							<a href={"/user/" + authenticatedUserID}>Profile</a>
+						</li>
+						<li className="navlink-extended">
+							<a href="/search">Search</a>
 						</li>
 						<li className="navlink-extended">
 							<a href="/logout">Logout</a>

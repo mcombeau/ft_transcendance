@@ -15,6 +15,7 @@ import { WebSocketContext } from "./contexts/WebsocketContext";
 import NotFound from "./components/notfound/notfound";
 import Banners, { Banner } from "./components/banner/Banner";
 import FinalizeLogin from "./components/2fa/TwoFactorAuth";
+import SearchBar from "./components/searchbar/searchbar";
 
 function App() {
 	const [cookies, ,] = useCookies(["token", "darkmode"]);
@@ -67,6 +68,10 @@ function App() {
 							<Route
 								path="/finalize-login"
 								element={<FinalizeLogin setBanners={setBanners} />}
+							/>
+							<Route
+								path="/search"
+								element={<SearchBar setBanners={setBanners} />}
 							/>
 						</Routes>
 					</div>
