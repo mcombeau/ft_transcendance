@@ -130,7 +130,7 @@ export const ContextMenuEl = (
 		setInvitesMenu(false);
 	}, [contextMenu, cookies, socket]);
 
-	if (!contextMenu) {
+	if (!contextMenu || !target) {
 		return <div></div>;
 	}
 
@@ -390,7 +390,7 @@ export const ContextMenuEl = (
 				{iCanChallenge ? challengeButton() : <></>}
 				{userIsMyFriend ? unfriendButton() : friendButton()}
 				{channel.isDM === false ? dmButton() : <></>}
-				{canManageUser(target.userID, authenticatedUserID, channel) ? (
+				{canManageUser(target, authenticatedUserID, channel) ? (
 					<div>
 						{isUserMuted(target) ? unmuteButton() : muteButton()}
 						{kickButton()}
@@ -399,7 +399,7 @@ export const ContextMenuEl = (
 				) : (
 					<div></div>
 				)}
-				{canToggleOperator(target.userID, authenticatedUserID, channel) ? (
+				{canToggleOperator(target, authenticatedUserID, channel) ? (
 					<div>{operatorButton()}</div>
 				) : (
 					<div></div>
