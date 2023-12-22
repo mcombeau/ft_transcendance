@@ -648,14 +648,31 @@ export class ChatGateway implements OnModuleInit {
 			info.userID = await this.socketGateway.checkIdentity(info.token, socket);
 			await this.chatGatewayService.refuseUserInvite(info.inviteInfo);
 			info.token = "";
-			this.server
-				.to(
-					this.chatGatewayService.getSocketRoomIdentifier(
-						info.userID,
-						RoomType.User
+			if (info.inviteInfo.type === inviteType.GAME) {
+				this.server
+					.to(
+						this.chatGatewayService.getSocketRoomIdentifier(
+							info.inviteInfo.invitedID,
+							RoomType.User
+						)
 					)
-				)
-				.emit("refuse invite", info);
+					.to(
+						this.chatGatewayService.getSocketRoomIdentifier(
+							info.inviteInfo.senderID,
+							RoomType.User
+						)
+					)
+					.emit("refuse invite", info);
+			} else {
+				this.server
+					.to(
+						this.chatGatewayService.getSocketRoomIdentifier(
+							info.inviteInfo.invitedID,
+							RoomType.User
+						)
+					)
+					.emit("refuse invite", info);
+			}
 		} catch (e) {
 			this.logger.warn(`[Refuse Invite]: ${e.message}`);
 			this.server

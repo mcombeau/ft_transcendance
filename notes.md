@@ -16,7 +16,6 @@
 
 - Nice to have
 
-  - warn when an invite to play is refused (right now we just wait for the game to start)
   - all tokens are taken directly from socket
 
 - IF PROBLEMS WITH LOGOUT/BAD TOKEN:
