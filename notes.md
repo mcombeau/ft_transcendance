@@ -1,9 +1,7 @@
 - Bugs
 
   - Profile settings -> choose avatar -> close settings panel before saving new avatar -> big red error ?? Can't reproduce
-  - Mute is weird when we unmute someone + mute broken when mute from context menu + mute from settings menu
   - Fix CSS on chat settings for small height screens
-  - Double chat display in public chats
   - SidePannel.tx:181 each child in list shoudl have a unique key prop
 
 - Project validation
