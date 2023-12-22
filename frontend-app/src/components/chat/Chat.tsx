@@ -141,6 +141,7 @@ export async function fetchChatParticipants(
 		}
 		var participants = participant_data.map((user: any) => {
 			var newUser: User = {
+				isInChatRoom: true,
 				userID: user.userID,
 				username: user.username,
 				isOwner: user.isOwner,
@@ -388,6 +389,7 @@ export const Chat = ({ setBanners }) => {
 					isBanned: false,
 					mutedUntil: new Date().getTime(),
 					invitedUntil: 0,
+					isInChatRoom: true,
 				};
 				var chatRoom: ChatRoom = {
 					chatRoomID: info.chatRoomID,
@@ -407,6 +409,7 @@ export const Chat = ({ setBanners }) => {
 
 		socket.on("join chat", async (info: ReceivedInfo) => {
 			var user: User = {
+				isInChatRoom: true,
 				userID: info.userID,
 				username: info.username,
 				isOwner: false,
@@ -607,6 +610,7 @@ export const Chat = ({ setBanners }) => {
 			);
 			if (info.inviteInfo.type === typeInvite.Chat) {
 				var user: User = {
+					isInChatRoom: true,
 					userID: info.userID,
 					username: info.username,
 					isOwner: false,
@@ -763,6 +767,7 @@ export const Chat = ({ setBanners }) => {
 
 		socket.on("dm", (info: ReceivedInfo) => {
 			var user1: User = {
+				isInChatRoom: true,
 				userID: info.userID,
 				username: info.username,
 				isOwner: false,
@@ -772,6 +777,7 @@ export const Chat = ({ setBanners }) => {
 				invitedUntil: null,
 			};
 			var user2: User = {
+				isInChatRoom: true,
 				userID: info.targetID,
 				username: info.username2,
 				isOwner: false,

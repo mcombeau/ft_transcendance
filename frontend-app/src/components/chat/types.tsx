@@ -44,11 +44,12 @@ export type Message = {
 export type User = {
 	userID: number;
 	username: string;
-	isOwner: boolean;
-	isOperator: boolean;
-	isBanned: boolean;
-	mutedUntil: number;
-	invitedUntil: number;
+	isInChatRoom: boolean;
+	isOwner?: boolean;
+	isOperator?: boolean;
+	isBanned?: boolean;
+	mutedUntil?: number;
+	invitedUntil?: number;
 };
 
 export type ChatRoom = {

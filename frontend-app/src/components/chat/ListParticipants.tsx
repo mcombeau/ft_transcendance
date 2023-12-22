@@ -7,15 +7,16 @@ import { ButtonIconType, getButtonIcon } from "../styles/icons";
 import { ReactElement } from "react";
 
 export function canManageUser(
-	targetID: number,
+	target: User,
 	authenticatedUserID: number,
 	channel: ChatRoom
 ) {
-	if (authenticatedUserID === targetID) return false;
+	if (target.isInChatRoom === false) return false;
+	if (authenticatedUserID === target.userID) return false;
 	if (channel.isDM) return false;
 
 	const myStatus: Status = checkStatus(channel, authenticatedUserID);
-	const targetStatus: Status = checkStatus(channel, targetID);
+	const targetStatus: Status = checkStatus(channel, target.userID);
 
 	if (myStatus === Status.Normal) return false;
 	if (targetStatus === Status.Owner) return false;
@@ -26,15 +27,16 @@ export function canManageUser(
 }
 
 export function canToggleOperator(
-	targetID: number,
+	target: User,
 	authenticatedUserID: number,
 	channel: ChatRoom
 ) {
-	if (authenticatedUserID === targetID) return false;
+	if (target.isInChatRoom === false) return false;
+	if (authenticatedUserID === target.userID) return false;
 	if (channel.isDM) return false;
 
 	const myStatus: Status = checkStatus(channel, authenticatedUserID);
-	const targetStatus: Status = checkStatus(channel, targetID);
+	const targetStatus: Status = checkStatus(channel, target.userID);
 
 	if (myStatus !== Status.Owner) return false;
 	if (targetStatus === Status.Owner) return false;
@@ -192,7 +194,7 @@ export const ListParticipants = (
 					{displayUser(participant)}
 				</div>
 				<div id="buttons" className="flex col-span-4 items-center space-x-2">
-					{canManageUser(participant.userID, authenticatedUserID, channel) ? (
+					{canManageUser(participant, authenticatedUserID, channel) ? (
 						<>
 							{isUserMuted(participant)
 								? unmuteButton(participant)
@@ -203,11 +205,7 @@ export const ListParticipants = (
 					) : (
 						<></>
 					)}
-					{canToggleOperator(
-						participant.userID,
-						authenticatedUserID,
-						channel
-					) ? (
+					{canToggleOperator(participant, authenticatedUserID, channel) ? (
 						operatorButton(participant)
 					) : (
 						<></>

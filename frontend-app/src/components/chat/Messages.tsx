@@ -112,7 +112,33 @@ export const Messages = (
 									var targetUser: User = currentChatRoom.participants.find(
 										(user: User) => user.userID === msg.senderID
 									);
-									setContextMenuTarget(targetUser);
+									if (!targetUser) {
+										var request = {
+											headers: {
+												"Content-Type": "application/json",
+												Authorization: `Bearer ${cookies["token"]}`,
+											},
+										};
+
+										fetch(`/backend/users/${msg.senderID}`, request).then(
+											async (response) => {
+												const data = await response.json();
+												if (!response.ok) {
+													console.warn("error response fetching user");
+													navigate("/not-found");
+													return;
+												}
+
+												setContextMenuTarget({
+													userID: data.id,
+													username: data.username,
+													isInChatRoom: false,
+												});
+											}
+										);
+									} else {
+										setContextMenuTarget(targetUser);
+									}
 								}
 							}}
 						>
