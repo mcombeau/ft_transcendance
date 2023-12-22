@@ -41,7 +41,6 @@ async function checkIfIsMyFriend(
 				console.warn("Fetch friends bad request");
 				return;
 			}
-			console.log("are friends", data.areFriends);
 			setUserIsMyFriend(data.areFriends);
 		}
 	);
