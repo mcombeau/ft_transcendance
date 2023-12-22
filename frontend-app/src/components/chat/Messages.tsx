@@ -305,7 +305,7 @@ export const Messages = (
 		);
 	};
 
-	function displayPublicChat(chat: PublicChatRoom) {
+	function displayPublicChat(chat: PublicChatRoom, index: number) {
 		const alreadyInChat: boolean = myChats.some(
 			(myChat: ChatRoom) => myChat.chatRoomID === chat.chatRoomID
 		);
@@ -336,6 +336,7 @@ export const Messages = (
 			<div
 				className="bg-teal dark:bg-darkteal rounded-md p-1 m-2 text-sage dark:text-darkdarkblue flex justify-between items-center"
 				id="publicchat"
+				key={index}
 			>
 				<span className="pl-3">{chat.name}</span>
 				{joinButton}
@@ -351,7 +352,9 @@ export const Messages = (
 			<div className="w-full">
 				{publicChats
 					.sort((a, b) => a.name.localeCompare(b.name))
-					.map((chat: PublicChatRoom) => displayPublicChat(chat))}
+					.map((chat: PublicChatRoom, index: number) =>
+						displayPublicChat(chat, index)
+					)}
 			</div>
 		);
 	}
