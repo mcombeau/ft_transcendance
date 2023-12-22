@@ -40,7 +40,7 @@ export const ContextMenuEl = (
 	const labelClass: string = "";
 
 	useEffect(() => {
-		setUserIsBlocked(blockedUsers.includes(target.userID));
+		if (target) setUserIsBlocked(blockedUsers.includes(target.userID));
 	}, [blockedUsers, target]);
 
 	function invite(target: User, type: typeInvite, chat?: ChatRoom) {
