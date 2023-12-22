@@ -18,6 +18,7 @@ export function logoutUser(
 	setAuthenticatedUserID(null);
 	removeCookie("token", { path: "/" });
 	navigate("/");
+	// window.location.reload();
 }
 
 function Logout() {
