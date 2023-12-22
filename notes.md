@@ -1,5 +1,8 @@
 - Bugs
 
+- Front warnings
+	- messages.tsx 375 
+
 - Maybe Bugs
 
   - Profile settings -> choose avatar -> close settings panel before saving new avatar -> big red error ?? Can't reproduce
