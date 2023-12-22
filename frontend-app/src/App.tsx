@@ -52,9 +52,15 @@ function App() {
 								path="/chat/:userID"
 								element={<Chat setBanners={setBanners} />}
 							/>
-							<Route path="/play/:inviteID" element={<Play />} />
-							<Route path="/watch/:watchGameID" element={<Play />} />
-							<Route path="/play" element={<Play />} />
+							<Route
+								path="/play/:inviteID"
+								element={<Play setBanners={setBanners} />}
+							/>
+							<Route
+								path="/watch/:watchGameID"
+								element={<Play setBanners={setBanners} />}
+							/>
+							<Route path="/play" element={<Play setBanners={setBanners} />} />
 							<Route path="/leaderboard" element={<Leaderboard />} />
 							<Route
 								path="/user/:id"

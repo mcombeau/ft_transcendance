@@ -6,6 +6,8 @@ import { WebSocketContext } from "../../contexts/WebsocketContext";
 import { AuthenticationContext } from "../authenticationState";
 import LiveGames from "../live-games/LiveGames";
 import { useWindowSize } from "@uidotdev/usehooks";
+import { ReceivedInfo, typeInvite } from "../chat/types";
+import { BannerType, createBanner } from "../banner/Banner";
 
 const UP = "ArrowUp";
 const DOWN = "ArrowDown";
@@ -165,7 +167,7 @@ function winPage(gameDetails: GameDetails, authenticatedUserID: number) {
 	}
 }
 
-export const Play = () => {
+export const Play = ({ setBanners }) => {
 	const defaultBallPosition: Position = {
 		x: 249,
 		y: 225,
@@ -418,6 +420,18 @@ export const Play = () => {
 			setPage(Page.Lobby);
 		});
 
+		socket.on("refuse invite", (info: ReceivedInfo) => {
+			if (info.inviteInfo.type !== typeInvite.Game) {
+				return;
+			}
+			createBanner(
+				`${info.inviteInfo.invitedUsername} has refused your game invite.`,
+				setBanners,
+				BannerType.Alert
+			);
+			leaveLobby();
+		});
+
 		socket.on("start game", (data: GameInfo) => {
 			setPlayers(data);
 			if (
@@ -485,6 +499,7 @@ export const Play = () => {
 			socket.off("reconnect");
 			socket.off("watch");
 			socket.off("wait invite");
+			socket.off("refuse invite");
 			socket.off("tick");
 			socket.off("start game");
 			socket.off("end game");
