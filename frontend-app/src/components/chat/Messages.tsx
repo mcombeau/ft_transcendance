@@ -95,55 +95,62 @@ export const Messages = (
 					}`}
 				>
 					<div
-						className={`flex flex-col mx-2 my-1 ${
+						className={`flex flex-col mx-2 my-1 group ${
 							selfSent ? "items-end" : "items-start"
 						}`}
 					>
-						<a
-							className={`text-sm italic text-darkblue dark:text-darkdarkblue hover:text-teal hover:dark:text-darkteal hover:underline ${
-								selfSent ? "hidden" : ""
-							}`}
-							href={`/user/${msg.senderID}`}
-							onContextMenu={(e) => {
-								e.preventDefault();
-								if (currentChatRoom.name !== "" && settings === false) {
-									setContextMenu(true);
-									setContextMenuPos({ x: e.pageX, y: e.pageY });
-									var targetUser: User = currentChatRoom.participants.find(
-										(user: User) => user.userID === msg.senderID
-									);
-									if (!targetUser) {
-										var request = {
-											headers: {
-												"Content-Type": "application/json",
-												Authorization: `Bearer ${cookies["token"]}`,
-											},
-										};
-
-										fetch(`/backend/users/${msg.senderID}`, request).then(
-											async (response) => {
-												const data = await response.json();
-												if (!response.ok) {
-													console.warn("error response fetching user");
-													navigate("/not-found");
-													return;
-												}
-
-												setContextMenuTarget({
-													userID: data.id,
-													username: data.username,
-													isInChatRoom: false,
-												});
-											}
+						<div className="flex text-sm p-1">
+							<a
+								className={`text-darkblue dark:text-darkdarkblue hover:text-teal hover:dark:text-darkteal 
+								}`}
+								href={`/user/${msg.senderID}`}
+								onContextMenu={(e) => {
+									e.preventDefault();
+									if (currentChatRoom.name !== "" && settings === false) {
+										setContextMenu(true);
+										setContextMenuPos({ x: e.pageX, y: e.pageY });
+										var targetUser: User = currentChatRoom.participants.find(
+											(user: User) => user.userID === msg.senderID
 										);
-									} else {
-										setContextMenuTarget(targetUser);
+										if (!targetUser) {
+											var request = {
+												headers: {
+													"Content-Type": "application/json",
+													Authorization: `Bearer ${cookies["token"]}`,
+												},
+											};
+
+											fetch(`/backend/users/${msg.senderID}`, request).then(
+												async (response) => {
+													const data = await response.json();
+													if (!response.ok) {
+														console.warn("error response fetching user");
+														navigate("/not-found");
+														return;
+													}
+
+													setContextMenuTarget({
+														userID: data.id,
+														username: data.username,
+														isInChatRoom: false,
+													});
+												}
+											);
+										} else {
+											setContextMenuTarget(targetUser);
+										}
 									}
-								}
-							}}
-						>
-							{msg.senderUsername}
-						</a>
+								}}
+							>
+								{msg.senderID === authenticatedUserID
+									? "me"
+									: msg.senderUsername}
+							</a>
+							<p className="hidden text-darkblue dark:text-darkdarkblue group-hover:block">
+								&nbsp;{"- "}
+								{getFormattedTime(msg.datestamp)}
+							</p>
+						</div>
 						<div
 							key={key}
 							className={`peer rounded-md text-sage dark:text-darkdarkblue max-w-xl flex flex-col p-2 ${
@@ -153,9 +160,6 @@ export const Messages = (
 							}`}
 						>
 							<div className="flex-1 break-words">{msg.msg}</div>
-						</div>
-						<div className="hidden text-xs text-darkblue dark:text-darkdarkblue peer-hover:block">
-							{getFormattedTime(msg.datestamp)}
 						</div>
 					</div>
 				</div>
