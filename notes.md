@@ -19,10 +19,7 @@
 
   - all tokens are taken directly from socket
 
-- Last minute checks:
+- !!! Last minute checks !!!
 
   - set score back to 10 for game
-  - remove login page
-
-- IF PROBLEMS WITH LOGOUT/BAD TOKEN:
-  - Add window force reload: window.location.reload(); in function LogoutUser
+  - remove login page ?
