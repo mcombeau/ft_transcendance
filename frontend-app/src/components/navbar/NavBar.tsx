@@ -56,13 +56,13 @@ function Navbar() {
 					<FaRegMoon className="w-6 h-6 m-2" />
 				)}
 			</div>
+			<div>
+				<a href="/search">
+					<IoSearchSharp className="w-6 h-6 m-2" />
+				</a>
+			</div>
 
 			<ul className="hidden md:flex font-mono">
-				<li className="navlink">
-					<a href="/search">
-						<IoSearchSharp className="w-6 h-6 m-2" />
-					</a>
-				</li>
 				<li className="navlink">
 					<a href="/">Home</a>
 				</li>
