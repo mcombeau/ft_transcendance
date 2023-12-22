@@ -12,9 +12,40 @@ import {
 import { Socket } from "socket.io-client";
 import { checkStatus } from "./Chat";
 import { ReceivedInfo } from "./types";
-import { blockUser, unblockUser } from "../profile/profile";
+import { blockUser, unblockUser, unfriend } from "../profile/profile";
 import { ButtonIconType, getButtonIcon } from "../styles/icons";
 import { canManageUser, canToggleOperator } from "./ListParticipants";
+
+async function checkIfIsMyFriend(
+	user: User,
+	authenticatedUserID: number,
+	cookies: any,
+	setUserIsMyFriend: any
+) {
+	if (user === undefined) return;
+	var request = {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${cookies["token"]}`,
+		},
+		body: JSON.stringify({
+			userID1: authenticatedUserID,
+			userID2: user.userID,
+		}),
+	};
+	return await fetch(`/backend/friends/isMyFriend`, request).then(
+		async (response) => {
+			const data = await response.json();
+			if (!response.ok) {
+				console.warn("Fetch friends bad request");
+				return;
+			}
+			console.log("are friends", data.areFriends);
+			setUserIsMyFriend(data.areFriends);
+		}
+	);
+}
 
 export const ContextMenuEl = (
 	contextMenu: boolean,
@@ -33,6 +64,7 @@ export const ContextMenuEl = (
 	const menuRef = useRef<HTMLDivElement>(null);
 	const [invitesMenu, setInvitesMenu] = useState(false);
 	const [userIsBlocked, setUserIsBlocked] = useState(false);
+	const [userIsMyFriend, setUserIsMyFriend] = useState(false);
 	const [iCanChallenge, setICanChallenge] = useState<boolean>(false);
 	const iconClass: string = "w-6 h-6 p-1";
 	const buttonClass: string =
@@ -40,8 +72,16 @@ export const ContextMenuEl = (
 	const labelClass: string = "";
 
 	useEffect(() => {
-		if (target) setUserIsBlocked(blockedUsers.includes(target.userID));
-	}, [blockedUsers, target]);
+		if (target) {
+			setUserIsBlocked(blockedUsers.includes(target.userID));
+			checkIfIsMyFriend(
+				target,
+				authenticatedUserID,
+				cookies,
+				setUserIsMyFriend
+			);
+		}
+	}, [blockedUsers, target, contextMenu]);
 
 	function invite(target: User, type: typeInvite, chat?: ChatRoom) {
 		var info: ReceivedInfo = {
@@ -283,10 +323,25 @@ export const ContextMenuEl = (
 				className={buttonClass}
 				onClick={() => {
 					invite(target, typeInvite.Game);
+					setContextMenu(false);
 				}}
 			>
 				{getButtonIcon(ButtonIconType.challenge, iconClass)}
 				<span className={labelClass}>Challenge</span>
+			</div>
+		);
+	}
+	function unfriendButton() {
+		return (
+			<div
+				className={buttonClass}
+				onClick={() => {
+					unfriend(target.userID, authenticatedUserID, cookies);
+					setContextMenu(false);
+				}}
+			>
+				{getButtonIcon(ButtonIconType.unfriend, iconClass)}
+				<span className={labelClass}>Unfriend</span>
 			</div>
 		);
 	}
@@ -297,6 +352,7 @@ export const ContextMenuEl = (
 				className={buttonClass}
 				onClick={() => {
 					invite(target, typeInvite.Friend);
+					setContextMenu(false);
 				}}
 			>
 				{getButtonIcon(ButtonIconType.friend, iconClass)}
@@ -333,7 +389,7 @@ export const ContextMenuEl = (
 				{blockButton()}
 				{inviteToChannelButton()}
 				{iCanChallenge ? challengeButton() : <></>}
-				{friendButton()}
+				{userIsMyFriend ? unfriendButton() : friendButton()}
 				{channel.isDM === false ? dmButton() : <></>}
 				{canManageUser(target.userID, authenticatedUserID, channel) ? (
 					<div>
