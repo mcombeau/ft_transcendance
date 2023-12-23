@@ -73,7 +73,7 @@ function FinalizeLogin({ setBanners }) {
 				<h3>Please enter the code provided by your Google Authenticator App</h3>
 				<form onSubmit={submit2faCode}>
 					<input
-						className="p-2 m-2"
+						className="bg-sage dark:bg-darksage rounded-md p-2 m-2 focus:outline-none focus:text-darkblue focus:dark:text-darkdarkblue"
 						type="text"
 						placeholder="2fa code"
 						value={twoFaCode}
