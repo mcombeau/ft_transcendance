@@ -9,7 +9,6 @@
   - Fix CSS on chat settings for small height screens
   - Fix context menu placement, it's weird : right click on someone far up in the chats and you have to scroll all the way down to find the context menu
   - Challenge user who is offline sends you into an infinite loop of waiting for player
-  - Fix darkmode: when set on user page for example, it's only set for that page (cookie path '/user'), not all pages (cookie path'/')
 
 ---
 

@@ -40,9 +40,9 @@ function Navbar() {
 
 	function toggleDarkModeCookie() {
 		if (isDarkModeEnabled(cookies)) {
-			setCookie("darkmode", "false");
+			setCookie("darkmode", "false", { path: "/" });
 		} else {
-			setCookie("darkmode", "true");
+			setCookie("darkmode", "true", { path: "/" });
 		}
 	}
 
