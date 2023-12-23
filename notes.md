@@ -16,10 +16,6 @@
   - fix make fclean on school computers
   - fix callback URL with 42API to use machine IP address port 8080
 
-- Nice to have
-
-  - all tokens are taken directly from socket
-
 - !!! Last minute checks !!!
 
   - set score back to 10 for game
