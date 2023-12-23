@@ -1,15 +1,11 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { useCookies } from "react-cookie";
 import { io, Socket } from "socket.io-client";
 
 const WebSocketContext = createContext<Socket | null>(null);
 
 export const useWebSocket = () => {
-	const socket = useContext(WebSocketContext);
-
-	// if (!socket) {
-	// 	throw new Error("useWebSocket must be used within a WebSocketProvider");
-	// }
-	return socket;
+	return useContext(WebSocketContext);
 };
 
 interface WebSocketProviderProps {
@@ -20,12 +16,10 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
 	children,
 }) => {
 	const [socket, setSocket] = useState<Socket | null>(null);
+	const [cookies, ,] = useCookies(["token"]);
 
 	useEffect(() => {
-		const initialToken = document.cookie
-			.split("; ")
-			.find((row) => row.startsWith("token="))
-			?.split("=")[1];
+		const initialToken = cookies.token;
 
 		const newSocket = io(process.env.FT_TRANSCENDANCE_HOST, {
 			path: "/backend/socket.io",
@@ -42,14 +36,13 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
 	}, []);
 
 	useEffect(() => {
-		console.log("WebSocketProvider - Socket:", socket);
-	}, [socket]);
-
-	const updateToken = (newToken: string) => {
-		if (socket) {
-			socket.io.opts.extraHeaders.Authorization = `Bearer ${newToken}`;
+		const token = cookies.token;
+		if (socket && token) {
+			socket.io.opts.extraHeaders = {
+				Authorization: `Bearer ${token}`,
+			};
 		}
-	};
+	}, [socket, cookies.token]);
 
 	return (
 		<WebSocketContext.Provider value={socket}>
@@ -57,20 +50,3 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
 		</WebSocketContext.Provider>
 	);
 };
-
-// // TODO: make token getting dynamic so that token is available in backend socket
-// const token = document.cookie
-// 	.split("; ")
-// 	.find((row) => row.startsWith("token="))
-// 	?.split("=")[1];
-
-// export const socket = io(process.env.FT_TRANSCENDANCE_HOST, {
-// 	path: "/backend/socket.io",
-// 	extraHeaders: {
-// 		Authorization: `Bearer ${token}`,
-// 	},
-// });
-
-// export const WebSocketContext = createContext<Socket>(socket);
-
-// export const WebSocketProvider = WebSocketContext.Provider;

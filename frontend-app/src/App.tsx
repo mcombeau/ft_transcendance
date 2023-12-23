@@ -30,16 +30,15 @@ function App() {
 	const [banners, setBanners] = useState<Banner[]>([]);
 
 	useEffect(() => {
-		if (socket) {
-			socket.on("logout", () => {
-				setAuthenticatedUserID(null);
-			});
-			return () => {
-				socket.off("logout");
-			};
-		} else {
-			console.log("App - No socket!");
+		if (!socket) {
+			return;
 		}
+		socket.on("logout", () => {
+			setAuthenticatedUserID(null);
+		});
+		return () => {
+			socket.off("logout");
+		};
 	}, [socket]);
 
 	return (

@@ -12,9 +12,11 @@ export function logoutUser(
 	removeCookie: any,
 	navigate: NavigateFunction
 ) {
-	socket.emit("leave game", cookies["token"]);
-	socket.emit("stop watching", cookies["token"]);
-	socket.emit("logout", cookies["token"]);
+	if (socket) {
+		socket.emit("leave game", cookies["token"]);
+		socket.emit("stop watching", cookies["token"]);
+		socket.emit("logout", cookies["token"]);
+	}
 	setAuthenticatedUserID(null);
 	removeCookie("token", { path: "/" });
 	navigate("/");
