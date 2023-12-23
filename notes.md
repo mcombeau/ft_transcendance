@@ -7,6 +7,7 @@
 - Maybe Bugs
 
   - Fix CSS on chat settings for small height screens
+  - Fix context menu placement, it's weird : right click on someone far up in the chats and you have to scroll all the way down to find the context menu
 
 ---
 
