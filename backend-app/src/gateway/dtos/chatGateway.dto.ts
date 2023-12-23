@@ -1,24 +1,19 @@
-import {ApiProperty} from '@nestjs/swagger';
-import {Type} from 'class-transformer';
+import { ApiProperty } from "@nestjs/swagger";
+import { Type } from "class-transformer";
 import {
 	IsAlphanumeric,
 	IsInt,
-	IsJWT,
 	IsNumber,
 	IsOptional,
 	IsPositive,
 	ValidateNested,
-} from 'class-validator';
-import {createMessageDto} from 'src/chat-messages/dtos/createMessage.dto';
-import {updateParticipantDto} from 'src/chat-participants/dtos/updateChatParticipant.dto';
-import {createChatDto} from 'src/chats/dtos/createChats.dto';
-import {sendInviteDto} from 'src/invites/dtos/sendInvite.dto';
+} from "class-validator";
+import { createMessageDto } from "src/chat-messages/dtos/createMessage.dto";
+import { updateParticipantDto } from "src/chat-participants/dtos/updateChatParticipant.dto";
+import { createChatDto } from "src/chats/dtos/createChats.dto";
+import { sendInviteDto } from "src/invites/dtos/sendInvite.dto";
 
 export class ReceivedInfoDto {
-	@ApiProperty()
-	@IsJWT()
-	token: string;
-
 	@ApiProperty()
 	@IsOptional()
 	@IsInt()

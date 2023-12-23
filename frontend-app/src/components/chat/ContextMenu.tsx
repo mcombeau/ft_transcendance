@@ -84,7 +84,6 @@ export const ContextMenuEl = (
 
 	function invite(target: User, type: typeInvite, chat?: ChatRoom) {
 		var info: ReceivedInfo = {
-			token: cookies["token"],
 			targetID: target.userID,
 			inviteInfo: {
 				type: type,
@@ -132,7 +131,7 @@ export const ContextMenuEl = (
 		if (!socket) {
 			return;
 		}
-		socket.emit("is in game", cookies["token"]);
+		socket.emit("is in game");
 		setInvitesMenu(false);
 	}, [contextMenu, cookies, socket]);
 
@@ -183,7 +182,6 @@ export const ContextMenuEl = (
 				className={buttonClass}
 				onClick={() => {
 					var info: ReceivedInfo = {
-						token: cookies["token"],
 						chatRoomID: channel.chatRoomID,
 						targetID: target.userID,
 						participantInfo: {
@@ -206,7 +204,6 @@ export const ContextMenuEl = (
 				className={buttonClass}
 				onClick={() => {
 					var info: ReceivedInfo = {
-						token: cookies["token"],
 						chatRoomID: channel.chatRoomID,
 						targetID: target.userID,
 						participantInfo: {
@@ -229,7 +226,6 @@ export const ContextMenuEl = (
 				className={buttonClass}
 				onClick={() => {
 					var info: ReceivedInfo = {
-						token: cookies["token"],
 						chatRoomID: channel.chatRoomID,
 						targetID: target.userID,
 					};
@@ -249,7 +245,6 @@ export const ContextMenuEl = (
 				className={buttonClass}
 				onClick={() => {
 					var info: ReceivedInfo = {
-						token: cookies["token"],
 						chatRoomID: channel.chatRoomID,
 						targetID: target.userID,
 					};
@@ -268,7 +263,6 @@ export const ContextMenuEl = (
 				className={buttonClass}
 				onClick={() => {
 					var info: ReceivedInfo = {
-						token: cookies["token"],
 						chatRoomID: channel.chatRoomID,
 						targetID: target.userID,
 					};
@@ -294,7 +288,6 @@ export const ContextMenuEl = (
 				className={buttonClass}
 				onClick={() => {
 					var info: ReceivedInfo = {
-						token: cookies["token"],
 						chatRoomID: channel.chatRoomID,
 						targetID: target.userID,
 					};

@@ -22,7 +22,6 @@ import {
 	LobbyStatus,
 	Watcher,
 } from "./game.gateway.service";
-import { InviteEntity } from "src/invites/entities/Invite.entity";
 import { sendInviteDto } from "src/invites/dtos/sendInvite.dto";
 import { ChatsGatewayService, RoomType } from "./chat.gateway.service";
 import { ReceivedInfoDto } from "./dtos/chatGateway.dto";
@@ -87,7 +86,6 @@ export class GameGateway implements OnModuleInit {
 
 	async sendRefuseInvite(invite: sendInviteDto) {
 		const info: ReceivedInfoDto = {
-			token: "",
 			inviteInfo: invite,
 		};
 
@@ -130,9 +128,9 @@ export class GameGateway implements OnModuleInit {
 	}
 
 	@SubscribeMessage("up")
-	async onUp(@ConnectedSocket() socket: Socket, @MessageBody() token: string) {
+	async onUp(@ConnectedSocket() socket: Socket) {
 		try {
-			const tokenUserID = await this.socketGateway.checkIdentity(token, socket);
+			const tokenUserID = await this.socketGateway.checkIdentity(socket);
 
 			this.gameGatewayService.movePlayer(tokenUserID, Direction.Up);
 		} catch (e) {
@@ -141,12 +139,9 @@ export class GameGateway implements OnModuleInit {
 	}
 
 	@SubscribeMessage("down")
-	async onDown(
-		@ConnectedSocket() socket: Socket,
-		@MessageBody() token: string
-	) {
+	async onDown(@ConnectedSocket() socket: Socket) {
 		try {
-			const tokenUserID = await this.socketGateway.checkIdentity(token, socket);
+			const tokenUserID = await this.socketGateway.checkIdentity(socket);
 
 			this.gameGatewayService.movePlayer(tokenUserID, Direction.Down);
 		} catch (e) {
@@ -155,15 +150,9 @@ export class GameGateway implements OnModuleInit {
 	}
 
 	@SubscribeMessage("get games")
-	async onGetGames(
-		@ConnectedSocket() socket: Socket,
-		@MessageBody() token: string
-	) {
+	async onGetGames(@ConnectedSocket() socket: Socket) {
 		try {
-			const userID: number = await this.socketGateway.checkIdentity(
-				token,
-				socket
-			);
+			const userID: number = await this.socketGateway.checkIdentity(socket);
 			const user = await this.usersService.fetchUserByID(userID);
 			if (!user) {
 				throw new UserNotFoundError();
@@ -178,12 +167,9 @@ export class GameGateway implements OnModuleInit {
 	}
 
 	@SubscribeMessage("leave game")
-	async onLeaveGame(
-		@ConnectedSocket() socket: Socket,
-		@MessageBody() token: string
-	) {
+	async onLeaveGame(@ConnectedSocket() socket: Socket) {
 		try {
-			const tokenUserID = await this.socketGateway.checkIdentity(token, socket);
+			const tokenUserID = await this.socketGateway.checkIdentity(socket);
 			const gameRoom: GameRoom =
 				this.gameGatewayService.getCurrentPlayRoom(tokenUserID);
 
@@ -194,12 +180,9 @@ export class GameGateway implements OnModuleInit {
 	}
 
 	@SubscribeMessage("stop watching")
-	async onStopWatch(
-		@ConnectedSocket() socket: Socket,
-		@MessageBody() token: string
-	) {
+	async onStopWatch(@ConnectedSocket() socket: Socket) {
 		try {
-			const tokenUserID = await this.socketGateway.checkIdentity(token, socket);
+			const tokenUserID = await this.socketGateway.checkIdentity(socket);
 			await this.gameGatewayService.stopWatchingAllGames(tokenUserID, socket);
 		} catch (e) {
 			this.logger.warn(`[Stop Watching]: ${e.message}`);
@@ -207,12 +190,9 @@ export class GameGateway implements OnModuleInit {
 	}
 
 	@SubscribeMessage("reconnect")
-	async onRejoinGame(
-		@ConnectedSocket() socket: Socket,
-		@MessageBody() token: string
-	) {
+	async onRejoinGame(@ConnectedSocket() socket: Socket) {
 		try {
-			const tokenUserID = await this.socketGateway.checkIdentity(token, socket);
+			const tokenUserID = await this.socketGateway.checkIdentity(socket);
 			const currentGameRoom: GameRoom = await this.reconnect(
 				socket,
 				tokenUserID
@@ -232,13 +212,10 @@ export class GameGateway implements OnModuleInit {
 	@SubscribeMessage("watch")
 	async onWatch(
 		@ConnectedSocket() socket: Socket,
-		@MessageBody() body: { token: string; gameID: string }
+		@MessageBody() body: { gameID: string }
 	) {
 		try {
-			const tokenUserID = await this.socketGateway.checkIdentity(
-				body.token,
-				socket
-			);
+			const tokenUserID = await this.socketGateway.checkIdentity(socket);
 			const user: UserEntity = await this.usersService.fetchUserByID(
 				tokenUserID
 			);
@@ -274,13 +251,10 @@ export class GameGateway implements OnModuleInit {
 	@SubscribeMessage("wait invite")
 	async onWaitInvite(
 		@ConnectedSocket() socket: Socket,
-		@MessageBody() body: { token: string; inviteID: string }
+		@MessageBody() body: { inviteID: string }
 	) {
 		try {
-			const tokenUserID = await this.socketGateway.checkIdentity(
-				body.token,
-				socket
-			);
+			const tokenUserID = await this.socketGateway.checkIdentity(socket);
 
 			const inviteID: number = this.permissionChecks.convertInviteIDFromString(
 				body.inviteID
@@ -307,15 +281,9 @@ export class GameGateway implements OnModuleInit {
 	}
 
 	@SubscribeMessage("enter lobby")
-	async onEnterLobby(
-		@ConnectedSocket() socket: Socket,
-		@MessageBody() body: { token: string; inviteID: string }
-	) {
+	async onEnterLobby(@ConnectedSocket() socket: Socket) {
 		try {
-			const tokenUserID = await this.socketGateway.checkIdentity(
-				body.token,
-				socket
-			);
+			const tokenUserID = await this.socketGateway.checkIdentity(socket);
 			await this.gameGatewayService.enterLobby(tokenUserID, socket);
 		} catch (e) {
 			this.logger.warn(`[Enter Lobby]: ${e.message}`);
@@ -323,12 +291,9 @@ export class GameGateway implements OnModuleInit {
 	}
 
 	@SubscribeMessage("leave lobby")
-	async onLeaveLobby(
-		@ConnectedSocket() socket: Socket,
-		@MessageBody() token: string
-	) {
+	async onLeaveLobby(@ConnectedSocket() socket: Socket) {
 		try {
-			const tokenUserID = await this.socketGateway.checkIdentity(token, socket);
+			const tokenUserID = await this.socketGateway.checkIdentity(socket);
 			await this.gameGatewayService.leaveLobby(tokenUserID);
 		} catch (e) {
 			this.logger.warn(`[Leave Lobby]: ${e.message}`);
@@ -336,12 +301,9 @@ export class GameGateway implements OnModuleInit {
 	}
 
 	@SubscribeMessage("is in game")
-	async onIsActive(
-		@ConnectedSocket() socket: Socket,
-		@MessageBody() token: string
-	) {
+	async onIsActive(@ConnectedSocket() socket: Socket) {
 		try {
-			const tokenUserID = await this.socketGateway.checkIdentity(token, socket);
+			const tokenUserID = await this.socketGateway.checkIdentity(socket);
 			const isInGame: boolean = Boolean(
 				this.gameGatewayService.getCurrentPlayRoom(tokenUserID)
 			);

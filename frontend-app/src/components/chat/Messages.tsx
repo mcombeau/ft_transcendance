@@ -172,7 +172,6 @@ export const Messages = (
 		let info: ReceivedInfo;
 		if (isInvite) {
 			info = {
-				token: cookies["token"],
 				inviteInfo: promptedInvite,
 				chatInfo: {
 					password: newPassword,
@@ -182,7 +181,6 @@ export const Messages = (
 		} else {
 			info = {
 				chatRoomID: promptedPublicChatRoom.chatRoomID,
-				token: cookies["token"],
 				chatInfo: {
 					password: newPassword,
 				},
@@ -245,7 +243,6 @@ export const Messages = (
 
 	function acceptInvite(invite: Invite) {
 		var info: ReceivedInfo = {
-			token: cookies["token"],
 			inviteInfo: invite,
 		};
 		if (invite.type === typeInvite.Chat) {
@@ -323,7 +320,6 @@ export const Messages = (
 							chatRoomID: parseInt(
 								(e.target as HTMLInputElement).getAttribute("value")
 							),
-							token: cookies["token"],
 						};
 						socket.emit("join chat", info);
 					}

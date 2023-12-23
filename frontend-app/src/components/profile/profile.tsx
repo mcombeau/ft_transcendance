@@ -359,9 +359,8 @@ function challengeButton(
 	);
 }
 
-function DM(user: User, cookies: any, navigate: any, socket: Socket) {
+function DM(user: User, navigate: any, socket: Socket) {
 	var info: ReceivedInfo = {
-		token: cookies["token"],
 		chatRoomID: null,
 		targetID: user.id,
 	};
@@ -369,12 +368,9 @@ function DM(user: User, cookies: any, navigate: any, socket: Socket) {
 	navigate("/chat/" + user.id);
 }
 
-function DMButton(user: User, cookies: any, navigate: any, socket: Socket) {
+function DMButton(user: User, navigate: any, socket: Socket) {
 	return (
-		<button
-			className="button"
-			onClick={() => DM(user, cookies, navigate, socket)}
-		>
+		<button className="button" onClick={() => DM(user, navigate, socket)}>
 			{getButtonIcon(ButtonIconType.dm)}
 		</button>
 	);
@@ -411,7 +407,7 @@ function interactWithUser(
 			) : (
 				<></>
 			)}
-			{isBlocked ? <></> : DMButton(user, cookies, navigate, socket)}
+			{isBlocked ? <></> : DMButton(user, navigate, socket)}
 		</div>
 	);
 }
@@ -563,7 +559,7 @@ function Profile({ setBanners }) {
 	// Check game status via socket
 	useEffect(() => {
 		if (socket) {
-			socket.emit("is in game", cookies["token"]);
+			socket.emit("is in game");
 		}
 	}, [cookies, socket]);
 

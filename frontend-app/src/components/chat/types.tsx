@@ -1,5 +1,4 @@
 export type ReceivedInfo = {
-	token: string;
 	username?: string;
 	username2?: string;
 	userID?: number;

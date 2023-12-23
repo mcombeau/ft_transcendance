@@ -270,39 +270,33 @@ export const Play = ({ setBanners }) => {
 	}
 
 	const handleKeyPress = useCallback(
-		(event: any, cookies: any) => {
+		(event: any) => {
 			if (event.key === "w" || event.key === "k" || event.key === UP) {
 				event.preventDefault();
-				socket.emit("up", cookies["token"]);
+				socket.emit("up");
 			} else if (event.key === "s" || event.key === "j" || event.key === DOWN) {
 				event.preventDefault();
-				socket.emit("down", cookies["token"]);
+				socket.emit("down");
 			}
 		},
 		[socket]
 	);
 
-	const activateKeyHandler = useCallback(
-		(cookies: any) => {
-			window.addEventListener("keydown", (event) => {
-				handleKeyPress(event, cookies);
-			});
-		},
-		[handleKeyPress]
-	);
+	const activateKeyHandler = useCallback(() => {
+		window.addEventListener("keydown", (event) => {
+			handleKeyPress(event);
+		});
+	}, [handleKeyPress]);
 
-	const deactivateKeyHandler = useCallback(
-		(cookies: any) => {
-			window.removeEventListener("keydown", (event) => {
-				handleKeyPress(event, cookies);
-			});
-		},
-		[handleKeyPress]
-	);
+	const deactivateKeyHandler = useCallback(() => {
+		window.removeEventListener("keydown", (event) => {
+			handleKeyPress(event);
+		});
+	}, [handleKeyPress]);
 
 	function enterLobby() {
 		setPage(Page.Lobby);
-		socket.emit("enter lobby", { token: cookies["token"] });
+		socket.emit("enter lobby");
 	}
 
 	async function endGame(gameFinished: boolean, gameDetails?: GameDetails) {
@@ -314,9 +308,9 @@ export const Play = ({ setBanners }) => {
 
 	function leaveGame() {
 		if (watching) {
-			socket.emit("stop watching", cookies["token"]);
+			socket.emit("stop watching");
 		} else {
-			socket.emit("leave game", cookies["token"]);
+			socket.emit("leave game");
 		}
 		setPage(Page.Waiting);
 		navigate("/user/" + authenticatedUserID);
@@ -334,7 +328,7 @@ export const Play = ({ setBanners }) => {
 	}
 
 	function leaveLobby() {
-		socket.emit("leave lobby", cookies["token"]);
+		socket.emit("leave lobby");
 		navigate("/user/" + authenticatedUserID);
 	}
 
@@ -359,11 +353,11 @@ export const Play = ({ setBanners }) => {
 
 	useEffect(() => {
 		if (page !== Page.Play) return;
-		activateKeyHandler(cookies);
+		activateKeyHandler();
 		return () => {
-			deactivateKeyHandler(cookies);
+			deactivateKeyHandler();
 		};
-	}, [page, cookies, activateKeyHandler, deactivateKeyHandler]);
+	}, [page, activateKeyHandler, deactivateKeyHandler]);
 
 	const checkUrlState = useCallback((): UrlState => {
 		if (watchGameID) return UrlState.Watch;
@@ -385,14 +379,12 @@ export const Play = ({ setBanners }) => {
 				switch (urlState) {
 					case UrlState.Invite:
 						socket.emit("wait invite", {
-							token: cookies["token"],
 							inviteID: inviteID,
 						});
 						break;
 
 					case UrlState.Watch:
 						socket.emit("watch", {
-							token: cookies["token"],
 							gameID: watchGameID,
 						});
 						break;
@@ -522,8 +514,8 @@ export const Play = ({ setBanners }) => {
 
 	useEffect(() => {
 		if (socket) {
-			socket.emit("get games", cookies["token"]);
-			socket.emit("reconnect", cookies["token"]);
+			socket.emit("get games");
+			socket.emit("reconnect");
 		}
 	}, [socket, cookies]);
 

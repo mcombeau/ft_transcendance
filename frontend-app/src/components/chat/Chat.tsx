@@ -530,7 +530,6 @@ export const Chat = ({ setBanners }) => {
 							(chat: ChatRoom) => chat.chatRoomID !== info.chatRoomID
 						);
 					});
-					info.token = cookies["token"];
 					socket.emit("leave socket room", info);
 					const message = `You have been banned from ${info.chatInfo.name}`;
 					createBanner(message, setBanners, BannerType.Alert);
@@ -732,7 +731,6 @@ export const Chat = ({ setBanners }) => {
 						return true;
 					});
 				});
-				info.token = cookies["token"];
 				socket.emit("leave socket room", info);
 			}
 		});
@@ -798,7 +796,6 @@ export const Chat = ({ setBanners }) => {
 				isDM: true,
 				hasPassword: false,
 			};
-			info.token = cookies["token"];
 			socket.emit("join socket room", info);
 			setMyChats((prev) => {
 				if (prev.find((chan) => chan.chatRoomID === channel.chatRoomID)) {
@@ -987,7 +984,6 @@ export const Chat = ({ setBanners }) => {
 					setSettings,
 					setContextMenu,
 					myChats,
-					cookies,
 					authenticatedUserID,
 					currentPannel,
 					setCurrentPannel,
