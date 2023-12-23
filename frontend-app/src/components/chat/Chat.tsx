@@ -222,13 +222,22 @@ export const Chat = ({ setBanners }) => {
 	});
 	const [blockedUsers, setBlockedUsers] = useState([]);
 	const [invites, setInvites] = useState([]);
-	const [redirected, setRedirected] = useState(false);
+	const [redirected, setRedirected] = useState<boolean>(false);
 	const { authenticatedUserID } = useContext(AuthenticationContext);
-	const [sidePannel, setSidePannel] = useState(true);
+	const [sidePannel, setSidePannel] = useState<boolean>(true);
+	const [notifMessage, setNotifMessage] = useState<ReactElement>(<></>);
+	const [shouldShowBanner, setShouldShowBanner] = useState<boolean>(false);
 	const windowSize = useWindowSize();
 
 	var urlUserID: string = useParams().userID;
 	let navigate = useNavigate();
+
+	useEffect(() => {
+		if (shouldShowBanner) {
+			createBanner(notifMessage, setBanners);
+		}
+		setShouldShowBanner(true);
+	}, [createBanner, notifMessage, setBanners]);
 
 	const toggleSidePannel = () => {
 		if (windowSize.width < 768) {
@@ -265,7 +274,7 @@ export const Chat = ({ setBanners }) => {
 									: {message.msg.slice(0, 20)}...
 								</>
 							);
-							createBanner(notifMessage, setBanners);
+							setNotifMessage(notifMessage);
 						}
 						chat.messages = [...chat.messages, message];
 					}
