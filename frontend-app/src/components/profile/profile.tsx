@@ -3,7 +3,6 @@ import { useCallback, useContext, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
 import { useCookies } from "react-cookie";
-import { WebSocketContext } from "../../contexts/WebsocketContext";
 import FriendsList from "./friendsList";
 import GameHistory from "./history";
 import ProfileSettings from "./profileSettings";
@@ -12,6 +11,7 @@ import { typeInvite } from "../chat/types";
 import { Socket } from "socket.io-client";
 import { ButtonIconType, getButtonIcon } from "../styles/icons";
 import { BannerType, createBanner } from "../banner/Banner";
+import { useWebSocket } from "../../contexts/WebsocketContext";
 
 export enum UserStatus {
 	Offline = "offline",
@@ -443,7 +443,7 @@ function Profile({ setBanners }) {
 	const [user, setUser] = useState<User>();
 	const [isMyPage, setIsMyPage] = useState(false);
 	const [cookies] = useCookies(["token"]);
-	const socket = useContext(WebSocketContext);
+	const socket = useWebSocket();
 	const [isEditingProfile, setIsEditingProfile] = useState(false);
 	const [changeProfile, setChangeProfile] = useState(false);
 	const [isMyFriend, setIsMyFriend] = useState(false);
@@ -521,46 +521,50 @@ function Profile({ setBanners }) {
 
 	// Socket receivers for status
 	useEffect(() => {
-		socket.on(
-			"status change",
-			(body: { userID: number; userStatus: UserStatus }) => {
-				setUser((user: User) => {
-					if (!user) return user;
-					if (user.id === body.userID) {
-						return {
-							...user,
-							status: body.userStatus,
-						};
-					} else {
-						return user;
-					}
-				});
-				setFriends((friends: Friend[]) => {
-					if (!friends) return friends;
-					return friends.map((friend: Friend) => {
-						if (friend.id === body.userID) {
+		if (socket) {
+			socket.on(
+				"status change",
+				(body: { userID: number; userStatus: UserStatus }) => {
+					setUser((user: User) => {
+						if (!user) return user;
+						if (user.id === body.userID) {
 							return {
-								...friend,
+								...user,
 								status: body.userStatus,
 							};
-						} else return friend;
+						} else {
+							return user;
+						}
 					});
-				});
-			}
-		);
-		socket.on("is in game", (isActive: boolean) => {
-			// cannot challenge the user if I'm in a game
-			setICanChallenge(!isActive);
-		});
-		return () => {
-			socket.off("status change");
-			socket.off("in a game");
-		};
+					setFriends((friends: Friend[]) => {
+						if (!friends) return friends;
+						return friends.map((friend: Friend) => {
+							if (friend.id === body.userID) {
+								return {
+									...friend,
+									status: body.userStatus,
+								};
+							} else return friend;
+						});
+					});
+				}
+			);
+			socket.on("is in game", (isActive: boolean) => {
+				// cannot challenge the user if I'm in a game
+				setICanChallenge(!isActive);
+			});
+			return () => {
+				socket.off("status change");
+				socket.off("in a game");
+			};
+		}
 	}, [socket]);
 
 	// Check game status via socket
 	useEffect(() => {
-		socket.emit("is in game", cookies["token"]);
+		if (socket) {
+			socket.emit("is in game", cookies["token"]);
+		}
 	}, [cookies, socket]);
 
 	// Check url hash for settings

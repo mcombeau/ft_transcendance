@@ -115,6 +115,9 @@ export const ContextMenuEl = (
 
 	// Socket receiver for game status
 	useEffect(() => {
+		if (!socket) {
+			return;
+		}
 		socket.on("is in game", (isActive: boolean) => {
 			// cannot challenge the user if I'm in a game
 			setICanChallenge(!isActive);
@@ -126,6 +129,9 @@ export const ContextMenuEl = (
 
 	// Check via socket the game status
 	useEffect(() => {
+		if (!socket) {
+			return;
+		}
 		socket.emit("is in game", cookies["token"]);
 		setInvitesMenu(false);
 	}, [contextMenu, cookies, socket]);

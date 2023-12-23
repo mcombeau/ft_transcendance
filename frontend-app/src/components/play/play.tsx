@@ -2,12 +2,12 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
 import { TbLoader2 } from "react-icons/tb";
 import { useNavigate, useParams } from "react-router-dom";
-import { WebSocketContext } from "../../contexts/WebsocketContext";
 import { AuthenticationContext } from "../authenticationState";
 import LiveGames from "../live-games/LiveGames";
 import { useWindowSize } from "@uidotdev/usehooks";
 import { ReceivedInfo, typeInvite } from "../chat/types";
 import { BannerType, createBanner } from "../banner/Banner";
+import { useWebSocket } from "../../contexts/WebsocketContext";
 
 const UP = "ArrowUp";
 const DOWN = "ArrowDown";
@@ -184,7 +184,7 @@ export const Play = ({ setBanners }) => {
 			y: 10,
 		},
 	});
-	const socket = useContext(WebSocketContext);
+	const socket = useWebSocket();
 	var inviteID: string = useParams().inviteID;
 	var watchGameID: string = useParams().watchGameID;
 	const [cookies] = useCookies(["token"]);
@@ -372,139 +372,143 @@ export const Play = ({ setBanners }) => {
 	}, [inviteID, watchGameID]);
 
 	useEffect(() => {
-		socket.on("reconnect", (data: Response) => {
-			if (data.success) {
-				setPage(Page.Play);
-				setPlayers(data.gameInfo);
-				setWatching(false);
-				return;
-			}
+		if (socket) {
+			socket.on("reconnect", (data: Response) => {
+				if (data.success) {
+					setPage(Page.Play);
+					setPlayers(data.gameInfo);
+					setWatching(false);
+					return;
+				}
 
-			const urlState: UrlState = checkUrlState();
-			switch (urlState) {
-				case UrlState.Invite:
-					socket.emit("wait invite", {
-						token: cookies["token"],
-						inviteID: inviteID,
-					});
-					break;
+				const urlState: UrlState = checkUrlState();
+				switch (urlState) {
+					case UrlState.Invite:
+						socket.emit("wait invite", {
+							token: cookies["token"],
+							inviteID: inviteID,
+						});
+						break;
 
-				case UrlState.Watch:
-					socket.emit("watch", {
-						token: cookies["token"],
-						gameID: watchGameID,
-					});
-					break;
+					case UrlState.Watch:
+						socket.emit("watch", {
+							token: cookies["token"],
+							gameID: watchGameID,
+						});
+						break;
 
-				default:
-					setPage(Page.Home);
-			}
-		});
-
-		socket.on("watch", (data: Response) => {
-			if (!data.success) {
-				setPage(Page.GameError);
-				return;
-			}
-			// maybe remove
-			setWatching(true);
-			setPlayers(data.gameInfo);
-			setPage(Page.Play);
-		});
-
-		socket.on("wait invite", (data: Response) => {
-			if (!data.success) {
-				setPage(Page.GameError);
-				return;
-			}
-			setPage(Page.Lobby);
-		});
-
-		socket.on("refuse invite", (info: ReceivedInfo) => {
-			if (info.inviteInfo.type !== typeInvite.Game) {
-				return;
-			}
-			createBanner(
-				`${info.inviteInfo.invitedUsername} has refused your game invite.`,
-				setBanners,
-				BannerType.Alert
-			);
-			leaveLobby();
-		});
-
-		socket.on("start game", (data: GameInfo) => {
-			setPlayers(data);
-			if (
-				data.player1.userID === authenticatedUserID ||
-				data.player2.userID === authenticatedUserID
-			) {
-				setWatching(false);
-			} else {
-				// maybe unnecessary
-				setWatching(true);
-			}
-			setPage(Page.Play);
-		});
-
-		socket.on("tick", (data: any) => {
-			setSizeGame((prev: number) => {
-				const newGameState = {
-					score: data.gameState.score,
-					skate1: {
-						x: prev * data.gameState.skate1.x,
-						y: prev * data.gameState.skate1.y,
-					},
-					skate2: {
-						x: prev * data.gameState.skate2.x,
-						y: prev * data.gameState.skate2.y,
-					},
-					live: data.gameState.live,
-					isPaused: data.gameState.isPaused,
-					ballPos: {
-						x: prev * data.gameState.ballPos.x,
-						y: prev * data.gameState.ballPos.y,
-					},
-					ballDir: {
-						x: prev * data.gameState.ballDir.x,
-						y: prev * data.gameState.ballDir.y,
-					},
-				};
-				setGameState(newGameState);
-				return prev;
+					default:
+						setPage(Page.Home);
+				}
 			});
-		});
 
-		socket.on("leave game", (leavingUserID: number) => {
-			if (leavingUserID !== authenticatedUserID) {
-				endGame(false);
-			}
-		});
+			socket.on("watch", (data: Response) => {
+				if (!data.success) {
+					setPage(Page.GameError);
+					return;
+				}
+				// maybe remove
+				setWatching(true);
+				setPlayers(data.gameInfo);
+				setPage(Page.Play);
+			});
 
-		socket.on("end game", (gameDetails: any) => {
-			endGame(true, gameDetails);
-		});
-		socket.on("get games", (data: GameInfo[]) => {
-			if (data) {
-				setGameInfos(
-					data.filter(
-						(game: GameInfo) =>
-							game.player1.userID !== authenticatedUserID &&
-							game.player2.userID !== authenticatedUserID
-					)
+			socket.on("wait invite", (data: Response) => {
+				if (!data.success) {
+					setPage(Page.GameError);
+					return;
+				}
+				setPage(Page.Lobby);
+			});
+
+			socket.on("refuse invite", (info: ReceivedInfo) => {
+				if (info.inviteInfo.type !== typeInvite.Game) {
+					return;
+				}
+				createBanner(
+					`${info.inviteInfo.invitedUsername} has refused your game invite.`,
+					setBanners,
+					BannerType.Alert
 				);
-			}
-		});
+				leaveLobby();
+			});
+
+			socket.on("start game", (data: GameInfo) => {
+				setPlayers(data);
+				if (
+					data.player1.userID === authenticatedUserID ||
+					data.player2.userID === authenticatedUserID
+				) {
+					setWatching(false);
+				} else {
+					// maybe unnecessary
+					setWatching(true);
+				}
+				setPage(Page.Play);
+			});
+
+			socket.on("tick", (data: any) => {
+				setSizeGame((prev: number) => {
+					const newGameState = {
+						score: data.gameState.score,
+						skate1: {
+							x: prev * data.gameState.skate1.x,
+							y: prev * data.gameState.skate1.y,
+						},
+						skate2: {
+							x: prev * data.gameState.skate2.x,
+							y: prev * data.gameState.skate2.y,
+						},
+						live: data.gameState.live,
+						isPaused: data.gameState.isPaused,
+						ballPos: {
+							x: prev * data.gameState.ballPos.x,
+							y: prev * data.gameState.ballPos.y,
+						},
+						ballDir: {
+							x: prev * data.gameState.ballDir.x,
+							y: prev * data.gameState.ballDir.y,
+						},
+					};
+					setGameState(newGameState);
+					return prev;
+				});
+			});
+
+			socket.on("leave game", (leavingUserID: number) => {
+				if (leavingUserID !== authenticatedUserID) {
+					endGame(false);
+				}
+			});
+
+			socket.on("end game", (gameDetails: any) => {
+				endGame(true, gameDetails);
+			});
+			socket.on("get games", (data: GameInfo[]) => {
+				if (data) {
+					setGameInfos(
+						data.filter(
+							(game: GameInfo) =>
+								game.player1.userID !== authenticatedUserID &&
+								game.player2.userID !== authenticatedUserID
+						)
+					);
+				}
+			});
+		}
 
 		return () => {
-			socket.off("reconnect");
-			socket.off("watch");
-			socket.off("wait invite");
-			socket.off("refuse invite");
-			socket.off("tick");
-			socket.off("start game");
-			socket.off("end game");
-			socket.off("leave game");
-			socket.off("get games");
+			if (socket) {
+				socket.off("reconnect");
+				socket.off("watch");
+				socket.off("wait invite");
+				socket.off("refuse invite");
+				socket.off("tick");
+				socket.off("start game");
+				socket.off("end game");
+				socket.off("leave game");
+				socket.off("get games");
+			}
 		};
 	}, [
 		authenticatedUserID,
@@ -517,8 +521,10 @@ export const Play = ({ setBanners }) => {
 	]);
 
 	useEffect(() => {
-		socket.emit("get games", cookies["token"]);
-		socket.emit("reconnect", cookies["token"]);
+		if (socket) {
+			socket.emit("get games", cookies["token"]);
+			socket.emit("reconnect", cookies["token"]);
+		}
 	}, [socket, cookies]);
 
 	switch (page) {

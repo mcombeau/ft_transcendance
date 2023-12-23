@@ -5,10 +5,6 @@ import {
 	useEffect,
 	useState,
 } from "react";
-import {
-	WebSocketContext,
-	WebSocketProvider,
-} from "../../contexts/WebsocketContext";
 import { useCookies } from "react-cookie";
 import { useNavigate, useParams } from "react-router-dom";
 import Messages, { inviteMessage } from "./Messages";
@@ -35,6 +31,7 @@ import {
 	MdOutlineKeyboardDoubleArrowRight,
 } from "react-icons/md";
 import { useWindowSize } from "@uidotdev/usehooks";
+import { useWebSocket } from "../../contexts/WebsocketContext";
 
 export function isInChannel(
 	userID: number,
@@ -213,7 +210,7 @@ export enum PannelType {
 }
 
 export const Chat = ({ setBanners }) => {
-	const socket = useContext(WebSocketContext);
+	const socket = useWebSocket();
 	const [myChats, setMyChats] = useState<ChatRoom[]>([]);
 	const [publicChats, setPublicChats] = useState<PublicChatRoom[]>([]);
 	const [newchannel, setNewchannel] = useState("");
@@ -296,6 +293,9 @@ export const Chat = ({ setBanners }) => {
 	);
 
 	useEffect(() => {
+		if (!socket) {
+			return;
+		}
 		var request = {
 			headers: {
 				"Content-Type": "application/json",
@@ -971,84 +971,82 @@ export const Chat = ({ setBanners }) => {
 	}, [authenticatedUserID, navigate]);
 
 	return (
-		<WebSocketProvider value={socket}>
-			<div className="absolute flex top-0 bottom-0 left-0 right-0 bg-sage dark:bg-darksage ">
-				<div
-					className={`overflow-y-scroll rounded bg-lightblue dark:bg-darklightblue m-4 border-4 border-lightblue dark:border-darklightblue scrollbar-hide ${
-						sidePannel
-							? "relative left-0 top-0 w-[100%] md:w-[30%] rounded-md ease-in-out duration-500 z-10"
-							: "ease-in-out duration-500 fixed h-full left-[-100%] z-10"
-					}`}
-				>
-					{SidePannel(
-						newchannel,
-						setNewchannel,
-						socket,
-						settings,
-						setSettings,
-						setContextMenu,
-						myChats,
-						cookies,
-						authenticatedUserID,
-						currentPannel,
-						setCurrentPannel,
-						windowSize.width,
-						setSidePannel
+		<div className="absolute flex top-0 bottom-0 left-0 right-0 bg-sage dark:bg-darksage ">
+			<div
+				className={`overflow-y-scroll rounded bg-lightblue dark:bg-darklightblue m-4 border-4 border-lightblue dark:border-darklightblue scrollbar-hide ${
+					sidePannel
+						? "relative left-0 top-0 w-[100%] md:w-[30%] rounded-md ease-in-out duration-500 z-10"
+						: "ease-in-out duration-500 fixed h-full left-[-100%] z-10"
+				}`}
+			>
+				{SidePannel(
+					newchannel,
+					setNewchannel,
+					socket,
+					settings,
+					setSettings,
+					setContextMenu,
+					myChats,
+					cookies,
+					authenticatedUserID,
+					currentPannel,
+					setCurrentPannel,
+					windowSize.width,
+					setSidePannel
+				)}
+			</div>
+			<div
+				className={` z-20 text-darkblue dark:text-darkdarkblue overflow-y-clip `}
+				onClick={toggleSidePannel}
+			>
+				<div className="h-full translate-y-1/2 pl-1">
+					{sidePannel ? (
+						<MdOutlineKeyboardDoubleArrowLeft size={25} />
+					) : (
+						<MdOutlineKeyboardDoubleArrowRight size={25} />
 					)}
-				</div>
-				<div
-					className={` z-20 text-darkblue dark:text-darkdarkblue overflow-y-clip `}
-					onClick={toggleSidePannel}
-				>
-					<div className="h-full translate-y-1/2 pl-1">
-						{sidePannel ? (
-							<MdOutlineKeyboardDoubleArrowLeft size={25} />
-						) : (
-							<MdOutlineKeyboardDoubleArrowRight size={25} />
-						)}
-					</div>
-				</div>
-				<div
-					className={`flex-grow justify-between bg-lightblue dark:bg-darklightblue rounded m-4 relative`}
-				>
-					{SettingsMenu(
-						settings,
-						setSettings,
-						getChannel(currentPannel.chatRoomID),
-						setCurrentPannel,
-						socket,
-						navigate,
-						cookies,
-						authenticatedUserID
-					)}
-					<div className={`${settings ? "hidden" : ""} `}>
-						{Messages(
-							getChannel(currentPannel.chatRoomID),
-							navigate,
-							settings,
-							contextMenu,
-							setContextMenu,
-							socket,
-							invites,
-							publicChats,
-							cookies,
-							myChats,
-							authenticatedUserID,
-							blockedUsers,
-							setBlockedUsers,
-							currentPannel,
-							setCurrentPannel
-						)}
-						{SendForm(
-							getChannel(currentPannel.chatRoomID),
-							cookies,
-							socket,
-							authenticatedUserID
-						)}
-					</div>
 				</div>
 			</div>
-		</WebSocketProvider>
+			<div
+				className={`flex-grow justify-between bg-lightblue dark:bg-darklightblue rounded m-4 relative`}
+			>
+				{SettingsMenu(
+					settings,
+					setSettings,
+					getChannel(currentPannel.chatRoomID),
+					setCurrentPannel,
+					socket,
+					navigate,
+					cookies,
+					authenticatedUserID
+				)}
+				<div className={`${settings ? "hidden" : ""} `}>
+					{Messages(
+						getChannel(currentPannel.chatRoomID),
+						navigate,
+						settings,
+						contextMenu,
+						setContextMenu,
+						socket,
+						invites,
+						publicChats,
+						cookies,
+						myChats,
+						authenticatedUserID,
+						blockedUsers,
+						setBlockedUsers,
+						currentPannel,
+						setCurrentPannel
+					)}
+					{SendForm(
+						getChannel(currentPannel.chatRoomID),
+						cookies,
+						socket,
+						authenticatedUserID
+					)}
+				</div>
+			</div>
+		</div>
 	);
 };
 

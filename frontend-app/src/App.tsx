@@ -6,12 +6,12 @@ import Chat from "./components/chat/Chat";
 import Play from "./components/play/play";
 import Leaderboard from "./components/leaderboard/leaderboard";
 import Profile from "./components/profile/profile";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useCookies } from "react-cookie";
 import { getUserID, isDarkModeEnabled } from "./cookies";
 import { AuthenticationContext } from "./components/authenticationState";
 import Logout from "./components/logout/logout";
-import { WebSocketContext } from "./contexts/WebsocketContext";
+import { WebSocketProvider, useWebSocket } from "./contexts/WebsocketContext";
 import NotFound from "./components/notfound/notfound";
 import Banners, { Banner } from "./components/banner/Banner";
 import FinalizeLogin from "./components/2fa/TwoFactorAuth";
@@ -22,7 +22,7 @@ function App() {
 	const [authenticatedUserID, setAuthenticatedUserID] = useState(
 		getUserID(cookies)
 	);
-	const socket = useContext(WebSocketContext);
+	const socket = useWebSocket();
 	const value = useMemo(
 		() => ({ authenticatedUserID, setAuthenticatedUserID }),
 		[authenticatedUserID]
@@ -30,60 +30,73 @@ function App() {
 	const [banners, setBanners] = useState<Banner[]>([]);
 
 	useEffect(() => {
-		socket.on("logout", () => {
-			setAuthenticatedUserID(null);
-		});
-		return () => {
-			socket.off("logout");
-		};
-	});
+		if (socket) {
+			socket.on("logout", () => {
+				setAuthenticatedUserID(null);
+			});
+			return () => {
+				socket.off("logout");
+			};
+		} else {
+			console.log("App - No socket!");
+		}
+	}, [socket]);
 
 	return (
-		<Router>
-			<div className={`app ${isDarkModeEnabled(cookies) ? "dark" : ""}`}>
-				<AuthenticationContext.Provider value={value}>
-					<NavBar />
-					{Banners(banners)}
-					<div className="content">
-						<Routes>
-							<Route path="/" element={<Home />} />
-							<Route path="/login" element={<Login />} />
-							<Route path="/chat" element={<Chat setBanners={setBanners} />} />
-							<Route
-								path="/chat/:userID"
-								element={<Chat setBanners={setBanners} />}
-							/>
-							<Route
-								path="/play/:inviteID"
-								element={<Play setBanners={setBanners} />}
-							/>
-							<Route
-								path="/watch/:watchGameID"
-								element={<Play setBanners={setBanners} />}
-							/>
-							<Route path="/play" element={<Play setBanners={setBanners} />} />
-							<Route path="/leaderboard" element={<Leaderboard />} />
-							<Route
-								path="/user/:id"
-								element={<Profile setBanners={setBanners} />}
-							/>
-							<Route path="/logout" element={<Logout />} />
-							<Route path="*" element={<NotFound />} />
-							<Route path="/not-found" element={<NotFound />} />
+		<WebSocketProvider>
+			<Router>
+				<div className={`app ${isDarkModeEnabled(cookies) ? "dark" : ""}`}>
+					<AuthenticationContext.Provider value={value}>
+						<NavBar />
+						{Banners(banners)}
 
-							<Route
-								path="/finalize-login"
-								element={<FinalizeLogin setBanners={setBanners} />}
-							/>
-							<Route
-								path="/search"
-								element={<SearchBar setBanners={setBanners} />}
-							/>
-						</Routes>
-					</div>
-				</AuthenticationContext.Provider>
-			</div>
-		</Router>
+						<div className="content">
+							<Routes>
+								<Route path="/" element={<Home />} />
+								<Route path="/login" element={<Login />} />
+								<Route
+									path="/chat"
+									element={<Chat setBanners={setBanners} />}
+								/>
+								<Route
+									path="/chat/:userID"
+									element={<Chat setBanners={setBanners} />}
+								/>
+								<Route
+									path="/play/:inviteID"
+									element={<Play setBanners={setBanners} />}
+								/>
+								<Route
+									path="/watch/:watchGameID"
+									element={<Play setBanners={setBanners} />}
+								/>
+								<Route
+									path="/play"
+									element={<Play setBanners={setBanners} />}
+								/>
+								<Route path="/leaderboard" element={<Leaderboard />} />
+								<Route
+									path="/user/:id"
+									element={<Profile setBanners={setBanners} />}
+								/>
+								<Route path="/logout" element={<Logout />} />
+								<Route path="*" element={<NotFound />} />
+								<Route path="/not-found" element={<NotFound />} />
+
+								<Route
+									path="/finalize-login"
+									element={<FinalizeLogin setBanners={setBanners} />}
+								/>
+								<Route
+									path="/search"
+									element={<SearchBar setBanners={setBanners} />}
+								/>
+							</Routes>
+						</div>
+					</AuthenticationContext.Provider>
+				</div>
+			</Router>
+		</WebSocketProvider>
 	);
 }
 
