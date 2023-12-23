@@ -1022,7 +1022,6 @@ export const Chat = ({ setBanners }) => {
 					setCurrentPannel,
 					socket,
 					navigate,
-					cookies,
 					authenticatedUserID
 				)}
 				<div className={`${settings ? "hidden" : ""} `}>

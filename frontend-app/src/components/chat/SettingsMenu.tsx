@@ -14,7 +14,6 @@ export const SettingsMenu = (
 	setCurrentPannel: Dispatch<SetStateAction<CurrentPannel>>,
 	socket: Socket,
 	navigate: NavigateFunction,
-	cookies: any,
 	authenticatedUserID: number
 ) => {
 	const [newPassword, setNewPassword] = useState("");
