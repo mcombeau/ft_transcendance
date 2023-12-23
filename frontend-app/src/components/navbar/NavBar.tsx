@@ -1,13 +1,13 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthenticationContext } from "../authenticationState";
 import { AiOutlineClose, AiOutlineMenu } from "react-icons/ai";
-import { WebSocketContext } from "../../contexts/WebsocketContext";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import { logoutUser } from "../logout/logout";
 import { IoSearchSharp, IoSunnyOutline } from "react-icons/io5";
 import { FaRegMoon } from "react-icons/fa6";
 import { isDarkModeEnabled } from "../../cookies";
+import { useWebSocket } from "../../contexts/WebsocketContext";
 
 function Navbar() {
 	const { authenticatedUserID, setAuthenticatedUserID } = useContext(
@@ -15,25 +15,27 @@ function Navbar() {
 	);
 	const [cookies, setCookie, removeCookie] = useCookies(["token", "darkmode"]);
 	const [nav, setNav] = useState(false);
-	const socket = useContext(WebSocketContext);
+	const socket = useWebSocket();
 	const navigate = useNavigate();
 	const handleNav = () => {
 		setNav(!nav);
 	};
 
 	useEffect(() => {
-		socket.on("logout", () => {
-			logoutUser(
-				socket,
-				cookies,
-				setAuthenticatedUserID,
-				removeCookie,
-				navigate
-			);
-		});
-		return () => {
-			socket.off("logout");
-		};
+		if (socket) {
+			socket.on("logout", () => {
+				logoutUser(
+					socket,
+					cookies,
+					setAuthenticatedUserID,
+					removeCookie,
+					navigate
+				);
+			});
+			return () => {
+				socket.off("logout");
+			};
+		}
 	}, [cookies, navigate, removeCookie, setAuthenticatedUserID, socket]);
 
 	function toggleDarkModeCookie() {

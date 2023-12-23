@@ -23,7 +23,6 @@ export const SidePannel = (
 	setSettings: Dispatch<SetStateAction<boolean>>,
 	setContextMenu: Dispatch<SetStateAction<boolean>>,
 	myChats: ChatRoom[],
-	cookies: any,
 	authenticatedUserID: number,
 	currentPannel: CurrentPannel,
 	setCurrentPannel: Dispatch<SetStateAction<CurrentPannel>>,
@@ -38,7 +37,6 @@ export const SidePannel = (
 				name: newchannel,
 				isPrivate: false,
 			},
-			token: cookies["token"],
 		};
 		socket.emit("add chat", info);
 		setNewchannel("");

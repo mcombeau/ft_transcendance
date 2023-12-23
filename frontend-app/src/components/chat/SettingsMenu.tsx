@@ -21,7 +21,6 @@ export const SettingsMenu = (
 
 	function removePassword() {
 		var info: ReceivedInfo = {
-			token: cookies["token"],
 			chatRoomID: currentChatRoom.chatRoomID,
 			chatInfo: {
 				password: "",
@@ -33,7 +32,6 @@ export const SettingsMenu = (
 	function submitNewPassword(e: any) {
 		e.preventDefault();
 		var info: ReceivedInfo = {
-			token: cookies["token"],
 			chatRoomID: currentChatRoom.chatRoomID,
 			chatInfo: {
 				password: newPassword,
@@ -57,7 +55,6 @@ export const SettingsMenu = (
 				className="button"
 				onClick={() => {
 					var info: ReceivedInfo = {
-						token: cookies["token"],
 						chatRoomID: currentChatRoom.chatRoomID,
 					};
 					socket.emit("leave chat", info);
@@ -81,7 +78,6 @@ export const SettingsMenu = (
 					onClick={() => {
 						var info: ReceivedInfo = {
 							chatRoomID: currentChatRoom.chatRoomID,
-							token: cookies["token"],
 						};
 						socket.emit("delete chat", info);
 					}}
@@ -124,7 +120,6 @@ export const SettingsMenu = (
 						onChange={() => {
 							var info: ReceivedInfo = {
 								chatRoomID: currentChatRoom.chatRoomID,
-								token: cookies["token"],
 							};
 							socket.emit("toggle private", info);
 						}}
@@ -173,7 +168,6 @@ export const SettingsMenu = (
 					currentChatRoom,
 					navigate,
 					socket,
-					cookies,
 					authenticatedUserID
 				)}
 				<button

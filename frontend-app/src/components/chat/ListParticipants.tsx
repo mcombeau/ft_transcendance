@@ -48,7 +48,6 @@ export const ListParticipants = (
 	channel: ChatRoom,
 	navigate: NavigateFunction,
 	socket: Socket,
-	cookies: any,
 	authenticatedUserID: number
 ) => {
 	function displayUser(participant: User) {
@@ -77,7 +76,6 @@ export const ListParticipants = (
 				className="button"
 				onClick={() => {
 					var info: ReceivedInfo = {
-						token: cookies["token"],
 						chatRoomID: channel.chatRoomID,
 						targetID: participant.userID,
 						participantInfo: {
@@ -112,7 +110,6 @@ export const ListParticipants = (
 						)["value"];
 						muteTime = parseInt(muteTime);
 						var info: ReceivedInfo = {
-							token: cookies["token"],
 							chatRoomID: channel.chatRoomID,
 							targetID: participant.userID,
 							participantInfo: {
@@ -134,7 +131,6 @@ export const ListParticipants = (
 				className="button"
 				onClick={() => {
 					var info: ReceivedInfo = {
-						token: cookies["token"],
 						chatRoomID: channel.chatRoomID,
 						targetID: participant.userID,
 					};
@@ -152,7 +148,6 @@ export const ListParticipants = (
 				className="button"
 				onClick={() => {
 					var info: ReceivedInfo = {
-						token: cookies["token"],
 						chatRoomID: channel.chatRoomID,
 						targetID: participant.userID,
 					};
@@ -171,7 +166,6 @@ export const ListParticipants = (
 					className="button flex"
 					onClick={() => {
 						var info: ReceivedInfo = {
-							token: cookies["token"],
 							chatRoomID: channel.chatRoomID,
 							targetID: participant.userID,
 						};
@@ -227,7 +221,6 @@ export const ListParticipants = (
 							className="button"
 							onClick={() => {
 								var info: ReceivedInfo = {
-									token: cookies["token"],
 									chatRoomID: channel.chatRoomID,
 									targetID: participant.userID,
 								};

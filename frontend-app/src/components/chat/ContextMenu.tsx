@@ -84,7 +84,6 @@ export const ContextMenuEl = (
 
 	function invite(target: User, type: typeInvite, chat?: ChatRoom) {
 		var info: ReceivedInfo = {
-			token: cookies["token"],
 			targetID: target.userID,
 			inviteInfo: {
 				type: type,
@@ -115,6 +114,9 @@ export const ContextMenuEl = (
 
 	// Socket receiver for game status
 	useEffect(() => {
+		if (!socket) {
+			return;
+		}
 		socket.on("is in game", (isActive: boolean) => {
 			// cannot challenge the user if I'm in a game
 			setICanChallenge(!isActive);
@@ -126,7 +128,10 @@ export const ContextMenuEl = (
 
 	// Check via socket the game status
 	useEffect(() => {
-		socket.emit("is in game", cookies["token"]);
+		if (!socket) {
+			return;
+		}
+		socket.emit("is in game");
 		setInvitesMenu(false);
 	}, [contextMenu, cookies, socket]);
 
@@ -177,7 +182,6 @@ export const ContextMenuEl = (
 				className={buttonClass}
 				onClick={() => {
 					var info: ReceivedInfo = {
-						token: cookies["token"],
 						chatRoomID: channel.chatRoomID,
 						targetID: target.userID,
 						participantInfo: {
@@ -200,7 +204,6 @@ export const ContextMenuEl = (
 				className={buttonClass}
 				onClick={() => {
 					var info: ReceivedInfo = {
-						token: cookies["token"],
 						chatRoomID: channel.chatRoomID,
 						targetID: target.userID,
 						participantInfo: {
@@ -223,7 +226,6 @@ export const ContextMenuEl = (
 				className={buttonClass}
 				onClick={() => {
 					var info: ReceivedInfo = {
-						token: cookies["token"],
 						chatRoomID: channel.chatRoomID,
 						targetID: target.userID,
 					};
@@ -243,7 +245,6 @@ export const ContextMenuEl = (
 				className={buttonClass}
 				onClick={() => {
 					var info: ReceivedInfo = {
-						token: cookies["token"],
 						chatRoomID: channel.chatRoomID,
 						targetID: target.userID,
 					};
@@ -262,7 +263,6 @@ export const ContextMenuEl = (
 				className={buttonClass}
 				onClick={() => {
 					var info: ReceivedInfo = {
-						token: cookies["token"],
 						chatRoomID: channel.chatRoomID,
 						targetID: target.userID,
 					};
@@ -288,7 +288,6 @@ export const ContextMenuEl = (
 				className={buttonClass}
 				onClick={() => {
 					var info: ReceivedInfo = {
-						token: cookies["token"],
 						chatRoomID: channel.chatRoomID,
 						targetID: target.userID,
 					};

@@ -82,21 +82,12 @@ export class SocketGateway implements OnModuleInit {
 	}
 
 	// -------------------- EVENTS
-	// TODO: GET TOKEN FROM SOCKET NOT FROM PASSED TOKEN!!!
-	async checkIdentity(token: string, socket: Socket): Promise<number> {
+	async checkIdentity(socket: Socket): Promise<number> {
 		try {
 			const socketToken = socket.handshake.headers.authorization.split(" ")[1];
-			if (token !== socketToken) {
-				// TODO: why is socketToken sometimes undefined ? Investigate.
-				this.logger.warn(
-					"[Check Identity]: Socket token and token DON'T MATCH!"
-				);
-			}
-			if (socketToken === "undefined") {
-				this.logger.warn("[Check Identity]: Socket token is undefined");
-				// throw new ChatPermissionError('socket token is undefined');
-			}
-			const tokenInfo: JwtToken = await this.authService.validateToken(token);
+			const tokenInfo: JwtToken = await this.authService.validateToken(
+				socketToken
+			);
 			if (tokenInfo === null) {
 				throw new ChatPermissionError("no token to identify user!");
 			}
@@ -113,7 +104,7 @@ export class SocketGateway implements OnModuleInit {
 		@MessageBody() token: string
 	): Promise<void> {
 		try {
-			const userID = await this.checkIdentity(token, socket);
+			const userID = await this.checkIdentity(socket);
 			socket.data.userID = userID;
 
 			await this.userService.updateUserByID(userID, {
@@ -138,7 +129,7 @@ export class SocketGateway implements OnModuleInit {
 		@MessageBody() token: string
 	): Promise<void> {
 		try {
-			const userID = await this.checkIdentity(token, socket);
+			const userID = await this.checkIdentity(socket);
 			socket.data.userID = userID;
 
 			await this.authService.logout(userID);
