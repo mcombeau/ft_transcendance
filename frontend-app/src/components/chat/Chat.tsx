@@ -991,6 +991,7 @@ export const Chat = ({ setBanners }) => {
 					socket,
 					settings,
 					setSettings,
+					contextMenu,
 					setContextMenu,
 					myChats,
 					authenticatedUserID,
