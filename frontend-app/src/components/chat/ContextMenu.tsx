@@ -57,10 +57,8 @@ export const ContextMenuEl = (
 	myChats: ChatRoom[],
 	authenticatedUserID: number,
 	blockedUsers: number[],
-	setBlockedUsers: Dispatch<SetStateAction<number[]>>,
-	messagesContainer: MutableRefObject<HTMLInputElement>
+	setBlockedUsers: Dispatch<SetStateAction<number[]>>
 ) => {
-	const menuRef = useRef<HTMLDivElement>(null);
 	const [invitesMenu, setInvitesMenu] = useState(false);
 	const [userIsBlocked, setUserIsBlocked] = useState(false);
 	const [userIsMyFriend, setUserIsMyFriend] = useState(false);
@@ -420,25 +418,35 @@ export const ContextMenuEl = (
 
 	return (
 		<div
-			ref={menuRef}
-			className={`bg-teal dark:bg-darkteal rounded-md text-sage dark:text-darksage absolute p-0 overflow-y-scroll z-40 scrollbar-hide font-light text-xs`}
-			style={{
-				top: `${
-					contextMenuPos.y - messagesContainer.current.getBoundingClientRect().y
-				}px`,
-				left: `${
-					contextMenuPos.x - messagesContainer.current.getBoundingClientRect().x
-				}px`,
-				maxHeight: `${
-					messagesContainer.current.getBoundingClientRect().height -
-					(contextMenuPos.y -
-						messagesContainer.current.getBoundingClientRect().y)
-				}px`,
+			className="absolute w-full h-full top-0 left-0 bg-red-500 bg-opacity-60 z-150"
+			onClick={() => {
+				setContextMenu(false);
 			}}
 		>
-			{options}
+			<div
+				className={`absolute p-0 overflow-y-scroll z-40 scrollbar-hide bg-teal dark:bg-darkteal rounded-md text-sage dark:text-darksage font-light text-xs`}
+				style={{
+					top: `${contextMenuPos.y - 95}px`,
+					left: `${contextMenuPos.x}px`,
+				}}
+			>
+				{options}
+			</div>
 		</div>
 	);
 };
 
+// style={{
+// 	top: `${
+// 		contextMenuPos.y - messagesContainer.current.getBoundingClientRect().y
+// 	}px`,
+// 	left: `${
+// 		contextMenuPos.x - messagesContainer.current.getBoundingClientRect().x
+// 	}px`,
+// 	maxHeight: `${
+// 		messagesContainer.current.getBoundingClientRect().height -
+// 		(contextMenuPos.y -
+// 			messagesContainer.current.getBoundingClientRect().y)
+// 	}px`,
+// }}
 export default ContextMenuEl;

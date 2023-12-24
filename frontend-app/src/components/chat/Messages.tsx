@@ -9,10 +9,9 @@ import {
 import { NavigateFunction } from "react-router-dom";
 import { Socket } from "socket.io-client";
 import { Message, ChatRoom, Invite, PublicChatRoom, User } from "./types";
-import { ContextMenuEl } from "./ContextMenu";
 import { ReceivedInfo, typeInvite } from "./types";
 import { separatorLine } from "../styles/separator";
-import { CurrentPannel, PannelType } from "./Chat";
+import { CurrentPannel, PannelType, Position } from "./Chat";
 import { formatDate, getFormattedTime, sameDay } from "../styles/dateFormat";
 import { ButtonIconType, getButtonIcon } from "../styles/icons";
 
@@ -43,6 +42,8 @@ export const Messages = (
 	settings: boolean,
 	contextMenu: boolean,
 	setContextMenu: Dispatch<SetStateAction<boolean>>,
+	setContextMenuPos: Dispatch<SetStateAction<Position>>,
+	setContextMenuTarget: Dispatch<SetStateAction<User>>,
 	socket: Socket,
 	invites: Invite[],
 	publicChats: PublicChatRoom[],
@@ -54,8 +55,6 @@ export const Messages = (
 	currentPannel: CurrentPannel,
 	setCurrentPannel: Dispatch<SetStateAction<CurrentPannel>>
 ) => {
-	const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
-	const [contextMenuTarget, setContextMenuTarget] = useState<User>(null);
 	const messagesContainer = useRef<HTMLInputElement>(null);
 	const [passwordPrompt, setPasswordPrompt] = useState<boolean>(false);
 	const [newPassword, setNewPassword] = useState<string>("");
@@ -376,20 +375,6 @@ export const Messages = (
 		return (
 			<div id="messages">
 				{invites.map((invite: Invite) => inviteStatus(invite))}
-				{ContextMenuEl(
-					contextMenu,
-					contextMenuTarget,
-					setContextMenu,
-					contextMenuPos,
-					socket,
-					currentChatRoom,
-					cookies,
-					myChats,
-					authenticatedUserID,
-					blockedUsers,
-					setBlockedUsers,
-					messagesContainer
-				)}
 				{passwordPrompt ? passwordPromptPannel() : <></>}
 			</div>
 		);
@@ -401,20 +386,6 @@ export const Messages = (
 				className={`absolute top-0 left-0 right-0 bottom-14 overflow-y-scroll flex scrollbar-hide`}
 			>
 				{displayPublicChats()}
-				{ContextMenuEl(
-					contextMenu,
-					contextMenuTarget,
-					setContextMenu,
-					contextMenuPos,
-					socket,
-					currentChatRoom,
-					cookies,
-					myChats,
-					authenticatedUserID,
-					blockedUsers,
-					setBlockedUsers,
-					messagesContainer
-				)}
 				{passwordPrompt ? passwordPromptPannel() : <></>}
 			</div>
 		);
@@ -427,20 +398,6 @@ export const Messages = (
 			ref={messagesContainer}
 		>
 			{displayMessages(currentChatRoom)}
-			{ContextMenuEl(
-				contextMenu,
-				contextMenuTarget,
-				setContextMenu,
-				contextMenuPos,
-				socket,
-				currentChatRoom,
-				cookies,
-				myChats,
-				authenticatedUserID,
-				blockedUsers,
-				setBlockedUsers,
-				messagesContainer
-			)}
 		</div>
 	);
 };
