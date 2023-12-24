@@ -97,6 +97,9 @@ export const ContextMenuEl = (
 			}
 		}
 	}, [contextMenuPos]);
+	useEffect(() => {
+		console.log("Invites menu toggled. Current state:", invitesMenu);
+	}, [invitesMenu]);
 
 	function invite(target: User, type: typeInvite, chat?: ChatRoom) {
 		var info: ReceivedInfo = {
@@ -149,7 +152,7 @@ export const ContextMenuEl = (
 		}
 		socket.emit("is in game");
 		setInvitesMenu(false);
-	}, [contextMenu, cookies, socket]);
+	}, [cookies, socket]);
 
 	if (!contextMenu || !target) {
 		return <div></div>;
@@ -321,7 +324,8 @@ export const ContextMenuEl = (
 		return (
 			<div
 				className={buttonClass}
-				onClick={() => {
+				onClick={(e) => {
+					e.stopPropagation();
 					setInvitesMenu(true);
 				}}
 			>
@@ -424,6 +428,7 @@ export const ContextMenuEl = (
 			</>
 		);
 	} else {
+		console.log("Display invites menu");
 		// List chat you can join
 		options = (
 			<>
@@ -440,14 +445,15 @@ export const ContextMenuEl = (
 
 	return (
 		<div
-			className="absolute w-full h-full top-0 left-0 z-150 overflow-y-scroll scrollbar-hide"
+			className="absolute w-full h-full top-0 left-0 z-100 overflow-y-scroll scrollbar-hide"
 			onClick={() => {
 				setContextMenu(false);
+				setInvitesMenu(false);
 			}}
 		>
 			<div
 				ref={contextMenuRef}
-				className={`absolute p-0 bg-teal dark:bg-darkteal rounded-md text-sage dark:text-darksage font-light text-xs`}
+				className={`absolute p-0 bg-teal z-150 dark:bg-darkteal rounded-md text-sage dark:text-darksage font-light text-xs`}
 				style={{
 					top: `${contextMenuPos.y + posOffset}px`,
 					left: `${contextMenuPos.x}px`,
