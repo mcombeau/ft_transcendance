@@ -97,9 +97,6 @@ export const ContextMenuEl = (
 			}
 		}
 	}, [contextMenuPos]);
-	useEffect(() => {
-		console.log("Invites menu toggled. Current state:", invitesMenu);
-	}, [invitesMenu]);
 
 	function invite(target: User, type: typeInvite, chat?: ChatRoom) {
 		var info: ReceivedInfo = {
@@ -428,7 +425,6 @@ export const ContextMenuEl = (
 			</>
 		);
 	} else {
-		console.log("Display invites menu");
 		// List chat you can join
 		options = (
 			<>
