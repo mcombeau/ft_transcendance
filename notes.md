@@ -2,6 +2,9 @@
 
 - Front warnings
 
+  - Unique key prop: displayPublicChats: messages.tsx:347
+  - Unique key prop: invites: messages.tsx:376
+
 - Maybe Bugs
 
   - Fix context menu placement, it's weird : right click on someone far up in the chats and you have to scroll all the way down to find the context menu
