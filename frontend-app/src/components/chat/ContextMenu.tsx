@@ -2,7 +2,6 @@ import { Status, ChatRoom, typeInvite, User } from "./types";
 import { ChangeStatus, isUserMuted } from "./Chat";
 import {
 	Dispatch,
-	MutableRefObject,
 	ReactElement,
 	SetStateAction,
 	useEffect,
@@ -57,10 +56,11 @@ export const ContextMenuEl = (
 	myChats: ChatRoom[],
 	authenticatedUserID: number,
 	blockedUsers: number[],
-	setBlockedUsers: Dispatch<SetStateAction<number[]>>,
-	messagesContainer: MutableRefObject<HTMLInputElement>
+	setBlockedUsers: Dispatch<SetStateAction<number[]>>
 ) => {
-	const menuRef = useRef<HTMLDivElement>(null);
+	const contextMenuRef = useRef(null);
+	const defaultPosOffset: number = -95;
+	const [posOffset, setPosOffset] = useState<number>(defaultPosOffset);
 	const [invitesMenu, setInvitesMenu] = useState(false);
 	const [userIsBlocked, setUserIsBlocked] = useState(false);
 	const [userIsMyFriend, setUserIsMyFriend] = useState(false);
@@ -81,6 +81,25 @@ export const ContextMenuEl = (
 			);
 		}
 	}, [blockedUsers, target, contextMenu]);
+
+	useEffect(() => {
+		const contextMenuElement = contextMenuRef.current;
+		if (contextMenuElement) {
+			const contextMenuHeight = contextMenuElement.offsetHeight;
+			const parentHeight = window.innerHeight;
+			const spaceFromBottom =
+				parentHeight - (contextMenuPos.y + contextMenuHeight);
+
+			if (spaceFromBottom < 0) {
+				setPosOffset(spaceFromBottom + defaultPosOffset);
+			} else {
+				setPosOffset(defaultPosOffset);
+			}
+		}
+	}, [contextMenuPos]);
+	useEffect(() => {
+		console.log("Invites menu toggled. Current state:", invitesMenu);
+	}, [invitesMenu]);
 
 	function invite(target: User, type: typeInvite, chat?: ChatRoom) {
 		var info: ReceivedInfo = {
@@ -133,7 +152,7 @@ export const ContextMenuEl = (
 		}
 		socket.emit("is in game");
 		setInvitesMenu(false);
-	}, [contextMenu, cookies, socket]);
+	}, [cookies, socket]);
 
 	if (!contextMenu || !target) {
 		return <div></div>;
@@ -305,7 +324,8 @@ export const ContextMenuEl = (
 		return (
 			<div
 				className={buttonClass}
-				onClick={() => {
+				onClick={(e) => {
+					e.stopPropagation();
 					setInvitesMenu(true);
 				}}
 			>
@@ -381,7 +401,9 @@ export const ContextMenuEl = (
 		options = (
 			<>
 				<div className="flex justify-between items-center p-1">
-					<span className="text-sm">{target.username}</span>
+					<span className="text-sm dark:text-darkdarkblue">
+						{target.username}
+					</span>
 					{closeMenuButton()}
 				</div>
 				{blockButton()}
@@ -406,11 +428,14 @@ export const ContextMenuEl = (
 			</>
 		);
 	} else {
+		console.log("Display invites menu");
 		// List chat you can join
 		options = (
 			<>
 				<div className="flex justify-between p-1">
-					<span>{target.username}</span>
+					<span className="text-sm dark:text-darkdarkblue">
+						{target.username}
+					</span>
 					{closeMenuButton()}
 				</div>
 				{myChats.filter((chat) => !chat.isDM).map(displayChatInviteButton)}
@@ -420,23 +445,22 @@ export const ContextMenuEl = (
 
 	return (
 		<div
-			ref={menuRef}
-			className={`bg-teal dark:bg-darkteal rounded-md text-sage dark:text-darksage absolute p-0 overflow-y-scroll z-40 scrollbar-hide font-light text-xs`}
-			style={{
-				top: `${
-					contextMenuPos.y - messagesContainer.current.getBoundingClientRect().y
-				}px`,
-				left: `${
-					contextMenuPos.x - messagesContainer.current.getBoundingClientRect().x
-				}px`,
-				maxHeight: `${
-					messagesContainer.current.getBoundingClientRect().height -
-					(contextMenuPos.y -
-						messagesContainer.current.getBoundingClientRect().y)
-				}px`,
+			className="absolute w-full h-full top-0 left-0 z-100 overflow-y-scroll scrollbar-hide"
+			onClick={() => {
+				setContextMenu(false);
+				setInvitesMenu(false);
 			}}
 		>
-			{options}
+			<div
+				ref={contextMenuRef}
+				className={`absolute p-0 bg-teal z-150 dark:bg-darkteal rounded-md text-sage dark:text-darksage font-light text-xs`}
+				style={{
+					top: `${contextMenuPos.y + posOffset}px`,
+					left: `${contextMenuPos.x}px`,
+				}}
+			>
+				{options}
+			</div>
 		</div>
 	);
 };
