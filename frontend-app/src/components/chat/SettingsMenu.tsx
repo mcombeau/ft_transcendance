@@ -128,7 +128,7 @@ export const SettingsMenu = (
 			);
 		}
 		return (
-			<div className="relative m-4 text-darkblue dark:text-darkdarkblue">
+			<div className="relative h-[95%] overflow-y-scroll scrollbar-hide m-4  text-darkblue dark:text-darkdarkblue">
 				<h3>
 					<span className="font-bold text-xl">Settings</span> for{" "}
 					{currentChatRoom.isDM
@@ -136,6 +136,14 @@ export const SettingsMenu = (
 						: currentChatRoom.name}{" "}
 					({currentChatRoom.isPrivate ? "private" : "public"})
 				</h3>
+				<button
+					className="absolute top-0 right-0"
+					onClick={() => {
+						setSettings(false);
+					}}
+				>
+					<CgCloseO className="w-6 h-6" />
+				</button>
 				<hr
 					className={`bg-darkblue dark:bg-darkdarkblue border-0 h-0.5 mt-1 mb-6`}
 				></hr>
@@ -169,14 +177,6 @@ export const SettingsMenu = (
 					socket,
 					authenticatedUserID
 				)}
-				<button
-					className="absolute top-0 right-0"
-					onClick={() => {
-						setSettings(false);
-					}}
-				>
-					<CgCloseO />
-				</button>
 			</div>
 		);
 	}
