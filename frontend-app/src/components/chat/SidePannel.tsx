@@ -21,9 +21,9 @@ export const SidePannel = (
 	socket: Socket,
 	settings: boolean,
 	setSettings: Dispatch<SetStateAction<boolean>>,
+	contextMenu: boolean,
 	setContextMenu: Dispatch<SetStateAction<boolean>>,
 	myChats: ChatRoom[],
-	cookies: any,
 	authenticatedUserID: number,
 	currentPannel: CurrentPannel,
 	setCurrentPannel: Dispatch<SetStateAction<CurrentPannel>>,
@@ -38,7 +38,6 @@ export const SidePannel = (
 				name: newchannel,
 				isPrivate: false,
 			},
-			token: cookies["token"],
 		};
 		socket.emit("add chat", info);
 		setNewchannel("");
@@ -112,7 +111,7 @@ export const SidePannel = (
 							if (windowWidth < 768) {
 								setSidePannel(false);
 							}
-							setSettings(!settings);
+							setSettings(true);
 							setContextMenu(false);
 							setCurrentPannel({
 								type: PannelType.chat,
@@ -137,9 +136,16 @@ export const SidePannel = (
 		}
 		return (
 			<div
+				key={key}
 				onClick={() => {
 					if (windowWidth < 768) {
 						setSidePannel(false);
+					}
+					if (settings) {
+						setSettings(false);
+					}
+					if (contextMenu) {
+						setContextMenu(false);
 					}
 					select(type);
 				}}

@@ -7,15 +7,16 @@ import { ButtonIconType, getButtonIcon } from "../styles/icons";
 import { ReactElement } from "react";
 
 export function canManageUser(
-	targetID: number,
+	target: User,
 	authenticatedUserID: number,
 	channel: ChatRoom
 ) {
-	if (authenticatedUserID === targetID) return false;
+	if (target.isInChatRoom === false) return false;
+	if (authenticatedUserID === target.userID) return false;
 	if (channel.isDM) return false;
 
 	const myStatus: Status = checkStatus(channel, authenticatedUserID);
-	const targetStatus: Status = checkStatus(channel, targetID);
+	const targetStatus: Status = checkStatus(channel, target.userID);
 
 	if (myStatus === Status.Normal) return false;
 	if (targetStatus === Status.Owner) return false;
@@ -26,15 +27,16 @@ export function canManageUser(
 }
 
 export function canToggleOperator(
-	targetID: number,
+	target: User,
 	authenticatedUserID: number,
 	channel: ChatRoom
 ) {
-	if (authenticatedUserID === targetID) return false;
+	if (target.isInChatRoom === false) return false;
+	if (authenticatedUserID === target.userID) return false;
 	if (channel.isDM) return false;
 
 	const myStatus: Status = checkStatus(channel, authenticatedUserID);
-	const targetStatus: Status = checkStatus(channel, targetID);
+	const targetStatus: Status = checkStatus(channel, target.userID);
 
 	if (myStatus !== Status.Owner) return false;
 	if (targetStatus === Status.Owner) return false;
@@ -46,7 +48,6 @@ export const ListParticipants = (
 	channel: ChatRoom,
 	navigate: NavigateFunction,
 	socket: Socket,
-	cookies: any,
 	authenticatedUserID: number
 ) => {
 	function displayUser(participant: User) {
@@ -75,7 +76,6 @@ export const ListParticipants = (
 				className="button"
 				onClick={() => {
 					var info: ReceivedInfo = {
-						token: cookies["token"],
 						chatRoomID: channel.chatRoomID,
 						targetID: participant.userID,
 						participantInfo: {
@@ -110,7 +110,6 @@ export const ListParticipants = (
 						)["value"];
 						muteTime = parseInt(muteTime);
 						var info: ReceivedInfo = {
-							token: cookies["token"],
 							chatRoomID: channel.chatRoomID,
 							targetID: participant.userID,
 							participantInfo: {
@@ -132,7 +131,6 @@ export const ListParticipants = (
 				className="button"
 				onClick={() => {
 					var info: ReceivedInfo = {
-						token: cookies["token"],
 						chatRoomID: channel.chatRoomID,
 						targetID: participant.userID,
 					};
@@ -150,7 +148,6 @@ export const ListParticipants = (
 				className="button"
 				onClick={() => {
 					var info: ReceivedInfo = {
-						token: cookies["token"],
 						chatRoomID: channel.chatRoomID,
 						targetID: participant.userID,
 					};
@@ -169,7 +166,6 @@ export const ListParticipants = (
 					className="button flex"
 					onClick={() => {
 						var info: ReceivedInfo = {
-							token: cookies["token"],
 							chatRoomID: channel.chatRoomID,
 							targetID: participant.userID,
 						};
@@ -192,7 +188,7 @@ export const ListParticipants = (
 					{displayUser(participant)}
 				</div>
 				<div id="buttons" className="flex col-span-4 items-center space-x-2">
-					{canManageUser(participant.userID, authenticatedUserID, channel) ? (
+					{canManageUser(participant, authenticatedUserID, channel) ? (
 						<>
 							{isUserMuted(participant)
 								? unmuteButton(participant)
@@ -203,11 +199,7 @@ export const ListParticipants = (
 					) : (
 						<></>
 					)}
-					{canToggleOperator(
-						participant.userID,
-						authenticatedUserID,
-						channel
-					) ? (
+					{canToggleOperator(participant, authenticatedUserID, channel) ? (
 						operatorButton(participant)
 					) : (
 						<></>
@@ -229,7 +221,6 @@ export const ListParticipants = (
 							className="button"
 							onClick={() => {
 								var info: ReceivedInfo = {
-									token: cookies["token"],
 									chatRoomID: channel.chatRoomID,
 									targetID: participant.userID,
 								};
@@ -261,12 +252,11 @@ export const ListParticipants = (
 			<hr
 				className={`bg-darkblue dark:bg-darkdarkblue border-0 h-0.5 mb-4`}
 			></hr>
-			{channel.banned.map(displayBanned)}
-			<h3 className="font-bold text-xl mb-1 mt-4">Invited users</h3>
-			<hr
-				className={`bg-darkblue dark:bg-darkdarkblue border-0 h-0.5 mb-4`}
-			></hr>
-			{channel.invited.map(displayInvited)}
+			{channel.banned.length > 0 ? (
+				channel.banned.map(displayBanned)
+			) : (
+				<div>No banned users.</div>
+			)}
 		</div>
 	);
 };

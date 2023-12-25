@@ -7,7 +7,6 @@ import {
 	useEffect,
 	useState,
 } from "react";
-import { WebSocketContext } from "../../contexts/WebsocketContext";
 import { AuthenticationContext } from "../authenticationState";
 import { getButtonIcon, ButtonIconType } from "../styles/icons";
 import {
@@ -22,6 +21,7 @@ import { Friend } from "./profile";
 import { GameInfo } from "../play/play";
 import { IoEye } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
+import { useWebSocket } from "../../contexts/WebsocketContext";
 
 type BlockedUser = Friend;
 
@@ -240,7 +240,7 @@ function FriendsList(
 	const [gameInfos, setGameInfos] = useState<GameInfo[]>([]);
 	const [blockedUsers, setBlockedUsers] = useState<BlockedUser[]>();
 	const { authenticatedUserID } = useContext(AuthenticationContext);
-	const socket = useContext(WebSocketContext);
+	const socket = useWebSocket();
 	const navigate = useNavigate();
 
 	const fetchFriends = useCallback(
@@ -338,16 +338,19 @@ function FriendsList(
 		if (user !== undefined) {
 			fetchFriends(user.id, cookies);
 		}
-
-		socket.emit("get games", cookies["token"]);
+		if (socket) {
+			socket.emit("get games", cookies["token"]);
+		}
 	}, [user, cookies, fetchFriends, socket]);
 
 	useEffect(() => {
-		socket.on("get games", (data: GameInfo[]) => {
-			if (data) {
-				setGameInfos(data);
-			}
-		});
+		if (socket) {
+			socket.on("get games", (data: GameInfo[]) => {
+				if (data) {
+					setGameInfos(data);
+				}
+			});
+		}
 	}, [socket]);
 
 	if (user === undefined) {

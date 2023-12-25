@@ -28,7 +28,6 @@ export const SendForm = (
 			return;
 		}
 		var info: ReceivedInfo = {
-			token: cookies["token"],
 			messageInfo: {
 				message: value,
 				sentAt: new Date(),

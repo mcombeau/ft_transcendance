@@ -14,14 +14,12 @@ export const SettingsMenu = (
 	setCurrentPannel: Dispatch<SetStateAction<CurrentPannel>>,
 	socket: Socket,
 	navigate: NavigateFunction,
-	cookies: any,
 	authenticatedUserID: number
 ) => {
 	const [newPassword, setNewPassword] = useState("");
 
 	function removePassword() {
 		var info: ReceivedInfo = {
-			token: cookies["token"],
 			chatRoomID: currentChatRoom.chatRoomID,
 			chatInfo: {
 				password: "",
@@ -33,7 +31,6 @@ export const SettingsMenu = (
 	function submitNewPassword(e: any) {
 		e.preventDefault();
 		var info: ReceivedInfo = {
-			token: cookies["token"],
 			chatRoomID: currentChatRoom.chatRoomID,
 			chatInfo: {
 				password: newPassword,
@@ -57,7 +54,6 @@ export const SettingsMenu = (
 				className="button"
 				onClick={() => {
 					var info: ReceivedInfo = {
-						token: cookies["token"],
 						chatRoomID: currentChatRoom.chatRoomID,
 					};
 					socket.emit("leave chat", info);
@@ -81,7 +77,6 @@ export const SettingsMenu = (
 					onClick={() => {
 						var info: ReceivedInfo = {
 							chatRoomID: currentChatRoom.chatRoomID,
-							token: cookies["token"],
 						};
 						socket.emit("delete chat", info);
 					}}
@@ -124,7 +119,6 @@ export const SettingsMenu = (
 						onChange={() => {
 							var info: ReceivedInfo = {
 								chatRoomID: currentChatRoom.chatRoomID,
-								token: cookies["token"],
 							};
 							socket.emit("toggle private", info);
 						}}
@@ -134,7 +128,7 @@ export const SettingsMenu = (
 			);
 		}
 		return (
-			<div className="relative m-4 text-darkblue dark:text-darkdarkblue">
+			<div className="relative h-[95%] overflow-y-scroll scrollbar-hide m-4  text-darkblue dark:text-darkdarkblue">
 				<h3>
 					<span className="font-bold text-xl">Settings</span> for{" "}
 					{currentChatRoom.isDM
@@ -142,6 +136,14 @@ export const SettingsMenu = (
 						: currentChatRoom.name}{" "}
 					({currentChatRoom.isPrivate ? "private" : "public"})
 				</h3>
+				<button
+					className="absolute top-0 right-0"
+					onClick={() => {
+						setSettings(false);
+					}}
+				>
+					<CgCloseO className="w-6 h-6" />
+				</button>
 				<hr
 					className={`bg-darkblue dark:bg-darkdarkblue border-0 h-0.5 mt-1 mb-6`}
 				></hr>
@@ -173,17 +175,8 @@ export const SettingsMenu = (
 					currentChatRoom,
 					navigate,
 					socket,
-					cookies,
 					authenticatedUserID
 				)}
-				<button
-					className="absolute top-0 right-0"
-					onClick={() => {
-						setSettings(false);
-					}}
-				>
-					<CgCloseO />
-				</button>
 			</div>
 		);
 	}

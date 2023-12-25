@@ -1,13 +1,13 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthenticationContext } from "../authenticationState";
 import { AiOutlineClose, AiOutlineMenu } from "react-icons/ai";
-import { WebSocketContext } from "../../contexts/WebsocketContext";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import { logoutUser } from "../logout/logout";
-import { IoSunnyOutline } from "react-icons/io5";
+import { IoSearchSharp, IoSunnyOutline } from "react-icons/io5";
 import { FaRegMoon } from "react-icons/fa6";
 import { isDarkModeEnabled } from "../../cookies";
+import { useWebSocket } from "../../contexts/WebsocketContext";
 
 function Navbar() {
 	const { authenticatedUserID, setAuthenticatedUserID } = useContext(
@@ -15,32 +15,34 @@ function Navbar() {
 	);
 	const [cookies, setCookie, removeCookie] = useCookies(["token", "darkmode"]);
 	const [nav, setNav] = useState(false);
-	const socket = useContext(WebSocketContext);
+	const socket = useWebSocket();
 	const navigate = useNavigate();
 	const handleNav = () => {
 		setNav(!nav);
 	};
 
 	useEffect(() => {
-		socket.on("logout", () => {
-			logoutUser(
-				socket,
-				cookies,
-				setAuthenticatedUserID,
-				removeCookie,
-				navigate
-			);
-		});
-		return () => {
-			socket.off("logout");
-		};
+		if (socket) {
+			socket.on("logout", () => {
+				logoutUser(
+					socket,
+					cookies,
+					setAuthenticatedUserID,
+					removeCookie,
+					navigate
+				);
+			});
+			return () => {
+				socket.off("logout");
+			};
+		}
 	}, [cookies, navigate, removeCookie, setAuthenticatedUserID, socket]);
 
 	function toggleDarkModeCookie() {
 		if (isDarkModeEnabled(cookies)) {
-			setCookie("darkmode", "false");
+			setCookie("darkmode", "false", { path: "/" });
 		} else {
-			setCookie("darkmode", "true");
+			setCookie("darkmode", "true", { path: "/" });
 		}
 	}
 
@@ -55,6 +57,11 @@ function Navbar() {
 				) : (
 					<FaRegMoon className="w-6 h-6 m-2" />
 				)}
+			</div>
+			<div>
+				<a href="/search">
+					<IoSearchSharp className="w-6 h-6 m-2" />
+				</a>
 			</div>
 
 			<ul className="hidden md:flex font-mono">
@@ -82,9 +89,6 @@ function Navbar() {
 				)}
 				{!authenticatedUserID && (
 					<>
-						<li className="navlink">
-							<a href="/login">Login</a>
-						</li>
 						<form action="/backend/auth/42login">
 							<button className="bg-darkblue font-bold dark:bg-darkdarkblue dark:text-darksage rounded-md m-2 p-2 px-4 whitespace-nowrap">
 								Login with 42
@@ -124,18 +128,18 @@ function Navbar() {
 							<a href={"/user/" + authenticatedUserID}>Profile</a>
 						</li>
 						<li className="navlink-extended">
+							<a href="/search">Search</a>
+						</li>
+						<li className="navlink-extended">
 							<a href="/logout">Logout</a>
 						</li>
 					</>
 				)}
 				{!authenticatedUserID && (
 					<>
-						<li className="navlink-extended">
-							<a href="/login">Login</a>
-						</li>
 						<form
 							action="/backend/auth/42login"
-							className="navlink-extended bg-darkblue dark:bg-darkdarkblue"
+							className="navlink-extended bg-darkblue text-sage dark:bg-darkdarkblue dark:text-darksage font-bold"
 						>
 							<button>Login with 42</button>
 						</form>

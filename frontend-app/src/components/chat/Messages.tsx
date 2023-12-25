@@ -8,11 +8,10 @@ import {
 } from "react";
 import { NavigateFunction } from "react-router-dom";
 import { Socket } from "socket.io-client";
-import { Message, ChatRoom, Invite, PublicChatRoom } from "./types";
-import { ContextMenuEl } from "./ContextMenu";
+import { Message, ChatRoom, Invite, PublicChatRoom, User } from "./types";
 import { ReceivedInfo, typeInvite } from "./types";
 import { separatorLine } from "../styles/separator";
-import { CurrentPannel, PannelType } from "./Chat";
+import { CurrentPannel, PannelType, Position } from "./Chat";
 import { formatDate, getFormattedTime, sameDay } from "../styles/dateFormat";
 import { ButtonIconType, getButtonIcon } from "../styles/icons";
 
@@ -43,6 +42,8 @@ export const Messages = (
 	settings: boolean,
 	contextMenu: boolean,
 	setContextMenu: Dispatch<SetStateAction<boolean>>,
+	setContextMenuPos: Dispatch<SetStateAction<Position>>,
+	setContextMenuTarget: Dispatch<SetStateAction<User>>,
 	socket: Socket,
 	invites: Invite[],
 	publicChats: PublicChatRoom[],
@@ -54,11 +55,6 @@ export const Messages = (
 	currentPannel: CurrentPannel,
 	setCurrentPannel: Dispatch<SetStateAction<CurrentPannel>>
 ) => {
-	const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
-	const [contextMenuTarget, setContextMenuTarget] = useState({
-		id: null,
-		username: null,
-	});
 	const messagesContainer = useRef<HTMLInputElement>(null);
 	const [passwordPrompt, setPasswordPrompt] = useState<boolean>(false);
 	const [newPassword, setNewPassword] = useState<string>("");
@@ -98,29 +94,62 @@ export const Messages = (
 					}`}
 				>
 					<div
-						className={`flex flex-col mx-2 my-1 ${
+						className={`flex flex-col mx-2 my-1 group ${
 							selfSent ? "items-end" : "items-start"
 						}`}
 					>
-						<a
-							className={`text-sm italic text-darkblue dark:text-darkdarkblue hover:text-teal hover:dark:text-darkteal hover:underline ${
-								selfSent ? "hidden" : ""
-							}`}
-							href={`/user/${msg.senderID}`}
-							onContextMenu={(e) => {
-								e.preventDefault();
-								if (currentChatRoom.name !== "" && settings === false) {
-									setContextMenu(true);
-									setContextMenuPos({ x: e.pageX, y: e.pageY });
-									setContextMenuTarget({
-										id: msg.senderID,
-										username: msg.senderUsername,
-									});
-								}
-							}}
-						>
-							{msg.senderUsername}
-						</a>
+						<div className="flex text-sm p-1">
+							<a
+								className={`text-darkblue dark:text-darkdarkblue hover:text-teal hover:dark:text-darkteal 
+								}`}
+								href={`/user/${msg.senderID}`}
+								onContextMenu={(e) => {
+									e.preventDefault();
+									if (currentChatRoom.name !== "" && settings === false) {
+										setContextMenu(true);
+										setContextMenuPos({ x: e.pageX, y: e.pageY });
+										var targetUser: User = currentChatRoom.participants.find(
+											(user: User) => user.userID === msg.senderID
+										);
+										if (!targetUser) {
+											var request = {
+												headers: {
+													"Content-Type": "application/json",
+													Authorization: `Bearer ${cookies["token"]}`,
+												},
+											};
+
+											fetch(`/backend/users/${msg.senderID}`, request).then(
+												async (response) => {
+													const data = await response.json();
+													if (!response.ok) {
+														console.warn("error response fetching user");
+														navigate("/not-found");
+														return;
+													}
+
+													setContextMenuTarget({
+														userID: data.id,
+														username: data.username,
+														isInChatRoom: false,
+													});
+												}
+											);
+										} else {
+											setContextMenuTarget(targetUser);
+										}
+									}
+								}}
+							>
+								{msg.senderID === authenticatedUserID
+									? "me"
+									: msg.senderUsername}
+							</a>
+							<p className="hidden text-darkblue dark:text-darkdarkblue group-hover:block">
+								&nbsp;{"- "}
+								{getFormattedTime(msg.datestamp)}
+							</p>
+						</div>
 						<div
 							key={key}
 							className={`peer rounded-md text-sage dark:text-darkdarkblue max-w-xl flex flex-col p-2 ${
@@ -130,9 +159,6 @@ export const Messages = (
 							}`}
 						>
 							<div className="flex-1 break-words">{msg.msg}</div>
-						</div>
-						<div className="hidden text-xs text-darkblue dark:text-darkdarkblue peer-hover:block">
-							{getFormattedTime(msg.datestamp)}
 						</div>
 					</div>
 				</div>
@@ -145,7 +171,6 @@ export const Messages = (
 		let info: ReceivedInfo;
 		if (isInvite) {
 			info = {
-				token: cookies["token"],
 				inviteInfo: promptedInvite,
 				chatInfo: {
 					password: newPassword,
@@ -155,7 +180,6 @@ export const Messages = (
 		} else {
 			info = {
 				chatRoomID: promptedPublicChatRoom.chatRoomID,
-				token: cookies["token"],
 				chatInfo: {
 					password: newPassword,
 				},
@@ -218,7 +242,6 @@ export const Messages = (
 
 	function acceptInvite(invite: Invite) {
 		var info: ReceivedInfo = {
-			token: cookies["token"],
 			inviteInfo: invite,
 		};
 		if (invite.type === typeInvite.Chat) {
@@ -278,7 +301,7 @@ export const Messages = (
 		);
 	};
 
-	function displayPublicChat(chat: PublicChatRoom) {
+	function displayPublicChat(chat: PublicChatRoom, index: number) {
 		const alreadyInChat: boolean = myChats.some(
 			(myChat: ChatRoom) => myChat.chatRoomID === chat.chatRoomID
 		);
@@ -296,7 +319,6 @@ export const Messages = (
 							chatRoomID: parseInt(
 								(e.target as HTMLInputElement).getAttribute("value")
 							),
-							token: cookies["token"],
 						};
 						socket.emit("join chat", info);
 					}
@@ -309,6 +331,7 @@ export const Messages = (
 			<div
 				className="bg-teal dark:bg-darkteal rounded-md p-1 m-2 text-sage dark:text-darkdarkblue flex justify-between items-center"
 				id="publicchat"
+				key={index}
 			>
 				<span className="pl-3">{chat.name}</span>
 				{joinButton}
@@ -324,7 +347,9 @@ export const Messages = (
 			<div className="w-full">
 				{publicChats
 					.sort((a, b) => a.name.localeCompare(b.name))
-					.map((chat: PublicChatRoom) => displayPublicChat(chat))}
+					.map((chat: PublicChatRoom, index: number) =>
+						displayPublicChat(chat, index)
+					)}
 			</div>
 		);
 	}
@@ -338,27 +363,18 @@ export const Messages = (
 			.map((message: Message, index: number, messages: Message[]) =>
 				messageStatus(message, index, messages)
 			);
-		return <div>{messages}</div>;
+
+		const keyedMessages = messages.map((message, index) => (
+			<div key={`message-${index}`}>{message}</div>
+		));
+
+		return <div key="messages">{keyedMessages}</div>;
 	}
 
 	if (currentPannel.type === PannelType.invite) {
 		return (
 			<div id="messages">
 				{invites.map((invite: Invite) => inviteStatus(invite))}
-				{ContextMenuEl(
-					contextMenu,
-					contextMenuTarget,
-					setContextMenu,
-					contextMenuPos,
-					socket,
-					currentChatRoom,
-					cookies,
-					myChats,
-					authenticatedUserID,
-					blockedUsers,
-					setBlockedUsers,
-					messagesContainer
-				)}
 				{passwordPrompt ? passwordPromptPannel() : <></>}
 			</div>
 		);
@@ -370,20 +386,6 @@ export const Messages = (
 				className={`absolute top-0 left-0 right-0 bottom-14 overflow-y-scroll flex scrollbar-hide`}
 			>
 				{displayPublicChats()}
-				{ContextMenuEl(
-					contextMenu,
-					contextMenuTarget,
-					setContextMenu,
-					contextMenuPos,
-					socket,
-					currentChatRoom,
-					cookies,
-					myChats,
-					authenticatedUserID,
-					blockedUsers,
-					setBlockedUsers,
-					messagesContainer
-				)}
 				{passwordPrompt ? passwordPromptPannel() : <></>}
 			</div>
 		);
@@ -396,20 +398,6 @@ export const Messages = (
 			ref={messagesContainer}
 		>
 			{displayMessages(currentChatRoom)}
-			{ContextMenuEl(
-				contextMenu,
-				contextMenuTarget,
-				setContextMenu,
-				contextMenuPos,
-				socket,
-				currentChatRoom,
-				cookies,
-				myChats,
-				authenticatedUserID,
-				blockedUsers,
-				setBlockedUsers,
-				messagesContainer
-			)}
 		</div>
 	);
 };

@@ -5,10 +5,6 @@ import {
 	useEffect,
 	useState,
 } from "react";
-import {
-	WebSocketContext,
-	WebSocketProvider,
-} from "../../contexts/WebsocketContext";
 import { useCookies } from "react-cookie";
 import { useNavigate, useParams } from "react-router-dom";
 import Messages, { inviteMessage } from "./Messages";
@@ -35,6 +31,8 @@ import {
 	MdOutlineKeyboardDoubleArrowRight,
 } from "react-icons/md";
 import { useWindowSize } from "@uidotdev/usehooks";
+import { useWebSocket } from "../../contexts/WebsocketContext";
+import ContextMenuEl from "./ContextMenu";
 
 export function isInChannel(
 	userID: number,
@@ -141,6 +139,7 @@ export async function fetchChatParticipants(
 		}
 		var participants = participant_data.map((user: any) => {
 			var newUser: User = {
+				isInChatRoom: true,
 				userID: user.userID,
 				username: user.username,
 				isOwner: user.isOwner,
@@ -211,26 +210,42 @@ export enum PannelType {
 	publicChats = "publicChats",
 }
 
+export type Position = { x: number; y: number };
+
 export const Chat = ({ setBanners }) => {
-	const socket = useContext(WebSocketContext);
+	const socket = useWebSocket();
 	const [myChats, setMyChats] = useState<ChatRoom[]>([]);
 	const [publicChats, setPublicChats] = useState<PublicChatRoom[]>([]);
 	const [newchannel, setNewchannel] = useState("");
 	const [settings, setSettings] = useState(false);
 	const [cookies] = useCookies(["token"]);
 	const [contextMenu, setContextMenu] = useState(false);
+	const [contextMenuPos, setContextMenuPos] = useState<Position>({
+		x: 0,
+		y: 0,
+	});
+	const [contextMenuTarget, setContextMenuTarget] = useState<User>(null);
 	const [currentPannel, setCurrentPannel] = useState<CurrentPannel>({
 		type: PannelType.home,
 	});
 	const [blockedUsers, setBlockedUsers] = useState([]);
 	const [invites, setInvites] = useState([]);
-	const [redirected, setRedirected] = useState(false);
+	const [redirected, setRedirected] = useState<boolean>(false);
 	const { authenticatedUserID } = useContext(AuthenticationContext);
-	const [sidePannel, setSidePannel] = useState(true);
+	const [sidePannel, setSidePannel] = useState<boolean>(true);
+	const [notifMessage, setNotifMessage] = useState<ReactElement>(<></>);
+	const [shouldShowBanner, setShouldShowBanner] = useState<boolean>(false);
 	const windowSize = useWindowSize();
 
 	var urlUserID: string = useParams().userID;
 	let navigate = useNavigate();
+
+	useEffect(() => {
+		if (shouldShowBanner) {
+			createBanner(notifMessage, setBanners);
+		}
+		setShouldShowBanner(true);
+	}, [createBanner, notifMessage, setBanners]);
 
 	const toggleSidePannel = () => {
 		if (windowSize.width < 768) {
@@ -267,7 +282,7 @@ export const Chat = ({ setBanners }) => {
 									: {message.msg.slice(0, 20)}...
 								</>
 							);
-							createBanner(notifMessage, setBanners);
+							setNotifMessage(notifMessage);
 						}
 						chat.messages = [...chat.messages, message];
 					}
@@ -295,6 +310,9 @@ export const Chat = ({ setBanners }) => {
 	);
 
 	useEffect(() => {
+		if (!socket) {
+			return;
+		}
 		var request = {
 			headers: {
 				"Content-Type": "application/json",
@@ -388,6 +406,7 @@ export const Chat = ({ setBanners }) => {
 					isBanned: false,
 					mutedUntil: new Date().getTime(),
 					invitedUntil: 0,
+					isInChatRoom: true,
 				};
 				var chatRoom: ChatRoom = {
 					chatRoomID: info.chatRoomID,
@@ -407,6 +426,7 @@ export const Chat = ({ setBanners }) => {
 
 		socket.on("join chat", async (info: ReceivedInfo) => {
 			var user: User = {
+				isInChatRoom: true,
 				userID: info.userID,
 				username: info.username,
 				isOwner: false,
@@ -527,7 +547,6 @@ export const Chat = ({ setBanners }) => {
 							(chat: ChatRoom) => chat.chatRoomID !== info.chatRoomID
 						);
 					});
-					info.token = cookies["token"];
 					socket.emit("leave socket room", info);
 					const message = `You have been banned from ${info.chatInfo.name}`;
 					createBanner(message, setBanners, BannerType.Alert);
@@ -607,6 +626,7 @@ export const Chat = ({ setBanners }) => {
 			);
 			if (info.inviteInfo.type === typeInvite.Chat) {
 				var user: User = {
+					isInChatRoom: true,
 					userID: info.userID,
 					username: info.username,
 					isOwner: false,
@@ -728,7 +748,6 @@ export const Chat = ({ setBanners }) => {
 						return true;
 					});
 				});
-				info.token = cookies["token"];
 				socket.emit("leave socket room", info);
 			}
 		});
@@ -763,6 +782,7 @@ export const Chat = ({ setBanners }) => {
 
 		socket.on("dm", (info: ReceivedInfo) => {
 			var user1: User = {
+				isInChatRoom: true,
 				userID: info.userID,
 				username: info.username,
 				isOwner: false,
@@ -772,6 +792,7 @@ export const Chat = ({ setBanners }) => {
 				invitedUntil: null,
 			};
 			var user2: User = {
+				isInChatRoom: true,
 				userID: info.targetID,
 				username: info.username2,
 				isOwner: false,
@@ -792,7 +813,6 @@ export const Chat = ({ setBanners }) => {
 				isDM: true,
 				hasPassword: false,
 			};
-			info.token = cookies["token"];
 			socket.emit("join socket room", info);
 			setMyChats((prev) => {
 				if (prev.find((chan) => chan.chatRoomID === channel.chatRoomID)) {
@@ -965,7 +985,7 @@ export const Chat = ({ setBanners }) => {
 	}, [authenticatedUserID, navigate]);
 
 	return (
-		<WebSocketProvider value={socket}>
+		<>
 			<div className="absolute flex top-0 bottom-0 left-0 right-0 bg-sage dark:bg-darksage ">
 				<div
 					className={`overflow-y-scroll rounded bg-lightblue dark:bg-darklightblue m-4 border-4 border-lightblue dark:border-darklightblue scrollbar-hide ${
@@ -980,9 +1000,9 @@ export const Chat = ({ setBanners }) => {
 						socket,
 						settings,
 						setSettings,
+						contextMenu,
 						setContextMenu,
 						myChats,
-						cookies,
 						authenticatedUserID,
 						currentPannel,
 						setCurrentPannel,
@@ -1012,7 +1032,6 @@ export const Chat = ({ setBanners }) => {
 						setCurrentPannel,
 						socket,
 						navigate,
-						cookies,
 						authenticatedUserID
 					)}
 					<div className={`${settings ? "hidden" : ""} `}>
@@ -1022,6 +1041,8 @@ export const Chat = ({ setBanners }) => {
 							settings,
 							contextMenu,
 							setContextMenu,
+							setContextMenuPos,
+							setContextMenuTarget,
 							socket,
 							invites,
 							publicChats,
@@ -1042,7 +1063,20 @@ export const Chat = ({ setBanners }) => {
 					</div>
 				</div>
 			</div>
-		</WebSocketProvider>
+			{ContextMenuEl(
+				contextMenu,
+				contextMenuTarget,
+				setContextMenu,
+				contextMenuPos,
+				socket,
+				getChannel(currentPannel.chatRoomID),
+				cookies,
+				myChats,
+				authenticatedUserID,
+				blockedUsers,
+				setBlockedUsers
+			)}
+		</>
 	);
 };
 

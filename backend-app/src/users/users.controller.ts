@@ -42,6 +42,20 @@ import { JwtSelfAuthGuard } from "src/auth/guards/jwt-self-auth.guard";
 export class UsersController {
 	constructor(private userService: UsersService) {}
 
+	@Get("username/:username")
+	@UseGuards(JwtFullAuthGuard)
+	@ApiOkResponse({
+		type: UserEntity,
+		description: "Get user by username.",
+	})
+	async getUserByUsername(
+		@Param("username") username: string
+	): Promise<UserEntity> {
+		const user = await this.userService.fetchUserByUsername(username);
+		if (!user) throw new UserNotFoundException(username);
+		return user;
+	}
+
 	@Get(":id")
 	@UseGuards(JwtFullAuthGuard)
 	@ApiOkResponse({
@@ -191,18 +205,5 @@ export class UsersController {
 	@UseGuards(JwtFullAuthGuard, JwtSelfAuthGuard)
 	async deleteUserAvatarByUserID(@Param("id", ParseIntPipe) id: number) {
 		return this.userService.removeUserAvatarByUserID(id);
-	}
-
-	@Delete(":id")
-	@UseGuards(JwtFullAuthGuard, JwtSelfAuthGuard)
-	@ApiOkResponse({ description: "Record deleted by ID." })
-	@ApiBadRequestResponse({ description: "Bad request" })
-	@ApiUnprocessableEntityResponse({
-		description: "Database error. (Unprocessable entity)",
-	})
-	async deleteUserByID(
-		@Param("id", ParseIntPipe) id: number
-	): Promise<DeleteResult> {
-		return this.userService.deleteUserByID(id);
 	}
 }

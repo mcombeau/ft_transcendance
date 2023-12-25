@@ -1,8 +1,7 @@
-import { Status, ChatRoom, typeInvite } from "./types";
-import { ChangeStatus } from "./Chat";
+import { Status, ChatRoom, typeInvite, User } from "./types";
+import { ChangeStatus, isUserMuted } from "./Chat";
 import {
 	Dispatch,
-	MutableRefObject,
 	ReactElement,
 	SetStateAction,
 	useEffect,
@@ -12,13 +11,43 @@ import {
 import { Socket } from "socket.io-client";
 import { checkStatus } from "./Chat";
 import { ReceivedInfo } from "./types";
-import { blockUser, unblockUser } from "../profile/profile";
+import { blockUser, unblockUser, unfriend } from "../profile/profile";
 import { ButtonIconType, getButtonIcon } from "../styles/icons";
 import { canManageUser, canToggleOperator } from "./ListParticipants";
 
+async function checkIfIsMyFriend(
+	user: User,
+	authenticatedUserID: number,
+	cookies: any,
+	setUserIsMyFriend: any
+) {
+	if (user === undefined) return;
+	var request = {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${cookies["token"]}`,
+		},
+		body: JSON.stringify({
+			userID1: authenticatedUserID,
+			userID2: user.userID,
+		}),
+	};
+	return await fetch(`/backend/friends/isMyFriend`, request).then(
+		async (response) => {
+			const data = await response.json();
+			if (!response.ok) {
+				console.warn("Fetch friends bad request");
+				return;
+			}
+			setUserIsMyFriend(data.areFriends);
+		}
+	);
+}
+
 export const ContextMenuEl = (
 	contextMenu: boolean,
-	target: { id: number; username: string },
+	target: User,
 	setContextMenu: Dispatch<SetStateAction<boolean>>,
 	contextMenuPos: { x: number; y: number },
 	socket: Socket,
@@ -27,12 +56,14 @@ export const ContextMenuEl = (
 	myChats: ChatRoom[],
 	authenticatedUserID: number,
 	blockedUsers: number[],
-	setBlockedUsers: Dispatch<SetStateAction<number[]>>,
-	messagesContainer: MutableRefObject<HTMLInputElement>
+	setBlockedUsers: Dispatch<SetStateAction<number[]>>
 ) => {
-	const menuRef = useRef<HTMLDivElement>(null);
+	const contextMenuRef = useRef(null);
+	const defaultPosOffset: number = -95;
+	const [posOffset, setPosOffset] = useState<number>(defaultPosOffset);
 	const [invitesMenu, setInvitesMenu] = useState(false);
 	const [userIsBlocked, setUserIsBlocked] = useState(false);
+	const [userIsMyFriend, setUserIsMyFriend] = useState(false);
 	const [iCanChallenge, setICanChallenge] = useState<boolean>(false);
 	const iconClass: string = "w-6 h-6 p-1";
 	const buttonClass: string =
@@ -40,17 +71,36 @@ export const ContextMenuEl = (
 	const labelClass: string = "";
 
 	useEffect(() => {
-		setUserIsBlocked(blockedUsers.includes(target.id));
-	}, [blockedUsers, target]);
+		if (target) {
+			setUserIsBlocked(blockedUsers.includes(target.userID));
+			checkIfIsMyFriend(
+				target,
+				authenticatedUserID,
+				cookies,
+				setUserIsMyFriend
+			);
+		}
+	}, [blockedUsers, target, contextMenu]);
 
-	function invite(
-		target: { id: number; username: string },
-		type: typeInvite,
-		chat?: ChatRoom
-	) {
+	useEffect(() => {
+		const contextMenuElement = contextMenuRef.current;
+		if (contextMenuElement) {
+			const contextMenuHeight = contextMenuElement.offsetHeight;
+			const parentHeight = window.innerHeight;
+			const spaceFromBottom =
+				parentHeight - (contextMenuPos.y + contextMenuHeight);
+
+			if (spaceFromBottom < 0) {
+				setPosOffset(spaceFromBottom + defaultPosOffset);
+			} else {
+				setPosOffset(defaultPosOffset);
+			}
+		}
+	}, [contextMenuPos]);
+
+	function invite(target: User, type: typeInvite, chat?: ChatRoom) {
 		var info: ReceivedInfo = {
-			token: cookies["token"],
-			targetID: target.id,
+			targetID: target.userID,
 			inviteInfo: {
 				type: type,
 			},
@@ -80,6 +130,9 @@ export const ContextMenuEl = (
 
 	// Socket receiver for game status
 	useEffect(() => {
+		if (!socket) {
+			return;
+		}
 		socket.on("is in game", (isActive: boolean) => {
 			// cannot challenge the user if I'm in a game
 			setICanChallenge(!isActive);
@@ -91,11 +144,14 @@ export const ContextMenuEl = (
 
 	// Check via socket the game status
 	useEffect(() => {
-		socket.emit("is in game", cookies["token"]);
+		if (!socket) {
+			return;
+		}
+		socket.emit("is in game");
 		setInvitesMenu(false);
-	}, [contextMenu, cookies, socket]);
+	}, [cookies, socket]);
 
-	if (!contextMenu) {
+	if (!contextMenu || !target) {
 		return <div></div>;
 	}
 
@@ -105,9 +161,9 @@ export const ContextMenuEl = (
 				<div
 					className={buttonClass}
 					onClick={() => {
-						if (unblockUser(target.id, authenticatedUserID, cookies)) {
+						if (unblockUser(target.userID, authenticatedUserID, cookies)) {
 							setBlockedUsers((prev) =>
-								prev.filter((userID: number) => userID !== target.id)
+								prev.filter((userID: number) => userID !== target.userID)
 							);
 							setUserIsBlocked(false);
 						}
@@ -123,8 +179,8 @@ export const ContextMenuEl = (
 			<div
 				className={buttonClass}
 				onClick={() => {
-					if (blockUser(target.id, authenticatedUserID, cookies)) {
-						setBlockedUsers([...blockedUsers, target.id]);
+					if (blockUser(target.userID, authenticatedUserID, cookies)) {
+						setBlockedUsers([...blockedUsers, target.userID]);
 						setUserIsBlocked(true);
 					}
 					setContextMenu(false);
@@ -142,9 +198,8 @@ export const ContextMenuEl = (
 				className={buttonClass}
 				onClick={() => {
 					var info: ReceivedInfo = {
-						token: cookies["token"],
 						chatRoomID: channel.chatRoomID,
-						targetID: target.id,
+						targetID: target.userID,
 						participantInfo: {
 							mutedUntil: 1,
 						},
@@ -159,15 +214,36 @@ export const ContextMenuEl = (
 		);
 	}
 
+	function unmuteButton() {
+		return (
+			<div
+				className={buttonClass}
+				onClick={() => {
+					var info: ReceivedInfo = {
+						chatRoomID: channel.chatRoomID,
+						targetID: target.userID,
+						participantInfo: {
+							mutedUntil: 0,
+						},
+					};
+					ChangeStatus(info, "mute", socket);
+					setContextMenu(false);
+				}}
+			>
+				{getButtonIcon(ButtonIconType.unmute, iconClass)}
+				<span className={labelClass}>Unmute</span>
+			</div>
+		);
+	}
+
 	function kickButton() {
 		return (
 			<div
 				className={buttonClass}
 				onClick={() => {
 					var info: ReceivedInfo = {
-						token: cookies["token"],
 						chatRoomID: channel.chatRoomID,
-						targetID: target.id,
+						targetID: target.userID,
 					};
 					ChangeStatus(info, "kick", socket);
 					setContextMenu(false);
@@ -185,9 +261,8 @@ export const ContextMenuEl = (
 				className={buttonClass}
 				onClick={() => {
 					var info: ReceivedInfo = {
-						token: cookies["token"],
 						chatRoomID: channel.chatRoomID,
-						targetID: target.id,
+						targetID: target.userID,
 					};
 					ChangeStatus(info, "ban", socket);
 					setContextMenu(false);
@@ -204,18 +279,17 @@ export const ContextMenuEl = (
 				className={buttonClass}
 				onClick={() => {
 					var info: ReceivedInfo = {
-						token: cookies["token"],
 						chatRoomID: channel.chatRoomID,
-						targetID: target.id,
+						targetID: target.userID,
 					};
 					ChangeStatus(info, "operator", socket);
 					setContextMenu(false);
 				}}
 			>
-				{checkStatus(channel, target.id) === Status.Operator
+				{checkStatus(channel, target.userID) === Status.Operator
 					? getButtonIcon(ButtonIconType.operator, iconClass)
 					: getButtonIcon(ButtonIconType.operator, iconClass)}
-				{checkStatus(channel, target.id) === Status.Operator ? (
+				{checkStatus(channel, target.userID) === Status.Operator ? (
 					<span className={labelClass}>Remove admin</span>
 				) : (
 					<span className={labelClass}>Make admin</span>
@@ -230,9 +304,8 @@ export const ContextMenuEl = (
 				className={buttonClass}
 				onClick={() => {
 					var info: ReceivedInfo = {
-						token: cookies["token"],
 						chatRoomID: channel.chatRoomID,
-						targetID: target.id,
+						targetID: target.userID,
 					};
 					ChangeStatus(info, "dm", socket);
 					setContextMenu(false);
@@ -248,7 +321,8 @@ export const ContextMenuEl = (
 		return (
 			<div
 				className={buttonClass}
-				onClick={() => {
+				onClick={(e) => {
+					e.stopPropagation();
 					setInvitesMenu(true);
 				}}
 			>
@@ -264,10 +338,25 @@ export const ContextMenuEl = (
 				className={buttonClass}
 				onClick={() => {
 					invite(target, typeInvite.Game);
+					setContextMenu(false);
 				}}
 			>
 				{getButtonIcon(ButtonIconType.challenge, iconClass)}
 				<span className={labelClass}>Challenge</span>
+			</div>
+		);
+	}
+	function unfriendButton() {
+		return (
+			<div
+				className={buttonClass}
+				onClick={() => {
+					unfriend(target.userID, authenticatedUserID, cookies);
+					setContextMenu(false);
+				}}
+			>
+				{getButtonIcon(ButtonIconType.unfriend, iconClass)}
+				<span className={labelClass}>Unfriend</span>
 			</div>
 		);
 	}
@@ -276,8 +365,9 @@ export const ContextMenuEl = (
 		return (
 			<div
 				className={buttonClass}
-				onClick={(e) => {
+				onClick={() => {
 					invite(target, typeInvite.Friend);
+					setContextMenu(false);
 				}}
 			>
 				{getButtonIcon(ButtonIconType.friend, iconClass)}
@@ -290,7 +380,7 @@ export const ContextMenuEl = (
 		return (
 			<div
 				className=""
-				onClick={(e) => {
+				onClick={() => {
 					setContextMenu(false);
 					setInvitesMenu(false);
 				}}
@@ -308,24 +398,26 @@ export const ContextMenuEl = (
 		options = (
 			<>
 				<div className="flex justify-between items-center p-1">
-					<span className="text-sm">{target.username}</span>
+					<span className="text-sm dark:text-darkdarkblue">
+						{target.username}
+					</span>
 					{closeMenuButton()}
 				</div>
 				{blockButton()}
 				{inviteToChannelButton()}
 				{iCanChallenge ? challengeButton() : <></>}
-				{friendButton()}
+				{userIsMyFriend ? unfriendButton() : friendButton()}
 				{channel.isDM === false ? dmButton() : <></>}
-				{canManageUser(target.id, authenticatedUserID, channel) ? (
+				{canManageUser(target, authenticatedUserID, channel) ? (
 					<div>
-						{muteButton()}
+						{isUserMuted(target) ? unmuteButton() : muteButton()}
 						{kickButton()}
 						{banButton()}
 					</div>
 				) : (
 					<div></div>
 				)}
-				{canToggleOperator(target.id, authenticatedUserID, channel) ? (
+				{canToggleOperator(target, authenticatedUserID, channel) ? (
 					<div>{operatorButton()}</div>
 				) : (
 					<div></div>
@@ -337,7 +429,9 @@ export const ContextMenuEl = (
 		options = (
 			<>
 				<div className="flex justify-between p-1">
-					<span>{target.username}</span>
+					<span className="text-sm dark:text-darkdarkblue">
+						{target.username}
+					</span>
 					{closeMenuButton()}
 				</div>
 				{myChats.filter((chat) => !chat.isDM).map(displayChatInviteButton)}
@@ -347,23 +441,22 @@ export const ContextMenuEl = (
 
 	return (
 		<div
-			ref={menuRef}
-			className={`bg-teal dark:bg-darkteal rounded-md text-sage dark:text-darksage absolute p-0 overflow-y-scroll z-40 scrollbar-hide font-light text-xs`}
-			style={{
-				top: `${
-					contextMenuPos.y - messagesContainer.current.getBoundingClientRect().y
-				}px`,
-				left: `${
-					contextMenuPos.x - messagesContainer.current.getBoundingClientRect().x
-				}px`,
-				maxHeight: `${
-					messagesContainer.current.getBoundingClientRect().height -
-					(contextMenuPos.y -
-						messagesContainer.current.getBoundingClientRect().y)
-				}px`,
+			className="absolute w-full h-full top-0 left-0 z-100 overflow-y-scroll scrollbar-hide"
+			onClick={() => {
+				setContextMenu(false);
+				setInvitesMenu(false);
 			}}
 		>
-			{options}
+			<div
+				ref={contextMenuRef}
+				className={`absolute p-0 bg-teal z-150 dark:bg-darkteal rounded-md text-sage dark:text-darksage font-light text-xs`}
+				style={{
+					top: `${contextMenuPos.y + posOffset}px`,
+					left: `${contextMenuPos.x}px`,
+				}}
+			>
+				{options}
+			</div>
 		</div>
 	);
 };
