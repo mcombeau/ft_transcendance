@@ -259,6 +259,8 @@ export class GameLogicService {
 			((ball.bottom > skate1.top && ball.top < skate1.bottom) ||
 				(ball.top < skate1.bottom && ball.bottom > skate1.top))
 		) {
+			if (ball.left < skate1.right)
+				ball.left = skate1.right
 			// this.logger.debug("[BALL INSIDE SKATE 1]");
 		} else if (
 			ball.right > skate2.left &&
@@ -266,11 +268,13 @@ export class GameLogicService {
 				(ball.top < skate2.bottom && ball.bottom > skate2.top))
 		) {
 			// this.logger.debug("[BALL INSIDE SKATE 2]");
+			if (ball.left > skate1.right)
+				ball.left = skate1.right
 		}
 	}
 
 	private checkBallSkateCollision(gameState: State) {
-		// this.isBallInsideSkate(gameState);
+		this.isBallInsideSkate(gameState);
 		this.checkSkate1Collision(gameState);
 		this.checkSkate2Collision(gameState);
 	}
