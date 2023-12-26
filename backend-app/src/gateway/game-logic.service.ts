@@ -6,7 +6,7 @@ import {
 } from "./game.gateway.service";
 
 export const WINNING_SCORE = 10;
-export const GAME_SPEED = 6;
+export const GAME_SPEED = 4;
 
 const TERRAIN_HEIGHT = 400;
 const TERRAIN_WIDTH = 700;
@@ -162,7 +162,15 @@ export class GameLogicService {
 			right: gameState.skate1.x + SKATE_WIDTH,
 		};
 
-		// Collision left of skate 1
+		if (
+			ball.left <= skate.right &&
+			!(ball.bottom <= skate.top) &&
+			!(ball.top >= skate.bottom)
+		) {
+			// this.logger.debug("[1 LEFT]");
+			this.reboundBall(gameState, { x: -SPEED_INCREASE, y: 1 });
+		}
+		 // Collision left of skate 1
 		if (
 			ball.bottom >= skate.top &&
 			ball.top <= skate.top &&
@@ -180,14 +188,6 @@ export class GameLogicService {
 			////Collision bottom of skate 1
 			// this.logger.debug("[1 BOTTOM]");
 			this.reboundBall(gameState, { x: 1, y: -SPEED_INCREASE });
-		}
-		if (
-			ball.left <= skate.right &&
-			!(ball.bottom <= skate.top) &&
-			!(ball.top >= skate.bottom)
-		) {
-			// this.logger.debug("[1 LEFT]");
-			this.reboundBall(gameState, { x: -SPEED_INCREASE, y: 1 });
 		}
 	}
 
@@ -259,6 +259,8 @@ export class GameLogicService {
 			((ball.bottom > skate1.top && ball.top < skate1.bottom) ||
 				(ball.top < skate1.bottom && ball.bottom > skate1.top))
 		) {
+			if (ball.left < skate1.right)
+				ball.left = skate1.right
 			// this.logger.debug("[BALL INSIDE SKATE 1]");
 		} else if (
 			ball.right > skate2.left &&
@@ -266,6 +268,8 @@ export class GameLogicService {
 				(ball.top < skate2.bottom && ball.bottom > skate2.top))
 		) {
 			// this.logger.debug("[BALL INSIDE SKATE 2]");
+			if (ball.left > skate1.right)
+				ball.left = skate1.right
 		}
 	}
 

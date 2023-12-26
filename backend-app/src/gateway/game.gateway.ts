@@ -284,6 +284,21 @@ export class GameGateway implements OnModuleInit {
 	async onEnterLobby(@ConnectedSocket() socket: Socket) {
 		try {
 			const tokenUserID = await this.socketGateway.checkIdentity(socket);
+			const currentGameRoom: GameRoom = await this.reconnect(
+				socket,
+				tokenUserID
+			);
+
+			if (currentGameRoom)
+				{
+					let data: Outcome = {
+						success: Boolean(currentGameRoom),
+						gameInfo: this.gameGatewayService.gameToGameInfo(currentGameRoom),
+					};
+
+					socket.emit("reconnect", data);
+					return;
+				}
 			await this.gameGatewayService.enterLobby(tokenUserID, socket);
 		} catch (e) {
 			this.logger.warn(`[Enter Lobby]: ${e.message}`);
