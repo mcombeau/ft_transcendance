@@ -296,6 +296,7 @@ export const Play = ({ setBanners }) => {
 
 	function enterLobby() {
 		setPage(Page.Lobby);
+		socket.emit("reconnect");
 		socket.emit("enter lobby");
 	}
 
