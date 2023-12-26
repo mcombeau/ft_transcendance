@@ -162,16 +162,24 @@ export class GameLogicService {
 			right: gameState.skate1.x + SKATE_WIDTH,
 		};
 
-		// Collision left of skate 1
 		if (
-			ball.bottom >= skate.top &&
-			ball.top <= skate.top &&
-			ball.left <= skate.right
+			ball.left <= skate.right &&
+			!(ball.bottom <= skate.top) &&
+			!(ball.top >= skate.bottom)
 		) {
-			//Collision top of skate 1
-			// this.logger.debug("[1 TOP]");
-			this.reboundBall(gameState, { x: 1, y: -SPEED_INCREASE });
+			// this.logger.debug("[1 LEFT]");
+			this.reboundBall(gameState, { x: -SPEED_INCREASE, y: 1 });
 		}
+		// Collision left of skate 1
+		//if (
+		//	ball.bottom >= skate.top &&
+		//	ball.top <= skate.top &&
+		//	ball.left <= skate.right
+		//) {
+		//	//Collision top of skate 1
+		//	// this.logger.debug("[1 TOP]");
+		//	this.reboundBall(gameState, { x: 1, y: -SPEED_INCREASE });
+		//}
 		//if (
 		//	ball.top <= skate.bottom &&
 		//	ball.bottom >= skate.bottom &&
@@ -180,14 +188,6 @@ export class GameLogicService {
 		//	////Collision bottom of skate 1
 		//	// this.logger.debug("[1 BOTTOM]");
 		//	this.reboundBall(gameState, { x: 1, y: -SPEED_INCREASE });
-		//}
-		//if (
-		//	ball.left <= skate.right &&
-		//	!(ball.bottom <= skate.top) &&
-		//	!(ball.top >= skate.bottom)
-		//) {
-		//	// this.logger.debug("[1 LEFT]");
-		//	this.reboundBall(gameState, { x: -SPEED_INCREASE, y: 1 });
 		//}
 	}
 
