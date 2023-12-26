@@ -6,7 +6,7 @@ import {
 } from "./game.gateway.service";
 
 export const WINNING_SCORE = 10;
-export const GAME_SPEED = 6;
+export const GAME_SPEED = 3;
 
 const TERRAIN_HEIGHT = 400;
 const TERRAIN_WIDTH = 700;
