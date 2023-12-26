@@ -105,7 +105,7 @@ export class GameLogicService {
 	private checkBallGoalCollision(gameState: State) {
 		//checking if the ball touches the left and right borders of the terrain
 		if (
-			gameState.ballPos.x + BALL_RADIUS + gameState.ballDir.x <=
+			gameState.ballPos.x  + gameState.ballDir.x <=
 			gameState.skate1.x + SKATE_WIDTH
 		) {
 			gameState.score = [gameState.score[0], gameState.score[1] + 1];
@@ -114,7 +114,7 @@ export class GameLogicService {
 			// this.logger.debug("[LEFT GOAL]");
 		}
 		if (
-			gameState.ballPos.x - BALL_RADIUS + gameState.ballDir.x >=
+			gameState.ballPos.x  + gameState.ballDir.x >=
 			gameState.skate2.x - SKATE_WIDTH
 		) {
 			gameState.score = [gameState.score[0] + 1, gameState.score[1]];
