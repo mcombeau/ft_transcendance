@@ -518,7 +518,7 @@ export const Play = ({ setBanners }) => {
 		if (socket) {
 			socket.emit("get games");
 			socket.emit("reconnect");
-			console.log("Reconnect", data);
+			console.log("Reconnect jdsjk");
 		}
 	}, [socket, cookies]);
 
