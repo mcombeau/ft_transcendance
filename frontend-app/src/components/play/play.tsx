@@ -368,6 +368,7 @@ export const Play = ({ setBanners }) => {
 	useEffect(() => {
 		if (socket) {
 			socket.on("reconnect", (data: Response) => {
+				console.log("Reconnect", data);
 				if (data.success) {
 					setPage(Page.Play);
 					setPlayers(data.gameInfo);
@@ -516,6 +517,7 @@ export const Play = ({ setBanners }) => {
 		if (socket) {
 			socket.emit("get games");
 			socket.emit("reconnect");
+			console.log("Reconnect", data);
 		}
 	}, [socket, cookies]);
 
