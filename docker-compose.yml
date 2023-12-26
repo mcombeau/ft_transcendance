@@ -10,9 +10,7 @@ services:
         networks:
             - ft_transcendance
         ports:
-            - "80:80"
-            - "443:443"
-        # volumes:
+            - "8080:80"
         depends_on:
             - frontend
             - backend
@@ -57,7 +55,7 @@ services:
         ports:
             - "5432:5432"
         volumes:
-            - database:/var/lib/postgresql/data
+            - database:/foo/nocopy
         restart:        on-failure
 
 networks:

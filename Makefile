@@ -25,13 +25,12 @@ logs:
 	docker-compose logs
 
 setup:
-	./configure-host.sh
 	mkdir -p ${DATA_PATH}
 	mkdir -p ${DATA_PATH}/database
 
 clean: down
 	rm -f ./backend-app/user_data/*
-	sudo rm -rf ${DATA_PATH}
+	rm -rf ${DATA_PATH}
 
 db: clean delete_db all blog
 
