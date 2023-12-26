@@ -105,7 +105,7 @@ export class GameLogicService {
 	private checkBallGoalCollision(gameState: State) {
 		//checking if the ball touches the left and right borders of the terrain
 		if (
-			gameState.ballPos.x + BALL_RADIUS + gameState.ballDir.x <=
+			gameState.ballPos.x + gameState.ballDir.x <=
 			gameState.skate1.x + SKATE_WIDTH
 		) {
 			gameState.score = [gameState.score[0], gameState.score[1] + 1];
@@ -114,7 +114,7 @@ export class GameLogicService {
 			// this.logger.debug("[LEFT GOAL]");
 		}
 		if (
-			gameState.ballPos.x - BALL_RADIUS + gameState.ballDir.x >=
+			gameState.ballPos.x + gameState.ballDir.x >=
 			gameState.skate2.x - SKATE_WIDTH
 		) {
 			gameState.score = [gameState.score[0] + 1, gameState.score[1]];
@@ -172,23 +172,23 @@ export class GameLogicService {
 			// this.logger.debug("[1 TOP]");
 			this.reboundBall(gameState, { x: 1, y: -SPEED_INCREASE });
 		}
-		if (
-			ball.top <= skate.bottom &&
-			ball.bottom >= skate.bottom &&
-			ball.left <= skate.right
-		) {
-			////Collision bottom of skate 1
-			// this.logger.debug("[1 BOTTOM]");
-			this.reboundBall(gameState, { x: 1, y: -SPEED_INCREASE });
-		}
-		if (
-			ball.left <= skate.right &&
-			!(ball.bottom <= skate.top) &&
-			!(ball.top >= skate.bottom)
-		) {
-			// this.logger.debug("[1 LEFT]");
-			this.reboundBall(gameState, { x: -SPEED_INCREASE, y: 1 });
-		}
+		//if (
+		//	ball.top <= skate.bottom &&
+		//	ball.bottom >= skate.bottom &&
+		//	ball.left <= skate.right
+		//) {
+		//	////Collision bottom of skate 1
+		//	// this.logger.debug("[1 BOTTOM]");
+		//	this.reboundBall(gameState, { x: 1, y: -SPEED_INCREASE });
+		//}
+		//if (
+		//	ball.left <= skate.right &&
+		//	!(ball.bottom <= skate.top) &&
+		//	!(ball.top >= skate.bottom)
+		//) {
+		//	// this.logger.debug("[1 LEFT]");
+		//	this.reboundBall(gameState, { x: -SPEED_INCREASE, y: 1 });
+		//}
 	}
 
 	private checkSkate2Collision(gameState: State) {
@@ -214,24 +214,24 @@ export class GameLogicService {
 			// this.logger.debug("[2 RIGHT]");
 			this.reboundBall(gameState, { x: -SPEED_INCREASE, y: 1 });
 		}
-		if (
-			ball.bottom >= skate.top &&
-			ball.top <= skate.top &&
-			ball.right >= skate.left
-		) {
-			//Collision top of skate 2
-			// this.logger.debug("[2 TOP]");
-			this.reboundBall(gameState, { x: 1, y: -SPEED_INCREASE });
-		}
-		if (
-			ball.top <= skate.bottom &&
-			ball.bottom >= skate.bottom &&
-			ball.right >= skate.left
-		) {
-			////Collision bottom of skate 2
-			// this.logger.debug("[2 BOTTOM]");
-			this.reboundBall(gameState, { x: 1, y: -SPEED_INCREASE });
-		}
+		//if (
+		//	ball.bottom >= skate.top &&
+		//	ball.top <= skate.top &&
+		//	ball.right >= skate.left
+		//) {
+		//	//Collision top of skate 2
+		//	// this.logger.debug("[2 TOP]");
+		//	this.reboundBall(gameState, { x: 1, y: -SPEED_INCREASE });
+		//}
+		//if (
+		//	ball.top <= skate.bottom &&
+		//	ball.bottom >= skate.bottom &&
+		//	ball.right >= skate.left
+		//) {
+		//	////Collision bottom of skate 2
+		//	// this.logger.debug("[2 BOTTOM]");
+		//	this.reboundBall(gameState, { x: 1, y: -SPEED_INCREASE });
+		//}
 	}
 
 	private isBallInsideSkate(gameState: State) {
@@ -274,7 +274,7 @@ export class GameLogicService {
 	}
 
 	private checkBallSkateCollision(gameState: State) {
-		this.isBallInsideSkate(gameState);
+		// this.isBallInsideSkate(gameState);
 		this.checkSkate1Collision(gameState);
 		this.checkSkate2Collision(gameState);
 	}
