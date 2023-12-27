@@ -8,14 +8,15 @@ from pathlib import Path
 
 Res = requests.Response
 Any = typing.Any
-dotenv_path: Path = Path('.env')
+dotenv_path: Path = Path(".env")
 load_dotenv(dotenv_path=dotenv_path)
-DOMAIN = os.environ['FT_TRANSCENDANCE_DOMAIN']
-PORT = 1080
+DOMAIN = os.environ["FT_TRANSCENDANCE_DOMAIN"]
+PORT = 8080
 
 USER_AGENT = "user_agent"
 URL_USER_CREATION = f"{DOMAIN}:{PORT}/backend/users"
 URL_USER_LOGIN = f"{DOMAIN}:{PORT}/backend/auth/login"
+
 
 # ---------------------------
 # Prettify
@@ -62,7 +63,7 @@ def wait_for_database(url: str) -> None:
             continue
 
 
-def get_from_url(url: str, token: str = '', verbose: bool = False) -> Res:
+def get_from_url(url: str, token: str = "", verbose: bool = False) -> Res:
     header: dict[str, str] = {"User-Agent": USER_AGENT}
     if token != "":
         header["Authorization"] = "Bearer " + token
@@ -174,59 +175,62 @@ def create_games(users: dict[str, dict[str, str]]) -> None:
 # ---------------------------
 # Friend Relations Creation
 # ---------------------------
-def create_friendship(users: dict[str, dict[str, str]],
-                user1: str,
-                user2: str) -> None:
+def create_friendship(users: dict[str, dict[str, str]], user1: str, user2: str) -> None:
     body: dict[str, Any] = {
-        "userID1": users[user1]['id'],
-        "userID2": users[user2]['id']
+        "userID1": users[user1]["id"],
+        "userID2": users[user2]["id"],
     }
-    print(f'Creating friendship {body}')
-    post_to_url(f'{DOMAIN}:{PORT}/backend/friends', body, users[user1]['token'])
+    print(f"Creating friendship {body}")
+    post_to_url(f"{DOMAIN}:{PORT}/backend/friends", body, users[user1]["token"])
+
 
 def create_friends(users: dict[str, dict[str, str]]) -> None:
-    print_header('Creating friend relations')
-    create_friendship(users, 'alice', 'bob')
-    create_friendship(users, 'chloe', 'bob')
-    create_friendship(users, 'dante', 'chloe')
+    print_header("Creating friend relations")
+    create_friendship(users, "alice", "bob")
+    create_friendship(users, "chloe", "bob")
+    create_friendship(users, "dante", "chloe")
+
 
 # ---------------------------
 # Chat Room Creation
 # ---------------------------
-def create_chat_room(users: dict[str, dict[str, str]],
-                     chat_rooms: dict[str, str],
-                chat_room_name: str,
-                owner: str) -> None:
+def create_chat_room(
+    users: dict[str, dict[str, str]],
+    chat_rooms: dict[str, str],
+    chat_room_name: str,
+    owner: str,
+) -> None:
     try:
-        body: dict[str, Any] = {
-            "name": chat_room_name,
-            "ownerID": users[owner]['id']
-        }
-        print(f'Creating chat room {body}')
-        r: Res = post_to_url(f'{DOMAIN}:{PORT}/backend/chats', body, users[owner]['token'])
-        chat_rooms[chat_room_name] = r.json()['id']
+        body: dict[str, Any] = {"name": chat_room_name, "ownerID": users[owner]["id"]}
+        print(f"Creating chat room {body}")
+        r: Res = post_to_url(
+            f"{DOMAIN}:{PORT}/backend/chats", body, users[owner]["token"]
+        )
+        chat_rooms[chat_room_name] = r.json()["id"]
     except Exception:
-        r: Res = get_from_url(f'{DOMAIN}:{PORT}/backend/chats', users[owner]['token'])
+        r: Res = get_from_url(f"{DOMAIN}:{PORT}/backend/chats", users[owner]["token"])
         for chat in r.json():
             if chat["name"] == chat_room_name:
                 print(
                     f"{color.INFO}+ User '{chat_room_name}' already exists in database{color.RESET}"
                 )
-                chat_rooms[chat_room_name] = chat['id']
+                chat_rooms[chat_room_name] = chat["id"]
         return
 
-def create_dm_room(users: dict[str, dict[str, str]],
-                chat_rooms: dict[str, str],
-                user1: str,
-                user2: str) -> None:
+
+def create_dm_room(
+    users: dict[str, dict[str, str]], chat_rooms: dict[str, str], user1: str, user2: str
+) -> None:
     try:
         body: dict[str, Any] = {
-            "userID1": users[user1]['id'],
-            "userID2": users[user2]['id']
+            "userID1": users[user1]["id"],
+            "userID2": users[user2]["id"],
         }
-        print(f'Creating DM {body}')
-        r: Res = post_to_url(f'{DOMAIN}:{PORT}/backend/chats/dm', body, users[user1]['token'])
-        chat_rooms[r.json()['name']] = r.json()['id']
+        print(f"Creating DM {body}")
+        r: Res = post_to_url(
+            f"{DOMAIN}:{PORT}/backend/chats/dm", body, users[user1]["token"]
+        )
+        chat_rooms[r.json()["name"]] = r.json()["id"]
     except Exception:
         # r: Res = get_from_url(f'{DOMAIN}/backend/chats', users[user1]['token'])
         # for chat in r.json():
@@ -237,39 +241,45 @@ def create_dm_room(users: dict[str, dict[str, str]],
         #         return chat["id"]
         return
 
+
 def create_chats(users: dict[str, dict[str, str]]) -> None:
-    print_header('Creating chat rooms')
+    print_header("Creating chat rooms")
     chat_rooms: dict[str, str] = {}
-    create_chat_room(users, chat_rooms, 'Coucou', 'alice')
-    create_chat_room(users, chat_rooms, 'YOLO', 'bob')
-    create_chat_room(users, chat_rooms, 'ClapTrap', 'alice')
-    create_chat_room(users, chat_rooms, 'HelloWorld', 'dante')
-    print(f'Chat rooms {chat_rooms}')
-    create_dm_room(users, chat_rooms, 'alice', 'dante')
-    create_dm_room(users, chat_rooms, 'bob', 'chloe')
-    print(f'Chat rooms {chat_rooms}')
+    create_chat_room(users, chat_rooms, "Coucou", "alice")
+    create_chat_room(users, chat_rooms, "YOLO", "bob")
+    create_chat_room(users, chat_rooms, "ClapTrap", "alice")
+    create_chat_room(users, chat_rooms, "HelloWorld", "dante")
+    print(f"Chat rooms {chat_rooms}")
+    create_dm_room(users, chat_rooms, "alice", "dante")
+    create_dm_room(users, chat_rooms, "bob", "chloe")
+    print(f"Chat rooms {chat_rooms}")
+
 
 # ---------------------------
 # Logout Users Creation
 # ---------------------------
 def logout_user(users: dict[str, dict[str, str]], username: str) -> None:
     try:
-        print(f'Logging out user {username}')
-        post_to_url(f'{DOMAIN}:{PORT}/backend/auth/logout', {}, users[username]['token'])
+        print(f"Logging out user {username}")
+        post_to_url(
+            f"{DOMAIN}:{PORT}/backend/auth/logout", {}, users[username]["token"]
+        )
     except Exception:
         return
 
+
 def logout_users(users: dict[str, dict[str, str]]) -> None:
-    print_header('Logout users')
+    print_header("Logout users")
     for user in users:
         logout_user(users, user)
+
 
 # ---------------------------
 # Main
 # ---------------------------
 def populate_database() -> None:
     try:
-        wait_for_database(f"{DOMAIN}:{PORT}/backend")
+        # wait_for_database(f"{DOMAIN}:{PORT}/backend")
         userInfo: dict[str, dict[str, str]] = create_users()
         print()
         print_users(userInfo)
