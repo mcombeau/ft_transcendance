@@ -35,13 +35,26 @@ Then run the build command (requires `sudo` permissions):
 make
 ```
 
-Once the front and backend have both compiled, you can view the website at: `https://localhost` or the custom domain specified in the `.env` file.
+Once the front and backend have both compiled, you can view the website at: `https://localhost:8080`.
 
 Other useful commands after the build is complete:
 
 - `make pop`: run a python script to populate the database with users, match history and chat rooms.
 - `make blog`: view the backend logs
 - `make flog`: view the frontend logs
+
+### Removing Ft_transcendance
+
+To shutdown the ft_transcendance server:
+
+```
+make down
+```
+
+To clear the database and docker containers and images:
+```
+make fclean
+```
 
 ## Features
 
