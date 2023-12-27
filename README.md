@@ -1,7 +1,7 @@
 # ft_transcendance
 
 <p align="center">
-  <img src="https://github.com/Ellana42/ft_transcendance/blob/main/frontend-app/public/ft_transcendencee.png" alt="ft_transcendance 42 project badge"/>
+  <img src="frontend-app/public/ft_transcendencee.png" alt="ft_transcendance 42 project badge"/>
 </p>
 
 Ft_transcendance is a 42 school team project where we must build a website where users can create accounts via the 42 API, play a real-time multiplayer game of Pong, and chat in public and private chat rooms.
@@ -97,6 +97,38 @@ The live chat features:
   - ban participants,
   - mute other users for a limited time
 - a context menu enabling users to challenge others to a game of pong, invite them to a chat room, add them as friends, etc.
+
+## Screenshots
+
+### Home Page
+
+Light and dark modes available
+<p align="center">
+  <img src="screenshots/transcendance-home-darklight.png" alt="ft_transcendance home page with light and dark modes"/>
+</p>
+
+### Profile Page
+
+<p align="center">
+  <img src="screenshots/transcendance-profile.png" alt="ft_transcendance profile page"/>
+  <img src="screenshots/transcendance-profile-settings.png" alt="ft_transcendance profile settings page"/>
+</p>
+
+### Pong Game Page
+
+<p align="center">
+  <img src="screenshots/transcendance-game-teal.png" alt="ft_transcendance game page with teal coloring"/>
+  <img src="screenshots/transcendance-game-darkblue.png" alt="ft_transcendance game page with teal coloring"/>
+  <img src="screenshots/transcendance-leaderboard.png" alt="ft_transcendance leaderboard page"/>
+</p>
+
+### Chat Rooms
+
+<p align="center">
+  <img src="screenshots/transcendance-chat.png" alt="ft_transcendance chat room page"/>
+  <img src="screenshots/transcendance-chat-settings.png" alt="ft_transcendance chat room page with settings"/>
+  <img src="screenshots/transcendance-chat-contextmenu.png" alt="ft_transcendance chat room page with context menu"/>
+</p>
 
 ---
 
