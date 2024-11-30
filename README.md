@@ -6,6 +6,8 @@
 
 Ft_transcendance is a 42 school team project where we must build a website where users can create accounts via the 42 API, play a real-time multiplayer game of Pong, and chat in public and private chat rooms.
 
+> This project has been archived in the state it was in at the time of evaluation.
+
 This project is made with:
 
 - [docker & docker-compose](https://www.docker.com/)
